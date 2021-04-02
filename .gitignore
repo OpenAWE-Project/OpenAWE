@@ -1,0 +1,15 @@
+# CLion Files
+.idea
+cmake-build-*
+
+# Engine files
+*.bin
+*.obj
+*.atm
+*.binmsh
+*.binfbx
+*.binfol
+*.bincloth
+*.bingrs
+*.binhvk
+*.binhkt
