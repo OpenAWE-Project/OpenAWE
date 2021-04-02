@@ -66,7 +66,7 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 		load(hdCell.getResource("cid_staticobject.bin")/*, dphd*/);
 
 		load(ldCell.getResource("cid_staticobject.bin"));
-		loadTerrainData(ldCell.getResource("cid_terraindata.bin"));
+		//loadTerrainData(ldCell.getResource("cid_terraindata.bin"));
 	}
 }
 
