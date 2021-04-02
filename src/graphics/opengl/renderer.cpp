@@ -344,8 +344,7 @@ void Renderer::drawWorld() {
 				glUniform1f(program->getUniformLocation("g_sAmbientLight.intensity"), _ambiance.getAmbientLightIntensity());
 			}*/
 
-			program->setUniformMatrix4f("g_mLocalToView", vp);
-			program->setUniformMatrix4f("g_mViewToClip", m);
+			program->setUniformMatrix4f("g_mLocalToView", mvp);
 			assert(glGetError() == GL_NO_ERROR);
 
 			GLenum type;
