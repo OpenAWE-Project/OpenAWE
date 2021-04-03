@@ -21,15 +21,6 @@
 #include <iostream>
 #include <spdlog/spdlog.h>
 
-#include "src/common/readfile.h"
-
-#include "src/sound/soundman.h"
-
-#include "src/awe/resman.h"
-#include "src/awe/havokfile.h"
-#include "src/awe/worldfile.h"
-#include "src/awe/dpfile.h"
-#include "src/world.h"
 #include "src/game.h"
 
 int main(int argc, char** argv) {
