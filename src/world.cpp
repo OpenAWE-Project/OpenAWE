@@ -53,6 +53,10 @@ World::World(entt::registry &registry, const std::string &name, Global &global) 
 	assert(_world->getWorldName() == _name);
 }
 
+const std::string &World::getName() const {
+	return _name;
+}
+
 void World::loadGlobal() {
 	spdlog::info("Loading global data from {}", _name);
 	std::string globalFolder = fmt::format("worlds/{}/episodes/global", _name);

@@ -37,6 +37,8 @@ class World : public ObjectCollection {
 public:
 	World(entt::registry &registry, const std::string &name, Global &global);
 
+	const std::string &getName() const;
+
 	void loadGlobal();
 	void loadEpisode(const std::string &id);
 
