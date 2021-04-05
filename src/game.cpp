@@ -27,6 +27,7 @@
 #include "src/graphics/text.h"
 
 #include "src/common/threadpool.h"
+#include "src/common/strutil.h"
 
 #include "src/physics/physicsman.h"
 
@@ -159,31 +160,7 @@ void Game::init() {
 
 	_global = std::make_unique<Global>(_registry);
 
-	_world = std::make_unique<World>(_registry, "gameworld", *_global);
-	_world->loadGlobal();
-	_world->loadEpisode("scene1_reststop");
-
-	auto bytecodeView = _registry.view<AWE::Script::BytecodePtr>();
-	for (const auto &item : bytecodeView) {
-		auto gid = _registry.get<GID>(item);
-		auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
-		spdlog::debug("Firing OnInit on {} {:x}", gid.type, gid.id);
-		bytecode->run(*_context, "OnInit", item);
-	}
-
-	auto taskView = _registry.view<Task, AWE::Script::BytecodePtr>();
-	for (const auto &item : taskView) {
-		auto gid = _registry.get<GID>(item);
-		auto task = _registry.get<Task>(item);
-		auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
-
-		if (!task.isActiveOnStartup())
-			continue;
-
-		spdlog::debug("Firing OnTaskActivate on {} {:x}", gid.type, gid.id);
-		bytecode->run(*_context, "OnTaskActivate", item);
-	}
-
+	loadEpisode("gameworld:scene1_reststop");
 }
 
 void Game::start() {
@@ -257,4 +234,42 @@ void Game::start() {
 	_engine->getConfiguration().write();
 
 	_platform.terminate();
+}
+
+void Game::loadEpisode(const std::string &data) {
+	std::vector parameters = Common::split(data, std::regex(" "));
+	std::vector episode = Common::split(parameters.back(), std::regex(":"));
+
+	std::string worldName = episode[0];
+	std::string episodeName = episode[1];
+
+	if (!_world || _world->getName() != worldName) {
+		_world = std::make_unique<World>(_registry, worldName);
+		_world->loadGlobal();
+	}
+
+	_world->loadEpisode(episodeName);
+
+	// Call OnInit on every object
+	auto bytecodeView = _registry.view<AWE::Script::BytecodePtr>();
+	for (const auto &item : bytecodeView) {
+		auto gid = _registry.get<GID>(item);
+		auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
+		spdlog::debug("Firing OnInit on {} {:x}", gid.type, gid.id);
+		bytecode->run(*_context, "OnInit", item);
+	}
+
+	// Activate starter tasks
+	auto taskView = _registry.view<Task, AWE::Script::BytecodePtr>();
+	for (const auto &item : taskView) {
+		auto gid = _registry.get<GID>(item);
+		auto task = _registry.get<Task>(item);
+		auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
+
+		if (!task.isActiveOnStartup())
+			continue;
+
+		spdlog::debug("Firing OnTaskActivate on {} {:x}", gid.type, gid.id);
+		bytecode->run(*_context, "OnTaskActivate", item);
+	}
 }

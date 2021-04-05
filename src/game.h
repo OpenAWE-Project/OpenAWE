@@ -45,6 +45,8 @@ public:
 	void init();
 	void start();
 
+	void loadEpisode(const std::string &data);
+
 private:
 	std::string _path;
 
