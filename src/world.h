@@ -35,7 +35,7 @@
 
 class World : public ObjectCollection {
 public:
-	World(entt::registry &registry, const std::string &name, Global &global);
+	World(entt::registry &registry, const std::string &name);
 
 	const std::string &getName() const;
 
@@ -43,23 +43,7 @@ public:
 	void loadEpisode(const std::string &id);
 
 private:
-	/*void loadCellInfo(Common::ReadStream *cellInfoStream, std::vector<glm::u32vec2> &cells);
-	void loadStaticObjects(Common::ReadStream *staticObjectsStream);
-	void loadDynamicObjects(Common::ReadStream *dynamicObjectsStream, DPFile *dp, AWE::GIDRegistryFile &gid);
-	void loadDynamicObjectScripts(Common::ReadStream *dynamicObjectScriptsStream, DPFile *dp, AWE::GIDRegistryFile &gid,
-								  AWE::Script::Collection &collection);
-	void loadCharacters(Common::ReadStream *charactersStream, AWE::GIDRegistryFile &gid);
-	void loadCharacterScripts(Common::ReadStream *characterScriptsStream, AWE::GIDRegistryFile &gid,
-							  AWE::Script::Collection &collection);
-	void loadAreaTriggers(Common::ReadStream *areaTriggerStream, DPFile *dp, AWE::GIDRegistryFile &gid);
-	void loadScriptInstances(Common::ReadStream *scriptInstanceStream, DPFile *dp, AWE::GIDRegistryFile &gid);
-	void loadScriptInstanceScripts(Common::ReadStream *scriptInstanceScripts, AWE::GIDRegistryFile &gid, AWE::Script::Collection &collection);
-
-	void loadTerrainData(Common::ReadStream *terrainDataStream);*/
-
 	const std::string _name;
-	Global &_global;
-	std::vector<std::unique_ptr<Graphics::Model>> _models;
 	std::unique_ptr<WorldFile> _world;
 	std::unique_ptr<Episode> _currentEpisode;
 };

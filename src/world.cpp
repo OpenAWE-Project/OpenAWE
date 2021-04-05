@@ -37,10 +37,9 @@
 #include "src/awe/havokfile.h"
 #include "src/awe/script/collection.h"
 
-World::World(entt::registry &registry, const std::string &name, Global &global) :
+World::World(entt::registry &registry, const std::string &name) :
 	ObjectCollection(registry),
-	_name(name),
-	_global(global)
+	_name(name)
 {
 	std::string filename = fmt::format("globaldb/{}.xml", _name);
 
