@@ -37,6 +37,7 @@
 
 #include "engine.h"
 #include "src/global.h"
+#include "src/world.h"
 
 class Game {
 public:
