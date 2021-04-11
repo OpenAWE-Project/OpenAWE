@@ -28,26 +28,82 @@
 #include "src/common/readstream.h"
 #include "src/common/types.h"
 
+#include "src/awe/object.h"
+#include "src/awe/dpfile.h"
 #include "src/awe/types.h"
 
 namespace AWE {
 
 typedef std::any Object;
 
-class ObjectReadStream : Common::ReadStream {
+class ObjectReadStream{
 public:
-	ObjectReadStream(ReadStream &objectStream, unsigned int type, unsigned int version);
+	virtual Object readObject(ObjectType type, unsigned int version = 0) = 0;
 
-	virtual Object readObject() = 0;
-	virtual void skipObject() = 0;
-
-private:
-	const unsigned int _type, _version;
+protected:
+	ObjectReadStream();
 };
 
 class ObjectBinaryReadStream : public ObjectReadStream {
-protected:
+public:
+	ObjectBinaryReadStream(Common::ReadStream &stream);
+	ObjectBinaryReadStream(Common::ReadStream &stream, std::shared_ptr<DPFile> dp);
 
+protected:
+	std::shared_ptr<DPFile> _dp;
+	Common::ReadStream &_stream;
+
+	rid_t readRID();
+	Common::BoundBox readAABB();
+	Templates::StaticObject readStaticObject();
+	Templates::DynamicObject readDynamicObject();
+	Templates::DynamicObjectScript readDynamicObjectScript();
+	Templates::CellInfo readCellInfo();
+	Templates::Animation readAnimation();
+	Templates::Skeleton readSkeleton();
+	Templates::SkeletonSetup readSkeletonSetup();
+	Templates::NotebookPage readNotebookPage();
+	Templates::Sound readSound();
+	Templates::Character readCharacter();
+	Templates::CharacterScript readCharacterScript();
+	Templates::TaskDefinition readTaskDefinition();
+	Templates::TaskContent readTaskContent();
+	Templates::ScriptVariables readScriptVariables();
+	Templates::Script readScript();
+	Templates::ScriptInstance readScriptInstance();
+	Templates::PointLight readPointLight();
+	Templates::FloatingScript readFloatingScript();
+	Templates::Trigger readTrigger();
+	Templates::AreaTrigger readAreaTrigger();
+	Templates::AttachmentResource readAttachmentResources();
+	Templates::Waypoint readWaypoint();
+	Templates::FileInfoMetadata readFileInfoMetadata();
+	Templates::FoliageMeshMetadata readFoliageMeshMetadata();
+	Templates::HavokAnimationMetadata readHavokAnimationMetadata();
+	Templates::MeshMetadata readMeshMetadata();
+	Templates::ParticleSystemMetadata readParticleSystemMetadata();
+	Templates::TextureMetadata readTextureMetadata();
+
+	GID readGID();
+	glm::vec3 readPosition();
+	glm::mat3 readRotation();
+};
+
+class ObjectBinaryReadStreamV1 : public ObjectBinaryReadStream {
+public:
+	ObjectBinaryReadStreamV1(Common::ReadStream &stream, std::shared_ptr<DPFile> dp = std::shared_ptr<DPFile>());
+
+	Object readObject(ObjectType type, unsigned int version = 0) override;
+};
+
+class ObjectBinaryReadStreamV2 : public ObjectBinaryReadStream {
+public:
+	ObjectBinaryReadStreamV2(Common::ReadStream &stream, std::shared_ptr<DPFile> dp = std::shared_ptr<DPFile>());
+
+	Object readObject(ObjectType type, unsigned int version = 0) override;
+
+private:
+	uint32_t getContentHash(ObjectType type) const;
 };
 
 }

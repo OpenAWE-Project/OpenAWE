@@ -34,7 +34,7 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 	std::unique_ptr<Common::ReadStream> globalStream(ResMan.getResource(fmt::format("{}/Global.bin", levelFolder)));
 	AWE::BINArchive global(*globalStream);
 
-	load(global.getResource("cid_staticobject.bin"));
+	load(global.getResource("cid_staticobject.bin"), kStaticObject);
 
 	std::unique_ptr<Common::ReadStream> persistentStream(ResMan.getResource(fmt::format("{}/Persistent.bin", levelFolder)));
 	AWE::BINArchive persistent(*persistentStream);
@@ -44,13 +44,13 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 			persistent.getResource("dp_bytecodeparameters.bin")
 	);
 
-	DPFile dp(persistent.getResource("dp_persistent.bin"));
+	auto dp = std::make_shared<DPFile>(persistent.getResource("dp_persistent.bin"));
 
-	load(persistent.getResource("cid_dynamicobject.bin"), dp);
-	load(persistent.getResource("cid_dynamicobjectscript.bin"), dp);
-	load(persistent.getResource("cid_character.bin"), dp);
-	load(persistent.getResource("cid_characterscript.bin"), dp);
-	load(persistent.getResource("cid_floatingscript.bin"), dp);
+	load(persistent.getResource("cid_dynamicobject.bin"), kDynamicObject, dp);
+	load(persistent.getResource("cid_dynamicobjectscript.bin"), kDynamicObjectScript, dp);
+	load(persistent.getResource("cid_character.bin"), kCharacter, dp);
+	load(persistent.getResource("cid_characterscript.bin"), kCharacterScript, dp);
+	load(persistent.getResource("cid_floatingscript.bin"), kFloatingScript, dp);
 
 	const auto cellInfo = loadCellInfo(global.getResource("cid_cellinfo.bin"));
 	for (const auto &info : cellInfo) {
@@ -63,9 +63,9 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 		AWE::BINArchive hdCellResources(fmt::format("{}/{}.resources", levelFolder, hdName));
 
 		//DPFile dphd(persistent.getResource("dp_hdcell.bin"));
-		load(hdCell.getResource("cid_staticobject.bin")/*, dphd*/);
+		load(hdCell.getResource("cid_staticobject.bin")/*, dphd*/, kStaticObject);
 
-		load(ldCell.getResource("cid_staticobject.bin"));
+		load(ldCell.getResource("cid_staticobject.bin"), kStaticObject);
 		//loadTerrainData(ldCell.getResource("cid_terraindata.bin"));
 	}
 }
@@ -78,12 +78,9 @@ void Level::loadTerrainData(Common::ReadStream *terrainData) {
 std::vector<glm::u32vec2> Level::loadCellInfo(Common::ReadStream *cid) const {
 	std::unique_ptr<Common::ReadStream> cellInfoStream(cid);
 	std::vector<glm::u32vec2> cell;
-	AWE::CIDFile cidFile(*cellInfoStream);
+	AWE::CIDFile cidFile(*cellInfoStream, kCellInfo);
 	for (const auto &container : cidFile.getContainers()) {
-		if (container.type != AWE::CIDFile::kCellInfo)
-			continue;
-
-		const auto &cellInfo = std::get<AWE::CIDFile::CellInfo>(container.data);
+		const auto &cellInfo = std::any_cast<AWE::Templates::CellInfo>(container);
 		cell.emplace_back(glm::u32vec2(cellInfo.x, cellInfo.y));
 	}
 	return cell;

@@ -48,7 +48,7 @@ public:
 
 protected:
 	std::map<rid_t, std::string> _resources;
-	std::map<rid_t, std::vector<AWE::CIDFile::Container>> _metadata;
+	std::map<rid_t, std::vector<AWE::Object>> _metadata;
 };
 
 

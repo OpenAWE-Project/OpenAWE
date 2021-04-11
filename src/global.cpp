@@ -40,17 +40,17 @@ Global::Global(entt::registry &registry) : ObjectCollection(registry) {
 			ResMan.getResource("global/dp_bytecodeparameters.bin")
 	);
 
-	DPFile dp(ResMan.getResource("global/dp_global.bin"));
+	auto dp = std::make_shared<DPFile>(ResMan.getResource("global/dp_global.bin"));
 
 	spdlog::info("Loading skeletons");
-	load(ResMan.getResource("global/cid_skeleton.bin"), dp);
+	load(ResMan.getResource("global/cid_skeleton.bin"), kSkeleton, dp);
 
 	spdlog::info("Loading animations");
-	load(ResMan.getResource("global/cid_animation.bin"), dp);
+	load(ResMan.getResource("global/cid_animation.bin"), kAnimation, dp);
 
 	spdlog::info("Loading notebook pages");
-	load(ResMan.getResource("global/cid_notebook_page.bin"), dp);
+	load(ResMan.getResource("global/cid_notebook_page.bin"), kNotebookPage, dp);
 
 	spdlog::info("Loading sounds");
-	load(ResMan.getResource("global/cid_sound.bin"), dp);
+	load(ResMan.getResource("global/cid_sound.bin"), kSound, dp);
 }

@@ -25,6 +25,7 @@
 
 #include "src/awe/cidfile.h"
 #include "src/awe/dpfile.h"
+#include "src/awe/object.h"
 #include "src/awe/script/bytecode.h"
 
 namespace AWE::Script {
@@ -39,11 +40,9 @@ class Collection {
 public:
 	Collection(Common::ReadStream *bytecode, Common::ReadStream *bytecodeParameters);
 
-	Bytecode *createScript(const AWE::CIDFile::Script &script);
+	Bytecode *createScript(const AWE::Templates::ScriptVariables &script);
 
 private:
-
-
 	std::unique_ptr<DPFile> _bytecode;
 	std::shared_ptr<DPFile> _bytecodeParameters;
 };

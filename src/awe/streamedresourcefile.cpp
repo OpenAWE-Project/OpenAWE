@@ -40,31 +40,34 @@ StreamedResourceFile::StreamedResourceFile(Common::ReadStream &streamedResource)
 	const uint32_t v2 = streamedResource.readUint32LE();
 	const uint32_t numResources = streamedResource.readUint32LE();
 
+	AWE::ObjectBinaryReadStreamV1 objectStream(streamedResource);
+
 	std::vector<rid_t> rids;
 	std::vector<uint32_t> pathOffsets;
 	rids.resize(numResources);
 	pathOffsets.resize(numResources);
 	for (int i = 0; i < numResources; ++i) {
+		std::vector<AWE::Object> objects;
 		rid_t rid = streamedResource.readUint32BE();
 		uint32_t pathOffset = streamedResource.readUint32LE();
 
 		rids[i] = rid;
 		pathOffsets[i] = pathOffset;
 
-		AWE::CIDFile cid(streamedResource, 1, AWE::CIDFile::kFileInfoMetadata);
+		objects.emplace_back(objectStream.readObject(kFileInfoMetadata));
 
 		if (v1 == 4 && v2 == 0x00000024)
 			streamedResource.skip(4);
 		else if (v1 == 5 && v2 == 0x00000064)
-			AWE::CIDFile foliage(streamedResource, 1, AWE::CIDFile::kFoliageMeshMetadata);
+			objects.emplace_back(objectStream.readObject(kFoliageMeshMetadata));
 		else if (v1 == 6 && v2 == 160)
-			AWE::CIDFile havokanimation(streamedResource, 1, AWE::CIDFile::kHavokAnimationMetadata);
+			objects.emplace_back(objectStream.readObject(kHavokAnimationMetadata));
 		else if (v1 == 7 && v2 == 0x000000c8)
-			AWE::CIDFile mesh(streamedResource, 1, AWE::CIDFile::kMeshMetadata);
+			objects.emplace_back(objectStream.readObject(kMeshMetadata));
 		else if (v1 == 5 && v2 == 0x00000044)
-			AWE::CIDFile particleSystem(streamedResource, 1, AWE::CIDFile::kParticleSystemMetadata);
+			objects.emplace_back(objectStream.readObject(kParticleSystemMetadata));
 		else if (v1 == 10 && v2 == 0x00000064)
-			AWE::CIDFile texture(streamedResource, 1, AWE::CIDFile::kTextureMetadata);
+			objects.emplace_back(objectStream.readObject(kTextureMetadata));
 	}
 
 	uint32_t nameSize = streamedResource.readUint32LE();

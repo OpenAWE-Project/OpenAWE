@@ -52,45 +52,46 @@ void ObjectCollection::loadBytecode(Common::ReadStream *bytecode, Common::ReadSt
 	);
 }
 
-void ObjectCollection::load(Common::ReadStream *stream) {
+void ObjectCollection::load(Common::ReadStream *stream, ObjectType type) {
 	std::unique_ptr<Common::ReadStream> cidStream(stream);
-	AWE::CIDFile cid(*cidStream, nullptr);
+	AWE::CIDFile cid(*cidStream, type, nullptr);
 
 	for (const auto &container : cid.getContainers()) {
-		load(container);
+		load(container, type);
 	}
 }
 
-void ObjectCollection::load(Common::ReadStream *stream, DPFile &dp) {
+void ObjectCollection::load(Common::ReadStream *stream, ObjectType type, std::shared_ptr<DPFile> dp) {
 	std::unique_ptr<Common::ReadStream> cidStream(stream);
-	AWE::CIDFile cid(*cidStream, &dp);
+	AWE::CIDFile cid(*cidStream, type, dp);
 
 	for (const auto &container : cid.getContainers()) {
-		load(container);
+		load(container, type);
 	}
 }
 
-void ObjectCollection::load(const AWE::CIDFile::Container &container) {
-	switch (container.type) {
-		case AWE::CIDFile::kSkeleton: loadSkeleton(container); break;
-		case AWE::CIDFile::kAnimation: loadAnimation(container); break;
-		case AWE::CIDFile::kNotebookPage: loadNotebookPage(container); break;
-		case AWE::CIDFile::kStaticObject: loadStaticObject(container); break;
-		case AWE::CIDFile::kDynamicObject: loadDynamicObject(container); break;
-		case AWE::CIDFile::kDynamicObjectScript: loadDynamicObjectScript(container); break;
-		case AWE::CIDFile::kCharacter: loadCharacter(container); break;
-		case AWE::CIDFile::kScriptInstance: loadScriptInstance(container); break;
-		case AWE::CIDFile::kScriptInstanceScript: loadObjectScript(container); break;
-		case AWE::CIDFile::kAreaTrigger: loadAreaTrigger(container); break;
-		case AWE::CIDFile::kFloatingScript: loadFloatingScript(container); break;
-		case AWE::CIDFile::kTaskDefinition: loadTaskDefinition(container); break;
-		case AWE::CIDFile::kWaypoint: loadWaypoint(container); break;
-		case AWE::CIDFile::kSound: loadSound(container); break;
+void ObjectCollection::load(const AWE::Object &container, ObjectType type) {
+	switch (type) {
+		case kSkeleton: loadSkeleton(container); break;
+		case kAnimation: loadAnimation(container); break;
+		case kNotebookPage: loadNotebookPage(container); break;
+		case kStaticObject: loadStaticObject(container); break;
+		case kDynamicObject: loadDynamicObject(container); break;
+		case kDynamicObjectScript: loadDynamicObjectScript(container); break;
+		case kCharacter: loadCharacter(container); break;
+		case kScriptInstance: loadScriptInstance(container); break;
+		case kScript: loadScript(container); break;
+		case kAreaTrigger: loadAreaTrigger(container); break;
+		case kFloatingScript: loadFloatingScript(container); break;
+		case kTaskDefinition: loadTaskDefinition(container); break;
+		case kWaypoint: loadWaypoint(container); break;
+		case kSound: loadSound(container); break;
+		case kTrigger: loadTrigger(container); break;
 	}
 }
 
-void ObjectCollection::loadSkeleton(const AWE::CIDFile::Container &container) {
-	const auto skeleton = std::get<AWE::CIDFile::Skeleton>(container.data);
+void ObjectCollection::loadSkeleton(const AWE::Object &container) {
+	const auto skeleton = std::any_cast<AWE::Templates::Skeleton>(container);
 
 	auto skeletonEntity = _registry.create();
 	_registry.emplace<GID>(skeletonEntity) = skeleton.gid;
@@ -99,8 +100,8 @@ void ObjectCollection::loadSkeleton(const AWE::CIDFile::Container &container) {
 	spdlog::debug("Loading skeleton {}", skeleton.name);
 }
 
-void ObjectCollection::loadAnimation(const AWE::CIDFile::Container &container) {
-	const auto animation = std::get<AWE::CIDFile::Animation>(container.data);
+void ObjectCollection::loadAnimation(const AWE::Object &container) {
+	const auto animation = std::any_cast<AWE::Templates::Animation>(container);
 
 	auto animationEntity = _registry.create();
 	_registry.emplace<GID>(animationEntity) = animation.gid;
@@ -109,8 +110,8 @@ void ObjectCollection::loadAnimation(const AWE::CIDFile::Container &container) {
 	spdlog::debug("Loading animation {} for skeleton {}", animation.name, _gid->getString(animation.skeletonGid));
 }
 
-void ObjectCollection::loadNotebookPage(const AWE::CIDFile::Container &container) {
-	const auto notebookPage = std::get<AWE::CIDFile::NotebookPage>(container.data);
+void ObjectCollection::loadNotebookPage(const AWE::Object &container) {
+	const auto notebookPage = std::any_cast<AWE::Templates::NotebookPage>(container);
 
 	auto notebookPageEntity = _registry.create();
 	_registry.emplace<GID>(notebookPageEntity) = notebookPage.gid;
@@ -119,8 +120,8 @@ void ObjectCollection::loadNotebookPage(const AWE::CIDFile::Container &container
 	spdlog::debug("Loading notebook page {}", _gid->getString(notebookPage.gid));
 }
 
-void ObjectCollection::loadStaticObject(const AWE::CIDFile::Container &container) {
-	const auto staticObject = std::get<AWE::CIDFile::StaticObject>(container.data);
+void ObjectCollection::loadStaticObject(const AWE::Object &container) {
+	const auto staticObject = std::any_cast<AWE::Templates::StaticObject>(container);
 
 	auto staticObjectEntity = _registry.create();
 	_registry.emplace<Transform>(staticObjectEntity) = Transform(staticObject.position, staticObject.rotation);
@@ -133,8 +134,8 @@ void ObjectCollection::loadStaticObject(const AWE::CIDFile::Container &container
 	_entities.emplace_back(staticObjectEntity);
 }
 
-void ObjectCollection::loadDynamicObject(const AWE::CIDFile::Container &container) {
-	const auto dynamicObject = std::get<AWE::CIDFile::DynamicObject>(container.data);
+void ObjectCollection::loadDynamicObject(const AWE::Object &container) {
+	const auto dynamicObject = std::any_cast<AWE::Templates::DynamicObject>(container);
 
 	auto dynamicObjectEntity = _registry.create();
 	_registry.emplace<GID>(dynamicObjectEntity) = dynamicObject.gid;
@@ -150,8 +151,8 @@ void ObjectCollection::loadDynamicObject(const AWE::CIDFile::Container &containe
 	spdlog::debug("Loading dynamic object {}", _gid->getString(dynamicObject.gid));
 }
 
-void ObjectCollection::loadDynamicObjectScript(const AWE::CIDFile::Container &container) {
-	const auto dynamicObjectScript = std::get<AWE::CIDFile::DynamicObjectScript>(container.data);
+void ObjectCollection::loadDynamicObjectScript(const AWE::Object &container) {
+	const auto dynamicObjectScript = std::any_cast<AWE::Templates::DynamicObjectScript>(container);
 
 	auto gidView = _registry.view<GID>();
 	entt::entity scriptEntity = entt::null;
@@ -172,8 +173,8 @@ void ObjectCollection::loadDynamicObjectScript(const AWE::CIDFile::Container &co
 	spdlog::debug("Loading script for dynamic object {}", _gid->getString(dynamicObjectScript.gid));
 }
 
-void ObjectCollection::loadCharacter(const AWE::CIDFile::Container &container) {
-	const auto character = std::get<AWE::CIDFile::Character>(container.data);
+void ObjectCollection::loadCharacter(const AWE::Object &container) {
+	const auto character = std::any_cast<AWE::Templates::Character>(container);
 
 	auto characterEntity = _registry.create();
 	_registry.emplace<GID>(characterEntity) = character.gid;
@@ -189,8 +190,8 @@ void ObjectCollection::loadCharacter(const AWE::CIDFile::Container &container) {
 	spdlog::debug("Loading character {}", _gid->getString(character.gid));
 }
 
-void ObjectCollection::loadScriptInstance(const AWE::CIDFile::Container &container) {
-	const auto scriptInstance = std::get<AWE::CIDFile::ScriptInstance>(container.data);
+void ObjectCollection::loadScriptInstance(const AWE::Object &container) {
+	const auto scriptInstance = std::any_cast<AWE::Templates::ScriptInstance>(container);
 
 	auto scriptInstanceEntity = _registry.create();
 	_registry.emplace<GID>(scriptInstanceEntity) = scriptInstance.gid;
@@ -199,8 +200,8 @@ void ObjectCollection::loadScriptInstance(const AWE::CIDFile::Container &contain
 	spdlog::debug("Loading script instance {}", _gid->getString(scriptInstance.gid));
 }
 
-void ObjectCollection::loadObjectScript(const AWE::CIDFile::Container &container) {
-	const auto scriptInstanceScript = std::get<AWE::CIDFile::ObjectScript>(container.data);
+void ObjectCollection::loadScript(const AWE::Object &container) {
+	const auto scriptInstanceScript = std::any_cast<AWE::Templates::Script>(container);
 
 	auto gidView = _registry.view<GID>();
 	entt::entity scriptEntity = entt::null;
@@ -221,8 +222,8 @@ void ObjectCollection::loadObjectScript(const AWE::CIDFile::Container &container
 	spdlog::debug("Loading script for object {}", _gid->getString(scriptInstanceScript.gid));
 }
 
-void ObjectCollection::loadFloatingScript(const AWE::CIDFile::Container &container) {
-	const auto floatingScript = std::get<AWE::CIDFile::FloatingScript>(container.data);
+void ObjectCollection::loadFloatingScript(const AWE::Object &container) {
+	const auto floatingScript = std::any_cast<AWE::Templates::FloatingScript>(container);
 
 	auto floatingScriptEntity = _registry.create();
 	_registry.emplace<GID>(floatingScriptEntity) = floatingScript.gid;
@@ -233,8 +234,8 @@ void ObjectCollection::loadFloatingScript(const AWE::CIDFile::Container &contain
 	spdlog::debug("Loading floating script {}", _gid->getString(floatingScript.gid));
 }
 
-void ObjectCollection::loadPointLight(const AWE::CIDFile::Container &container) {
-	const auto pointLight = std::get<AWE::CIDFile::PointLight>(container.data);
+void ObjectCollection::loadPointLight(const AWE::Object &container) {
+	const auto pointLight = std::any_cast<AWE::Templates::PointLight>(container);
 
 	auto pointLightEntity = _registry.create();
 	_registry.emplace<GID>(pointLightEntity) = pointLight.gid;
@@ -243,8 +244,8 @@ void ObjectCollection::loadPointLight(const AWE::CIDFile::Container &container) 
 	spdlog::debug("Loading point light {}", _gid->getString(pointLight.gid));
 }
 
-void ObjectCollection::loadAreaTrigger(const AWE::CIDFile::Container &container) {
-	const auto areaTrigger = std::get<AWE::CIDFile::AreaTrigger>(container.data);
+void ObjectCollection::loadAreaTrigger(const AWE::Object &container) {
+	const auto areaTrigger = std::any_cast<AWE::Templates::AreaTrigger>(container);
 
 	auto areaTriggerEntity = _registry.create();
 	_registry.emplace<GID>(areaTriggerEntity) = areaTrigger.gid;
@@ -253,8 +254,8 @@ void ObjectCollection::loadAreaTrigger(const AWE::CIDFile::Container &container)
 	spdlog::debug("Loading area trigger {}", areaTrigger.identifier);
 }
 
-void ObjectCollection::loadTaskDefinition(const AWE::CIDFile::Container &container) {
-	const auto taskDefinition = std::get<AWE::CIDFile::TaskDefinition>(container.data);
+void ObjectCollection::loadTaskDefinition(const AWE::Object &container) {
+	const auto taskDefinition = std::any_cast<AWE::Templates::TaskDefinition>(container);
 
 	auto taskEntity = _registry.create();
 	if (taskDefinition.gid.isNil())
@@ -267,8 +268,8 @@ void ObjectCollection::loadTaskDefinition(const AWE::CIDFile::Container &contain
 	spdlog::debug("Loading task {}", _gid->getString(taskDefinition.gid));
 }
 
-void ObjectCollection::loadWaypoint(const AWE::CIDFile::Container &container) {
-	const auto wayPoint = std::get<AWE::CIDFile::Waypoint>(container.data);
+void ObjectCollection::loadWaypoint(const AWE::Object &container) {
+	const auto wayPoint = std::any_cast<AWE::Templates::Waypoint>(container);
 
 	auto wayPointEntity = _registry.create();
 	_registry.emplace<GID>(wayPointEntity) = wayPoint.gid;
@@ -277,12 +278,23 @@ void ObjectCollection::loadWaypoint(const AWE::CIDFile::Container &container) {
 	spdlog::debug("Loading way point {}", _gid->getString(wayPoint.gid));
 }
 
-void ObjectCollection::loadSound(const AWE::CIDFile::Container &container) {
-	const auto sound = std::get<AWE::CIDFile::Sound>(container.data);
+void ObjectCollection::loadSound(const AWE::Object &container) {
+	const auto sound = std::any_cast<AWE::Templates::Sound>(container);
 
 	auto soundEntity = _registry.create();
 	_registry.emplace<GID>(soundEntity) = sound.gid;
 	// TODO
 
 	spdlog::debug("Loading sound {}", _gid->getString(sound.gid));
+}
+
+void ObjectCollection::loadTrigger(const AWE::Object &container) {
+	const auto trigger = std::any_cast<AWE::Templates::Trigger>(container);
+
+	auto triggerEntity = _registry.create();
+	_registry.emplace<GID>(triggerEntity) = trigger.gid;
+
+	_entities.emplace_back(triggerEntity);
+
+	spdlog::debug("Loading trigger {}", _gid->getString(trigger.gid));
 }

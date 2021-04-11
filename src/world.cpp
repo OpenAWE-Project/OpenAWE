@@ -72,7 +72,7 @@ void World::loadGlobal() {
 
 	AWE::BINArchive tasks(globalArchive);
 
-	DPFile dp(tasks.getResource("dp_task.bin"));
+	auto dp = std::make_shared<DPFile>(tasks.getResource("dp_task.bin"));
 
 	loadBytecode(
 			tasks.getResource("dp_bytecode.bin"),
@@ -80,15 +80,15 @@ void World::loadGlobal() {
 	);
 
 	spdlog::info("Loading static objects for {}", _name);
-	load(tasks.getResource("cid_staticobject.bin"), dp);
+	load(tasks.getResource("cid_staticobject.bin"), kStaticObject, dp);
 
 	spdlog::info("Loading dynamic objects for {}", _name);
-	load(tasks.getResource("cid_dynamicobject.bin"), dp);
-	load(tasks.getResource("cid_dynamicobjectscript.bin"), dp);
+	load(tasks.getResource("cid_dynamicobject.bin"), kDynamicObject, dp);
+	load(tasks.getResource("cid_dynamicobjectscript.bin"), kDynamicObjectScript, dp);
 
 	spdlog::info("Loading characters for {}", _name);
-	load(tasks.getResource("cid_character.bin"), dp);
-	load(tasks.getResource("cid_characterscript.bin"), dp);
+	load(tasks.getResource("cid_character.bin"), kCharacter, dp);
+	load(tasks.getResource("cid_characterscript.bin"), kCharacterScript, dp);
 }
 
 void World::loadEpisode(const std::string &id) {

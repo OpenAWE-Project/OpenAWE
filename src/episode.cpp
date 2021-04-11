@@ -36,10 +36,10 @@ Episode::Episode(entt::registry &registry, const std::string &world, const std::
 
 	std::unique_ptr<Common::ReadStream> episodeStream(ResMan.getResource(fmt::format("{}/episode.bin", episodeFolder)));
 	AWE::BINArchive episode(*episodeStream);
-	DPFile dp(episode.getResource("dp_episode.bin"));
+	std::shared_ptr<DPFile> dp = std::make_shared<DPFile>(episode.getResource("dp_episode.bin"));
 
 	spdlog::info("Loading task definitions for {}", id);
-	load(episode.getResource("cid_taskdefinition.bin"), dp);
+	load(episode.getResource("cid_taskdefinition.bin"), kTaskDefinition, dp);
 
 	std::unique_ptr<Common::ReadStream> tasksStream(ResMan.getResource(fmt::format("{}/tasks.bin", episodeFolder)));
 	AWE::BINArchive tasks(*tasksStream);
@@ -49,45 +49,45 @@ Episode::Episode(entt::registry &registry, const std::string &world, const std::
 			tasks.getResource("dp_bytecodeparameters.bin")
 	);
 
-	dp = DPFile(tasks.getResource("dp_task.bin"));
+	dp = std::make_shared<DPFile>(tasks.getResource("dp_task.bin"));
 
 	spdlog::info("Loading static objects for {}", id);
-	load(tasks.getResource("cid_staticobject.bin"), dp);
+	load(tasks.getResource("cid_staticobject.bin"), kStaticObject, dp);
 
 	spdlog::info("Loading dynamic objects for {}", id);
-	load(tasks.getResource("cid_dynamicobject.bin"), dp);
-	load(tasks.getResource("cid_dynamicobjectscript.bin"), dp);
+	load(tasks.getResource("cid_dynamicobject.bin"), kDynamicObject, dp);
+	load(tasks.getResource("cid_dynamicobjectscript.bin"), kDynamicObjectScript, dp);
 
 	spdlog::info("Loading characters for {}", id);
-	load(tasks.getResource("cid_character.bin"), dp);
-	load(tasks.getResource("cid_characterscript.bin"), dp);
+	load(tasks.getResource("cid_character.bin"), kCharacter, dp);
+	load(tasks.getResource("cid_characterscript.bin"), kCharacterScript, dp);
 
 	spdlog::info("Loading script instances for {}", id);
-	load(tasks.getResource("cid_scriptinstance.bin"), dp);
-	load(tasks.getResource("cid_scriptinstancescript.bin"), dp);
+	load(tasks.getResource("cid_scriptinstance.bin"), kScriptInstance, dp);
+	load(tasks.getResource("cid_scriptinstancescript.bin"), kScript, dp);
 
 	spdlog::info("Loading Point Lights for {}", id);
-	load(tasks.getResource("cid_pointlight.bin"), dp);
+	load(tasks.getResource("cid_pointlight.bin"), kPointLight, dp);
 
 	spdlog::info("Loading Floating Scripts for {}", id);
-	load(tasks.getResource("cid_floatingscript.bin"), dp);
+	load(tasks.getResource("cid_floatingscript.bin"), kFloatingScript, dp);
 
 	spdlog::info("Loading Triggers for {}", id);
-	load(tasks.getResource("cid_trigger.bin"), dp);
-	//load(tasks.getResource("cid_triggerscript.bin"), dp);
+	load(tasks.getResource("cid_trigger.bin"), kTrigger, dp);
+	load(tasks.getResource("cid_triggerscript.bin"), kScript, dp);
 
 	spdlog::info("Loading area triggers for {}", id);
-	load(tasks.getResource("cid_areatrigger.bin"), dp);
-	load(tasks.getResource("cid_areatriggerscript.bin"), dp);
+	load(tasks.getResource("cid_areatrigger.bin"), kAreaTrigger, dp);
+	load(tasks.getResource("cid_areatriggerscript.bin"), kScript, dp);
 
-	load(tasks.getResource("cid_taskcontent.bin"), dp);
+	load(tasks.getResource("cid_taskcontent.bin"), kTaskContent, dp);
 
 	spdlog::info("Loading task scripts for {}", id);
-	load(tasks.getResource("cid_taskscript.bin"), dp);
+	load(tasks.getResource("cid_taskscript.bin"), kScript, dp);
 
 	spdlog::info("Loading waypoints for {}", id);
-	load(tasks.getResource("cid_waypoint.bin"), dp);
-	load(tasks.getResource("cid_waypointscript.bin"), dp);
+	load(tasks.getResource("cid_waypoint.bin"), kWaypoint, dp);
+	load(tasks.getResource("cid_waypointscript.bin"), kScript, dp);
 }
 
 void Episode::loadLevel(const std::string &id) {

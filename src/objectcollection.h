@@ -41,29 +41,30 @@ protected:
 	void loadGIDRegistry(Common::ReadStream *stream);
 	void loadBytecode(Common::ReadStream *bytecode, Common::ReadStream *bytecodeParameters);
 
-	void load(Common::ReadStream * stream);
-	void load(Common::ReadStream * stream, DPFile &dp);
+	void load(Common::ReadStream *stream, ObjectType type);
+	void load(Common::ReadStream *stream, ObjectType type, std::shared_ptr<DPFile> dp);
 
 	entt::registry &_registry;
 
 private:
-	void load(const AWE::CIDFile::Container &container);
+	void load(const AWE::Object &container, ObjectType type);
 
-	void loadSkeleton(const AWE::CIDFile::Container &container);
-	void loadAnimation(const AWE::CIDFile::Container &container);
-	void loadNotebookPage(const AWE::CIDFile::Container &container);
-	void loadStaticObject(const AWE::CIDFile::Container &container);
-	void loadDynamicObject(const AWE::CIDFile::Container &container);
-	void loadDynamicObjectScript(const AWE::CIDFile::Container &container);
-	void loadCharacter(const AWE::CIDFile::Container &container);
-	void loadScriptInstance(const AWE::CIDFile::Container &container);
-	void loadObjectScript(const AWE::CIDFile::Container &container);
-	void loadFloatingScript(const AWE::CIDFile::Container &container);
-	void loadPointLight(const AWE::CIDFile::Container &container);
-	void loadAreaTrigger(const AWE::CIDFile::Container &container);
-	void loadTaskDefinition(const AWE::CIDFile::Container &container);
-	void loadWaypoint(const AWE::CIDFile::Container &container);
-	void loadSound(const AWE::CIDFile::Container &container);
+	void loadSkeleton(const AWE::Object &container);
+	void loadAnimation(const AWE::Object &container);
+	void loadNotebookPage(const AWE::Object &container);
+	void loadStaticObject(const AWE::Object &container);
+	void loadDynamicObject(const AWE::Object &container);
+	void loadDynamicObjectScript(const AWE::Object &container);
+	void loadCharacter(const AWE::Object &container);
+	void loadScriptInstance(const AWE::Object &container);
+	void loadScript(const AWE::Object &container);
+	void loadFloatingScript(const AWE::Object &container);
+	void loadPointLight(const AWE::Object &container);
+	void loadAreaTrigger(const AWE::Object &container);
+	void loadTaskDefinition(const AWE::Object &container);
+	void loadWaypoint(const AWE::Object &container);
+	void loadSound(const AWE::Object &container);
+	void loadTrigger(const AWE::Object &container);
 
 	std::vector<entt::entity> _entities;
 	std::unique_ptr<AWE::GIDRegistryFile> _gid;

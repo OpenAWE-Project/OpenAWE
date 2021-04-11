@@ -20,6 +20,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "src/awe/types.h"
 #include "src/awe/script/collection.h"
 
 namespace AWE::Script {
@@ -29,7 +30,7 @@ Collection::Collection(Common::ReadStream *bytecode, Common::ReadStream *bytecod
 		_bytecodeParameters(new DPFile(bytecodeParameters)) {
 }
 
-Bytecode *Collection::createScript(const AWE::CIDFile::Script &script) {
+Bytecode *Collection::createScript(const AWE::Templates::ScriptVariables &script) {
 	std::vector<DPFile::ScriptMetadata> metadata = _bytecode->getScriptMetadata(script.offsetHandlers, script.numHandlers);
 	std::vector<DPFile::ScriptSignal> signals = _bytecode->getScriptSignals(script.offsetSignals, script.numSignals);
 
