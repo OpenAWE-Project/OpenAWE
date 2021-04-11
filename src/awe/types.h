@@ -54,4 +54,42 @@ struct GID {
 
 typedef uint32_t rid_t;
 
+enum ObjectType {
+	kRID,
+	kCellInfo,
+	kSkeleton,
+	kSkeletonSetup,
+	kNotebookPage,
+	kDynamicObjectScript,
+	kStaticObject,
+	kDynamicObject,
+	kCharacter,
+	kCharacterClass,
+	kCharacterScript,
+	kScriptVariables,
+	kAnimation,
+	kAmbientLight,
+	kScriptInstance,
+	kScript,
+	kTrigger,
+	kAreaTrigger,
+	kPhysicsMaterial,
+	kFileInfoMetadata,
+	kResourceMetadata,
+	kFoliageMeshMetadata,
+	kHavokAnimationMetadata,
+	kMeshMetadata,
+	kParticleSystemMetadata,
+	kTextureMetadata,
+	kAABB,
+	kPointLight,
+	kFloatingScript,
+	kWaypoint,
+	kTaskDefinition,
+	kTaskContent,
+	kKeyFramer,
+	kSound,
+	kAttachmentResources
+};
+
 #endif //AWE_TYPES_H
