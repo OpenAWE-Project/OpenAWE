@@ -47,7 +47,11 @@ std::string GIDRegistryFile::getString(GID gid) const {
 	if (gid.type == 0 && gid.id == 0)
 		return "";
 
-	return _strings.at(gid);
+	auto string = _strings.find(gid);
+	if (string == _strings.end())
+		return "";
+
+	return string->second;
 }
 
 }
