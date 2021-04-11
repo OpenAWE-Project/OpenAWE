@@ -172,10 +172,6 @@ struct TextureMetadata {
 	bool useTextureLOD;
 };
 
-struct AABB {
-	Common::BoundBox boundBox;
-};
-
 struct PointLight {
 	GID gid;
 	GID gid2;
