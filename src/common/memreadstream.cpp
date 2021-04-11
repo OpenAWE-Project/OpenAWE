@@ -53,6 +53,9 @@ void MemoryReadStream::seek(ptrdiff_t length, ReadStream::SeekOrigin origin) {
 			_position = _size + length;
 			break;
 	}
+
+	if (_position >= _size || _position < 0)
+		throw std::runtime_error("Memory stream out of bounds");
 }
 
 bool MemoryReadStream::eos() const {
