@@ -41,7 +41,13 @@ Episode::Episode(entt::registry &registry, const std::string &world, const std::
 	spdlog::info("Loading task definitions for {}", id);
 	load(episode.getResource("cid_taskdefinition.bin"), kTaskDefinition, dp);
 
-	std::unique_ptr<Common::ReadStream> tasksStream(ResMan.getResource(fmt::format("{}/tasks.bin", episodeFolder)));
+	// TODO: Alan Wake has several archives without a proper pattern
+	std::unique_ptr<Common::ReadStream> tasksStream;
+	if (ResMan.hasResource(fmt::format("{}/tasks.bin", episodeFolder)))
+		tasksStream.reset(ResMan.getResource(fmt::format("{}/tasks.bin", episodeFolder)));
+	else if (ResMan.hasResource(fmt::format("{}/root.bin", episodeFolder)))
+		tasksStream.reset(ResMan.getResource(fmt::format("{}/root.bin", episodeFolder)));
+
 	AWE::BINArchive tasks(*tasksStream);
 
 	loadBytecode(
@@ -78,9 +84,11 @@ Episode::Episode(entt::registry &registry, const std::string &world, const std::
 
 	spdlog::info("Loading area triggers for {}", id);
 	load(tasks.getResource("cid_areatrigger.bin"), kAreaTrigger, dp);
-	load(tasks.getResource("cid_areatriggerscript.bin"), kScript, dp);
+	if (tasks.hasResource("cid_areatriggerscript.bin"))
+		load(tasks.getResource("cid_areatriggerscript.bin"), kScript, dp);
 
-	load(tasks.getResource("cid_taskcontent.bin"), kTaskContent, dp);
+	if (tasks.hasResource("cid_taskcontent.bin"))
+		load(tasks.getResource("cid_taskcontent.bin"), kTaskContent, dp);
 
 	spdlog::info("Loading task scripts for {}", id);
 	load(tasks.getResource("cid_taskscript.bin"), kScript, dp);
