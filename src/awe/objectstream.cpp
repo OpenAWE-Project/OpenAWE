@@ -94,7 +94,12 @@ Templates::StaticObject ObjectBinaryReadStream::readStaticObject() {
 	return staticObject;
 }
 
-Templates::DynamicObject ObjectBinaryReadStream::readDynamicObject() {
+Templates::DynamicObject ObjectBinaryReadStream::readDynamicObject(unsigned int version) {
+	/*
+	 * Versions:
+	 * Alan Wake: 11
+	 * Alan Wakes American Nightmare: 12
+	 */
 	Templates::DynamicObject dynamicObject{};
 
 	dynamicObject.rotation = readRotation();
@@ -114,12 +119,15 @@ Templates::DynamicObject ObjectBinaryReadStream::readDynamicObject() {
 
 	dynamicObject.gid = readGID();
 
-	_stream.skip(13);
+	if (version == 12)
+		_stream.skip(13);
+	else // version == 11
+		_stream.skip(9);
 
 	return dynamicObject;
 }
 
-Templates::DynamicObjectScript ObjectBinaryReadStream::readDynamicObjectScript() {
+Templates::DynamicObjectScript ObjectBinaryReadStream::readDynamicObjectScript(unsigned int version) {
 	Templates::DynamicObjectScript dynamicObject{};
 
 	dynamicObject.gid = readGID();
@@ -143,7 +151,12 @@ Templates::CellInfo ObjectBinaryReadStream::readCellInfo() {
 	return cellInfo;
 }
 
-Templates::Animation ObjectBinaryReadStream::readAnimation() {
+Templates::Animation ObjectBinaryReadStream::readAnimation(unsigned int version) {
+	/*
+	 * Versions:
+	 * Alan Wake: 17
+	 * Alan Wakes American Nightmare: 19
+	 */
 	Templates::Animation animation{};
 
 	animation.gid = readGID();
@@ -151,6 +164,9 @@ Templates::Animation ObjectBinaryReadStream::readAnimation() {
 	animation.id = _stream.readUint32LE();
 
 	animation.rid = std::any_cast<rid_t>(readObject(kRID));
+
+	if (version == 17)
+		_stream.skip(1);
 
 	animation.name = _dp->getString(_stream.readUint32LE());
 
@@ -223,11 +239,19 @@ Templates::Sound ObjectBinaryReadStream::readSound() {
 	return sound;
 }
 
-Templates::Character ObjectBinaryReadStream::readCharacter() {
+Templates::Character ObjectBinaryReadStream::readCharacter(unsigned int version) {
+	/*
+	 * Versions:
+	 * Alan Wake: 13
+	 * Alan Wakes American Nightmare: 17
+	 */
 	Templates::Character character{};
 
 	character.gid = readGID();
 	character.classGid = readGID();
+
+	if (version == 13)
+		_stream.skip(1);
 
 	// Mesh
 	character.meshResource = std::any_cast<rid_t>(readObject(kRID));
@@ -241,32 +265,36 @@ Templates::Character ObjectBinaryReadStream::readCharacter() {
 		rid = std::any_cast<rid_t>(readObject(kRID));
 	}
 
-	_stream.skip(4);
+	if (version == 17) {
+		_stream.skip(4);
 
-	uint32_t identifierLength = _stream.readUint32LE();
-	character.identifier = _stream.readFixedSizeString(identifierLength);
+		uint32_t identifierLength = _stream.readUint32LE();
+		character.identifier = _stream.readFixedSizeString(identifierLength);
 
-	// Cloth
-	character.clothResource = std::any_cast<rid_t>(readObject(kRID));
+		// Cloth
+		character.clothResource = std::any_cast<rid_t>(readObject(kRID));
 
-	// Unknown container
-	_stream.skip(48);
+		// Unknown container
+		_stream.skip(48);
 
-	// FaceFX
-	character.fxaResource = std::any_cast<rid_t>(readObject(kRID));
+		// FaceFX
+		character.fxaResource = std::any_cast<rid_t>(readObject(kRID));
 
-	_stream.skip(1);
+		_stream.skip(1);
 
-	// Animgraphs
-	character.animgraphResource = std::any_cast<rid_t>(readObject(kRID));
+		// Animgraphs
+		character.animgraphResource = std::any_cast<rid_t>(readObject(kRID));
 
-	_stream.skip(9);
+		_stream.skip(9);
 
-	// Additional resources
-	rid_t resource1 = std::any_cast<rid_t>(readObject(kRID));
-	rid_t resource2 = std::any_cast<rid_t>(readObject(kRID));
-	rid_t resource3 = std::any_cast<rid_t>(readObject(kRID));
-	rid_t resource4 = std::any_cast<rid_t>(readObject(kRID));
+		// Additional resources
+		const auto resource1 = std::any_cast<rid_t>(readObject(kRID));
+		const auto resource2 = std::any_cast<rid_t>(readObject(kRID));
+		const auto resource3 = std::any_cast<rid_t>(readObject(kRID));
+		const auto resource4 = std::any_cast<rid_t>(readObject(kRID));
+	} else { // Version 13
+		_stream.skip(0x3A);
+	}
 
 	return character;
 }
@@ -282,7 +310,12 @@ Templates::CharacterScript ObjectBinaryReadStream::readCharacterScript() {
 	return characterScript;
 }
 
-Templates::TaskDefinition ObjectBinaryReadStream::readTaskDefinition() {
+Templates::TaskDefinition ObjectBinaryReadStream::readTaskDefinition(unsigned int version) {
+	/*
+	 * Versions:
+	 * Alan Wake: 11
+	 * Alan Wakes American Nightmare: 15
+	 */
 	Templates::TaskDefinition taskDefinition{};
 
 	taskDefinition.name = _dp->getString(_stream.readUint32LE());
@@ -300,27 +333,32 @@ Templates::TaskDefinition ObjectBinaryReadStream::readTaskDefinition() {
 	taskDefinition.position = readPosition();
 
 	taskDefinition.activateOnStartup = _stream.readByte() != 0;
-	_stream.skip(3);  // Startup tasks Round 1-3
+	if (version == 15)
+		_stream.skip(3);  // Startup tasks Round 1-3
 	bool gidlessTask = _stream.readByte() != 0;
 
 	taskDefinition.gid = readGID();
 
 	bool b2 = _stream.readByte() != 0; // If it is a non zero position?
 
-	taskDefinition.rotationPlayer = readRotation();
-	taskDefinition.positionPlayer = readPosition();
+	if (version == 15) {
+		taskDefinition.rotationPlayer = readRotation();
+		taskDefinition.positionPlayer = readPosition();
 
-	// Characters?
-	GID gid1 = readGID();
-	_stream.skip(8);
-	taskDefinition.cinematic = _dp->getString(_stream.readUint32LE());
-	GID gid2 = readGID();
-	GID gid3 = readGID();
+		// Characters?
+		GID gid1 = readGID();
+		_stream.skip(8);
+		taskDefinition.cinematic = _dp->getString(_stream.readUint32LE());
+		GID gid2 = readGID();
+		GID gid3 = readGID();
+	} else {
+		_stream.skip(0x44);
+	}
 
 	return taskDefinition;
 }
 
-Templates::ScriptVariables ObjectBinaryReadStream::readScriptVariables() {
+Templates::ScriptVariables ObjectBinaryReadStream::readScriptVariables(unsigned int version) {
 	Templates::ScriptVariables script{};
 
 	script.codeSize = _stream.readUint32LE();
@@ -331,8 +369,11 @@ Templates::ScriptVariables ObjectBinaryReadStream::readScriptVariables() {
 	script.offset3 = _stream.readUint32LE();
 	script.numSignals = _stream.readUint32LE();
 	script.offsetSignals = _stream.readUint32LE();
-	script.size5 = _stream.readUint32LE();
-	script.offset5 = _stream.readUint32LE();
+
+	if (version >= 2) {
+		script.size5 = _stream.readUint32LE();
+		script.offset5 = _stream.readUint32LE();
+	}
 
 	return script;
 }
@@ -358,28 +399,38 @@ Templates::ScriptInstance ObjectBinaryReadStream::readScriptInstance() {
 	return scriptInstance;
 }
 
-Templates::PointLight ObjectBinaryReadStream::readPointLight() {
+Templates::PointLight ObjectBinaryReadStream::readPointLight(unsigned int version) {
+	/*
+     * Versions:
+     * Alan Wake: 11
+     * Alan Wakes American Nightmare: 13
+     */
 	Templates::PointLight pointLight{};
 
 	pointLight.gid = readGID();
-	pointLight.gid2 = readGID();
 
-	pointLight.rotation = readRotation();
-	pointLight.position = readPosition();
+	if (version == 13) {
+		pointLight.gid2 = readGID();
 
-	float val1 = _stream.readIEEEFloatLE();
-	float val2 = _stream.readIEEEFloatLE();
-	float val3 = _stream.readIEEEFloatLE();
-	float val4 = _stream.readIEEEFloatLE();
+		pointLight.rotation = readRotation();
+		pointLight.position = readPosition();
 
-	_stream.skip(10);
+		float val1 = _stream.readIEEEFloatLE();
+		float val2 = _stream.readIEEEFloatLE();
+		float val3 = _stream.readIEEEFloatLE();
+		float val4 = _stream.readIEEEFloatLE();
 
-	pointLight.meshRid = std::any_cast<rid_t>(readObject(kRID));
-	pointLight.staticShadowMapRid = std::any_cast<rid_t>(readObject(kRID));
+		_stream.skip(10);
 
-	float val5 = _stream.readIEEEFloatLE();
+		pointLight.meshRid = std::any_cast<rid_t>(readObject(kRID));
+		pointLight.staticShadowMapRid = std::any_cast<rid_t>(readObject(kRID));
 
-	_stream.skip(70);
+		float val5 = _stream.readIEEEFloatLE();
+
+		_stream.skip(70);
+	} else { // Version 11
+		_stream.skip(0x94);
+	}
 
 	return pointLight;
 }
@@ -395,7 +446,12 @@ Templates::FloatingScript ObjectBinaryReadStream::readFloatingScript() {
 	return floatingScript;
 }
 
-Templates::Trigger ObjectBinaryReadStream::readTrigger() {
+Templates::Trigger ObjectBinaryReadStream::readTrigger(unsigned int version) {
+	/*
+     * Versions:
+     * Alan Wake: 18
+     * Alan Wakes American Nightmare: 20
+     */
 	Templates::Trigger trigger{};
 
 	trigger.gid2 = readGID();
@@ -413,7 +469,10 @@ Templates::Trigger ObjectBinaryReadStream::readTrigger() {
 	unsigned int count = _stream.readUint32LE();
 	auto values = _dp->getValues(_stream.readUint32LE(), count);
 
-	_stream.skip(7);
+	if (version == 20)
+		_stream.skip(7);
+	else
+		_stream.skip(3);
 
 	return trigger;
 }
@@ -608,26 +667,27 @@ Object ObjectBinaryReadStreamV1::readObject(ObjectType type, unsigned int versio
 		case kRID: object = readRID(); break;
 		case kAABB: object = readAABB(); break;
 		case kStaticObject: object = readStaticObject(); break;
-		case kDynamicObject: object = readDynamicObject(); break;
-		case kDynamicObjectScript: object = readDynamicObjectScript(); break;
+		case kDynamicObject: object = readDynamicObject(version); break;
+		case kDynamicObjectScript: object = readDynamicObjectScript(version); break;
 		case kCellInfo: object = readCellInfo(); break;
-		case kAnimation: object = readAnimation(); break;
+		case kAnimation: object = readAnimation(version); break;
 		case kSkeleton: object = readSkeleton(); break;
 		case kSkeletonSetup: object = readSkeletonSetup(); break;
 		case kNotebookPage: object = readNotebookPage(); break;
 		case kSound: object = readSound(); break;
-		case kCharacter: object = readCharacter(); break;
+		case kCharacter: object = readCharacter(version); break;
 		case kCharacterScript: object = readCharacterScript(); break;
 		case kTaskDefinition: object = readTaskDefinition(); break;
 		case kTaskContent: object = readTaskContent(); break;
 		case kScriptVariables: object = readScriptVariables(); break;
 		case kScript: object = readScript(); break;
 		case kScriptInstance: object = readScriptInstance(); break;
-		case kPointLight: object = readPointLight(); break;
+		case kPointLight: object = readPointLight(version); break;
 		case kFloatingScript: object = readFloatingScript(); break;
-		case kTrigger: object = readTrigger(); break;
+		case kTrigger: object = readTrigger(version); break;
 		case kAreaTrigger: object = readAreaTrigger(); break;
 		case kAttachmentResources: object = readAttachmentResources(); break;
+		case kWaypoint: object = readWaypoint(); break;
 
 		case kFileInfoMetadata: object = readFileInfoMetadata(); break;
 		case kFoliageMeshMetadata: object = readFoliageMeshMetadata(); break;
@@ -662,28 +722,31 @@ Object ObjectBinaryReadStreamV2::readObject(ObjectType type, unsigned int versio
 	if (version != tagVersion && version != 0)
 		throw std::runtime_error("Container has unexpected version");
 
+	if (version == 0)
+		version = tagVersion;
+
 	Object object;
 	switch (type) {
 		case kRID: object = readRID(); break;
 		case kStaticObject: object = readStaticObject(); break;
-		case kDynamicObject: object = readDynamicObject(); break;
-		case kDynamicObjectScript: object = readDynamicObjectScript(); break;
+		case kDynamicObject: object = readDynamicObject(version); break;
+		case kDynamicObjectScript: object = readDynamicObjectScript(version); break;
 		case kCellInfo: object = readCellInfo(); break;
-		case kAnimation: object = readAnimation(); break;
+		case kAnimation: object = readAnimation(version); break;
 		case kSkeleton: object = readSkeleton(); break;
 		case kSkeletonSetup: object = readSkeletonSetup(); break;
 		case kNotebookPage: object = readNotebookPage(); break;
 		case kSound: object = readSound(); break;
-		case kCharacter: object = readCharacter(); break;
+		case kCharacter: object = readCharacter(version); break;
 		case kCharacterScript: object = readCharacterScript(); break;
-		case kTaskDefinition: object = readTaskDefinition(); break;
+		case kTaskDefinition: object = readTaskDefinition(version); break;
 		case kTaskContent: object = readTaskContent(); break;
-		case kScriptVariables: object = readScriptVariables(); break;
+		case kScriptVariables: object = readScriptVariables(version); break;
 		case kScript: object = readScript(); break;
 		case kScriptInstance: object = readScriptInstance(); break;
-		case kPointLight: object = readPointLight(); break;
+		case kPointLight: object = readPointLight(version); break;
 		case kFloatingScript: object = readFloatingScript(); break;
-		case kTrigger: object = readTrigger(); break;
+		case kTrigger: object = readTrigger(version); break;
 		case kAreaTrigger: object = readAreaTrigger(); break;
 		case kAttachmentResources: object = readAttachmentResources(); break;
 		case kWaypoint: object = readWaypoint(); break;
