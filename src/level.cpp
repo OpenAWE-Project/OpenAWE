@@ -19,6 +19,7 @@
  */
 
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include "src/awe/binarchive.h"
 #include "src/awe/terraindatafile.h"
@@ -27,6 +28,7 @@
 #include "src/level.h"
 
 Level::Level(entt::registry &registry, const std::string &id, const std::string &world) : ObjectCollection(registry), _id(id), _world(world) {
+	spdlog::info("Loading level {}", id);
 	std::string levelFolder = fmt::format("worlds/{}/levels/{}", world, id);
 
 	loadGIDRegistry(ResMan.getResource(fmt::format("{}/GIDRegistry.txt", levelFolder)));
@@ -46,10 +48,15 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 
 	auto dp = std::make_shared<DPFile>(persistent.getResource("dp_persistent.bin"));
 
+	spdlog::info("Loading dynamic objects for {}", id);
 	load(persistent.getResource("cid_dynamicobject.bin"), kDynamicObject, dp);
 	load(persistent.getResource("cid_dynamicobjectscript.bin"), kDynamicObjectScript, dp);
+
+	spdlog::info("Loading characters for {}", id);
 	load(persistent.getResource("cid_character.bin"), kCharacter, dp);
 	load(persistent.getResource("cid_characterscript.bin"), kCharacterScript, dp);
+
+	spdlog::info("Loading floating scripts for {}", id);
 	load(persistent.getResource("cid_floatingscript.bin"), kFloatingScript, dp);
 
 	const auto cellInfo = loadCellInfo(global.getResource("cid_cellinfo.bin"));
