@@ -53,6 +53,10 @@ Bytecode::Bytecode(Common::ReadStream *bytecode, const EntryPoints &entryPoints,
 	_parameters(parameters) {
 }
 
+bool Bytecode::hasEntryPoint(const std::string &entryPoint) {
+	return _entryPoints.find(entryPoint) != _entryPoints.end();
+}
+
 void Bytecode::run(Context &context, const std::string &entryPoint, const entt::entity &caller) {
 	spdlog::debug("Starting script entry point {}", entryPoint);
 	auto entryPointIter = _entryPoints.find(entryPoint);

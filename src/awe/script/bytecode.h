@@ -44,6 +44,12 @@ class Bytecode : Common::Noncopyable {
 public:
 	Bytecode(Common::ReadStream *bytecode, const EntryPoints &entryPoints, std::shared_ptr<DPFile> parameters);
 
+	/*!
+	 * Check if a specific entry point is available
+	 * \param entryPoint the entry point to check for
+	 * \return if this entry point exists in this byte code
+	 */
+	bool hasEntryPoint(const std::string &entryPoint);
 	void run(Context &context, const std::string &entryPoint, const entt::entity &caller);
 
 private:
