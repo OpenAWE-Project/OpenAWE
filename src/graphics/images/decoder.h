@@ -39,7 +39,9 @@ public:
 	};
 
 	enum Type {
-		kImage,
+		kTexture1D,
+		kTexture2D,
+		kTexture3D,
 		kCubemap
 	};
 

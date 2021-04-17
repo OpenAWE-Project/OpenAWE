@@ -40,7 +40,7 @@ TEX::TEX(Common::ReadStream &tex) {
 
 	switch (type) {
 		case 0: // Texture2D
-			_type = kImage;
+			_type = kTexture2D;
 			break;
 
 		case 2: // Cubemap

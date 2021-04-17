@@ -33,7 +33,7 @@ Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id) {
 		case ImageDecoder::kCubemap:
 			_type = GL_TEXTURE_CUBE_MAP;
 			break;
-		case ImageDecoder::kImage:
+		case ImageDecoder::kTexture2D:
 			if (layered)
 				_type = GL_TEXTURE_2D_ARRAY;
 			else
