@@ -677,9 +677,9 @@ Object ObjectBinaryReadStreamV1::readObject(ObjectType type, unsigned int versio
 		case kSound: object = readSound(); break;
 		case kCharacter: object = readCharacter(version); break;
 		case kCharacterScript: object = readCharacterScript(); break;
-		case kTaskDefinition: object = readTaskDefinition(); break;
+		case kTaskDefinition: object = readTaskDefinition(version); break;
 		case kTaskContent: object = readTaskContent(); break;
-		case kScriptVariables: object = readScriptVariables(); break;
+		case kScriptVariables: object = readScriptVariables(version); break;
 		case kScript: object = readScript(); break;
 		case kScriptInstance: object = readScriptInstance(); break;
 		case kPointLight: object = readPointLight(version); break;
