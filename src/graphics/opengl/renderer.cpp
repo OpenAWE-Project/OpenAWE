@@ -381,6 +381,14 @@ void Renderer::drawWorld() {
 					glDisable(GL_CULL_FACE);
 			}
 
+			if (partmesh.wireframe) {
+				glDisable(GL_DEPTH_TEST);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			} else {
+				glEnable(GL_DEPTH_TEST);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+
 			glDrawElements(
 					type,
 					partmesh.length,

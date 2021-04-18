@@ -50,6 +50,7 @@ public:
 		Common::UUID vertexAttributesId;
 		RenderType renderType;
 		Material material;
+		bool wireframe{false};
 		unsigned int offset{}, length{};
 	};
 
