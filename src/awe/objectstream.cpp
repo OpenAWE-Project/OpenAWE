@@ -715,7 +715,6 @@ Object ObjectBinaryReadStreamV2::readObject(ObjectType type, unsigned int versio
 	uint32_t contentHash = _stream.readUint32LE();
 	uint32_t tagVersion = _stream.readUint32LE();
 
-	uint32_t h = getContentHash(type);
 	if (getContentHash(type) != contentHash)
 		throw std::runtime_error("Container has unexpected content");
 
