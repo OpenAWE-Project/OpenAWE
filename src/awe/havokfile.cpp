@@ -28,6 +28,8 @@
 
 #include "havokfile.h"
 
+namespace AWE {
+
 struct Section {
 	std::string sectionName;
 	uint32_t absoluteDataStart;
@@ -843,3 +845,5 @@ uint32_t HavokFile::readFixup(Common::ReadStream &binhkx, uint32_t section) {
 
 	return fixup.targetAddress;
 }
+
+} // End of namespace AWE

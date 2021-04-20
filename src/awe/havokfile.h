@@ -29,6 +29,8 @@
 
 #include "src/common/readstream.h"
 
+namespace AWE {
+
 class HavokFile {
 public:
 	enum Version {
@@ -89,6 +91,7 @@ public:
 	hkaAnimationContainer getAnimationContainer() const;
 
 	hkaSkeleton getSkeleton(uint32_t address);
+
 	hkaAnimation getAnimation(uint32_t address);
 
 private:
@@ -140,5 +143,6 @@ private:
 
 };
 
+} // End of namespace AWE
 
 #endif //AWE_HAVOKFILE_H
