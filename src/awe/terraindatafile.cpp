@@ -197,4 +197,12 @@ const std::vector<TerrainDataFile::Vertex> &TerrainDataFile::getVertices() {
 	return _vertices;
 }
 
+const std::vector<TerrainDataFile::Polygon> &TerrainDataFile::getPolygons() {
+	return _polygons;
+}
+
+const std::vector<std::string> &TerrainDataFile::getTextures() {
+	return _textures;
+}
+
 }

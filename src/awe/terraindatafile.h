@@ -59,6 +59,8 @@ public:
 	TerrainDataFile(Common::ReadStream &readStream);
 
 	const std::vector<Vertex> &getVertices();
+	const std::vector<Polygon> &getPolygons();
+	const std::vector<std::string> &getTextures();
 
 private:
 	std::vector<Vertex> _vertices;
