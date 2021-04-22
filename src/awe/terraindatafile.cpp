@@ -83,14 +83,43 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 			uint8_t numVertexReferences = terrainData.readByte();
 			assert(polygon.indices.size() == numVertexReferences);
 
-			glm::u8vec3 unknownVertex;
-			unknownVertex.x = terrainData.readByte();
-			unknownVertex.y = terrainData.readByte();
-			unknownVertex.z = terrainData.readByte();
+			glm::u8vec3 binormalSign;
+			binormalSign.x = terrainData.readByte();
+			binormalSign.y = terrainData.readByte();
+			binormalSign.z = terrainData.readByte();
 
-			// Displacement map?
-			terrainData.skip(64);
-			terrainData.skip(72);
+			// Texcoords for maps
+			for (auto & texCoord : polygon.texCoords) {
+				texCoord.resize(numVertexReferences);
+			}
+			for (int i = 0; i < numVertexReferences; ++i) {
+				for (auto & texCoord : polygon.texCoords) {
+					texCoord[i].s = static_cast<float>(terrainData.readSint16LE()) / 32767.0f;
+					texCoord[i].t = static_cast<float>(terrainData.readSint16LE()) / 32767.0f;
+				}
+			}
+
+			// Skip over all unused tex coordinates
+			for (int i = 0; i < 4 - numVertexReferences; ++i) {
+				terrainData.skip(16);
+			}
+
+			// Tangents
+			for (auto & tangent : polygon.tangents) {
+				tangent.resize(numVertexReferences);
+			}
+			for (int i = 0; i < numVertexReferences; ++i) {
+				for (auto & tangent : polygon.tangents) {
+					tangent[i].x = static_cast<float>(terrainData.readSint16LE()) / 32767.0f;
+					tangent[i].y = static_cast<float>(terrainData.readSint16LE()) / 32767.0f;
+					tangent[i].z = static_cast<float>(terrainData.readSint16LE()) / 32767.0f;
+				}
+			}
+
+			// Skip over all unused tangents
+			for (int i = 0; i < 4 - numVertexReferences; ++i) {
+				terrainData.skip(24);
+			}
 
 			Common::BoundSphere boundSphere;
 			polygon.boundSphere.position.x = terrainData.readIEEEFloatLE();

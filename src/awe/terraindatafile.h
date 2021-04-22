@@ -45,6 +45,8 @@ public:
 	struct Polygon {
 		Common::BoundSphere boundSphere;
 		std::vector<uint32_t> indices;
+		std::vector<glm::vec2> texCoords[4];
+		std::vector<glm::vec3> tangents[3];
 		uint16_t tilesetId;
 		uint16_t flags;
 	};
