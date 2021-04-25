@@ -44,6 +44,8 @@ protected:
 	void load(Common::ReadStream *stream, ObjectType type);
 	void load(Common::ReadStream *stream, ObjectType type, std::shared_ptr<DPFile> dp);
 
+	void loadFoliageData(Common::ReadStream *foliageData);
+
 	entt::registry &_registry;
 
 private:

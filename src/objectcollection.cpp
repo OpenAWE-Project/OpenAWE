@@ -24,8 +24,10 @@
 
 #include "awe/cidfile.h"
 #include "awe/dpfile.h"
+#include "awe/foliagedatafile.h"
 
 #include "src/graphics/model.h"
+#include "src/graphics/meshman.h"
 
 #include "objectcollection.h"
 
@@ -67,6 +69,26 @@ void ObjectCollection::load(Common::ReadStream *stream, ObjectType type, std::sh
 
 	for (const auto &container : cid.getContainers()) {
 		load(container, type);
+	}
+}
+
+void ObjectCollection::loadFoliageData(Common::ReadStream *foliageData) {
+	std::unique_ptr<Common::ReadStream> foliageDataStream(foliageData);
+	AWE::FoliageDataFile foliageDataFile(*foliageDataStream);
+
+	std::vector<Graphics::MeshPtr> foliageMeshs;
+	for (const auto &foliage : foliageDataFile.getFoliages()) {
+		foliageMeshs.emplace_back(MeshMan.getMesh(foliage));
+	}
+
+	for (const auto &instance : foliageDataFile.getInstances()) {
+		entt::entity foliage = _registry.create();
+		Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(foliage) = std::make_shared<Graphics::Model>(foliageMeshs[instance.foliageId]);
+
+		model->getPosition() = instance.position;
+		model->getRotation() = glm::identity<glm::mat3>();
+
+		_entities.emplace_back(foliage);
 	}
 }
 
