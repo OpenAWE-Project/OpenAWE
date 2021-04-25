@@ -39,8 +39,8 @@ _rotation(1.0f), _scale(1.0f), _mesh(MeshMan.getMesh(path)) {
 	show();
 }
 
-Model::Model(MeshPtr mesh) : _mesh(mesh) {
-	Model();
+Model::Model(MeshPtr mesh) :_position(0.0f, 0.0f, 0.0f),
+                            _rotation(1.0f), _scale(1.0f), _mesh(mesh) {
 	show();
 }
 
