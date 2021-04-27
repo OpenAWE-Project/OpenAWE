@@ -89,7 +89,8 @@ enum ObjectType {
 	kTaskContent,
 	kKeyFramer,
 	kSound,
-	kAttachmentResources
+	kAttachmentResources,
+	kCharacterClothParameters
 };
 
 #endif //AWE_TYPES_H
