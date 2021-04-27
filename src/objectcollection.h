@@ -67,6 +67,7 @@ private:
 	void loadWaypoint(const AWE::Object &container);
 	void loadSound(const AWE::Object &container);
 	void loadTrigger(const AWE::Object &container);
+	void loadCharacterClass(const AWE::Object &container);
 
 	std::vector<entt::entity> _entities;
 	std::unique_ptr<AWE::GIDRegistryFile> _gid;

@@ -109,6 +109,7 @@ void ObjectCollection::load(const AWE::Object &container, ObjectType type) {
 		case kWaypoint: loadWaypoint(container); break;
 		case kSound: loadSound(container); break;
 		case kTrigger: loadTrigger(container); break;
+		case kCharacterClass: loadCharacterClass(container); break;
 	}
 }
 
@@ -319,4 +320,16 @@ void ObjectCollection::loadTrigger(const AWE::Object &container) {
 	_entities.emplace_back(triggerEntity);
 
 	spdlog::debug("Loading trigger {}", _gid->getString(trigger.gid));
+}
+
+void ObjectCollection::loadCharacterClass(const AWE::Object &container) {
+	const auto characterClass = std::any_cast<AWE::Templates::CharacterClass>(container);
+
+	auto characterClassEntity = _registry.create();
+	_registry.emplace<GID>(characterClassEntity) = characterClass.gid;
+	_registry.emplace<AWE::Templates::CharacterClass>(characterClassEntity) = characterClass;
+
+	_entities.emplace_back(characterClassEntity);
+
+	spdlog::debug("Loading character class {}", _gid->getString(characterClass.gid));
 }
