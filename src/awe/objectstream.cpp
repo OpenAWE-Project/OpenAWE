@@ -27,30 +27,31 @@
 static const uint32_t kDeadBeef   = 0xDEADBEEF;
 static const uint32_t kDeadBeefV2 = 0xD34DB33F;
 
-static const uint32_t kContentHashResourceID          = Common::crc32(Common::toLower("content::ResourceID"));
-static const uint32_t kContentHashStaticObject        = Common::crc32(Common::toLower("content::StaticObject"));
-static const uint32_t kContentHashDynamicObject       = Common::crc32(Common::toLower("content::DynamicObject"));
-static const uint32_t kContentHashDynamicObjectScript = Common::crc32(Common::toLower("content::DynamicObjectScript"));
-static const uint32_t kContentHashCellInfo            = Common::crc32(Common::toLower("content::CellInfo"));
-static const uint32_t kContentHashAnimation           = Common::crc32(Common::toLower("content::Animation"));
-static const uint32_t kContentHashSkeleton            = Common::crc32(Common::toLower("content::DBSkeleton"));
-static const uint32_t kContentHashSound               = Common::crc32(Common::toLower("content::DBSound"));
-static const uint32_t kContentHashSkeletonSetup       = Common::crc32(Common::toLower("content::SkeletonSetup"));
-static const uint32_t kContentHashNotebookPage        = Common::crc32(Common::toLower("content::NotebookPage"));
-static const uint32_t kContentHashCharacter           = Common::crc32(Common::toLower("content::Character"));
-static const uint32_t kContentHashCharacterScript     = Common::crc32(Common::toLower("content::CharacterScript"));
-static const uint32_t kContentHashLoadingScreenHint   = Common::crc32(Common::toLower("content::LoadingScreenHint"));
-static const uint32_t kContentHashTaskDefinition      = Common::crc32(Common::toLower("content::TaskDefinition"));
-static const uint32_t kContentHashScriptVariables     = Common::crc32(Common::toLower("content::ScriptVariables"));
-static const uint32_t kContentHashScript              = Common::crc32(Common::toLower("content::Script"));
-static const uint32_t kContentHashScriptInstance      = Common::crc32(Common::toLower("content::ScriptInstance"));
-static const uint32_t kContentHashPointLight          = Common::crc32(Common::toLower("content::PointLightInstance"));
-static const uint32_t kContentHashFloatingScript      = Common::crc32(Common::toLower("content::FloatingScript"));
-static const uint32_t kContentHashTrigger             = Common::crc32(Common::toLower("content::Trigger"));
-static const uint32_t kContentHashAreaTrigger         = Common::crc32(Common::toLower("content::AreaTrigger"));
-static const uint32_t kContentHashTaskContent         = Common::crc32(Common::toLower("content::TaskContent"));
-static const uint32_t kContentHashAttachmentResources = Common::crc32(Common::toLower("content::AttachmentResources"));
-static const uint32_t kContentHashWaypoint            = Common::crc32(Common::toLower("content::Waypoint"));
+static const uint32_t kContentHashResourceID           = Common::crc32(Common::toLower("content::ResourceID"));
+static const uint32_t kContentHashStaticObject         = Common::crc32(Common::toLower("content::StaticObject"));
+static const uint32_t kContentHashDynamicObject        = Common::crc32(Common::toLower("content::DynamicObject"));
+static const uint32_t kContentHashDynamicObjectScript  = Common::crc32(Common::toLower("content::DynamicObjectScript"));
+static const uint32_t kContentHashCellInfo             = Common::crc32(Common::toLower("content::CellInfo"));
+static const uint32_t kContentHashAnimation            = Common::crc32(Common::toLower("content::Animation"));
+static const uint32_t kContentHashSkeleton             = Common::crc32(Common::toLower("content::DBSkeleton"));
+static const uint32_t kContentHashSound                = Common::crc32(Common::toLower("content::DBSound"));
+static const uint32_t kContentHashSkeletonSetup        = Common::crc32(Common::toLower("content::SkeletonSetup"));
+static const uint32_t kContentHashNotebookPage         = Common::crc32(Common::toLower("content::NotebookPage"));
+static const uint32_t kContentHashCharacter            = Common::crc32(Common::toLower("content::Character"));
+static const uint32_t kContentHashCharacterScript      = Common::crc32(Common::toLower("content::CharacterScript"));
+static const uint32_t kContentHashLoadingScreenHint    = Common::crc32(Common::toLower("content::LoadingScreenHint"));
+static const uint32_t kContentHashTaskDefinition       = Common::crc32(Common::toLower("content::TaskDefinition"));
+static const uint32_t kContentHashScriptVariables      = Common::crc32(Common::toLower("content::ScriptVariables"));
+static const uint32_t kContentHashScript               = Common::crc32(Common::toLower("content::Script"));
+static const uint32_t kContentHashScriptInstance       = Common::crc32(Common::toLower("content::ScriptInstance"));
+static const uint32_t kContentHashPointLight           = Common::crc32(Common::toLower("content::PointLightInstance"));
+static const uint32_t kContentHashFloatingScript       = Common::crc32(Common::toLower("content::FloatingScript"));
+static const uint32_t kContentHashTrigger              = Common::crc32(Common::toLower("content::Trigger"));
+static const uint32_t kContentHashAreaTrigger          = Common::crc32(Common::toLower("content::AreaTrigger"));
+static const uint32_t kContentHashTaskContent          = Common::crc32(Common::toLower("content::TaskContent"));
+static const uint32_t kContentHashAttachmentResources  = Common::crc32(Common::toLower("content::AttachmentResources"));
+static const uint32_t kContentHashWaypoint             = Common::crc32(Common::toLower("content::Waypoint"));
+static const uint32_t kContentCharacterClothParameters = Common::crc32(Common::toLower("content::Character::ClothParameters"));
 
 namespace AWE {
 
@@ -274,7 +275,7 @@ Templates::Character ObjectBinaryReadStream::readCharacter(unsigned int version)
 		// Cloth
 		character.clothResource = std::any_cast<rid_t>(readObject(kRID));
 
-		// Unknown container
+		// TODO: Cloth Parameters
 		_stream.skip(48);
 
 		// FaceFX
