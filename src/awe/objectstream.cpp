@@ -779,6 +779,7 @@ ObjectBinaryReadStreamV2::ObjectBinaryReadStreamV2(Common::ReadStream &stream, s
 }
 
 Object ObjectBinaryReadStreamV2::readObject(ObjectType type, unsigned int version) {
+	size_t begin = _stream.pos();
 	uint32_t magicValue = _stream.readUint32LE();
 	if (magicValue != kDeadBeef)
 		throw std::runtime_error("Container missing Deadbeef magic id");
@@ -829,6 +830,10 @@ Object ObjectBinaryReadStreamV2::readObject(ObjectType type, unsigned int versio
 	magicValue = _stream.readUint32LE();
 	if (magicValue != kDeadBeef)
 		throw std::runtime_error("Container missing Deadbeef magic id");
+
+	size_t end = _stream.pos();
+	if (end - begin != size)
+		throw std::runtime_error("Invalid size of object tag");
 
 	return object;
 }
