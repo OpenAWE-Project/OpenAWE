@@ -38,6 +38,7 @@ static const uint32_t kContentHashSound                = Common::crc32(Common::t
 static const uint32_t kContentHashSkeletonSetup        = Common::crc32(Common::toLower("content::SkeletonSetup"));
 static const uint32_t kContentHashNotebookPage         = Common::crc32(Common::toLower("content::NotebookPage"));
 static const uint32_t kContentHashCharacter            = Common::crc32(Common::toLower("content::Character"));
+static const uint32_t kContentHashCharacterClass       = Common::crc32(Common::toLower("content::DBCharacterClass"));
 static const uint32_t kContentHashCharacterScript      = Common::crc32(Common::toLower("content::CharacterScript"));
 static const uint32_t kContentHashLoadingScreenHint    = Common::crc32(Common::toLower("content::LoadingScreenHint"));
 static const uint32_t kContentHashTaskDefinition       = Common::crc32(Common::toLower("content::TaskDefinition"));
@@ -52,6 +53,7 @@ static const uint32_t kContentHashTaskContent          = Common::crc32(Common::t
 static const uint32_t kContentHashAttachmentResources  = Common::crc32(Common::toLower("content::AttachmentResources"));
 static const uint32_t kContentHashWaypoint             = Common::crc32(Common::toLower("content::Waypoint"));
 static const uint32_t kContentCharacterClothParameters = Common::crc32(Common::toLower("content::Character::ClothParameters"));
+static const uint32_t kContentHashAnimationParameters  = Common::crc32(Common::toLower("content::AnimationParameters"));
 
 namespace AWE {
 
@@ -311,6 +313,57 @@ Templates::CharacterScript ObjectBinaryReadStream::readCharacterScript() {
 	return characterScript;
 }
 
+Templates::CharacterClass ObjectBinaryReadStream::readCharacterClass(unsigned int version) {
+	/*
+	 * Versions:
+	 * Alan Wake: 38
+	 * Alan Wakes American Nightmare: 42
+	 */
+	Templates::CharacterClass characterClass{};
+
+	characterClass.gid = readGID();
+	characterClass.name = _dp->getString(_stream.readUint32LE());
+
+	uint32_t numBaseClasses = 4;
+	if (version == 42)
+		numBaseClasses = _stream.readUint32LE();
+
+	for (int i = 0; i < numBaseClasses; ++i) {
+		const auto baseClass = _dp->getString(_stream.readUint32LE());
+		if (!baseClass.empty())
+			characterClass.baseClasses.emplace_back(baseClass);
+	}
+
+	characterClass.skeletonGid = readGID();
+	if (version == 42) {
+		characterClass.parentName = _dp->getString(_stream.readUint32LE());
+		characterClass.capsuleHeight = _stream.readIEEEFloatLE();
+		characterClass.capsuleRadius = _stream.readIEEEFloatLE();
+		characterClass.lethalDoseOfHitEnergy = _stream.readIEEEFloatLE();
+		characterClass.healthRecoveryStartDelay = _stream.readIEEEFloatLE();
+		characterClass.healthRecoveryTime = _stream.readIEEEFloatLE();
+		characterClass.shadowShieldStrength = _stream.readIEEEFloatLE();
+	}
+
+	characterClass.strongShield = _stream.readByte() != 0;
+	characterClass.kickbackMultiplier = _stream.readIEEEFloatLE();
+	characterClass.timeBetweenDazzles = _stream.readIEEEFloatLE();
+
+	if (version == 42) {
+		// Unknwon values
+		unsigned int count = _stream.readUint32LE();
+		std::vector<uint32_t> values = _dp->getValues(_stream.readUint32LE(), count);
+
+		characterClass.animationParameters = std::any_cast<Templates::AnimationParameters>(readObject(kAnimationParameters));
+
+		_stream.skip(12);
+	} else {
+		_stream.skip(0x49);
+	}
+
+	return characterClass;
+}
+
 Templates::TaskDefinition ObjectBinaryReadStream::readTaskDefinition(unsigned int version) {
 	/*
 	 * Versions:
@@ -541,6 +594,22 @@ Templates::Waypoint ObjectBinaryReadStream::readWaypoint() {
 	return waypoint;
 }
 
+Templates::AnimationParameters ObjectBinaryReadStream::readAnimationParameters() {
+	Templates::AnimationParameters animationParameters{};
+
+	animationParameters.animationBlendTime = _stream.readIEEEFloatLE();
+	animationParameters.halfRotationTime = _stream.readIEEEFloatLE();
+	animationParameters.tiltGain = _stream.readIEEEFloatLE();
+	animationParameters.tiltRegression = _stream.readIEEEFloatLE();
+	animationParameters.tiltAngleRadians = _stream.readIEEEFloatLE();
+	animationParameters.tiltAgility = _stream.readIEEEFloatLE();
+	animationParameters.tiltScaleForward = _stream.readIEEEFloatLE();
+	animationParameters.tiltScaleBackwards = _stream.readIEEEFloatLE();
+	animationParameters.animationProfile = _stream.readUint32LE();
+
+	return animationParameters;
+}
+
 Templates::FileInfoMetadata ObjectBinaryReadStream::readFileInfoMetadata() {
 	Templates::FileInfoMetadata fileInfoMetadata{};
 
@@ -677,6 +746,7 @@ Object ObjectBinaryReadStreamV1::readObject(ObjectType type, unsigned int versio
 		case kNotebookPage: object = readNotebookPage(); break;
 		case kSound: object = readSound(); break;
 		case kCharacter: object = readCharacter(version); break;
+		case kCharacterClass: object = readCharacterClass(version); break;
 		case kCharacterScript: object = readCharacterScript(); break;
 		case kTaskDefinition: object = readTaskDefinition(version); break;
 		case kTaskContent: object = readTaskContent(); break;
@@ -689,6 +759,7 @@ Object ObjectBinaryReadStreamV1::readObject(ObjectType type, unsigned int versio
 		case kAreaTrigger: object = readAreaTrigger(); break;
 		case kAttachmentResources: object = readAttachmentResources(); break;
 		case kWaypoint: object = readWaypoint(); break;
+		case kAnimationParameters: object = readAnimationParameters(); break;
 
 		case kFileInfoMetadata: object = readFileInfoMetadata(); break;
 		case kFoliageMeshMetadata: object = readFoliageMeshMetadata(); break;
@@ -738,6 +809,7 @@ Object ObjectBinaryReadStreamV2::readObject(ObjectType type, unsigned int versio
 		case kNotebookPage: object = readNotebookPage(); break;
 		case kSound: object = readSound(); break;
 		case kCharacter: object = readCharacter(version); break;
+		case kCharacterClass: object = readCharacterClass(version); break;
 		case kCharacterScript: object = readCharacterScript(); break;
 		case kTaskDefinition: object = readTaskDefinition(version); break;
 		case kTaskContent: object = readTaskContent(); break;
@@ -750,6 +822,7 @@ Object ObjectBinaryReadStreamV2::readObject(ObjectType type, unsigned int versio
 		case kAreaTrigger: object = readAreaTrigger(); break;
 		case kAttachmentResources: object = readAttachmentResources(); break;
 		case kWaypoint: object = readWaypoint(); break;
+		case kAnimationParameters: object = readAnimationParameters(); break;
 		default: _stream.skip(size - 20);
 	}
 
@@ -773,6 +846,7 @@ uint32_t ObjectBinaryReadStreamV2::getContentHash(ObjectType type) const {
 		case kNotebookPage: return kContentHashNotebookPage;
 		case kSound: return kContentHashSound;
 		case kCharacter: return kContentHashCharacter;
+		case kCharacterClass: return kContentHashCharacterClass;
 		case kCharacterScript: return kContentHashCharacterScript;
 		case kTaskDefinition: return kContentHashTaskDefinition;
 		case kTaskContent: return kContentHashTaskContent;
@@ -785,6 +859,7 @@ uint32_t ObjectBinaryReadStreamV2::getContentHash(ObjectType type) const {
 		case kAreaTrigger: return kContentHashAreaTrigger;
 		case kAttachmentResources: return kContentHashAttachmentResources;
 		case kWaypoint: return kContentHashWaypoint;
+		case kAnimationParameters: return kContentHashAnimationParameters;
 		default: return 0;
 	}
 }

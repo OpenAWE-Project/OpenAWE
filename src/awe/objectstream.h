@@ -66,6 +66,7 @@ protected:
 	Templates::Sound readSound();
 	Templates::Character readCharacter(unsigned int version);
 	Templates::CharacterScript readCharacterScript();
+	Templates::CharacterClass readCharacterClass(unsigned int version);
 	Templates::TaskDefinition readTaskDefinition(unsigned int version);
 	Templates::TaskContent readTaskContent();
 	Templates::ScriptVariables readScriptVariables(unsigned int version);
@@ -77,6 +78,8 @@ protected:
 	Templates::AreaTrigger readAreaTrigger();
 	Templates::AttachmentResource readAttachmentResources();
 	Templates::Waypoint readWaypoint();
+	Templates::AnimationParameters readAnimationParameters();
+
 	Templates::FileInfoMetadata readFileInfoMetadata();
 	Templates::FoliageMeshMetadata readFoliageMeshMetadata();
 	Templates::HavokAnimationMetadata readHavokAnimationMetadata();

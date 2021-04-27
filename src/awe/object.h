@@ -34,11 +34,34 @@ struct StaticObject {
 	rid_t physicsResource;
 };
 
+struct AnimationParameters {
+	float animationBlendTime;
+	float halfRotationTime;
+	float tiltGain;
+	float tiltRegression;
+	float tiltAngleRadians;
+	float tiltAgility;
+	float tiltScaleForward;
+	float tiltScaleBackwards;
+	uint32_t animationProfile;
+};
+
 struct CharacterClass {
 	GID gid;
 	std::string name;
 	std::vector<std::string> baseClasses;
 	GID skeletonGid;
+	std::string parentName;
+	float capsuleHeight;
+	float capsuleRadius;
+	float lethalDoseOfHitEnergy;
+	float healthRecoveryStartDelay;
+	float healthRecoveryTime;
+	float shadowShieldStrength;
+	bool strongShield;
+	float kickbackMultiplier;
+	float timeBetweenDazzles;
+	AnimationParameters animationParameters;
 };
 
 struct Character {
