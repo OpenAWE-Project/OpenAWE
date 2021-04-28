@@ -34,6 +34,7 @@
 #include <memory>
 #include "transform.h"
 #include "task.h"
+#include "utils.h"
 
 ObjectCollection::ObjectCollection(entt::registry &registry) : _registry(registry) {
 }
@@ -177,16 +178,7 @@ void ObjectCollection::loadDynamicObject(const AWE::Object &container) {
 void ObjectCollection::loadDynamicObjectScript(const AWE::Object &container) {
 	const auto dynamicObjectScript = std::any_cast<AWE::Templates::DynamicObjectScript>(container);
 
-	auto gidView = _registry.view<GID>();
-	entt::entity scriptEntity = entt::null;
-	for (const auto &entity : gidView) {
-		GID gid = _registry.get<GID>(entity);
-		if (gid == dynamicObjectScript.gid) {
-			scriptEntity = entity;
-			break;
-		}
-	}
-
+	const entt::entity scriptEntity = getEntityByGID(_registry, dynamicObjectScript.gid);
 	if (scriptEntity == entt::null)
 		throw std::runtime_error("Couldn't find script entity");
 
@@ -226,16 +218,7 @@ void ObjectCollection::loadScriptInstance(const AWE::Object &container) {
 void ObjectCollection::loadScript(const AWE::Object &container) {
 	const auto scriptInstanceScript = std::any_cast<AWE::Templates::Script>(container);
 
-	auto gidView = _registry.view<GID>();
-	entt::entity scriptEntity = entt::null;
-	for (const auto &entity : gidView) {
-		GID gid = _registry.get<GID>(entity);
-		if (gid == scriptInstanceScript.gid) {
-			scriptEntity = entity;
-			break;
-		}
-	}
-
+	entt::entity scriptEntity = getEntityByGID(_registry, scriptInstanceScript.gid);
 	if (scriptEntity == entt::null)
 		throw std::runtime_error("Couldn't find script entity");
 
