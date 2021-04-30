@@ -242,6 +242,16 @@ struct KeyFramer {
 	GID gid;
 };
 
+struct KeyFramedObject {
+	glm::mat3x3 rotation;
+	glm::vec3 position;
+	rid_t meshResource;
+	rid_t physicsResource;
+	GID gid;
+	glm::mat3x3 rotation2;
+	glm::vec3 position2;
+};
+
 struct Sound {
 	GID gid;
 	bool threed;
