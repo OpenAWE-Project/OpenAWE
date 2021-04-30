@@ -54,6 +54,7 @@ static const uint32_t kContentHashAttachmentResources  = Common::crc32(Common::t
 static const uint32_t kContentHashWaypoint             = Common::crc32(Common::toLower("content::Waypoint"));
 static const uint32_t kContentCharacterClothParameters = Common::crc32(Common::toLower("content::Character::ClothParameters"));
 static const uint32_t kContentHashAnimationParameters  = Common::crc32(Common::toLower("content::AnimationParameters"));
+static const uint32_t kContentHashKeyframedObject      = Common::crc32(Common::toLower("content::KeyframedObject"));
 
 namespace AWE {
 
@@ -610,6 +611,29 @@ Templates::AnimationParameters ObjectBinaryReadStream::readAnimationParameters()
 	return animationParameters;
 }
 
+Templates::KeyFramedObject ObjectBinaryReadStream::readKeyFramedObject() {
+	Templates::KeyFramedObject keyFramedObject{};
+
+	keyFramedObject.rotation = readRotation();
+	keyFramedObject.position = readPosition();
+
+	keyFramedObject.physicsResource = std::any_cast<rid_t>(readObject(kRID));
+	std::string source = _dp->getString(_stream.readUint32LE());
+	keyFramedObject.meshResource = std::any_cast<rid_t>(readObject(kRID));
+	std::string name = _dp->getString(_stream.readUint32LE());
+	_stream.skip(8);
+	const uint32_t numRids = _stream.readUint32LE();
+	std::vector<rid_t> rids = _dp->getValues(_stream.readUint32LE(), numRids);
+	keyFramedObject.gid = readGID();
+
+	_stream.skip(9);
+
+	keyFramedObject.rotation2 = readRotation();
+	keyFramedObject.position2 = readPosition();
+
+	return keyFramedObject;
+}
+
 Templates::FileInfoMetadata ObjectBinaryReadStream::readFileInfoMetadata() {
 	Templates::FileInfoMetadata fileInfoMetadata{};
 
@@ -760,6 +784,7 @@ Object ObjectBinaryReadStreamV1::readObject(ObjectType type, unsigned int versio
 		case kAttachmentResources: object = readAttachmentResources(); break;
 		case kWaypoint: object = readWaypoint(); break;
 		case kAnimationParameters: object = readAnimationParameters(); break;
+		case kKeyframedObject: object = readKeyFramedObject(); break;
 
 		case kFileInfoMetadata: object = readFileInfoMetadata(); break;
 		case kFoliageMeshMetadata: object = readFoliageMeshMetadata(); break;
@@ -824,6 +849,7 @@ Object ObjectBinaryReadStreamV2::readObject(ObjectType type, unsigned int versio
 		case kAttachmentResources: object = readAttachmentResources(); break;
 		case kWaypoint: object = readWaypoint(); break;
 		case kAnimationParameters: object = readAnimationParameters(); break;
+		case kKeyframedObject: object = readKeyFramedObject(); break;
 		default: _stream.skip(size - 20);
 	}
 
@@ -865,6 +891,7 @@ uint32_t ObjectBinaryReadStreamV2::getContentHash(ObjectType type) const {
 		case kAttachmentResources: return kContentHashAttachmentResources;
 		case kWaypoint: return kContentHashWaypoint;
 		case kAnimationParameters: return kContentHashAnimationParameters;
+		case kKeyframedObject: return kContentHashKeyframedObject;
 		default: return 0;
 	}
 }

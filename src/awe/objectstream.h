@@ -79,6 +79,7 @@ protected:
 	Templates::AttachmentResource readAttachmentResources();
 	Templates::Waypoint readWaypoint();
 	Templates::AnimationParameters readAnimationParameters();
+	Templates::KeyFramedObject readKeyFramedObject();
 
 	Templates::FileInfoMetadata readFileInfoMetadata();
 	Templates::FoliageMeshMetadata readFoliageMeshMetadata();
