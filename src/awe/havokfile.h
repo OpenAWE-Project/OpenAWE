@@ -24,6 +24,7 @@
 #include <map>
 #include <any>
 #include <vector>
+#include <optional>
 
 #include <glm/detail/type_quat.hpp>
 

@@ -22,6 +22,7 @@
 #define AWE_PROGRAM_H
 
 #include <map>
+#include <optional>
 
 #include "src/common/writestream.h"
 
