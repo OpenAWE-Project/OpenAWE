@@ -25,9 +25,11 @@
 #include "awe/cidfile.h"
 #include "awe/dpfile.h"
 #include "awe/foliagedatafile.h"
+#include "awe/object.h"
 
 #include "src/graphics/model.h"
 #include "src/graphics/meshman.h"
+#include "src/graphics/animation.h"
 
 #include "objectcollection.h"
 
@@ -111,6 +113,7 @@ void ObjectCollection::load(const AWE::Object &container, ObjectType type) {
 		case kSound: loadSound(container); break;
 		case kTrigger: loadTrigger(container); break;
 		case kCharacterClass: loadCharacterClass(container); break;
+		case kKeyframedObject: loadKeyFramedObject(container); break;
 	}
 }
 
@@ -315,4 +318,22 @@ void ObjectCollection::loadCharacterClass(const AWE::Object &container) {
 	_entities.emplace_back(characterClassEntity);
 
 	spdlog::debug("Loading character class {}", _gid->getString(characterClass.gid));
+}
+
+void ObjectCollection::loadKeyFramedObject(const AWE::Object &container) {
+	const auto keyFramedObject = std::any_cast<AWE::Templates::KeyFramedObject>(container);
+
+	auto keyFramedObjectEntity = _registry.create();
+	_registry.emplace<GID>(keyFramedObjectEntity) = keyFramedObject.gid;
+	_registry.emplace<Transform>(keyFramedObjectEntity) = Transform(keyFramedObject.position2, keyFramedObject.rotation2);
+	Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(keyFramedObjectEntity) = std::make_shared<Graphics::Model>(keyFramedObject.meshResource);
+	// TODO: Physics Resource
+
+	model->getPosition() = keyFramedObject.position2;
+	model->getRotation() = keyFramedObject.rotation2;
+
+
+	_entities.emplace_back(keyFramedObjectEntity);
+
+	spdlog::debug("Loading dynamic object {}", _gid->getString(keyFramedObject.gid));
 }
