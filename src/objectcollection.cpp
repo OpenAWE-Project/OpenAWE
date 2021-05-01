@@ -67,6 +67,9 @@ void ObjectCollection::load(Common::ReadStream *stream, ObjectType type) {
 }
 
 void ObjectCollection::load(Common::ReadStream *stream, ObjectType type, std::shared_ptr<DPFile> dp) {
+    if (!stream)
+        return;
+
 	std::unique_ptr<Common::ReadStream> cidStream(stream);
 	AWE::CIDFile cid(*cidStream, type, dp);
 

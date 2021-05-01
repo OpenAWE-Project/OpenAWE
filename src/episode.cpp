@@ -84,11 +84,9 @@ Episode::Episode(entt::registry &registry, const std::string &world, const std::
 
 	spdlog::info("Loading area triggers for {}", id);
 	load(tasks.getResource("cid_areatrigger.bin"), kAreaTrigger, dp);
-	if (tasks.hasResource("cid_areatriggerscript.bin"))
-		load(tasks.getResource("cid_areatriggerscript.bin"), kScript, dp);
+	load(tasks.getResource("cid_areatriggerscript.bin"), kScript, dp);
 
-	if (tasks.hasResource("cid_taskcontent.bin"))
-		load(tasks.getResource("cid_taskcontent.bin"), kTaskContent, dp);
+	load(tasks.getResource("cid_taskcontent.bin"), kTaskContent, dp);
 
 	spdlog::info("Loading task scripts for {}", id);
 	load(tasks.getResource("cid_taskscript.bin"), kScript, dp);
