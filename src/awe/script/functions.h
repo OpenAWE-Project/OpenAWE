@@ -23,6 +23,8 @@
 
 #include <functional>
 #include <map>
+#include <optional>
+#include <random>
 
 #include "types.h"
 
@@ -90,6 +92,11 @@ protected:
 
 
 private:
+    // functions_game.cpp
+    static void getRand01(Context &ctx);
+    static void getRand(Context &ctx);
+    static void getRandInt(Context &ctx);
+
 	static std::map<std::string, NativeFunction> _functions;
 };
 

@@ -23,6 +23,9 @@
 namespace AWE::Script {
 
 std::map<std::string, Functions::NativeFunction> Functions::_functions = {
+        {"GAME.GetRand01" , &Functions::getRand01 },
+        {"GAME.GetRand"   , &Functions::getRand   },
+        {"GAME.GetRandInt", &Functions::getRandInt}
 };
 
 }
