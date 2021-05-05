@@ -42,7 +42,7 @@ BINMSHMesh::BINMSHMesh() {
 void BINMSHMesh::load(Common::ReadStream *binmsh) {
 	uint32_t version = binmsh->readUint32LE();
 
-	if (version != 20 && version != 19)
+	if (version != 21 && version != 20 && version != 19)
 		throw std::runtime_error(fmt::format("Unsupported version {}", version));
 
 	uint32_t vertexBufferSize = binmsh->readUint32LE();
@@ -115,7 +115,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 	uint32_t materialCount = binmsh->readUint32LE();
 	std::vector<Material> materials(materialCount);
 	for (auto &material : materials) {
-		if (version == 20) {
+		if (version >= 20) {
 			uint32_t nameLength = binmsh->readUint32LE();
 			std::string name = binmsh->readFixedSizeString(nameLength);
 		}
@@ -222,6 +222,9 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 		uint32_t vertexOffset = binmsh->readUint32LE();
 		uint32_t faceOffset   = binmsh->readUint32LE();
 		binmsh->skip(4); // Unknown
+
+		if (version >= 21)
+			binmsh->skip(16);
 
 		assert(meshLayer < lodCount);
 
