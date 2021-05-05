@@ -60,6 +60,7 @@ TEX::TEX(Common::ReadStream &tex) {
 		// RGBA8
 		case 4:
 		case 6:
+		case 8:
 			_format = kRGBA8;
 			break;
 
@@ -68,13 +69,9 @@ TEX::TEX(Common::ReadStream &tex) {
 			_format = kDXT1;
 			_compressed = true;
 			break;
-		// DXT3
-		case 7:
-		case 8:
-			_format = kDXT3;
-			_compressed = true;
-			break;
+
 		// DXT5
+		case 7:
 		case 9:
 			_format = kDXT5;
 			_compressed = true;
