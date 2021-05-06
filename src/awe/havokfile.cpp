@@ -131,7 +131,7 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 		uint32_t address = binhkx.readUint32LE();
 		uint32_t targetAddress = binhkx.readUint32LE();
 
-		if (targetAddress == 0xFFFFFFFF || binhkx.eos() || binhkx.pos() - contentsSection.absoluteDataStart >= contentsSection.globalFixupsOffset)
+		if (targetAddress == 0xFFFFFFFF || binhkx.eos() || binhkx.pos() - contentsSection.absoluteDataStart > contentsSection.globalFixupsOffset)
 			break;
 
 		Fixup fixup;
@@ -382,127 +382,131 @@ void HavokFile::readHkxScene(Common::ReadStream &binhkx) {
 std::any HavokFile::readHkaSkeleton(Common::ReadStream &binhkx, uint32_t section) {
 	hkaSkeleton s;
 
-	/*const uint32_t nameOffset = readFixup(binhkx, section);
-	const uint32_t parentIndicesOffset = readFixup(binhkx, section);
-	const uint32_t numParentIndices = binhkx.readUint32LE();
-	const uint32_t bonesOffset = readFixup(binhkx, section);
-	const uint32_t numBones = binhkx.readUint32LE();
-	const uint32_t transformOffset = readFixup(binhkx, section);
-	const uint32_t numTransforms = binhkx.readUint32LE();
+	switch (_version) {
+		case kHavok2010_2_0_r1: {
+			binhkx.skip(8);
+			uint32_t nameOffset = readFixup(binhkx, section);
 
-	binhkx.seek(nameOffset);
-	s.name = binhkx.readNullTerminatedString();
+			hkArray parentBoneIndicesArray = readHkArray(binhkx, section);
+			hkArray boneArray = readHkArray(binhkx, section);
+			hkArray transformArray = readHkArray(binhkx, section);
+			hkArray referenceFloatArray = readHkArray(binhkx, section);
+			hkArray floatSlotArray = readHkArray(binhkx, section);
+			hkArray localFrameArray = readHkArray(binhkx, section);
+			hkArray partitionArray = readHkArray(binhkx, section);
 
-	binhkx.seek(parentIndicesOffset);
-	std::vector<int16_t> parentIndices(numParentIndices);
-	for (auto &parentIndex : parentIndices) {
-		parentIndex = binhkx.readSint16LE();
-	}
+			binhkx.seek(nameOffset);
+			s.name = binhkx.readNullTerminatedString();
 
-	binhkx.seek(bonesOffset);
-	s.bones.resize(numBones);
-	for (auto &bone : s.bones) {
-		const uint32_t boneOffset = readFixup(binhkx, section);
-		const size_t lastPos = binhkx.pos();
+			binhkx.seek(parentBoneIndicesArray.offset);
+			std::vector<int16_t> parentIndices(parentBoneIndicesArray.count);
+			for (auto &parentIndex : parentIndices) {
+				parentIndex = binhkx.readUint16LE();
+			}
 
-		binhkx.seek(boneOffset);
+			binhkx.seek(boneArray.offset);
+			for (int i = 0; i < boneArray.count; ++i) {
+				uint32_t boneNameOffset = readFixup(binhkx, section);
+				bool translationLocked = binhkx.readUint32LE() == 1;
 
-		const uint32_t boneNameOffset = readFixup(binhkx, section);
-		bone.translationLocked = binhkx.readUint32LE() == 1;
+				size_t lastPos = binhkx.pos();
+				binhkx.seek(boneNameOffset);
+				std::string boneName = binhkx.readNullTerminatedString();
+				binhkx.seek(lastPos);
 
-		binhkx.seek(boneNameOffset);
-		bone.name = binhkx.readNullTerminatedString();
+				hkaSkeleton::Bone bone;
+				bone.name = boneName;
+				bone.translationLocked = translationLocked;
+				bone.parentIndex = parentIndices[i];
+				s.bones.emplace_back(bone);
+			}
 
-		binhkx.seek(lastPos);
-	}
+			if (transformArray.offset == 0xFFFFFFFF)
+				return s;
+			binhkx.seek(transformArray.offset);
+			for (int i = 0; i < transformArray.count; ++i) {
+				glm::vec3 position;
+				position.x = binhkx.readIEEEFloatLE();
+				position.y = binhkx.readIEEEFloatLE();
+				position.z = binhkx.readIEEEFloatLE();
+				binhkx.skip(4);
 
-	for (int i = 0; i < parentIndices.size(); ++i) {
-		s.bones[i].parentIndex = parentIndices[i];
-	}
+				glm::quat rotation;
+				rotation.w = binhkx.readIEEEFloatLE();
+				rotation.x = binhkx.readIEEEFloatLE();
+				rotation.y = binhkx.readIEEEFloatLE();
+				rotation.z = binhkx.readIEEEFloatLE();
 
-	binhkx.seek(transformOffset);
-	for (int i = 0; i < numTransforms; ++i) {
-		auto &bone = s.bones[i];
+				glm::vec3 scale;
+				scale.x = binhkx.readIEEEFloatLE();
+				scale.y = binhkx.readIEEEFloatLE();
+				scale.z = binhkx.readIEEEFloatLE();
+				binhkx.skip(4);
 
-		bone.position.x = binhkx.readIEEEFloatLE();
-		bone.position.y = binhkx.readIEEEFloatLE();
-		bone.position.z = binhkx.readIEEEFloatLE();
-		binhkx.skip(4);
+				hkaSkeleton::Bone &bone = s.bones[i];
+				bone.position = position;
+				bone.scale = scale;
+				bone.rotation = rotation;
+			}
+			break;
+		}
+		case kHavok550_r1: {
+			const uint32_t nameOffset = readFixup(binhkx, section);
+			const uint32_t parentIndicesOffset = readFixup(binhkx, section);
+			const uint32_t numParentIndices = binhkx.readUint32LE();
+			const uint32_t bonesOffset = readFixup(binhkx, section);
+			const uint32_t numBones = binhkx.readUint32LE();
+			const uint32_t transformOffset = readFixup(binhkx, section);
+			const uint32_t numTransforms = binhkx.readUint32LE();
 
-		bone.rotation.w = binhkx.readIEEEFloatLE();
-		bone.rotation.x = binhkx.readIEEEFloatLE();
-		bone.rotation.y = binhkx.readIEEEFloatLE();
-		bone.rotation.z = binhkx.readIEEEFloatLE();
+			binhkx.seek(nameOffset);
+			s.name = binhkx.readNullTerminatedString();
 
-		bone.scale.x = binhkx.readIEEEFloatLE();
-		bone.scale.y = binhkx.readIEEEFloatLE();
-		bone.scale.z = binhkx.readIEEEFloatLE();
-		binhkx.skip(4);
-	}*/
+			binhkx.seek(parentIndicesOffset);
+			std::vector<int16_t> parentIndices(numParentIndices);
+			for (auto &parentIndex : parentIndices) {
+				parentIndex = binhkx.readSint16LE();
+			}
 
-	binhkx.skip(8);
-	uint32_t nameOffset = readFixup(binhkx, section);
+			const auto boneOffsets = readFixupArray(binhkx, bonesOffset, numBones, section);
+			binhkx.seek(bonesOffset);
+			//s.bones.resize(numBones);
+			for (const auto &boneOffset : boneOffsets) {
+				binhkx.seek(boneOffset);
 
-	hkArray parentBoneIndicesArray = readHkArray(binhkx, section);
-	hkArray boneArray = readHkArray(binhkx, section);
-	hkArray transformArray = readHkArray(binhkx, section);
-	hkArray referenceFloatArray = readHkArray(binhkx, section);
-	hkArray floatSlotArray = readHkArray(binhkx, section);
-	hkArray localFrameArray = readHkArray(binhkx, section);
-	hkArray partitionArray = readHkArray(binhkx, section);
+				auto &bone = s.bones.emplace_back();
+				const uint32_t boneNameOffset = readFixup(binhkx, section);
+				bone.translationLocked = binhkx.readUint32LE() == 1;
 
-	binhkx.seek(nameOffset);
-	s.name = binhkx.readNullTerminatedString();
+				binhkx.seek(boneNameOffset);
+				bone.name = binhkx.readNullTerminatedString();
+			}
 
-	binhkx.seek(parentBoneIndicesArray.offset);
-	std::vector<int16_t> parentIndices(parentBoneIndicesArray.count);
-	for (auto &parentIndex : parentIndices) {
-		parentIndex = binhkx.readUint16LE();
-	}
+			for (int i = 0; i < parentIndices.size(); ++i) {
+				s.bones[i].parentIndex = parentIndices[i];
+			}
 
-	binhkx.seek(boneArray.offset);
-	for (int i = 0; i < boneArray.count; ++i) {
-		uint32_t boneNameOffset = readFixup(binhkx, section);
-		bool translationLocked = binhkx.readUint32LE() == 1;
+			binhkx.seek(transformOffset);
+			for (int i = 0; i < numTransforms; ++i) {
+				auto &bone = s.bones[i];
 
-		size_t lastPos = binhkx.pos();
-		binhkx.seek(boneNameOffset);
-		std::string boneName = binhkx.readNullTerminatedString();
-		binhkx.seek(lastPos);
+				bone.position.x = binhkx.readIEEEFloatLE();
+				bone.position.y = binhkx.readIEEEFloatLE();
+				bone.position.z = binhkx.readIEEEFloatLE();
+				binhkx.skip(4);
 
-		hkaSkeleton::Bone bone;
-		bone.name = boneName;
-		bone.translationLocked = translationLocked;
-		bone.parentIndex = parentIndices[i];
-		s.bones.emplace_back(bone);
-	}
+				bone.rotation.w = binhkx.readIEEEFloatLE();
+				bone.rotation.x = binhkx.readIEEEFloatLE();
+				bone.rotation.y = binhkx.readIEEEFloatLE();
+				bone.rotation.z = binhkx.readIEEEFloatLE();
 
-	if (transformArray.offset == 0xFFFFFFFF)
-		return s;
-	binhkx.seek(transformArray.offset);
-	for (int i = 0; i < transformArray.count; ++i) {
-		glm::vec3 position;
-		position.x = binhkx.readIEEEFloatLE();
-		position.y = binhkx.readIEEEFloatLE();
-		position.z = binhkx.readIEEEFloatLE();
-		binhkx.skip(4);
-
-		glm::quat rotation;
-		rotation.w = binhkx.readIEEEFloatLE();
-		rotation.x = binhkx.readIEEEFloatLE();
-		rotation.y = binhkx.readIEEEFloatLE();
-		rotation.z = binhkx.readIEEEFloatLE();
-
-		glm::vec3 scale;
-		scale.x = binhkx.readIEEEFloatLE();
-		scale.y = binhkx.readIEEEFloatLE();
-		scale.z = binhkx.readIEEEFloatLE();
-		binhkx.skip(4);
-
-		hkaSkeleton::Bone &bone = s.bones[i];
-		bone.position = position;
-		bone.scale = scale;
-		bone.rotation = rotation;
+				bone.scale.x = binhkx.readIEEEFloatLE();
+				bone.scale.y = binhkx.readIEEEFloatLE();
+				bone.scale.z = binhkx.readIEEEFloatLE();
+				binhkx.skip(4);
+			}
+			break;
+		}
 	}
 
 	/*binhkx.seek(referenceFloatArray.offset);
@@ -802,10 +806,6 @@ void HavokFile::readHkaAnimationContainer(Common::ReadStream &binhkx, uint32_t s
 			const uint32_t numAnimations = binhkx.readUint32LE();
 
 			_animationContainer.skeletons = readFixupArray(binhkx, skeletons, numSkeletons, section);
-			for (auto &skeleton : _animationContainer.skeletons) {
-				binhkx.seek(skeleton);
-				skeleton = readFixup(binhkx, section);
-			}
 		}
 	}
 }
