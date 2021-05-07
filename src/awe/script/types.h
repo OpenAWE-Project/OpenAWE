@@ -28,6 +28,7 @@ namespace AWE::Script {
 
 typedef std::variant<
         uint32_t,
+        std::string,
         entt::entity
 > Variable;
 

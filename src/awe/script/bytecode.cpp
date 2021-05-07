@@ -111,11 +111,13 @@ void Bytecode::run(Context &context, const std::string &entryPoint, const entt::
 void Bytecode::push() {
 	uint32_t data = _bytecode->readUint32LE();
 
-	_stack.push(data);
-	if (_parameters->hasString(data))
+	if (_parameters->hasString(data)) {
+		_stack.push(_parameters->getString(data));
 		spdlog::trace("push \"{}\"", _parameters->getString(data));
-	else
+	} else {
+		_stack.push(data);
 		spdlog::trace("push {}", data);
+	}
 }
 
 void Bytecode::pushGID(Context &ctx) {
@@ -129,9 +131,9 @@ void Bytecode::pushGID(Context &ctx) {
 }
 
 void Bytecode::callGlobal(Context &ctx, const entt::entity &caller, byte numArgs, byte retType) {
-	std::string object = _parameters->getString(std::get<uint32_t>(_stack.top()));
+	std::string object = std::get<std::string>(_stack.top());
 	_stack.pop();
-	std::string method = _parameters->getString(std::get<uint32_t>(_stack.top()));
+	std::string method = std::get<std::string>(_stack.top());
 	_stack.pop();
 
 	std::vector<Variable> arguments(numArgs);
@@ -161,7 +163,7 @@ void Bytecode::callGlobal(Context &ctx, const entt::entity &caller, byte numArgs
 void Bytecode::callObject(Context &ctx, byte numArgs, byte retType) {
 	entt::entity entity = std::get<entt::entity>(_stack.top());
 	_stack.pop();
-	std::string method = _parameters->getString(std::get<uint32_t>(_stack.top()));
+	std::string method = std::get<std::string>(_stack.top());
 	_stack.pop();
 
 	std::vector<Variable> arguments(numArgs);
