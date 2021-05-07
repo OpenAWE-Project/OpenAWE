@@ -18,15 +18,30 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <spdlog/spdlog.h>
+
 #include "src/awe/script/functions.h"
+#include "src/awe/script/bytecode.h"
 
 namespace AWE::Script {
 
-const std::map<std::string, Functions::NativeFunction> Functions::_functions = {
-		{"SendCustomEvent", &Functions::sendCustomEvent},
-        {"GAME.GetRand01" , &Functions::getRand01      },
-        {"GAME.GetRand"   , &Functions::getRand        },
-        {"GAME.GetRandInt", &Functions::getRandInt     }
-};
+void Functions::sendCustomEvent(Context &ctx) {
+	const entt::entity caller = ctx.thisEntity;
+	const std::string eventName = ctx.getString(0);
+
+	if (caller == entt::null) {
+		spdlog::warn("Cannot call custom event without entity, skipping");
+		return;
+	}
+
+	auto bytecode = ctx.functions._registry.get<AWE::Script::BytecodePtr>(caller);
+	if (!bytecode->hasEntryPoint(eventName)) {
+		spdlog::warn("Custom event {} not found, skipping", eventName);
+		return;
+	}
+
+	AWE::Script::Context newContext(ctx.functions._registry, ctx.functions);
+	bytecode->run(newContext, eventName, caller);
+}
 
 }
