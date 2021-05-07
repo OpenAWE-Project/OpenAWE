@@ -46,6 +46,12 @@ public:
 		uint32_t nameOffset;
 	};
 
+	struct ScriptDebugEntry {
+		uint32_t id;
+		uint32_t type;
+		uint32_t nameOffset;
+	};
+
 	struct TaskData1 {
 		uint32_t count, hash;
 	};
@@ -64,6 +70,7 @@ public:
 	std::vector<glm::vec2> getPositions2D(uint32_t offset, unsigned int count);
 	std::vector<ScriptMetadata> getScriptMetadata(uint32_t offset, unsigned int count);
 	std::vector<ScriptSignal> getScriptSignals(uint32_t offset, unsigned int count);
+	std::vector<ScriptDebugEntry> getScriptDebugEntries(uint32_t offset, unsigned int count);
 	Common::ReadStream * getStream(uint32_t offset, unsigned int length);
 	void readTaskData1(uint32_t offset, unsigned int count);
 

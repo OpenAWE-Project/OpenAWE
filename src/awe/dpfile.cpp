@@ -169,6 +169,24 @@ std::vector<DPFile::ScriptSignal> DPFile::getScriptSignals(uint32_t offset, unsi
 	return scriptSignal;
 }
 
+std::vector<DPFile::ScriptDebugEntry> DPFile::getScriptDebugEntries(uint32_t offset, unsigned int count) {
+	bool overlap = (offset & 0x80u) != 0;
+	int32_t relativeOffset = (offset >> 8u) * 8;
+	if (overlap)
+		relativeOffset += 4;
+
+	_dp->seek(-static_cast<int>(_dataSize) + relativeOffset, Common::ReadStream::END);
+
+	std::vector<ScriptDebugEntry> debugEntries(count);
+	for (auto &debugEntry : debugEntries) {
+		debugEntry.id = _dp->readUint32LE();
+		debugEntry.type = _dp->readUint32LE();
+		debugEntry.nameOffset = _dp->readUint32LE();
+	}
+
+	return debugEntries;
+}
+
 Common::ReadStream * DPFile::getStream(uint32_t offset, unsigned int length) {
 	bool overlap = (offset & 0x80u) != 0;
 	int32_t relativeOffset = (offset >> 8u) * 8;
