@@ -168,6 +168,8 @@ void Bytecode::callObject(Context &ctx, byte numArgs, byte retType) {
 
 	std::vector<Variable> arguments(numArgs);
 	for (auto &argument : arguments) {
+		if (_stack.empty())
+			break;
 		argument = _stack.top();
 		_stack.pop();
 	}
