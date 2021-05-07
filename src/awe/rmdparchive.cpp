@@ -245,7 +245,16 @@ void RMDPArchive::loadHeaderV7(Common::ReadStream *bin) {
 		entry.prevFolder = bin->readUint32LE();
 		entry.flags = bin->readUint32LE();
 
-		bin->skip(4); // Name offset
+		uint32_t nameOffset = bin->readUint32LE();
+		if (nameOffset != 0xFFFFFFFF) {
+			size_t lastPos = bin->pos();
+			bin->seek(-static_cast<int>(nameSize) + static_cast<int>(nameOffset), Common::ReadStream::END);
+			entry.name = bin->readNullTerminatedString();
+			bin->seek(lastPos);
+		}
+
+		if (entry.nameHash != Common::crc32(Common::toLower(entry.name)))
+			throw std::runtime_error("Invalid name hash");
 
 		entry.offset = bin->readUint64LE();
 		entry.size = bin->readUint64LE();
