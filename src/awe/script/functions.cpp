@@ -26,7 +26,7 @@
 
 namespace AWE::Script {
 
-Functions::Functions() {
+Functions::Functions(entt::registry &registry) : _registry(registry) {
 
 }
 

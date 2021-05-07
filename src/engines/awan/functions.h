@@ -31,7 +31,7 @@ namespace Engines::AlanWakesAmericanNightmare {
 
 class Functions : public AWE::Script::Functions {
 public:
-	Functions(entt::registry &registry, Engine &engine) : _engine(engine) {
+	Functions(entt::registry &registry, Engine &engine) : AWE::Script::Functions(registry), _engine(engine) {
 	}
 
 	Engine &getEngine();

@@ -23,12 +23,20 @@
 
 #include "src/awe/script/functions.h"
 
+#include "src/engines/aw/engine.h"
+
 namespace Engines::AlanWake {
 
 class Functions : public AWE::Script::Functions {
+public:
+	Functions(entt::registry &registry, Engine &engine) : AWE::Script::Functions(registry), _engine(engine) {
+	}
+
 protected:
 	NativeFunction getFunction(const std::string &name) override;
 
+private:
+	Engine &_engine;
 };
 
 }

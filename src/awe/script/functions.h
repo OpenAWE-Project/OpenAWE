@@ -32,7 +32,7 @@ namespace AWE::Script {
 
 class Functions {
 public:
-	Functions();
+	Functions(entt::registry &registry);
 
 	/*!
 	 * Call an object with a certain function and optionally return a value
@@ -81,6 +81,10 @@ protected:
 			return std::get<entt::entity>(parameters[index]);
 		}
 
+		std::string getString(size_t index) {
+			return std::get<std::string>(parameters[index]);
+		}
+
 		template<typename T> T& getFunctions() {
 			return reinterpret_cast<T&>(functions);
 		}
@@ -90,14 +94,18 @@ protected:
 
 	virtual NativeFunction getFunction(const std::string &name);
 
+	entt::registry &_registry;
 
 private:
+	// functions_object.cpp
+	static void sendCustomEvent(Context &ctx);
+
     // functions_game.cpp
     static void getRand01(Context &ctx);
     static void getRand(Context &ctx);
     static void getRandInt(Context &ctx);
 
-	static std::map<std::string, NativeFunction> _functions;
+	static const std::map<std::string, NativeFunction> _functions;
 };
 
 } // End of namespace AWE::Script
