@@ -47,9 +47,11 @@ enum Opcode {
 
 namespace AWE::Script {
 
-Bytecode::Bytecode(Common::ReadStream *bytecode, const EntryPoints &entryPoints, std::shared_ptr<DPFile> parameters) :
+Bytecode::Bytecode(Common::ReadStream *bytecode, const EntryPoints &entryPoints, std::shared_ptr<DPFile> parameters,
+				   const DebugEntries &debugEntries) :
 	_bytecode(bytecode),
 	_entryPoints(entryPoints),
+	_debugEntries(debugEntries),
 	_parameters(parameters) {
 }
 
@@ -88,6 +90,8 @@ void Bytecode::run(Context &context, const std::string &entryPoint, const entt::
 			case kCallObject: callObject(context, param1, param2); break;
 			case kRet:        ret(); break;
 			case kIntToFloat: intToFloat(); break;
+			case kSetMember:  setMember(param1); break;
+			case kGetMember:  getMember(param1); break;
 			case kCmp:        cmp(); break;
 			case kJmp:        jmp(); break;
 			case kJmpIf:      jmpIf(); break;
@@ -188,6 +192,28 @@ void Bytecode::intToFloat() {
 	_stack.push(value);
 
 	spdlog::trace("int_to_float");
+}
+
+void Bytecode::setMember(byte id) {
+	const auto memberName = _debugEntries.find(id);
+
+	// TODO
+
+	if (memberName != _debugEntries.end())
+		spdlog::trace("set_member {} {}", id, memberName->second);
+	else
+		spdlog::trace("set_member {}", id);
+}
+
+void Bytecode::getMember(byte id) {
+	const auto memberName = _debugEntries.find(id);
+
+	// TODO
+
+	if (memberName != _debugEntries.end())
+		spdlog::trace("get_member {} {}", id, memberName->second);
+	else
+		spdlog::trace("get_member {}", id);
 }
 
 void Bytecode::cmp() {

@@ -31,6 +31,8 @@ Collection::Collection(Common::ReadStream *bytecode, Common::ReadStream *bytecod
 }
 
 Bytecode *Collection::createScript(const AWE::Templates::ScriptVariables &script) {
+	std::vector<DPFile::ScriptDebugEntry> variableMappings = _bytecode->getScriptDebugEntries(script.offsetDebugEntries,
+																					   script.numDebugEntries);
 	std::vector<DPFile::ScriptMetadata> metadata = _bytecode->getScriptMetadata(script.offsetHandlers, script.numHandlers);
 	std::vector<DPFile::ScriptSignal> signals = _bytecode->getScriptSignals(script.offsetSignals, script.numSignals);
 
@@ -48,13 +50,20 @@ Bytecode *Collection::createScript(const AWE::Templates::ScriptVariables &script
 		spdlog::debug("Add script signal {}", _bytecodeParameters->getString(signal.nameOffset));
 	}
 
+	DebugEntries debugEntries;
+	for (const auto &debugEntry : variableMappings) {
+		std::string memberName = _bytecodeParameters->getString(debugEntry.nameOffset);
+		debugEntries[debugEntry.id] = memberName;
+
+		spdlog::debug("Add debug entry {} for entry {}", _bytecodeParameters->getString(debugEntry.nameOffset), debugEntry.id);
+	}
+
 	assert(_bytecodeParameters);
 
 	return new Bytecode(
-			_bytecode->getStream(script.offsetCode, script.codeSize),
-			entryPoints,
-			_bytecodeParameters
-	);
+	_bytecode->getStream(script.offsetCode, script.codeSize),
+	entryPoints,
+	_bytecodeParameters, debugEntries);
 }
 
 }

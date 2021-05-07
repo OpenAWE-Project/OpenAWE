@@ -39,10 +39,12 @@ class Bytecode;
 
 typedef std::shared_ptr<Bytecode> BytecodePtr;
 typedef std::map<std::string, uint32_t> EntryPoints;
+typedef std::map<uint32_t, std::string> DebugEntries;
 
 class Bytecode : Common::Noncopyable {
 public:
-	Bytecode(Common::ReadStream *bytecode, const EntryPoints &entryPoints, std::shared_ptr<DPFile> parameters);
+	Bytecode(Common::ReadStream *bytecode, const EntryPoints &entryPoints, std::shared_ptr<DPFile> parameters,
+			 const DebugEntries &debugEntries);
 
 	/*!
 	 * Check if a specific entry point is available
@@ -59,6 +61,8 @@ private:
 	void callObject(Context &ctx, byte numArgs, byte retType);
 	void ret();
 	void intToFloat();
+	void setMember(byte id);
+	void getMember(byte id);
 	void cmp();
 	void jmp();
 	void jmpIf();
@@ -75,6 +79,7 @@ private:
 	std::shared_ptr<DPFile> _parameters;
 	std::stack<Variable> _stack;
 	const EntryPoints _entryPoints;
+	const DebugEntries _debugEntries;
 };
 
 } // End of namespace
