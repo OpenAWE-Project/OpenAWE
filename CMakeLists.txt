@@ -81,6 +81,7 @@ find_package(cxxopts REQUIRED)
 find_package(GTest REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(EnTT REQUIRED)
+find_package(Boost REQUIRED)
 
 find_package(Doxygen)
 if (DOXYGEN_FOUND)

@@ -64,7 +64,7 @@ bool Game::parseArguments(int argc, char **argv) {
 	if (result.count("path"))
 		_path = result["path"].as<std::string>();
 
-	spdlog::set_level(spdlog::level::level_enum(6 - std::clamp(result["debug"].as<uint>(), 0u, 6u)));
+	spdlog::set_level(spdlog::level::level_enum(6 - std::clamp(result["debug"].as<uint32_t>(), 0u, 6u)));
 
 	return true;
 }

@@ -29,14 +29,11 @@ namespace Engines::AlanWake {
 
 class Functions : public AWE::Script::Functions {
 public:
-	Functions(entt::registry &registry, Engine &engine) : AWE::Script::Functions(registry), _engine(engine) {
+	Functions(entt::registry &registry) : AWE::Script::Functions(registry) {
 	}
 
 protected:
 	NativeFunction getFunction(const std::string &name) override;
-
-private:
-	Engine &_engine;
 };
 
 }

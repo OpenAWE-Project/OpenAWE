@@ -18,7 +18,6 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <endian.h>
 #include <iostream>
 #include <regex>
 
@@ -107,18 +106,18 @@ float ReadStream::readIEEEFloatLE() {
 }
 
 std::string ReadStream::readFixedSizeString(size_t length, bool nullTerminated) {
-	char data[length];
-	read(data, length);
+	std::vector<char> data(length);
+	read(data.data(), length);
 	if (nullTerminated) {
-		return std::string(data);
+		return std::string(data.data());
 	}
-	return std::string(data, length);
+	return std::string(data.data(), length);
 }
 
 std::u16string ReadStream::readFixedSizeStringUTF16(size_t length) {
-	char16_t data[length];
-	read(reinterpret_cast<char *>(data), length * sizeof(char16_t));
-	return std::u16string(data);
+	std::vector<char16_t> data(length);
+	read(reinterpret_cast<char *>(data.data()), length * sizeof(char16_t));
+	return std::u16string(data.data());
 }
 
 std::string ReadStream::readNullTerminatedString() {

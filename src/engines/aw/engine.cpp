@@ -23,7 +23,7 @@
 
 namespace Engines::AlanWake {
 
-Engine::Engine(entt::registry &registry) : ::Engine(registry, new Functions()) {
+Engine::Engine(entt::registry &registry) : ::Engine(registry, new Functions(registry)) {
 }
 
 }

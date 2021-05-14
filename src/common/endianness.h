@@ -22,19 +22,34 @@
 #define SRC_COMMON_ENDIANNESS_H
 
 #include <cstdint>
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif
 
 namespace Common {
 
 inline uint64_t swapBytes(uint64_t a) {
+#ifdef _MSC_VER
+	return _byteswap_uint64(a);
+#else
 	return __builtin_bswap64(a);
+#endif
 }
 
 inline uint32_t swapBytes(uint32_t a) {
+#ifdef _MSC_VER
+	return _byteswap_ulong(a);
+#else
 	return __builtin_bswap32(a);
+#endif
 }
 
 inline uint16_t swapBytes(uint16_t a) {
+#ifdef _MSC_VER
+	return _byteswap_ushort(a);
+#else
 	return __builtin_bswap16(a);
+#endif
 }
 
 } // End of namespace Common

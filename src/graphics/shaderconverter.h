@@ -22,6 +22,7 @@
 #define OPENAWE_SHADERCOMPILER_H
 
 #include <memory>
+#include <map>
 
 #include "src/common/readstream.h"
 

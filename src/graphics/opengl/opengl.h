@@ -22,7 +22,9 @@
 #define AWE_OPENGL_H
 
 #include <GL/glew.h>
-#include <GL/glxew.h>
+#if OS_LINUX
+	#include <GL/glxew.h>
+#endif
 #include <GL/gl.h>
 #include <GL/glu.h>
 

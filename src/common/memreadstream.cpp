@@ -21,7 +21,7 @@
 #include <memory>
 #include <cstring>
 #include <cstdint>
-#include <bits/stl_algo.h>
+#include <algorithm>
 #include "memreadstream.h"
 
 namespace Common {
