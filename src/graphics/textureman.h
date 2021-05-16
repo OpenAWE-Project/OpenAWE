@@ -25,8 +25,6 @@
 #include <string>
 #include <variant>
 
-#include <boost/uuid/uuid.hpp>
-
 #include "src/common/singleton.h"
 #include "src/common/uuid.h"
 

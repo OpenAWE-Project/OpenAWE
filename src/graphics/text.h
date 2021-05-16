@@ -22,7 +22,6 @@
 #define AWE_TEXT_H
 
 #include <string>
-#include <boost/uuid/uuid.hpp>
 
 #include "src/graphics/guielement.h"
 #include "src/graphics/font.h"

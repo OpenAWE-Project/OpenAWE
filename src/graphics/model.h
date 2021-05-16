@@ -27,8 +27,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include <boost/uuid/uuid.hpp>
-
 #include "src/common/readstream.h"
 
 #include "src/graphics/material.h"

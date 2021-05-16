@@ -21,8 +21,6 @@
 #ifndef AWE_FONTBINFNT_H
 #define AWE_FONTBINFNT_H
 
-#include <boost/uuid/uuid.hpp>
-
 #include "src/common/readstream.h"
 
 #include "src/graphics/font.h"

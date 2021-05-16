@@ -8,7 +8,6 @@
 #include <assert.h>
 #include <fmt/format.h>
 #include <memory>
-#include <boost/uuid/nil_generator.hpp>
 #include <src/video/codecs/theora.h>
 
 #include "src/graphics/images/surface.h"

@@ -23,8 +23,6 @@
 
 #include <memory>
 
-#include <boost/uuid/uuid.hpp>
-
 #include "src/common/uuid.h"
 
 #include "src/graphics/material.h"

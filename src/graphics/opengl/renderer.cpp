@@ -29,7 +29,6 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
-#include <boost/uuid/uuid_generators.hpp>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 

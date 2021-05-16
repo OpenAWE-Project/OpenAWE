@@ -18,9 +18,6 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/nil_generator.hpp>
-
 #include "renderer.h"
 
 Graphics::Renderer::Renderer() : _currentVideoFrame(Common::UUID::generateNil()) {
