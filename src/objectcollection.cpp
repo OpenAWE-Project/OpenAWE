@@ -29,7 +29,6 @@
 
 #include "src/graphics/model.h"
 #include "src/graphics/meshman.h"
-#include "src/graphics/animation.h"
 
 #include "objectcollection.h"
 
