@@ -420,14 +420,14 @@ Templates::ScriptVariables ObjectBinaryReadStream::readScriptVariables(unsigned 
 	script.offsetCode = _stream.readUint32LE();
 	script.numHandlers = _stream.readUint32LE();
 	script.offsetHandlers = _stream.readUint32LE();
-	script.size3 = _stream.readUint32LE();
-	script.offset3 = _stream.readUint32LE();
+	script.numVariables = _stream.readUint32LE();
+	script.offsetVariables = _stream.readUint32LE();
 	script.numSignals = _stream.readUint32LE();
 	script.offsetSignals = _stream.readUint32LE();
 
 	if (version >= 2) {
-		script.size5 = _stream.readUint32LE();
-		script.offset5 = _stream.readUint32LE();
+		script.numDebugEntries = _stream.readUint32LE();
+		script.offsetDebugEntries = _stream.readUint32LE();
 	}
 
 	return script;

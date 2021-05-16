@@ -90,14 +90,14 @@ struct DynamicObject {
 struct ScriptVariables {
 	uint32_t offsetCode;
 	uint32_t offsetHandlers;
-	uint32_t offset3;
+	uint32_t offsetVariables;
 	uint32_t offsetSignals;
-	uint32_t offset5;
+	uint32_t offsetDebugEntries;
 	uint32_t codeSize;
 	uint32_t numHandlers;
-	uint32_t size3;
+	uint32_t numVariables;
 	uint32_t numSignals;
-	uint32_t size5;
+	uint32_t numDebugEntries;
 };
 
 struct DynamicObjectScript {
