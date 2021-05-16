@@ -36,6 +36,11 @@ endif ()
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # ------------------------------------
+# Options
+option(USE_SYSTEM_CXXOPTS "Use the system cxxopts" OFF)
+option(USE_SYSTEM_ENTT "Use the system entt" OFF)
+
+# ------------------------------------
 # Compiler flags
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -77,10 +82,20 @@ find_package(FMT REQUIRED)
 find_package(OGG REQUIRED)
 find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
-find_package(cxxopts REQUIRED)
 find_package(GTest REQUIRED)
 find_package(spdlog REQUIRED)
-find_package(EnTT REQUIRED)
+
+if(NOT USE_SYSTEM_CXXOPTS)
+    set(cxxopts_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty/cxxopts/include)
+else()
+    find_package(cxxopts REQUIRED)
+endif()
+
+if(NOT USE_SYSTEM_ENTT)
+    set(ENTT_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty/entt/src)
+else()
+    find_package(EnTT REQUIRED)
+endif()
 
 find_package(Doxygen)
 if (DOXYGEN_FOUND)

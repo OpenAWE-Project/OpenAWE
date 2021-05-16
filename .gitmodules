@@ -1,0 +1,6 @@
+[submodule "cxxopts"]
+	path = 3rdparty/cxxopts
+	url = https://github.com/jarro2783/cxxopts
+[submodule "3rdparty/entt"]
+	path = 3rdparty/entt
+	url = https://github.com/skypjack/entt

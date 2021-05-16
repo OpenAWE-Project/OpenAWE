@@ -1,0 +1,52 @@
+name: Build OpenAWE
+on: ['push', 'pull_request']
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-20.04
+
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+
+      - name: Install dependencies
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install \
+            libxml2-dev \
+            zlib1g-dev \
+            libgl-dev \
+            libglfw3-dev \
+            libopenal-dev \
+            libglm-dev \
+            libbullet-dev \
+            libfmt-dev \
+            libogg-dev \
+            libtheora-dev \
+            libvorbis-dev \
+            libspdlog-dev \
+            libglew-dev \
+            libgtest-dev
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: ctest -C ${{env.BUILD_TYPE}}
+
