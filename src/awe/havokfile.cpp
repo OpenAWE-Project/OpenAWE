@@ -147,7 +147,7 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 	binhkx.seek(contentsSection.absoluteDataStart + contentsSection.globalFixupsOffset);
 	while (true) {
 		uint32_t address = binhkx.readUint32LE();
-		if (address == 0xFFFFFFFF || binhkx.eos() || binhkx.pos() - contentsSection.absoluteDataStart >= contentsSection.virtualFixupsOffset)
+		if (address == 0xFFFFFFFF || binhkx.eos() || binhkx.pos() - contentsSection.absoluteDataStart > contentsSection.virtualFixupsOffset)
 			break;
 
 		uint32_t section = binhkx.readUint32LE();
