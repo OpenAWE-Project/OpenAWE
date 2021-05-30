@@ -594,7 +594,7 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 			const bool transformStatic = transformStaticX || transformStaticY || transformStaticZ;
 			const bool scaleSpline = scaleSplineX || scaleSplineY || scaleSplineZ;
 
-			hkaAnimation::Track track;
+			hkaAnimation::Track track{};
 
 			auto positionQuantizationType = QuantizationType(mask.quantizationTypes & 0x03);
 			auto rotationQuantizationType = QuantizationType(((mask.quantizationTypes >> 2u) & 0x0f) + 2);
