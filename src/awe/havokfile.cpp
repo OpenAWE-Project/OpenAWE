@@ -282,46 +282,40 @@ glm::quat HavokFile::read40BitQuaternion(Common::ReadStream &binhkx) {
 	 * - 1 bit invert sign
 	 * - 1 bit unused?
 	 */
-	const float fractal = 0.000345436f;
+	constexpr float fractal = 0.000345436f;
 
 	glm::quat result(0.0f, 0.0f, 0.0f, 0.0f);
 
-	uint64_t value = 0;
-	binhkx.read(&value, 5);
+	const uint64_t value = binhkx.readUint64LE();
+	binhkx.skip(-3);
 
-	glm::i16vec3 tmp;
+	glm::i16vec4 tmp;
 	tmp.x = value & 0x0000000000000FFFu;
 	tmp.y = (value >> 12u) & 0x0000000000000FFFu;
 	tmp.z = (value >> 24u) & 0x0000000000000FFFu;
+	tmp.w = 0;
 
-	unsigned int resultShift = (value >> 36u) & 3u;
-	bool invertSign = (value >> 38u) & 1;
+	const unsigned int resultShift = (value >> 36u) & 3u;
+	const bool invertSign = (value >> 38u) & 1;
 
-	tmp -= 0x00000000000007FF;
+	tmp -= 0x0000000000000801;
 
-	glm::vec3 tmp2 = tmp;
-	tmp2 *= fractal;
+	glm::vec4 tmp2(
+		glm::vec3(tmp) * fractal,
+		0.0f
+	);
+	tmp2.w = std::sqrt(1.0f - glm::dot(tmp2, tmp2));
+	if (invertSign)
+		tmp2.w = -tmp2.w;
 
-	for (int i = 0; i < 4; ++i) {
-		if (i < resultShift)
-			result[i] = static_cast<float>(tmp[i]);
-		else if (i > resultShift)
-			result[i] = static_cast<float>(tmp[i-1]);
+	for (int i = 0; i < 3 - resultShift; ++i) {
+		std::swap(tmp2[3 - i], tmp2[2 - i]);
 	}
 
-	float resultValue = 1.0f
-			- std::pow(tmp2.x, 2)
-			- std::pow(tmp2.y, 2)
-			- std::pow(tmp2.z, 2);
-
-	if (resultValue <= 0.0f)
-		resultValue = 0.0f;
-	else
-		resultValue = std::sqrt(resultValue);
-	result[resultShift] = resultValue;
-
-	if (invertSign)
-		result = -result;
+	result.x = tmp2.x;
+	result.y = tmp2.y;
+	result.z = tmp2.z;
+	result.w = tmp2.w;
 
 	return result;
 }
