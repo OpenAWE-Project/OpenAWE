@@ -28,6 +28,8 @@ const std::map<std::string, AWE::Script::Functions::NativeFunction> Functions::_
 		{"GAME.GetActiveEnemyCount"     , nullptr                             },
 		{"GAME.GetStoryModeRound"       , &Functions::getStoryModeRound       },
 		{"GAME.UnlockManuscriptPage"    , nullptr                             },
+		{"GAME.IsTrial"                 , &Functions::isTrial                 },
+		{"GAME.IsTrialModeB"            , &Functions::isTrialModeB            },
 		{"GAME.IsManuscriptPageUnlocked", &Functions::isManuscriptPageUnlocked},
 };
 

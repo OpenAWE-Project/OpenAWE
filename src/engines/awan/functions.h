@@ -44,6 +44,8 @@ private:
 	static void activateTask(Context &ctx);
 	static void playMusic(Context &ctx);
 	static void getStoryModeRound(Context &ctx);
+	static void isTrial(Context &ctx);
+	static void isTrialModeB(Context &ctx);
 	static void isManuscriptPageUnlocked(Context &ctx);
 
 	static const std::map<std::string, NativeFunction> _functions;

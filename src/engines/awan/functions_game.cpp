@@ -46,6 +46,14 @@ void Functions::getStoryModeRound(Context &ctx) {
 	ctx.ret = ctx.getFunctions<Functions>().getEngine().getStoryModeRound();
 }
 
+void Functions::isTrial(Functions::Context &ctx) {
+	ctx.ret = false;
+}
+
+void Functions::isTrialModeB(Functions::Context &ctx) {
+	ctx.ret = false;
+}
+
 void Functions::isManuscriptPageUnlocked(Context &ctx) {
 	const entt::entity manuscriptPage = ctx.getEntity(0);
 
