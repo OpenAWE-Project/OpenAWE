@@ -41,6 +41,7 @@ protected:
 
 private:
 	// functions_game.cpp
+	static void activateTask(Context &ctx);
 	static void playMusic(Context &ctx);
 	static void getStoryModeRound(Context &ctx);
 	static void isManuscriptPageUnlocked(Context &ctx);

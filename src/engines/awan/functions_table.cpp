@@ -23,6 +23,7 @@
 namespace Engines::AlanWakesAmericanNightmare {
 
 const std::map<std::string, AWE::Script::Functions::NativeFunction> Functions::_functions = {
+		{"GAME.ActivateTask"            , &Functions::activateTask            },
 		{"GAME.PlayMusic"               , &Functions::playMusic               },
 		{"GAME.GetActiveEnemyCount"     , nullptr                             },
 		{"GAME.GetStoryModeRound"       , &Functions::getStoryModeRound       },

@@ -18,9 +18,25 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "src/awe/script/bytecode.h"
+
 #include "src/engines/awan/functions.h"
 
+#include "src/task.h"
+
 namespace Engines::AlanWakesAmericanNightmare {
+
+void Functions::activateTask(Functions::Context &ctx) {
+	const entt::entity taskEntity = ctx.getEntity(0);
+
+	entt::registry &registry = ctx.getFunctions<Functions>()._registry;
+	AWE::Script::Context newContext(registry, ctx.functions);
+
+	Task task = registry.get<Task>(taskEntity);
+	AWE::Script::BytecodePtr bytecode = registry.get<AWE::Script::BytecodePtr>(taskEntity);
+	if (bytecode->hasEntryPoint("OnTaskActivate"))
+		bytecode->run(newContext, "OnTaskActivate", taskEntity);
+}
 
 void Functions::playMusic(Functions::Context &ctx) {
 	const entt::entity sound = ctx.getEntity(0);
