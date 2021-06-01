@@ -41,7 +41,7 @@ void GraphicsManager::addModel(Model *model) {
 }
 
 void GraphicsManager::removeModel(Model *model) {
-
+	_renderer->removeModel(model);
 }
 
 void GraphicsManager::addGUIElement(GUIElement *gui) {
