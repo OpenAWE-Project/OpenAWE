@@ -20,10 +20,15 @@
 
 #include <spdlog/spdlog.h>
 
+#include "src/common/strutil.h"
+
 #include "src/awe/resman.h"
+#include "src/awe/script/bytecode.h"
 
 #include "src/engines/awan/engine.h"
 #include "src/engines/awan/configuration.h"
+
+#include "src/task.h"
 
 namespace Engines::AlanWakesAmericanNightmare {
 
@@ -37,6 +42,34 @@ void Engine::init() {
 
 unsigned int Engine::getStoryModeRound() const {
 	return _storyModeRound;
+}
+
+void Engine::loadEpisode(const std::string &parameters) {
+	// Parse story mode round
+	const std::vector<std::string> split = Common::split(parameters, std::regex(":"));
+	if (split[0] != "round")
+		throw std::runtime_error("No round given for episode");
+
+	_storyModeRound = std::atoi(split[1].c_str());
+
+	// Activate starter tasks
+	auto taskView = _registry.view<Task, AWE::Script::BytecodePtr>();
+	for (const auto &item : taskView) {
+		auto gid = _registry.get<GID>(item);
+		auto task = _registry.get<Task>(item);
+		auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
+
+		if (!task.isActiveOnStartupRound(_storyModeRound - 1))
+			continue;
+
+		if (!bytecode->hasEntryPoint("OnTaskActivate"))
+			continue;
+
+		spdlog::debug("Firing OnTaskActivate on {} {} {:x}", task.getName(), gid.type, gid.id);
+
+		AWE::Script::Context context(_registry, *_functions);
+		bytecode->run(context, "OnTaskActivate", item);
+	}
 }
 
 }

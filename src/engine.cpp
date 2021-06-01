@@ -30,3 +30,6 @@ AWE::Script::Functions &Engine::getFunctions() {
 Configuration &Engine::getConfiguration() {
 	return *_configuration;
 }
+
+void Engine::loadEpisode(const std::string &parameters) {
+}

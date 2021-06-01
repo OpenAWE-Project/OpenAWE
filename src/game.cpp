@@ -160,7 +160,7 @@ void Game::init() {
 
 	_global = std::make_unique<Global>(_registry);
 
-	loadEpisode("gameworld:scene1_reststop");
+	loadEpisode("round:1 gameworld:scene1_reststop");
 }
 
 void Game::start() {
@@ -237,8 +237,8 @@ void Game::start() {
 }
 
 void Game::loadEpisode(const std::string &data) {
-	std::vector parameters = Common::split(data, std::regex(" "));
-	std::vector episode = Common::split(parameters.back(), std::regex(":"));
+	std::vector<std::string> parameters = Common::split(data, std::regex(" "));
+	std::vector<std::string> episode = Common::split(parameters.back(), std::regex(":"));
 
 	std::string worldName = episode[0];
 	std::string episodeName = episode[1];
@@ -272,4 +272,6 @@ void Game::loadEpisode(const std::string &data) {
 		spdlog::debug("Firing OnTaskActivate on {} {:x}", gid.type, gid.id);
 		bytecode->run(*_context, "OnTaskActivate", item);
 	}
+
+	_engine->loadEpisode(parameters[0]);
 }

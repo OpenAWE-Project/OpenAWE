@@ -35,6 +35,8 @@ public:
 	AWE::Script::Functions &getFunctions();
 	Configuration &getConfiguration();
 
+	virtual void loadEpisode(const std::string &parameters);
+
 protected:
 	entt::registry &_registry;
 	std::unique_ptr<AWE::Script::Functions> _functions;

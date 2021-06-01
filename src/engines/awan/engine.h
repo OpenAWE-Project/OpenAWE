@@ -34,6 +34,8 @@ public:
 
 	void init() override;
 
+	void loadEpisode(const std::string &parameters) override;
+
 private:
 	unsigned int _storyModeRound;
 };
