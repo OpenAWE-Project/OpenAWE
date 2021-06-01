@@ -25,6 +25,8 @@ include(GoogleTest)
 include(ExternalProject)
 include(CTest)
 include(GNUInstallDirs)
+include(CheckTypeSize)
+include(CheckIncludeFile)
 
 test_big_endian(BIG_ENDIAN)
 if (BIG_ENDIAN)
@@ -45,6 +47,24 @@ option(USE_SYSTEM_ENTT "Use the system entt" OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
+
+# ------------------------------------
+# C++ checks
+check_type_size(float FLOAT_SIZE)
+if (NOT ${FLOAT_SIZE} EQUAL 4)
+    message(FATAL_ERROR "Invalid size of float expected 4 got ${FLOAT_SIZE}")
+endif ()
+
+if(UNIX)
+    check_include_file(pwd.h PWD_H)
+    check_include_file(unistd.h UNISTD_H)
+    if(NOT PWD_H)
+        message(FATAL_ERROR "pwd.h is unavailable")
+    endif()
+    if(NOT UNISTD_H)
+        message(FATAL_ERROR "unistd.h is unavailable")
+    endif()
+endif()
 
 # ------------------------------------
 # Third party libraries
