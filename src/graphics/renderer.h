@@ -37,6 +37,7 @@ public:
 	Renderer();
 
 	void addModel(Model *model);
+	void removeModel(Model *model);
 	void addGUIElement(GUIElement *gui);
 
 	void setCamera(Camera &camera);

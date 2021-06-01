@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
+
 #include "renderer.h"
 
 Graphics::Renderer::Renderer() : _currentVideoFrame(Common::UUID::generateNil()) {
@@ -26,6 +28,10 @@ Graphics::Renderer::Renderer() : _currentVideoFrame(Common::UUID::generateNil())
 
 void Graphics::Renderer::addModel(Graphics::Model *model) {
 	_models.emplace_back(model);
+}
+
+void Graphics::Renderer::removeModel(Graphics::Model *model) {
+	_models.erase(std::find(_models.begin(), _models.end(), model));
 }
 
 void Graphics::Renderer::addGUIElement(Graphics::GUIElement *gui) {
