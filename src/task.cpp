@@ -20,16 +20,40 @@
 
 #include "task.h"
 
+#include <utility>
+
 Task::Task() : _activateOnStartup(false), _active(false) {
 
 }
 
-Task::Task(bool activateOnStartup) : _activateOnStartup(activateOnStartup), _active(false) {
-
+Task::Task(const std::string &name, const std::vector<GID> &playerCharacter, bool activateOnStartup, std::vector<bool> activateOnStartupRound) :
+	_name(name),
+	_activateOnStartup(activateOnStartup),
+	_activateOnStartupRound(std::move(activateOnStartupRound)),
+	_playerCharacter(playerCharacter),
+	_active(false) {
 }
 
-bool Task::isActiveOnStartup() {
+const std::string &Task::getName() const {
+	return _name;
+}
+
+bool Task::isActiveOnStartup() const {
 	return _activateOnStartup;
+}
+
+bool Task::isActiveOnStartupRound(unsigned int round) const {
+	if (_activateOnStartupRound.size() > round)
+		return false;
+
+	return _activateOnStartupRound[round];
+}
+
+GID Task::getPlayerCharacter(unsigned int round) const {
+	if (_playerCharacter.size() > round)
+		return GID{0, 0};
+
+	return _playerCharacter[round];
 }
 
 void Task::activate() {

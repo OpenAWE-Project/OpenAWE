@@ -274,7 +274,12 @@ void ObjectCollection::loadTaskDefinition(const AWE::Object &container) {
 
 	_registry.emplace<GID>(taskEntity) = taskDefinition.gid;
 	_registry.emplace<Transform>(taskEntity) = Transform(taskDefinition.position, taskDefinition.rotation);
-	_registry.emplace<Task>(taskEntity) = Task(taskDefinition.activateOnStartup);
+	_registry.emplace<Task>(taskEntity) = Task(
+		taskDefinition.name,
+		taskDefinition.playerCharacter,
+		taskDefinition.activateOnStartup,
+		taskDefinition.activateOnStartupRound
+	);
 
 	spdlog::debug("Loading task {}", _gid->getString(taskDefinition.gid));
 }

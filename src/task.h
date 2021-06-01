@@ -21,20 +21,72 @@
 #ifndef OPENAWE_TASK_H
 #define OPENAWE_TASK_H
 
+#include <vector>
+#include <string>
 
+#include "src/awe/types.h"
+
+/*!
+ * \brief Class representing a task
+ *
+ * This class represents a task in the game which can be activated and holds several information, like if it is a
+ * startup, including the specific round for that or the player character to be assigned. For american nightmare, this
+ * class has support for accessing the calues by rounds.
+ */
 class Task {
 public:
 	Task();
-	Task(bool activateOnStartup);
+
+	/*!
+	 * Create a new task
+	 * \param name The name of the task
+	 * \param playerCharacter A vector of gids, which character is the player controlled one
+	 * \param activateOnStartup Activate the task on startup
+	 * \param activateOnStartupRound Activate the task on startup of a specific round
+	 */
+	Task(
+		const std::string &name,
+		const std::vector<GID> &playerCharacter,
+		bool activateOnStartup,
+		std::vector<bool> activateOnStartupRound
+	);
 	Task(const Task &) = default;
 
-	bool isActiveOnStartup();
+	/*!
+	 * Get the name of the task
+	 * \return The name of the task
+	 */
+	const std::string &getName() const;
+
+	/*!
+	 * If this task should be activated on startup
+	 * \return If the task is activated on startup
+	 */
+	bool isActiveOnStartup() const;
+
+	/*!
+	 * If this task should be activated on startup of a specific round
+	 * \param round The round on which to startup
+	 * \return If this task should be activated on a specific round
+	 */
+	bool isActiveOnStartupRound(unsigned int round) const;
+
+	/*!
+	 * Get which character will be marked as the player controlled character, in the case of American Nightmare
+	 * depending on the current round
+	 * \param round The round for which to get the character
+	 * \return The GId of the character that should be marked as player character
+	 */
+	GID getPlayerCharacter(unsigned int round = 0) const;
 
 	void activate();
 	void complete();
 
 private:
+	std::string _name;
 	bool _activateOnStartup;
+	std::vector<bool> _activateOnStartupRound;
+	std::vector<GID> _playerCharacter;
 	bool _active;
 };
 
