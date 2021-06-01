@@ -19,6 +19,7 @@
  */
 
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include "src/common/strutil.h"
 
@@ -40,6 +41,8 @@ std::optional<Variable> Functions::callObject(entt::entity object, const std::st
 	auto fun = getFunction(functionName);
 	if (fun)
 		fun(ctx);
+	else
+		spdlog::warn("TODO: Implement object script functions {}", functionName);
 
 	return ctx.ret;
 }
@@ -51,9 +54,12 @@ std::optional<Variable> Functions::callGlobal(const std::string &name,const std:
 			parameters
 	};
 
-	auto fun = getFunction(fmt::format("{}.{}", Common::toUpper(name), functionName));
+	const std::string globalFunctionName = fmt::format("{}.{}", Common::toUpper(name), functionName);
+	auto fun = getFunction(globalFunctionName);
 	if (fun)
 		fun(ctx);
+	else
+		spdlog::warn("TODO: Implement global script functions {}", globalFunctionName);
 
 	return ctx.ret;
 }
