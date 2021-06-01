@@ -48,6 +48,9 @@ private:
 	static void isTrialModeB(Context &ctx);
 	static void isManuscriptPageUnlocked(Context &ctx);
 
+	// functions_object.cpp
+	static void hide(Context &ctx);
+
 	static const std::map<std::string, NativeFunction> _functions;
 
 	Engine &_engine;

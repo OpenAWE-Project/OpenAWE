@@ -18,21 +18,34 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <spdlog/spdlog.h>
+
+#include "src/awe/script/bytecode.h"
+
+#include "src/graphics/model.h"
+
 #include "src/engines/awan/functions.h"
+
+#include "src/task.h"
 
 namespace Engines::AlanWakesAmericanNightmare {
 
-const std::map<std::string, AWE::Script::Functions::NativeFunction> Functions::_functions = {
-		{"Hide"                         , &Functions::hide                    },
-		{"GAME.ActivateTask"            , &Functions::activateTask            },
-		{"GAME.PlayMusic"               , &Functions::playMusic               },
-		{"GAME.GetActiveEnemyCount"     , nullptr                             },
-		{"GAME.GetStoryModeRound"       , &Functions::getStoryModeRound       },
-		{"GAME.UnlockManuscriptPage"    , nullptr                             },
-		{"GAME.IsTrial"                 , &Functions::isTrial                 },
-		{"GAME.IsTrialModeB"            , &Functions::isTrialModeB            },
-		{"GAME.IsManuscriptPageUnlocked", &Functions::isManuscriptPageUnlocked},
-};
+void Functions::hide(Context &ctx) {
+	const entt::entity caller = ctx.thisEntity;
 
+	if (caller == entt::null) {
+		spdlog::warn("Cannot hide invalid entity, skipping");
+		return;
+	}
+
+	entt::registry &registry = ctx.getFunctions<Functions>()._registry;
+	Graphics::ModelPtr model = registry.get<Graphics::ModelPtr>(caller);
+
+	const bool hide = ctx.getInt(0) == 1;
+	if (hide)
+		model->hide();
+	else
+		model->show();
 }
 
+}
