@@ -232,6 +232,8 @@ struct TaskDefinition {
 	glm::vec3 positionPlayer;
 	bool rootTask;
 	bool activateOnStartup;
+	std::vector<bool> activateOnStartupRound;
+	std::vector<GID> playerCharacter;
 };
 
 struct TaskContent {

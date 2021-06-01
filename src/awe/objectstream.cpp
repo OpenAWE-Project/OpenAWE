@@ -388,8 +388,12 @@ Templates::TaskDefinition ObjectBinaryReadStream::readTaskDefinition(unsigned in
 	taskDefinition.position = readPosition();
 
 	taskDefinition.activateOnStartup = _stream.readByte() != 0;
-	if (version == 15)
-		_stream.skip(3);  // Startup tasks Round 1-3
+	if (version == 15) {
+		taskDefinition.activateOnStartupRound.resize(3);
+		taskDefinition.activateOnStartupRound[0] = _stream.readByte() != 0;
+		taskDefinition.activateOnStartupRound[1] = _stream.readByte() != 0;
+		taskDefinition.activateOnStartupRound[2] = _stream.readByte() != 0;
+	}
 	bool gidlessTask = _stream.readByte() != 0;
 
 	taskDefinition.gid = readGID();
@@ -400,12 +404,12 @@ Templates::TaskDefinition ObjectBinaryReadStream::readTaskDefinition(unsigned in
 		taskDefinition.rotationPlayer = readRotation();
 		taskDefinition.positionPlayer = readPosition();
 
-		// Characters?
-		GID gid1 = readGID();
+		taskDefinition.playerCharacter.resize(3);
+		taskDefinition.playerCharacter[0] = readGID();
 		_stream.skip(8);
 		taskDefinition.cinematic = _dp->getString(_stream.readUint32LE());
-		GID gid2 = readGID();
-		GID gid3 = readGID();
+		taskDefinition.playerCharacter[1] = readGID();
+		taskDefinition.playerCharacter[2] = readGID();
 	} else {
 		_stream.skip(0x44);
 	}
