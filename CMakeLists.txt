@@ -190,7 +190,7 @@ target_link_libraries(awe_physics awe_common)
 
 file(GLOB_RECURSE SOURCE_FILES src/video/*.cpp src/video/*.h)
 add_library(awe_video ${SOURCE_FILES})
-target_link_libraries(awe_video awe_common awe_lib awe_graphics)
+target_link_libraries(awe_video awe_common awe_lib awe_graphics awe_sound)
 
 file(GLOB_RECURSE SOURCE_FILES src/engines/*.cpp src/engines/*.h)
 add_library(awe_engines ${SOURCE_FILES})
