@@ -25,6 +25,7 @@
 #include <any>
 #include <vector>
 #include <optional>
+#include <variant>
 
 #include <glm/detail/type_quat.hpp>
 
@@ -37,6 +38,10 @@ public:
 	enum Version {
 		kHavok550_r1,
 		kHavok2010_2_0_r1
+	};
+
+	enum ShapeType {
+		kBox
 	};
 
 	struct hkNamedVariant {
@@ -87,13 +92,37 @@ public:
 		std::vector<int16_t> transformTrackToBoneIndices;
 	};
 
+	struct hkpRigidBody {
+		uint32_t shape;
+	};
+
+	struct hkpBoxShape {
+		glm::vec4 halfExtents;
+	};
+
+	struct hkpShape {
+		uint64_t userData;
+		float radius;
+		std::variant<
+			hkpBoxShape
+		> shape;
+		ShapeType type;
+	};
+
+	struct RmdPhysicsSystem {
+		std::vector<uint32_t> rigidBodies;
+	};
+
 	HavokFile(Common::ReadStream &binhkx);
 
-	hkaAnimationContainer getAnimationContainer() const;
+	const hkaAnimationContainer& getAnimationContainer() const;
+	const RmdPhysicsSystem& getPhysicsSystem() const;
 
 	hkaSkeleton getSkeleton(uint32_t address);
-
 	hkaAnimation getAnimation(uint32_t address);
+
+	hkpRigidBody getRigidBody(uint32_t address);
+	hkpShape getShape(uint32_t address);
 
 private:
 	struct Fixup {
@@ -114,6 +143,7 @@ private:
 	std::map<uint32_t, std::any> _objects;
 
 	hkaAnimationContainer _animationContainer;
+	RmdPhysicsSystem _physicsSystem;
 
 	std::vector<uint32_t> readUint32Array(Common::ReadStream &binhkx, hkArray array);
 	std::vector<int16_t> readSint16Array(Common::ReadStream &binhkx, hkArray array);
@@ -133,10 +163,10 @@ private:
 	void readHkaAnimationBinding(Common::ReadStream &binhkx, uint32_t section);
 	void readHkaAnimationContainer(Common::ReadStream &binhkx, uint32_t section);
 
-	void readHkpRigidBody(Common::ReadStream &binhkx);
-	void readHkpBoxShape(Common::ReadStream &binhkx);
+	hkpRigidBody readHkpRigidBody(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpShape readHkpBoxShape(Common::ReadStream &binhkx);
 
-	void readRmdPhysicsSystem(Common::ReadStream &binhkx);
+	RmdPhysicsSystem readRmdPhysicsSystem(Common::ReadStream &binhkx, uint32_t section);
 
 	void setHeader(std::string headerVersion);
 

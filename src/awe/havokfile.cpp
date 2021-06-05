@@ -25,6 +25,7 @@
 
 #include <glm/glm.hpp>
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include "havokfile.h"
 
@@ -193,9 +194,13 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 		else if (name == "hkxScene")
 			readHkxScene(binhkx);
 		else if (name == "RmdPhysicsSystem")
-			readRmdPhysicsSystem(binhkx);
+			_physicsSystem = readRmdPhysicsSystem(binhkx, contentsSectionIndex);
 		else if (name == "hkpRigidBody")
-			readHkpRigidBody(binhkx);
+			object = readHkpRigidBody(binhkx, contentsSectionIndex);
+		else if (name == "hkpBoxShape")
+			object = readHkpBoxShape(binhkx);
+		else
+			spdlog::warn("TODO: Implement havok class {}", name);
 
 		if (object.has_value())
 			_objects[contentsSection.absoluteDataStart + address] = object;
@@ -203,8 +208,12 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 	}
 }
 
-HavokFile::hkaAnimationContainer HavokFile::getAnimationContainer() const {
+const HavokFile::hkaAnimationContainer& HavokFile::getAnimationContainer() const {
 	return _animationContainer;
+}
+
+const HavokFile::RmdPhysicsSystem& HavokFile::getPhysicsSystem() const {
+	return _physicsSystem;
 }
 
 HavokFile::hkaSkeleton HavokFile::getSkeleton(uint32_t address) {
@@ -215,6 +224,16 @@ HavokFile::hkaSkeleton HavokFile::getSkeleton(uint32_t address) {
 HavokFile::hkaAnimation HavokFile::getAnimation(uint32_t address) {
 	auto animation = std::any_cast<hkaAnimation>(_objects[address]);
 	return animation;
+}
+
+HavokFile::hkpRigidBody HavokFile::getRigidBody(uint32_t address) {
+	auto rigidBody = std::any_cast<hkpRigidBody>(_objects[address]);
+	return rigidBody;
+}
+
+HavokFile::hkpShape HavokFile::getShape(uint32_t address) {
+	auto shape = std::any_cast<hkpShape>(_objects[address]);
+	return shape;
 }
 
 std::vector<uint32_t> HavokFile::readUint32Array(Common::ReadStream &binhkx, HavokFile::hkArray array) {
@@ -804,12 +823,62 @@ void HavokFile::readHkaAnimationContainer(Common::ReadStream &binhkx, uint32_t s
 	}
 }
 
-void HavokFile::readRmdPhysicsSystem(Common::ReadStream &binhkx) {
+HavokFile::RmdPhysicsSystem HavokFile::readRmdPhysicsSystem(Common::ReadStream &binhkx, uint32_t section) {
+	RmdPhysicsSystem rmdPhysicsSystem{};
 
+	binhkx.skip(8);
+
+	hkArray rigidBodiesArray = readHkArray(binhkx, section);
+	hkArray array2 = readHkArray(binhkx, section);
+	hkArray array3 = readHkArray(binhkx, section);
+	hkArray array4 = readHkArray(binhkx, section);
+
+	binhkx.skip(12);
+
+	hkArray nameArray = readHkArray(binhkx, section);
+	hkArray array6 = readHkArray(binhkx, section);
+	hkArray array7 = readHkArray(binhkx, section);
+
+	rmdPhysicsSystem.rigidBodies = readFixupArray(binhkx, rigidBodiesArray, section);
+	std::vector<uint32_t> nameOffsets = readFixupArray(binhkx, nameArray, section);
+	std::vector<std::string> names;
+	for (const auto &offset : nameOffsets) {
+		binhkx.seek(offset);
+		names.emplace_back(binhkx.readNullTerminatedString());
+	}
+
+	return rmdPhysicsSystem;
 }
 
-void HavokFile::readHkpRigidBody(Common::ReadStream &binhkx) {
+HavokFile::hkpRigidBody HavokFile::readHkpRigidBody(Common::ReadStream &binhkx, uint32_t section) {
+	hkpRigidBody rigidBody{};
 
+	binhkx.skip(16);
+	rigidBody.shape = readFixup(binhkx, section);
+
+	return rigidBody;
+}
+
+HavokFile::hkpShape HavokFile::readHkpBoxShape(Common::ReadStream &binhkx) {
+	hkpShape shape{};
+	hkpBoxShape boxShape{};
+
+	shape.type = kBox;
+
+	binhkx.skip(8); // hkReferencedObject
+	shape.userData = binhkx.readUint64LE(); // hkpShape
+	shape.radius = binhkx.readIEEEFloatLE(); // hkpConvexShape
+	binhkx.skip(12);
+
+	glm::vec4 halfExtents;
+	halfExtents.x = binhkx.readIEEEFloatLE();
+	halfExtents.y = binhkx.readIEEEFloatLE();
+	halfExtents.z = binhkx.readIEEEFloatLE();
+	halfExtents.w = binhkx.readIEEEFloatLE();
+	boxShape.halfExtents = halfExtents;
+	shape.shape = boxShape;
+
+	return shape;
 }
 
 void HavokFile::setHeader(std::string headerVersion) {
