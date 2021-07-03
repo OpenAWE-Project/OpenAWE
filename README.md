@@ -8,3 +8,7 @@ Northlight Engine. The main goal is to have Alan Wake and its successor Alan Wak
 portable manner. The secondary goal is to also allow the successor games, Quantum Break and probably even Control
 working with the same technical foundation. The code stands under the GPLv3 License except for the libraries contained 
 the folder 3rdparty.
+
+Screenshots
+-----------
+![Alan Wakes American Nightmare 1](screenshots/awan1.png)
