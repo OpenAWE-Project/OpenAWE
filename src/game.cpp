@@ -226,9 +226,7 @@ void Game::start() {
 			GfxMan.setCamera(camera);
 		}
 
-		now = std::chrono::system_clock::now();
-		std::chrono::system_clock::duration delta = std::chrono::duration_cast<std::chrono::milliseconds>(now - last);
-		//Threads.add([=](){PhysicsMan.update(delta.count());});
+		PhysicsMan.update(0.0f); // TODO
 
 		_platform.update();
 		if (_window->shouldClose())
