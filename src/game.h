@@ -49,6 +49,7 @@ public:
 	void loadEpisode(const std::string &data);
 
 private:
+	bool _physicsDebugDraw;
 	std::string _path;
 
 	entt::registry _registry;

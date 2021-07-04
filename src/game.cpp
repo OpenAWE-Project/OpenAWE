@@ -52,6 +52,7 @@ bool Game::parseArguments(int argc, char **argv) {
 		("r,renderer", "Set the the graphics renderer",cxxopts::value<std::string>())
 		("l,locale", "Set the language of the game", cxxopts::value<std::string>())
 		("d,debug", "Set the used level for debugging messages", cxxopts::value<unsigned int>()->default_value("4"))
+		("debug-physics", "Enable the debug drawing of physics")
 		("h,help", "Print this help");
 
 	auto result = options.parse(argc, argv);
@@ -63,6 +64,8 @@ bool Game::parseArguments(int argc, char **argv) {
 
 	if (result.count("path"))
 		_path = result["path"].as<std::string>();
+
+	_physicsDebugDraw = result.count("debug-physics") != 0;
 
 	spdlog::set_level(spdlog::level::level_enum(6 - std::clamp(result["debug"].as<uint>(), 0u, 6u)));
 
@@ -147,6 +150,9 @@ void Game::init() {
 
 	GfxMan.initOpenGL(*_window);
 	//GfxMan.setAmbianceState("scene1_reststop_creepy");
+
+	// Initialize Physics
+	PhysicsMan.setDebugDraw(_physicsDebugDraw);
 
 	// Initialize sound
 	spdlog::info("Initializing sound system");
