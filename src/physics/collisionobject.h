@@ -25,10 +25,27 @@
 
 #include <bullet/btBulletCollisionCommon.h>
 
+#include "src/awe/havokfile.h"
+#include "src/awe/types.h"
+
 namespace Physics {
 
+class CollisionObject;
+
+typedef std::shared_ptr<CollisionObject> CollisionObjectPtr;
+
 class CollisionObject {
+public:
+	CollisionObject();
+	CollisionObject(rid_t rid);
+
+	void setCollisionShape(btCollisionShape *shape);
+
+	void setTransform(const glm::vec3 &position, const glm::mat3 &rotation);
+
 private:
+	btTransform _offset;
+	std::unique_ptr<btCollisionShape> _shape;
 	std::unique_ptr<btCollisionObject> _collision;
 };
 
