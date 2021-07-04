@@ -187,6 +187,10 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 			readHkRootLevelContainer(*havokContent);
 		else if (name == "hkaSplineCompressedAnimation")
 			object = readHkaSplineCompressedAnimation(binhkx, contentsSectionIndex);
+		else if (name == "hkaInterleavedUncompressedAnimation")
+			object = readHkaInterleavedUncompressedAnimation(binhkx, contentsSectionIndex);
+		else if (name == "hkaDeltaCompressedAnimation")
+			object = readHkaDeltaCompressedAnimation(binhkx, contentsSectionIndex);
 		else if (name == "hkaAnimationBinding")
 			readHkaAnimationBinding(binhkx, contentsSectionIndex);
 		else if (name == "hkaAnimationContainer")
@@ -768,6 +772,23 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 
 		animation.boneToTrack[boneName] = i;
 	}
+
+	return animation;
+}
+
+HavokFile::hkaAnimation
+HavokFile::readHkaInterleavedUncompressedAnimation(Common::ReadStream &binhkx, uint32_t section) {
+	HavokFile::hkaAnimation animation{};
+
+	// TODO
+
+	return animation;
+}
+
+HavokFile::hkaAnimation HavokFile::readHkaDeltaCompressedAnimation(Common::ReadStream &binhkx, uint32_t section) {
+	HavokFile::hkaAnimation animation{};
+
+	// TODO
 
 	return animation;
 }

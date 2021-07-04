@@ -162,6 +162,8 @@ private:
 
 	std::any readHkaSkeleton(Common::ReadStream &binhkx, uint32_t section);
 	hkaAnimation readHkaSplineCompressedAnimation(Common::ReadStream &binhkx, uint32_t section);
+	hkaAnimation readHkaInterleavedUncompressedAnimation(Common::ReadStream &binhkx, uint32_t section);
+	hkaAnimation readHkaDeltaCompressedAnimation(Common::ReadStream &binhkx, uint32_t section);
 	void readHkaAnimationBinding(Common::ReadStream &binhkx, uint32_t section);
 	void readHkaAnimationContainer(Common::ReadStream &binhkx, uint32_t section);
 
