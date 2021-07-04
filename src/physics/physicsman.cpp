@@ -19,10 +19,11 @@
  */
 
 #include "physicsman.h"
+#include "src/physics/debugdraw.h"
 
 namespace Physics {
 
-PhysicsManager::PhysicsManager() {
+PhysicsManager::PhysicsManager() : _debugDraw(false) {
 	btDefaultCollisionConfiguration configuration;
 
 	_dispatcher = std::make_unique<btCollisionDispatcher>(&configuration);
@@ -35,11 +36,25 @@ PhysicsManager::PhysicsManager() {
 			&configuration
 	);
 
+	_debugDrawInterface = std::make_unique<DebugDraw>();
+
 	_world->setGravity(btVector3(0, -10, 0));
+	_world->setDebugDrawer(_debugDrawInterface.get());
+	_world->getDebugDrawer()->setDebugMode(
+		btIDebugDraw::DBG_DrawWireframe |
+		btIDebugDraw::DBG_DrawContactPoints |
+		btIDebugDraw::DBG_DrawText
+	);
+}
+
+void PhysicsManager::setDebugDraw(bool enable) {
+	_debugDraw = enable;
 }
 
 void PhysicsManager::update(float delta) {
 	_world->stepSimulation(1.0f, 10);
+	if (_debugDraw)
+		_world->debugDrawWorld();
 }
 
 }

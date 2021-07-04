@@ -33,13 +33,18 @@ class PhysicsManager : public Common::Singleton<PhysicsManager> {
 public:
 	PhysicsManager();
 
+	void setDebugDraw(bool enable);
+
 	void update(float delta);
 
 private:
+	bool _debugDraw;
+
 	std::unique_ptr<btCollisionDispatcher> _dispatcher;
 	std::unique_ptr<btBroadphaseInterface> _broadphase;
 	std::unique_ptr<btSequentialImpulseConstraintSolver> _solver;
 	std::unique_ptr<btDiscreteDynamicsWorld> _world;
+	std::unique_ptr<btIDebugDraw> _debugDrawInterface;
 };
 
 } // End of Physics
