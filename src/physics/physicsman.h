@@ -37,6 +37,8 @@ public:
 
 	void update(float delta);
 
+	void add(btCollisionObject *collisionObject);
+
 private:
 	bool _debugDraw;
 

@@ -57,4 +57,8 @@ void PhysicsManager::update(float delta) {
 		_world->debugDrawWorld();
 }
 
+void PhysicsManager::add(btCollisionObject *collisionObject) {
+	_world->addCollisionObject(collisionObject);
+}
+
 }
