@@ -855,6 +855,28 @@ HavokFile::hkpRigidBody HavokFile::readHkpRigidBody(Common::ReadStream &binhkx, 
 
 	binhkx.skip(16);
 	rigidBody.shape = readFixup(binhkx, section);
+	binhkx.skip(100);
+	uint32_t nameFixup = readFixup(binhkx, section);
+	binhkx.skip(24);
+	float friction = binhkx.readIEEEFloatLE();
+	float restitution = binhkx.readIEEEFloatLE();
+
+	binhkx.skip(132);
+
+	rigidBody.position.x = binhkx.readIEEEFloatLE();
+	rigidBody.position.y = binhkx.readIEEEFloatLE();
+	rigidBody.position.z = binhkx.readIEEEFloatLE();
+	rigidBody.position.w = binhkx.readIEEEFloatLE();
+
+	binhkx.skip(4*4*2);
+
+	rigidBody.rotation.x = binhkx.readIEEEFloatLE();
+	rigidBody.rotation.y = binhkx.readIEEEFloatLE();
+	rigidBody.rotation.z = binhkx.readIEEEFloatLE();
+	rigidBody.rotation.w = binhkx.readIEEEFloatLE();
+
+	binhkx.seek(nameFixup);
+	std::string name = binhkx.readNullTerminatedString();
 
 	return rigidBody;
 }

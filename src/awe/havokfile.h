@@ -94,6 +94,8 @@ public:
 
 	struct hkpRigidBody {
 		uint32_t shape;
+		glm::vec4 position;
+		glm::quat rotation;
 	};
 
 	struct hkpBoxShape {
