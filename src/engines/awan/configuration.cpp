@@ -66,10 +66,17 @@ void Configuration::read() {
 	std::string configFile = fmt::format("{}/config", path);
 	std::string resolutionFile = fmt::format("{}/resolution.xml", path);
 
-	auto resolutionStream = std::make_unique<Common::ReadFile>(resolutionFile);
-	auto configStream = std::make_unique<Common::ReadFile>(configFile);
-	readConfiguration(*configStream);
-	readResolution(*resolutionStream);
+	if (std::filesystem::is_regular_file(resolutionFile)) {
+		auto resolutionStream = std::make_unique<Common::ReadFile>(resolutionFile);
+		readResolution(*resolutionStream);
+	}
+
+	if (std::filesystem::is_regular_file(configFile)) {
+		auto configStream = std::make_unique<Common::ReadFile>(configFile);
+		readConfiguration(*configStream);
+	}
+
+	// TODO: If the configuration file is not found fill it with standard values or try to determine good values for the system and write it
 }
 
 void Configuration::readResolution(Common::ReadStream &file) {
