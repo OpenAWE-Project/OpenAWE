@@ -99,6 +99,10 @@ void Game::init() {
 		//Threads.add([=](){ResMan.indexArchive(binFile, rmdpFile);});
 		ResMan.indexArchive(binFile, rmdpFile);
 	}
+
+	if (identifiers.empty())
+		throw std::runtime_error("No .rmdp files found in the set data path, exiting ...");
+
 	/*ResMan.indexArchive(_path + "/ep999-000.bin", _path + "/ep999-000.rmdp");
 	identifiers.emplace_back("ep999-000");*/
 
