@@ -2,6 +2,7 @@ OpenAWE - Open Implementation of the Alan Wake Engine
 =====================================================
 
 ![OpenAWE Build](https://github.com/OpenAWE-Project/OpenAWE/actions/workflows/main.yml/badge.svg)
+[![Gitter](https://badges.gitter.im/OpenAWE-Project/community.svg)](https://gitter.im/OpenAWE-Project/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 OpenAWE is an open source reimplementation of Remedy Entertainments Alan Wake Engine, in later iterations known, as the 
 Northlight Engine. The main goal is to have Alan Wake and its successor Alan Wakes American Nightmare working in a 
