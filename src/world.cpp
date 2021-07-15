@@ -60,6 +60,11 @@ void World::loadGlobal() {
 	spdlog::info("Loading global data from {}", _name);
 	std::string globalFolder = fmt::format("worlds/{}/episodes/global", _name);
 
+	if (!ResMan.hasDirectory(globalFolder)) {
+		spdlog::debug("Cannot find global data for {}", _name);
+		return;
+	}
+
 	loadGIDRegistry(ResMan.getResource(fmt::format("{}/GIDRegistry.txt", globalFolder)));
 
 	std::string globalArchive;
