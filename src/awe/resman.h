@@ -49,6 +49,7 @@ public:
 	void indexArchive(const std::string &binFile, const std::string &rmdpFile);
 
 	bool hasResource(const std::string &path);
+	bool hasDirectory(const std::string &path);
 
 	Common::ReadStream *getResource(const std::string &path);
 

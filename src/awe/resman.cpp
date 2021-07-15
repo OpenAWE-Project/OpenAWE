@@ -66,6 +66,15 @@ bool RessourceManager::hasResource(const std::string &path) {
 	return false;
 }
 
+bool RessourceManager::hasDirectory(const std::string &path) {
+	for (const auto &archive : _archives) {
+		if (archive->hasDirectory(path))
+			return true;
+	}
+
+	return false;
+}
+
 Common::ReadStream *RessourceManager::getResource(const std::string &path) {
 	if (std::filesystem::is_regular_file(path))
 		return new Common::ReadFile(path);
