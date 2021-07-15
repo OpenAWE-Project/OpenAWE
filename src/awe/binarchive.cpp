@@ -101,4 +101,10 @@ bool BINArchive::hasResource(const std::string &rid) const {
 	) != _fileEntries.end();
 }
 
+bool BINArchive::hasDirectory(const std::string &directory) const {
+	if (directory.empty())
+		return true;
+	return false;
+}
+
 } // End of namespace AWE

@@ -152,6 +152,35 @@ bool RMDPArchive::hasResource(const std::string &rid) const {
 	return true;
 }
 
+bool RMDPArchive::hasDirectory(const std::string &directory) const {
+	std::stringstream path(
+		std::regex_replace(
+			(_pathPrefix ? "d:/data/" : "") + directory,
+			std::regex("\\\\"),
+			"/"
+		)
+	);
+	std::string item;
+
+	FolderEntry folder = _folderEntries.front();
+
+	uint32_t nameHash;
+
+	while (std::getline(path, item, '/')) {
+		nameHash = Common::crc32(Common::toLower(item));
+
+		folder = _folderEntries[folder.nextLowerFolder];
+
+		while (nameHash != folder.nameHash) {
+			if (folder.nextNeighbourFolder == 0xFFFFFFFF)
+				return false;
+			folder = _folderEntries[folder.nextNeighbourFolder];
+		}
+	}
+
+	return true;
+}
+
 void RMDPArchive::loadHeaderV2(Common::ReadStream *bin) {
 	// Load header version 2, used by Alan Wake
 	_pathPrefix = false;

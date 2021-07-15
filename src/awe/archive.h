@@ -58,6 +58,14 @@ public:
 	 * \return if the resource specified by rid exists
 	 */
 	virtual bool hasResource(const std::string &rid) const = 0;
+
+	/*!
+	 * Check if the archive has a certain directory
+	 *
+	 * \param directory the directory to check for
+	 * \return If the given directory exists
+	 */
+	virtual bool hasDirectory(const std::string &directory) const = 0;
 };
 
 } // End of namespace AWE

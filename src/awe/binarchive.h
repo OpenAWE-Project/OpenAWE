@@ -56,6 +56,8 @@ public:
 
 	size_t getNumResources() override;
 
+	bool hasDirectory(const std::string &directory) const override;
+
 private:
 	void load(Common::ReadStream &bin);
 

@@ -80,6 +80,14 @@ public:
 	 */
 	[[nodiscard]] bool hasResource(const std::string &rid) const override;
 
+	/*!
+	 * Check if a certain directory exists
+	 *
+	 * \param directory The directory to test for
+	 * \return If this directory exists
+	 */
+	bool hasDirectory(const std::string &directory) const override;
+
 private:
 	/*!
 	 * Load header version 2 used by Alan Wake
