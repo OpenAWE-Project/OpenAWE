@@ -126,6 +126,8 @@ std::string ReadStream::readNullTerminatedString() {
 	char c = static_cast<char>(readByte());
 	while (c != '\0') {
 		ss << c;
+		if (eos())
+			break;
 		c = static_cast<char>(readByte());
 	}
 	return ss.str();
