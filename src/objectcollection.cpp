@@ -30,6 +30,8 @@
 #include "src/graphics/model.h"
 #include "src/graphics/meshman.h"
 
+#include "src/physics/collisionobject.h"
+
 #include "objectcollection.h"
 
 #include <memory>
@@ -155,10 +157,27 @@ void ObjectCollection::loadStaticObject(const AWE::Object &container) {
 	auto staticObjectEntity = _registry.create();
 	_registry.emplace<Transform>(staticObjectEntity) = Transform(staticObject.position, staticObject.rotation);
 	Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(staticObjectEntity) = std::make_shared<Graphics::Model>(staticObject.meshResource);
-	// TODO: Physics Resource
 
 	model->getPosition() = staticObject.position;
 	model->getRotation() = staticObject.rotation;
+
+	if (staticObject.physicsResource) {
+		try {
+			Physics::CollisionObjectPtr collisionObject = std::make_shared<Physics::CollisionObject>(
+				staticObject.physicsResource
+			);
+
+			collisionObject->setTransform(staticObject.position, staticObject.rotation);
+
+			_registry.emplace<Physics::CollisionObjectPtr>(staticObjectEntity) = collisionObject;
+		} catch (std::exception &e) {
+			/*
+			 * Due to the fact, that not all havok primitives are working it might throw exceptions. In this case we
+			 * simply skip the creation fo the collision object
+			 */
+			spdlog::error("Failed to create physics object for static object: {}", e.what());
+		}
+	}
 
 	_entities.emplace_back(staticObjectEntity);
 }
