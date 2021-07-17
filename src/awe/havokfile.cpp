@@ -110,9 +110,6 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 
 	std::map<uint32_t, std::string> classNames;
 
-	binhkx.seek(contentsSection.absoluteDataStart);
-	std::unique_ptr<Common::ReadStream> havokContent(binhkx.readStream(contentsSection.endOffset - contentsSection.absoluteDataStart));
-
 	binhkx.seek(classNameSection.absoluteDataStart);
 	while (true) {
 		const uint32_t tag = binhkx.readUint32LE();
@@ -178,13 +175,12 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 
 		size_t lastPos = binhkx.pos();
 		binhkx.seek(contentsSection.absoluteDataStart + address);
-		havokContent->seek(address);
 
 		std::any object;
 		if (name == "hkaSkeleton")
 			object = readHkaSkeleton(binhkx, contentsSectionIndex);
 		else if (name == "hkRootLevelContainer")
-			readHkRootLevelContainer(*havokContent);
+			readHkRootLevelContainer(binhkx);
 		else if (name == "hkaSplineCompressedAnimation")
 			object = readHkaSplineCompressedAnimation(binhkx, contentsSectionIndex);
 		else if (name == "hkaInterleavedUncompressedAnimation")
