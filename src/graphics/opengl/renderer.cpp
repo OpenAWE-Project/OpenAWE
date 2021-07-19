@@ -299,7 +299,10 @@ void Renderer::drawWorld() {
 			program->bind();
 
 			_vaos[partmesh.vertexAttributesId]->bind();
-			_indices[mesh->getIndices()]->bind();
+
+			bool noIndices = mesh->getIndices().isNil();
+			if (!noIndices)
+				_indices[mesh->getIndices()]->bind();
 
 			GLuint textureSlot = 0;
 			for (const auto &attribute : partmesh.material.getAttributes()) {
@@ -388,12 +391,20 @@ void Renderer::drawWorld() {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 
-			glDrawElements(
+			if (noIndices) {
+				glDrawArrays(
+					type,
+					0,
+					partmesh.length
+				);
+			} else {
+				glDrawElements(
 					type,
 					partmesh.length,
 					GL_UNSIGNED_SHORT,
 					reinterpret_cast<void *>(partmesh.offset)
-			);
+				);
+			}
 
 			assert(glGetError() == GL_NO_ERROR);
 		}
