@@ -2,6 +2,7 @@
 // Created by patrick on 25.05.20.
 //
 
+#include <algorithm>
 #include <cstring>
 #include <stdexcept>
 #include <map>
