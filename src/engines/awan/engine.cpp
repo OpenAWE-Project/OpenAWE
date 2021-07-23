@@ -47,10 +47,11 @@ unsigned int Engine::getStoryModeRound() const {
 void Engine::loadEpisode(const std::string &parameters) {
 	// Parse story mode round
 	const std::vector<std::string> split = Common::split(parameters, std::regex(":"));
-	if (split[0] != "round")
-		throw std::runtime_error("No round given for episode");
-
-	_storyModeRound = std::atoi(split[1].c_str());
+	if (split[0] == "round") {
+		_storyModeRound = std::stoul(split[1]);
+	} else {
+		_storyModeRound = 0;
+	}
 
 	// Activate starter tasks
 	auto taskView = _registry.view<Task, AWE::Script::BytecodePtr>();
