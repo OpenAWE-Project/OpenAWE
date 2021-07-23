@@ -474,12 +474,6 @@ Common::UUID Renderer::registerVertices(byte *data, size_t length) {
 	_vertices[id] = std::make_unique<VBO>(GL_ARRAY_BUFFER);
 	_vertices[id]->bufferData(data, length);
 
-	Common::WriteFile writeFile("vertex.dat");
-	unsigned int bufferSize = _vertices[id]->getBufferSize();
-	writeFile.write(_vertices[id]->map(), bufferSize);
-	writeFile.close();
-	_vertices[id]->unmap();
-
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	return id;
