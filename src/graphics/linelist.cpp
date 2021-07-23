@@ -26,9 +26,6 @@ namespace Graphics {
 LineList::LineList() {
 	_mesh = std::make_shared<Mesh>();
 
-	const uint16_t indexData[] = {0, 1};
-	_mesh->setIndices(GfxMan.registerIndices((byte *) indexData, 4));
-
 	show();
 }
 
@@ -41,32 +38,37 @@ void LineList::flush() {
 	if (_lines == _oldLines)
 		return;
 
+	std::vector<glm::vec3> lineData;
 	for (const auto &line : _lines) {
-		Mesh::PartMesh partMesh;
-
-		const float lineData[] = {
-			line.from.x, line.from.y, line.from.z,
-			line.to.x,   line.to.y,   line.to.z,
-		};
-
-		const std::vector<VertexAttribute> attributes = {
-			{kPosition,  kVec3F}
-		};
-
-		const std::vector<Material::Attribute> materialAttributes {
-			{"g_vColor", Material::kVec3, line.color}
-		};
-
-		partMesh.renderType = Mesh::kLines;
-		partMesh.offset = 0;
-		partMesh.length = 2;
-		partMesh.vertexDataId = GfxMan.registerVertices((byte *) lineData, 6 * sizeof(float), Common::UUID::generateNil());
-		partMesh.material = Material("color", materialAttributes);
-		partMesh.material.setCullMode(Material::kNone);
-		partMesh.vertexAttributesId = GfxMan.registerVertexAttributes("color", attributes, partMesh.vertexDataId);
-
-		_mesh->addPartMesh(partMesh);
+		lineData.push_back(line.from);
+		lineData.push_back(line.color);
+		lineData.push_back(line.to);
+		lineData.push_back(line.color);
 	}
+
+	const std::vector<VertexAttribute> attributes = {
+		{kPosition,  kVec3F},
+		{kColor, kVec3F}
+	};
+
+	const std::vector<Material::Attribute> materialAttributes {
+	};
+
+	Mesh::PartMesh partMesh;
+
+	partMesh.renderType = Mesh::kLines;
+	partMesh.offset = 0;
+	partMesh.length = _lines.size() * 2;
+	partMesh.vertexDataId = GfxMan.registerVertices(
+		reinterpret_cast<byte *>(lineData.data()),
+		lineData.size() * sizeof(glm::vec3),
+		Common::UUID::generateNil()
+	);
+	partMesh.material = Material("color", materialAttributes);
+	partMesh.material.setCullMode(Material::kNone);
+	partMesh.vertexAttributesId = GfxMan.registerVertexAttributes("color", attributes, partMesh.vertexDataId);
+
+	_mesh->addPartMesh(partMesh);
 }
 
 void LineList::addLine(glm::vec3 from, glm::vec3 to, glm::vec3 color) {
