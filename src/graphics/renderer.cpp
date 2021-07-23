@@ -31,7 +31,9 @@ void Graphics::Renderer::addModel(Graphics::Model *model) {
 }
 
 void Graphics::Renderer::removeModel(Graphics::Model *model) {
-	_models.erase(std::find(_models.begin(), _models.end(), model));
+	const auto iter = std::find(_models.begin(), _models.end(), model);
+	if (iter != _models.end())
+		_models.erase(iter);
 }
 
 void Graphics::Renderer::addGUIElement(Graphics::GUIElement *gui) {
