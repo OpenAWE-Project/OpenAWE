@@ -118,7 +118,7 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 
 			// Skip over all unused tangents
 			for (int i = 0; i < 4 - numVertexReferences; ++i) {
-				terrainData.skip(24);
+				terrainData.skip(18);
 			}
 
 			Common::BoundSphere boundSphere;
