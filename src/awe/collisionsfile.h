@@ -21,6 +21,8 @@
 #ifndef AWE_COLLISIONSFILE_H
 #define AWE_COLLISIONSFILE_H
 
+#include <vector>
+
 #include "src/common/readstream.h"
 
 namespace AWE {
