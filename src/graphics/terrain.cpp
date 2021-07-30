@@ -18,7 +18,10 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
+
 #include <fstream>
+#include <src/common/writefile.h>
 
 #include "src/common/memwritestream.h"
 
@@ -26,6 +29,8 @@
 
 #include "src/graphics/gfxman.h"
 #include "src/graphics/terrain.h"
+#include "src/graphics/textureman.h"
+#include "src/graphics/images/surface.h"
 
 namespace Graphics {
 
@@ -33,49 +38,112 @@ Terrain::Terrain(Common::ReadStream *terrainDataFile) {
 	show();
 
 	AWE::TerrainDataFile terrainData(*terrainDataFile);
-
-	Common::DynamicMemoryWriteStream vertexData(true);
+	std::vector<uint16_t> indices;
 	const auto &vertices = terrainData.getVertices();
+	const auto &tilesets = terrainData.getTilesets();
 
-	for (const auto &vertex : vertices) {
-		vertexData.writeIEEEFloatLE(vertex.position.x);
-		vertexData.writeIEEEFloatLE(vertex.position.y);
-		vertexData.writeIEEEFloatLE(vertex.position.z);
-
-		vertexData.writeIEEEFloatLE(vertex.normal.x);
-		vertexData.writeIEEEFloatLE(vertex.normal.y);
-		vertexData.writeIEEEFloatLE(vertex.normal.z);
+	for (const auto &texture : terrainData.getTextures()) {
+		_textures.emplace_back(TextureMan.getTexture(texture));
 	}
 
-	Mesh::PartMesh partMesh;
-	partMesh.vertexDataId = GfxMan.registerVertices(
+	for (const auto &polygon : terrainData.getPolygons()) {
+		Common::DynamicMemoryWriteStream vertexData(true);
+
+		for (int i = 0; i < polygon.indices.size(); ++i) {
+			const auto index = polygon.indices[i];
+			const auto vertex = vertices[index];
+
+			vertexData.writeIEEEFloatLE(vertex.position.x);
+			vertexData.writeIEEEFloatLE(vertex.position.y);
+			vertexData.writeIEEEFloatLE(vertex.position.z);
+
+			vertexData.writeIEEEFloatLE(vertex.normal.x);
+			vertexData.writeIEEEFloatLE(vertex.normal.y);
+			vertexData.writeIEEEFloatLE(vertex.normal.z);
+
+			for (int j = 0; j < 4; ++j) {
+				const auto uv = polygon.texCoords[j][i];
+
+				vertexData.writeIEEEFloatLE(uv.s);
+				vertexData.writeIEEEFloatLE(uv.t);
+			}
+		}
+
+		std::vector<uint16_t> localIndices;
+		for (int i = 0; i + 2 < polygon.indices.size(); i++) {
+			localIndices.emplace_back((i * 2) % 4);
+			localIndices.emplace_back((i * 2 + 1) % 4);
+			localIndices.emplace_back((i * 2 + 2) % 4);
+		}
+
+		Mesh::PartMesh partMesh;
+		partMesh.vertexDataId = GfxMan.registerVertices(
 			vertexData.getData(),
 			vertexData.getLength(),
 			Common::UUID::generateNil()
-	);
+		);
 
-	std::vector<VertexAttribute> attributes = {
-			{kPosition, kVec3F},
-			{kNormal,   kVec3F}
-	};
-	partMesh.vertexAttributesId = GfxMan.registerVertexAttributes(
+		const std::vector<VertexAttribute> attributes = {
+			{kPosition,       kVec3F},
+			{kNormal,         kVec3F},
+			{kTexCoord0,      kVec2F},
+			{kTexCoord1,      kVec2F},
+			{kTexCoord2,      kVec2F},
+			{kTexCoord3,      kVec2F}
+		};
+
+		// Generate blend map
+		const auto &blend1 = polygon.blend1;
+		const auto &blend2 = polygon.blend2;
+
+		assert(blend1.size == blend2.size);
+
+		Common::DynamicMemoryWriteStream blendData(true);
+		for (int i = 0; i < blend1.size * blend1.size; ++i) {
+			blendData.writeUint16LE(blend1.data[i]);
+			blendData.writeUint16LE(blend2.data[i]);
+		}
+
+		Surface surface(blend1.size, blend1.size, ImageDecoder::kRG16);
+		std::memcpy(surface.getData(), blendData.getData(), blendData.getLength());
+		const auto blendid = GfxMan.registerTexture(surface);
+
+		const auto tileset = tilesets[polygon.tilesetId];
+		const std::vector<Material::Attribute> materialAttributes = {
+			{"g_sColorMaps[0]", Material::kTexture, _textures[tileset.colorTile1]},
+			{"g_sColorMaps[1]", Material::kTexture, _textures[tileset.colorTile2]},
+			{"g_sColorMaps[2]", Material::kTexture, _textures[tileset.colorTile3]},
+			{"g_sNormalMaps[0]", Material::kTexture, _textures[tileset.normalTile1]},
+			{"g_sNormalMaps[1]", Material::kTexture, _textures[tileset.normalTile2]},
+			{"g_sNormalMaps[2]", Material::kTexture, _textures[tileset.normalTile3]},
+			{"g_sBlendMap",     Material::kTexture, blendid}
+		};
+
+		partMesh.vertexAttributesId = GfxMan.registerVertexAttributes(
 			"terrain",
 			attributes,
 			partMesh.vertexDataId
-	);
-	partMesh.renderType = Mesh::kPoints;
-	partMesh.material = Material("terrain", std::vector<Material::Attribute>());
-	partMesh.material.setCullMode(Material::kFront);
-	partMesh.offset = 0;
-	partMesh.length = vertices.size();
+		);
+		partMesh.renderType = Mesh::kTriangles;
+		partMesh.material = Material("terrain", materialAttributes);
+		partMesh.material.setCullMode(Material::kNone);
+		partMesh.offset = indices.size() * 2;
+		partMesh.length = localIndices.size();
 
-	std::vector<uint16_t> indices;
-	for (int i = 0; i < vertices.size(); ++i) {
-		indices.emplace_back(i);
+		for (const auto &localIndex : localIndices) {
+			indices.emplace_back(localIndex);
+		}
+
+		_mesh->addPartMesh(partMesh);
 	}
 
 	_mesh->setIndices(GfxMan.registerIndices(reinterpret_cast<byte *>(indices.data()), indices.size() * 2));
-	_mesh->addPartMesh(partMesh);
+}
+
+Terrain::~Terrain() {
+	for (auto &blendMap : _blendMaps) {
+		GfxMan.deregisterTexture(blendMap);
+	}
 }
 
 }

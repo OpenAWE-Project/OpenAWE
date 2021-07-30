@@ -28,6 +28,11 @@ namespace Graphics {
 class Terrain : public Model {
 public:
 	Terrain(Common::ReadStream *terrainDataFile);
+	~Terrain();
+
+private:
+	std::vector<Common::UUID> _textures;
+	std::vector<Common::UUID> _blendMaps;
 };
 
 }
