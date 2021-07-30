@@ -42,6 +42,11 @@ public:
 		float displacementFactor;
 	};
 
+	struct Blend {
+		uint32_t size;
+		std::vector<uint16_t> data;
+	};
+
 	struct Polygon {
 		Common::BoundSphere boundSphere;
 		std::vector<uint32_t> indices;
@@ -49,20 +54,18 @@ public:
 		std::vector<glm::vec3> tangents[3];
 		uint16_t tilesetId;
 		uint16_t flags;
-	};
-
-	struct Blend {
-		uint32_t polygonId, size;
-		std::vector<uint16_t> data;
+		Blend blend1, blend2;
 	};
 
 	TerrainDataFile(Common::ReadStream &readStream);
 
+	const std::vector<Tileset> &getTilesets();
 	const std::vector<Vertex> &getVertices();
 	const std::vector<Polygon> &getPolygons();
 	const std::vector<std::string> &getTextures();
 
 private:
+	std::vector<Tileset> _tilesets;
 	std::vector<Vertex> _vertices;
 	std::vector<Polygon> _polygons;
 	std::vector<std::string> _textures;

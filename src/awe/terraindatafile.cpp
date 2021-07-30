@@ -20,6 +20,7 @@
 
 #include <stdexcept>
 #include <vector>
+#include <regex>
 
 #include <fmt/format.h>
 
@@ -41,12 +42,17 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 		for (auto &texture : _textures) {
 			uint32_t fileNameLength = terrainData.readUint32LE();
 			texture = terrainData.readFixedSizeString(fileNameLength, true);
+
+			// Normalize Path
+			texture = std::regex_replace(texture, std::regex("runtimedata\\\\pc"), "d:");
+			texture = std::regex_replace(texture, std::regex("\\\\"), "/");
+			texture = std::regex_replace(texture, std::regex("d:/data/"), "");
 		}
 
 		// Read tilesets
 		uint32_t numTilesets = terrainData.readUint32LE();
-		std::vector<Tileset> tilesets(numTilesets);
-		for (auto &tileset : tilesets) {
+		_tilesets.resize(numTilesets);
+		for (auto &tileset : _tilesets) {
 			tileset.colorTile1 = terrainData.readUint16LE();
 			tileset.colorTile2 = terrainData.readUint16LE();
 			tileset.colorTile3 = terrainData.readUint16LE();
@@ -145,7 +151,7 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 			polygon.flags = terrainData.readUint16LE();
 
 			terrainData.skip(4);
-			terrainData.skip(1 + 1 + 1 + 1);
+			terrainData.skip(2 + 2);
 		}
 	} else {
 		uint32_t numPolygons = terrainData.readUint32LE();
@@ -160,37 +166,39 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 			vec1.y = terrainData.readUint32LE();
 			vec1.z = terrainData.readUint32LE();
 		}
-
-		uint32_t numUnknown2 = terrainData.readUint32LE();
-		for (int i = 0; i < numUnknown2; ++i) {
-			uint32_t val1 = terrainData.readUint32LE();
-			// Grass Map
-		}
 	}
 
-	uint32_t numColorBlend = terrainData.readUint32LE();
-	_colorBlends.resize(numColorBlend);
-	for (auto &blend : _colorBlends) {
-		blend.polygonId = terrainData.readUint32LE();
+	uint32_t numBlends = terrainData.readUint32LE();
+	for (int i = 0; i < numBlends; i++) {
+		Blend blend;
+		uint32_t polygonId = terrainData.readUint32LE();
 		blend.size = terrainData.readUint32LE();
 
-		uint32_t dataSize = std::pow(blend.size, 2);
+		uint32_t dataSize = std::pow<uint32_t>(blend.size, 2);
 
 		blend.data.resize(dataSize);
 		terrainData.read(blend.data.data(), dataSize * 2);
+
+		_polygons[polygonId].blend1 = blend;
 	}
 
-	/*uint32_t numNormalBlend = terrainData.readUint32LE();
-	_normalBlends.resize(numNormalBlend);
-	for (auto &blend : _normalBlends) {
-		blend.polygonId = terrainData.readUint32LE();
+	uint32_t numBlends2 = terrainData.readUint32LE();
+	for (int i = 0; i < numBlends2; i++) {
+		Blend blend;
+		uint32_t polygonId = terrainData.readUint32LE();
 		blend.size = terrainData.readUint32LE();
 
-		uint32_t dataSize = std::pow(blend.size, 2);
+		uint32_t dataSize = std::pow<uint32_t>(blend.size, 2);
 
 		blend.data.resize(dataSize);
-		terrainData.read(blend.data.data(), dataSize);
-	}*/
+		terrainData.read(blend.data.data(), dataSize * 2);
+
+		_polygons[polygonId].blend2 = blend;
+	}
+}
+
+const std::vector<TerrainDataFile::Tileset> &TerrainDataFile::getTilesets() {
+	return _tilesets;
 }
 
 const std::vector<TerrainDataFile::Vertex> &TerrainDataFile::getVertices() {
