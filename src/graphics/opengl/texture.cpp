@@ -58,6 +58,11 @@ Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id) {
 			format = GL_RED;
 			type = GL_UNSIGNED_BYTE;
 			break;
+		case ImageDecoder::kRG16:
+			internalFormat = GL_RG16;
+			format = GL_RG;
+			type = GL_UNSIGNED_SHORT;
+			break;
 		case ImageDecoder::RGB8:
 			internalFormat = GL_RGB;
 			format = GL_RGB;

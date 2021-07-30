@@ -30,6 +30,7 @@ class ImageDecoder : public Common::Noncopyable {
 public:
 	enum Format {
 		kGrayScale,
+		kRG16,
 		RGB8,
 		kRGBA8,
 

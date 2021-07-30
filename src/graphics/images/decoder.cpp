@@ -65,6 +65,7 @@ size_t ImageDecoder::getImageSize(unsigned int width, unsigned int height) {
 		case RGB8:
 			return width * height * 3;
 
+		case kRG16:
 		case kRGBA8:
 			return width * height * 4;
 
