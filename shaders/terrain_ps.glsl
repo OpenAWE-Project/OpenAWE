@@ -1,4 +1,4 @@
-/* OpenAWE - A reimplementation of Remedys Alan Wake Engine
+	/* OpenAWE - A reimplementation of Remedys Alan Wake Engine
  *
  * OpenAWE is the legal property of its developers, whose names
  * can be found in the AUTHORS file distributed with this source
@@ -20,10 +20,25 @@
 
 #version 330 core
 
-uniform sampler2DArray g_sBlendMap;
+uniform sampler2D g_sBlendMap;
+uniform sampler2D g_sColorMaps[3];
+uniform sampler2D g_sNormalMaps[3];
+
+in vec2 pass_UV0;
+in vec2 pass_UV1;
+in vec2 pass_UV2;
+in vec2 pass_BlendUV;
 
 out vec4 out_Color;
 
 void main() {
-	out_Color = vec4(0.0, 0.0, 1.0, 1.0);
+	vec4 vColor0 = texture(g_sColorMaps[0], pass_UV0);
+	vec4 vColor1 = texture(g_sColorMaps[1], pass_UV1);
+	vec4 vColor2 = texture(g_sColorMaps[2], pass_UV2);
+	vec4 vBlendFactor = vec4(texture(g_sBlendMap, pass_BlendUV).rg, 0.0, 0.0);
+
+	vColor0 = vec4(mix(vColor0.rgb, vColor1.rgb, (1.0 - vColor1.a)), 1.0);
+	vColor0 = vec4(mix(vColor0.rgb, vColor2.rgb, (1.0 - vColor2.a)), 1.0);
+
+	out_Color = vec4(vColor0.rgb, 1.0);
 }
