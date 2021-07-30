@@ -29,7 +29,7 @@ Surface::Surface(unsigned int width, unsigned int height, ImageDecoder::Format f
 	_format = format;
 
 	_layers.resize(1);
-	auto mipmaps = _layers[0];
+	auto &mipmaps = _layers[0];
 	mipmaps.resize(1);
 
 	Mipmap &mipmap = mipmaps[0];
