@@ -28,6 +28,7 @@
 
 #include "src/common/threadpool.h"
 #include "src/common/strutil.h"
+#include "src/common/exception.h"
 
 #include "src/physics/physicsman.h"
 
@@ -37,6 +38,7 @@
 #include "src/awe/cidfile.h"
 #include "src/awe/havokfile.h"
 
+#include "src/engines/aw/engine.h"
 #include "src/engines/awan/engine.h"
 
 #include "src/sound/soundman.h"
@@ -110,7 +112,7 @@ void Game::init() {
 	//Common::ReadStream *s = ResMan.getResource("animations/emmaxx/ingame/emmaxx_stand.binhkt");
 	//HavokFile female_skeleton(*s);
 
-	_engine = std::make_unique<Engines::AlanWakesAmericanNightmare::Engine>(_registry);
+	GameEngine engine;
 
 	// Check if the resources have packmeta files and load them and if not load streamed resources
 	bool hasPackmeta = ResMan.hasResource("ep999-000.packmeta");
@@ -119,6 +121,7 @@ void Game::init() {
 			spdlog::info("Indexing packmeta file {}", identifier + ".packmeta");
 			ResMan.indexPackmeta(identifier + ".packmeta");
 		}
+		engine = kAlanWakesAmericanNightmare;
 	} else {
 		spdlog::info("Indexing streamed resource file cid_streamedcloth.bin");
 		ResMan.indexStreamedResource("resourcedb/cid_streamedcloth.bin");
@@ -140,17 +143,25 @@ void Game::init() {
 		ResMan.indexStreamedResource("resourcedb/cid_streamedsound.bin");
 		spdlog::info("Indexing streamed resource file cid_streamedtexture.bin");
 		ResMan.indexStreamedResource("resourcedb/cid_streamedtexture.bin");
+
+		engine = kAlanWake;
 	}
 
-	_engine->getConfiguration().read();
+	switch (engine) {
+		case kAlanWake:
+			_engine = std::make_unique<Engines::AlanWake::Engine>(_registry);
+			break;
+		case kAlanWakesAmericanNightmare:
+			_engine = std::make_unique<Engines::AlanWakesAmericanNightmare::Engine>(_registry);
+			break;
+		default:
+			throw Common::Exception("Game engine not recognized");
+	}
 
 	_platform.init();
 
 	_window = std::make_unique<Graphics::Window>(Graphics::Window::kOpenGL);
-	if (hasPackmeta)
-		_window->setTitle("Alan Wakes American Nightmare");
-	else
-		_window->setTitle("Alan Wake");
+	_window->setTitle(_engine->getName());
 
 	GfxMan.initOpenGL(*_window);
 	//GfxMan.setAmbianceState("scene1_reststop_creepy");
