@@ -74,6 +74,10 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 		load(ldCell.getResource("cid_staticobject.bin"), kStaticObject);
 		//loadTerrainData(ldCell.getResource("cid_terraindata.bin"));
 
+		std::unique_ptr<Common::ReadStream> terrainCollisions(ResMan.getResource(fmt::format("{}/{}.collisions", levelFolder, hdName)));
+		assert(terrainCollisions);
+		loadTerrainCollisions(terrainCollisions.get());
+
 		loadFoliageData(hdCell.getResource("cid_foliagedata.bin"));
 		loadFoliageData(ldCell.getResource("cid_foliagedata.bin"));
 	}
