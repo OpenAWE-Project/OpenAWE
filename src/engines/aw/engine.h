@@ -28,6 +28,10 @@ namespace Engines::AlanWake {
 class Engine : public ::Engine {
 public:
 	Engine(entt::registry &registry);
+
+	void init() override;
+
+	const char *getName() const override;
 };
 
 }

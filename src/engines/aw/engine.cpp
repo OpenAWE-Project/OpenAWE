@@ -26,4 +26,12 @@ namespace Engines::AlanWake {
 Engine::Engine(entt::registry &registry) : ::Engine(registry, new Functions(registry, *this)) {
 }
 
+void Engine::init() {
+
+}
+
+const char *Engine::getName() const {
+	return "Alan Wake";
+}
+
 }

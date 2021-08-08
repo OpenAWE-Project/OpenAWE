@@ -34,6 +34,8 @@ public:
 
 	void init() override;
 
+	const char *getName() const override;
+
 	void loadEpisode(const std::string &parameters) override;
 
 private:

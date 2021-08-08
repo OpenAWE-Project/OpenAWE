@@ -73,4 +73,8 @@ void Engine::loadEpisode(const std::string &parameters) {
 	}
 }
 
+const char *Engine::getName() const {
+	return "Alan Wakes American Nightmare";
+}
+
 }

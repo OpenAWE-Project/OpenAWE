@@ -32,6 +32,7 @@ public:
 	Engine(entt::registry &registry, AWE::Script::Functions *);
 
 	virtual void init() = 0;
+	virtual const char *getName() const = 0;
 	AWE::Script::Functions &getFunctions();
 	Configuration &getConfiguration();
 
