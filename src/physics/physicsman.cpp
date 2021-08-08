@@ -61,4 +61,8 @@ void PhysicsManager::add(btCollisionObject *collisionObject) {
 	_world->addCollisionObject(collisionObject);
 }
 
+void PhysicsManager::remove(btCollisionObject *collisionObject) {
+	_world->removeCollisionObject(collisionObject);
+}
+
 }
