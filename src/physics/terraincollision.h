@@ -18,44 +18,21 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_COLLISIONOBJECT_H
-#define OPENAWE_COLLISIONOBJECT_H
+#ifndef OPENAWE_TERRAINCOLLISION_H
+#define OPENAWE_TERRAINCOLLISION_H
 
-#include <memory>
-
-#include <btBulletCollisionCommon.h>
-#include <btBulletDynamicsCommon.h>
-
-#include "src/awe/collisionsfile.h"
-#include "src/awe/havokfile.h"
-#include "src/awe/types.h"
+#include "src/physics/collisionobject.h"
 
 namespace Physics {
 
-class CollisionObject;
-
-typedef std::shared_ptr<CollisionObject> CollisionObjectPtr;
-
-class CollisionObject {
+class TerrainCollision : public CollisionObject {
 public:
-	CollisionObject();
-	CollisionObject(rid_t rid);
-
-	void setTransform(const glm::vec3 &position, const glm::mat3 &rotation);
-	void setActive(bool active);
-
-protected:
-	void setCollisionShape(btCollisionShape *shape);
-	void setOffset(btTransform offset);
-
-	btCollisionShape &getCollisionShape();
+	TerrainCollision(AWE::COLLISIONSFile &collisionsFile);
 
 private:
-	btTransform _offset;
-	std::unique_ptr<btCollisionShape> _shape;
-	std::unique_ptr<btCollisionObject> _collision;
+	std::unique_ptr<btTriangleMesh> _mesh;
 };
 
-} // End of namespace Physics
+}
 
-#endif //OPENAWE_COLLISIONOBJECT_H
+#endif //OPENAWE_TERRAINCOLLISION_H

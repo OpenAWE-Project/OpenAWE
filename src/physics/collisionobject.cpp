@@ -33,8 +33,9 @@
 
 namespace Physics {
 
-CollisionObject::CollisionObject() {
-	PhysicsMan.add(_collision.get());
+CollisionObject::CollisionObject() : _collision(new btCollisionObject) {
+	_offset.setIdentity();
+	_collision->activate();
 }
 
 CollisionObject::CollisionObject(rid_t rid) : _collision(new btCollisionObject) {
@@ -81,13 +82,10 @@ CollisionObject::CollisionObject(rid_t rid) : _collision(new btCollisionObject) 
 		rigidBody.rotation.w
 	));
 
+
 	_collision->activate();
 
 	PhysicsMan.add(_collision.get());
-}
-
-void CollisionObject::setCollisionShape(btCollisionShape *shape) {
-	_collision->setCollisionShape(shape);
 }
 
 void CollisionObject::setTransform(const glm::vec3 &position, const glm::mat3 &rotation) {
@@ -99,6 +97,26 @@ void CollisionObject::setTransform(const glm::vec3 &position, const glm::mat3 &r
 	transform.setRotation(q);
 
 	_collision->setWorldTransform(transform * _offset);
+}
+
+void CollisionObject::setActive(bool active) {
+	if (active)
+		PhysicsMan.add(_collision.get());
+	else
+		PhysicsMan.remove(_collision.get());
+}
+
+void CollisionObject::setCollisionShape(btCollisionShape *shape) {
+	_shape.reset(shape);
+	_collision->setCollisionShape(shape);
+}
+
+void CollisionObject::setOffset(btTransform offset) {
+	_offset = offset;
+}
+
+btCollisionShape &CollisionObject::getCollisionShape() {
+	return *_shape;
 }
 
 } // End of namespace Physics
