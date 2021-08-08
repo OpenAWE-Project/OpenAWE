@@ -45,6 +45,7 @@ protected:
 	void load(Common::ReadStream *stream, ObjectType type, std::shared_ptr<DPFile> dp);
 
 	void loadFoliageData(Common::ReadStream *foliageData);
+	void loadTerrainCollisions(Common::ReadStream *collisions);
 
 	entt::registry &_registry;
 

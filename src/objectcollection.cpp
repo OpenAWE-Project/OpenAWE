@@ -31,6 +31,7 @@
 #include "src/graphics/meshman.h"
 
 #include "src/physics/collisionobject.h"
+#include "src/physics/terraincollision.h"
 
 #include "objectcollection.h"
 
@@ -97,6 +98,14 @@ void ObjectCollection::loadFoliageData(Common::ReadStream *foliageData) {
 
 		_entities.emplace_back(foliage);
 	}
+}
+
+void ObjectCollection::loadTerrainCollisions(Common::ReadStream *collisions) {
+	AWE::COLLISIONSFile collisionsFile(*collisions);
+	entt::entity collisionsEntity = _registry.create();
+	_registry.emplace<Physics::CollisionObjectPtr>(collisionsEntity) = std::make_shared<Physics::TerrainCollision>(collisionsFile);
+
+	_entities.emplace_back(collisionsEntity);
 }
 
 void ObjectCollection::load(const AWE::Object &container, ObjectType type) {
