@@ -23,8 +23,10 @@
 
 #include <entt/entt.hpp>
 
+#include "src/common/types.h"
+
 #include "src/awe/types.h"
-#include "functions.h"
+#include "src/awe/script/functions.h"
 
 namespace AWE::Script {
 
@@ -33,6 +35,8 @@ public:
 	Context(entt::registry &registry, Functions &functions);
 
 	entt::entity getEntityByGID(const GID &gid);
+	void setVariable(entt::entity entity, byte id, Variable variable, std::string &debug);
+	Variable getVariable(entt::entity entity, byte id, std::string &debug);
 
 	Functions &getFunctions();
 

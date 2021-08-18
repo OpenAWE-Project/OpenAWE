@@ -20,7 +20,11 @@
 
 #include <spdlog/spdlog.h>
 
-#include "context.h"
+#include <utility>
+
+#include "src/awe/script/context.h"
+#include "src/awe/script/bytecode.h"
+#include "src/awe/script/variablestore.h"
 
 namespace AWE::Script {
 
@@ -47,6 +51,18 @@ entt::entity AWE::Script::Context::getEntityByGID(const GID &gid) {
 
 Functions &Context::getFunctions() {
 	return _functions;
+}
+
+void Context::setVariable(entt::entity entity, byte id, Variable variable, std::string &debug) {
+	const auto variableStore = _registry.get<VariableStorePtr>(entity);
+	debug = variableStore->getDebugName(id);
+	variableStore->setVariable(id, std::move(variable));
+}
+
+Variable Context::getVariable(entt::entity entity, byte id, std::string &debug) {
+	const auto variableStore = _registry.get<VariableStorePtr>(entity);
+	debug = variableStore->getDebugName(id);
+	return variableStore->getVariable(id);
 }
 
 }

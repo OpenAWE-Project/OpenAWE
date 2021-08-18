@@ -47,11 +47,9 @@ enum Opcode {
 
 namespace AWE::Script {
 
-Bytecode::Bytecode(Common::ReadStream *bytecode, const EntryPoints &entryPoints, std::shared_ptr<DPFile> parameters,
-				   const DebugEntries &debugEntries) :
+Bytecode::Bytecode(Common::ReadStream *bytecode, const EntryPoints &entryPoints, std::shared_ptr<DPFile> parameters) :
 	_bytecode(bytecode),
 	_entryPoints(entryPoints),
-	_debugEntries(debugEntries),
 	_parameters(parameters) {
 }
 
@@ -90,8 +88,8 @@ void Bytecode::run(Context &context, const std::string &entryPoint, const entt::
 			case kCallObject: callObject(context, param1, param2); break;
 			case kRet:        ret(); break;
 			case kIntToFloat: intToFloat(); break;
-			case kSetMember:  setMember(param1); break;
-			case kGetMember:  getMember(param1); break;
+			case kSetMember:  setMember(context, param1); break;
+			case kGetMember:  getMember(context, param1); break;
 			case kCmp:        cmp(); break;
 			case kJmp:        jmp(); break;
 			case kJmpIf:      jmpIf(); break;
@@ -198,24 +196,30 @@ void Bytecode::intToFloat() {
 	spdlog::trace("int_to_float");
 }
 
-void Bytecode::setMember(byte id) {
-	const auto memberName = _debugEntries.find(id);
+void Bytecode::setMember(Context &ctx, byte id) {
+	entt::entity entity = std::get<entt::entity>(_stack.top());
+	_stack.pop();
+	Variable variable = _stack.top();
+	_stack.pop();
 
-	// TODO
+	std::string debugName;
+	ctx.setVariable(entity, id, variable, debugName);
 
-	if (memberName != _debugEntries.end())
-		spdlog::trace("set_member {} {}", id, memberName->second);
+	if (!debugName.empty())
+		spdlog::trace("set_member {} {}", id, debugName);
 	else
 		spdlog::trace("set_member {}", id);
 }
 
-void Bytecode::getMember(byte id) {
-	const auto memberName = _debugEntries.find(id);
+void Bytecode::getMember(Context &ctx, byte id) {
+	entt::entity entity = std::get<entt::entity>(_stack.top());
+	_stack.pop();
 
-	// TODO
+	std::string  debugName;
+	_stack.push(ctx.getVariable(entity, id, debugName));
 
-	if (memberName != _debugEntries.end())
-		spdlog::trace("get_member {} {}", id, memberName->second);
+	if (!debugName.empty())
+		spdlog::trace("get_member {} {}", id, debugName);
 	else
 		spdlog::trace("get_member {}", id);
 }
