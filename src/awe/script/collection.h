@@ -27,6 +27,7 @@
 #include "src/awe/dpfile.h"
 #include "src/awe/object.h"
 #include "src/awe/script/bytecode.h"
+#include "src/awe/script/variablestore.h"
 
 namespace AWE::Script {
 
@@ -40,7 +41,17 @@ class Collection {
 public:
 	Collection(Common::ReadStream *bytecode, Common::ReadStream *bytecodeParameters);
 
-	Bytecode *createScript(const AWE::Templates::ScriptVariables &script);
+	/*!
+	 *
+	 * @param script
+	 * @param bytecode
+	 * @param variablesStore
+	 */
+	void createScript(
+		const AWE::Templates::ScriptVariables &script,
+		BytecodePtr &bytecode,
+		VariableStorePtr &variablesStore
+	);
 
 private:
 	std::unique_ptr<DPFile> _bytecode;

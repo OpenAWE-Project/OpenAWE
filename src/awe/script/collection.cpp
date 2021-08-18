@@ -30,11 +30,16 @@ Collection::Collection(Common::ReadStream *bytecode, Common::ReadStream *bytecod
 		_bytecodeParameters(new DPFile(bytecodeParameters)) {
 }
 
-Bytecode *Collection::createScript(const AWE::Templates::ScriptVariables &script) {
+void Collection::createScript(
+	const AWE::Templates::ScriptVariables &script,
+	BytecodePtr &bytecode,
+	VariableStorePtr &variablesStore
+) {
 	std::vector<DPFile::ScriptDebugEntry> variableMappings = _bytecode->getScriptDebugEntries(script.offsetDebugEntries,
 																					   script.numDebugEntries);
 	std::vector<DPFile::ScriptMetadata> metadata = _bytecode->getScriptMetadata(script.offsetHandlers, script.numHandlers);
 	std::vector<DPFile::ScriptSignal> signals = _bytecode->getScriptSignals(script.offsetSignals, script.numSignals);
+	std::vector<uint32_t> variableValues = _bytecode->getValues(script.offsetVariables, script.numVariables);
 
 	EntryPoints entryPoints;
 	for (const auto &item : metadata) {
@@ -58,12 +63,25 @@ Bytecode *Collection::createScript(const AWE::Templates::ScriptVariables &script
 		spdlog::debug("Add debug entry {} for entry {}", _bytecodeParameters->getString(debugEntry.nameOffset), debugEntry.id);
 	}
 
+	std::vector<Variable> variables(variableValues.size());
+	for (int i = 0; i < variableValues.size(); ++i) {
+		const uint32_t variableValue = variableValues[i];
+		variables[i] = variableValue;
+	}
+	spdlog::debug("Added {} script variables", variableValues.size());
+
 	assert(_bytecodeParameters);
 
-	return new Bytecode(
-	_bytecode->getStream(script.offsetCode, script.codeSize),
-	entryPoints,
-	_bytecodeParameters, debugEntries);
+	bytecode = std::make_shared<Bytecode>(
+		_bytecode->getStream(script.offsetCode, script.codeSize),
+		entryPoints,
+		_bytecodeParameters
+	);
+
+	variablesStore = std::make_shared<VariableStore>(
+		variables,
+		debugEntries
+	);
 }
 
 }

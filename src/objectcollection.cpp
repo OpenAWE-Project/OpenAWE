@@ -215,8 +215,18 @@ void ObjectCollection::loadDynamicObjectScript(const AWE::Object &container) {
 	if (scriptEntity == entt::null)
 		throw std::runtime_error("Couldn't find script entity");
 
-	_registry.emplace<AWE::Script::BytecodePtr>(scriptEntity) = AWE::Script::BytecodePtr(_bytecode->createScript(
-			dynamicObjectScript.script));
+	AWE::Script::BytecodePtr bytecode;
+	AWE::Script::VariableStorePtr variableStore;
+	_bytecode->createScript(
+		dynamicObjectScript.script,
+		bytecode,
+		variableStore
+	);
+
+	if (bytecode)
+		_registry.emplace<AWE::Script::BytecodePtr>(scriptEntity) = bytecode;
+	if (variableStore)
+		_registry.emplace<AWE::Script::VariableStorePtr>(scriptEntity) = variableStore;
 
 	spdlog::debug("Loading script for dynamic object {}", _gid->getString(dynamicObjectScript.gid));
 }
@@ -255,8 +265,18 @@ void ObjectCollection::loadScript(const AWE::Object &container) {
 	if (scriptEntity == entt::null)
 		throw std::runtime_error("Couldn't find script entity");
 
-	_registry.emplace<AWE::Script::BytecodePtr>(scriptEntity) = AWE::Script::BytecodePtr(_bytecode->createScript(
-			scriptInstanceScript.script));
+	AWE::Script::BytecodePtr bytecode;
+	AWE::Script::VariableStorePtr variableStore;
+		_bytecode->createScript(
+		scriptInstanceScript.script,
+		bytecode,
+		variableStore
+	);
+
+	if (bytecode)
+		_registry.emplace<AWE::Script::BytecodePtr>(scriptEntity) = bytecode;
+	if (variableStore)
+		_registry.emplace<AWE::Script::VariableStorePtr>(scriptEntity) = variableStore;
 
 	spdlog::debug("Loading script for object {}", _gid->getString(scriptInstanceScript.gid));
 }
@@ -267,8 +287,19 @@ void ObjectCollection::loadFloatingScript(const AWE::Object &container) {
 	auto floatingScriptEntity = _registry.create();
 	_registry.emplace<GID>(floatingScriptEntity) = floatingScript.gid;
 	_registry.emplace<Transform>(floatingScriptEntity) = Transform(floatingScript.position, floatingScript.rotation);
-	_registry.emplace<AWE::Script::BytecodePtr>(floatingScriptEntity) = AWE::Script::BytecodePtr(
-			_bytecode->createScript(floatingScript.script));
+
+	AWE::Script::BytecodePtr bytecode;
+	AWE::Script::VariableStorePtr variableStore;
+		_bytecode->createScript(
+		floatingScript.script,
+		bytecode,
+		variableStore
+	);
+
+	if (bytecode)
+		_registry.emplace<AWE::Script::BytecodePtr>(floatingScriptEntity) = bytecode;
+	if (variableStore)
+		_registry.emplace<AWE::Script::VariableStorePtr>(floatingScriptEntity) = variableStore;
 
 	spdlog::debug("Loading floating script {}", _gid->getString(floatingScript.gid));
 }
