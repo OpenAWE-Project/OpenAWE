@@ -287,7 +287,7 @@ void Renderer::drawWorld() {
 		glm::mat4 mvp = vp * m;
 
 		const MeshPtr mesh = model->getMesh();
-		const auto partMeshs = mesh->getMeshs();
+		const auto &partMeshs = mesh->getMeshs();
 
 		for (const auto &partmesh : partMeshs) {
 			auto programIter = _programs.find(partmesh.material.getShaderName());
