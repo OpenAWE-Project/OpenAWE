@@ -132,7 +132,6 @@ link_libraries(
         glm::glm
         fmt::fmt
 
-        ${X11_LIBRARIES}
         ${ZLIB_LIBRARIES}
         ${GLEW_LIBRARIES}
         ${OPENGL_LIBRARIES}
@@ -148,7 +147,6 @@ link_libraries(
 
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/par
 
         ${ZLIB_INCLUDE_DIRS}
         ${GLEW_INCLUDE_DIRS}
