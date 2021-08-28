@@ -91,14 +91,14 @@ endif()
 
 find_package(Threads REQUIRED)
 find_package(ZLIB REQUIRED)
-find_package(GLFW REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(GLM REQUIRED)
+find_package(glm REQUIRED)
 find_package(LibXml2 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(Bullet REQUIRED)
-find_package(FMT REQUIRED)
+find_package(fmt REQUIRED)
 find_package(OGG REQUIRED)
 find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
@@ -127,14 +127,17 @@ endif ()
 
 link_libraries(
         ${CMAKE_THREAD_LIBS_INIT}
+
+        glfw
+        glm::glm
+        fmt::fmt
+
         ${X11_LIBRARIES}
         ${ZLIB_LIBRARIES}
-        ${GLFW_LIBRARIES}
         ${GLEW_LIBRARIES}
         ${OPENGL_LIBRARIES}
         ${OPENAL_LIBRARY}
         ${LIBXML2_LIBRARIES}
-        ${FMT_LIBRARIES}
         ${THEORA_LIBRARIES}
         ${VORBIS_LIBRARIES}
         ${OGG_LIBRARIES}
@@ -148,12 +151,9 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/par
 
         ${ZLIB_INCLUDE_DIRS}
-        ${GLFW_INCLUDE_DIRS}
         ${GLEW_INCLUDE_DIRS}
         ${OPENGL_INCLUDE_DIRS}
         ${LIBXML2_INCLUDE_DIRS}
-        ${GLM_INCLUDE_DIRS}
-        ${FMT_INCLUDE_DIRS}
         ${cxxopts_INCLUDE_DIRS}
         ${BULLET_INCLUDE_DIRS}
         ${spdlog_INCLUDE_DIRS}
