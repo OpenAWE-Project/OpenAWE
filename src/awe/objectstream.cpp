@@ -55,6 +55,9 @@ static const uint32_t kContentHashWaypoint             = Common::crc32(Common::t
 static const uint32_t kContentCharacterClothParameters = Common::crc32(Common::toLower("content::Character::ClothParameters"));
 static const uint32_t kContentHashAnimationParameters  = Common::crc32(Common::toLower("content::AnimationParameters"));
 static const uint32_t kContentHashKeyframedObject      = Common::crc32(Common::toLower("content::KeyframedObject"));
+static const uint32_t kContentHashKeyframeAnimation    = Common::crc32(Common::toLower("content::KeyframeAnimation"));
+static const uint32_t kContentHashKeyframer            = Common::crc32(Common::toLower("content::Keyframer"));
+static const uint32_t kContentHashKeyframe             = Common::crc32(Common::toLower("content::Keyframe"));
 
 namespace AWE {
 
@@ -638,6 +641,66 @@ Templates::KeyFramedObject ObjectBinaryReadStream::readKeyFramedObject() {
 	return keyFramedObject;
 }
 
+Templates::KeyFramer ObjectBinaryReadStream::readKeyFramer() {
+	Templates::KeyFramer keyFramer{};
+
+	keyFramer.gid = readGID();
+	const uint32_t numKeyFrames = _stream.readUint32LE();
+	const auto keyFrames = _dp->getValues(_stream.readUint32LE(), numKeyFrames);
+	const uint32_t numKeyFrameAnimations = _stream.readUint32LE();
+	const auto keyFrameAnimations = _dp->getValues(_stream.readUint32LE(), numKeyFrameAnimations);
+
+	for (int i = 0; i < numKeyFrames; ++i) {
+		keyFramer.keyFrames.emplace_back(keyFrames[i]);
+	}
+
+	for (int i = 0; i < numKeyFrameAnimations; ++i) {
+		keyFramer.keyFrameAnimations.emplace_back(keyFrameAnimations[i]);
+	}
+
+	const ObjectID otherKeyframer = _stream.readUint32LE();
+	const auto val = _stream.readUint32LE();
+	const auto oid = _stream.readUint32LE();
+
+	const auto numResources = _stream.readUint32LE();
+	keyFramer.resources = _dp->getValues(_stream.readUint32LE(), numResources);
+	bool val1 = _stream.readByte();
+
+	return keyFramer;
+}
+
+Templates::KeyFrameAnimation ObjectBinaryReadStream::readKeyFrameAnimation() {
+	Templates::KeyFrameAnimation keyFrameAnimation{};
+
+	keyFrameAnimation.gid = readGID();
+	keyFrameAnimation.startKeyFrame = _stream.readUint32LE();
+	keyFrameAnimation.endKeyFrame = _stream.readUint32LE();
+	keyFrameAnimation.length = _stream.readIEEEFloatLE();
+
+	// Unknown values
+	const auto num1 = _stream.readUint32LE();
+	const auto vals1 = _dp->getValues(_stream.readUint32LE(), num1);
+	const auto num2 = _stream.readUint32LE();
+	const auto vals2 = _dp->getFloats(_stream.readUint32LE(), num2);
+	const auto num3 = _stream.readUint32LE();
+	const auto vals3 = _dp->getFloats(_stream.readUint32LE(), num3);
+
+	keyFrameAnimation.animationResource = std::any_cast<rid_t>(readObject(kRID));
+	_stream.skip(4);
+	keyFrameAnimation.nextAnimation = readGID();
+
+	return keyFrameAnimation;
+}
+
+Templates::KeyFrame ObjectBinaryReadStream::readKeyFrame() {
+	Templates::KeyFrame keyFrame{};
+
+	keyFrame.position = readPosition();
+	keyFrame.rotation = readRotation();
+
+	return keyFrame;
+}
+
 Templates::FileInfoMetadata ObjectBinaryReadStream::readFileInfoMetadata() {
 	Templates::FileInfoMetadata fileInfoMetadata{};
 
@@ -854,6 +917,9 @@ Object ObjectBinaryReadStreamV2::readObject(ObjectType type, unsigned int versio
 		case kWaypoint: object = readWaypoint(); break;
 		case kAnimationParameters: object = readAnimationParameters(); break;
 		case kKeyframedObject: object = readKeyFramedObject(); break;
+		case kKeyframer: object = readKeyFramer(); break;
+		case kKeyframeAnimation: object = readKeyFrameAnimation(); break;
+		case kKeyframe: object = readKeyFrame(); break;
 		default: _stream.skip(size - 20);
 	}
 
@@ -896,6 +962,9 @@ uint32_t ObjectBinaryReadStreamV2::getContentHash(ObjectType type) const {
 		case kWaypoint: return kContentHashWaypoint;
 		case kAnimationParameters: return kContentHashAnimationParameters;
 		case kKeyframedObject: return kContentHashKeyframedObject;
+		case kKeyframer: return kContentHashKeyframer;
+		case kKeyframeAnimation: return kContentHashKeyframeAnimation;
+		case kKeyframe: return kContentHashKeyframe;
 		default: return 0;
 	}
 }

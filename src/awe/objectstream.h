@@ -80,6 +80,9 @@ protected:
 	Templates::Waypoint readWaypoint();
 	Templates::AnimationParameters readAnimationParameters();
 	Templates::KeyFramedObject readKeyFramedObject();
+	Templates::KeyFramer readKeyFramer();
+	Templates::KeyFrameAnimation readKeyFrameAnimation();
+	Templates::KeyFrame readKeyFrame();
 
 	Templates::FileInfoMetadata readFileInfoMetadata();
 	Templates::FoliageMeshMetadata readFoliageMeshMetadata();
