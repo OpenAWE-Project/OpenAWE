@@ -87,7 +87,7 @@ enum ObjectType {
 	kWaypoint,
 	kTaskDefinition,
 	kTaskContent,
-	kKeyFramer,
+	kKeyframer,
 	kSound,
 	kAttachmentResources,
 	kCharacterClothParameters,
