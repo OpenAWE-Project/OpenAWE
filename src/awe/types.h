@@ -124,7 +124,9 @@ enum ObjectType {
 	kAttachmentResources,
 	kCharacterClothParameters,
 	kAnimationParameters,
-	kKeyframedObject
+	kKeyframedObject,
+	kKeyframeAnimation,
+	kKeyframe
 };
 
 #endif //AWE_TYPES_H
