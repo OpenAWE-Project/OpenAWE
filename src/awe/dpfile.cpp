@@ -103,12 +103,31 @@ std::vector<uint32_t> DPFile::getValues(uint32_t offset, unsigned int count) {
 	if (overlap)
 		relativeOffset += 4;
 
+	/*if (std::find(std::begin(_valueOffsets), std::end(_valueOffsets), relativeOffset) == _valueOffsets.end())
+		return values;*/
+
+	_dp->seek(-static_cast<int>(_dataSize) + relativeOffset, Common::ReadStream::END);
+	for (auto &value : values) {
+		value = _dp->readUint32LE();
+	}
+
+	return values;
+}
+
+std::vector<float> DPFile::getFloats(uint32_t offset, unsigned int count) {
+	std::vector<float> values(count);
+
+	bool overlap = (offset & 0x80u) != 0;
+	int32_t relativeOffset = (offset >> 8u) * 8;
+	if (overlap)
+		relativeOffset += 4;
+
 	if (std::find(std::begin(_valueOffsets), std::end(_valueOffsets), relativeOffset) == _valueOffsets.end())
 		return values;
 
 	_dp->seek(-static_cast<int>(_dataSize) + relativeOffset, Common::ReadStream::END);
 	for (auto &value : values) {
-		value = _dp->readUint32LE();
+		value = _dp->readIEEEFloatLE();
 	}
 
 	return values;

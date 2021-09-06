@@ -67,6 +67,7 @@ public:
 	bool hasString(uint32_t offset);
 	std::string getString(uint32_t offset);
 	std::vector<uint32_t> getValues(uint32_t offset, unsigned int count);
+	std::vector<float> getFloats(uint32_t offset, unsigned int count);
 	std::vector<glm::vec2> getPositions2D(uint32_t offset, unsigned int count);
 	std::vector<ScriptMetadata> getScriptMetadata(uint32_t offset, unsigned int count);
 	std::vector<ScriptSignal> getScriptSignals(uint32_t offset, unsigned int count);
