@@ -242,16 +242,34 @@ struct TaskContent {
 
 struct KeyFramer {
 	GID gid;
+	std::vector<ObjectID> keyFrames;
+	std::vector<ObjectID> keyFrameAnimations;
+	std::vector<rid_t> resources;
 };
 
 struct KeyFramedObject {
-	glm::mat3x3 rotation;
+	glm::mat3 rotation;
 	glm::vec3 position;
 	rid_t meshResource;
 	rid_t physicsResource;
 	GID gid;
-	glm::mat3x3 rotation2;
+	ObjectID keyFramer;
+	glm::mat3 rotation2;
 	glm::vec3 position2;
+};
+
+struct KeyFrameAnimation {
+	GID gid;
+	GID nextAnimation;
+	unsigned int startKeyFrame;
+	unsigned int endKeyFrame;
+	float length;
+	rid_t animationResource;
+};
+
+struct KeyFrame {
+	glm::vec3 position;
+	glm::mat3 rotation;
 };
 
 struct Sound {
