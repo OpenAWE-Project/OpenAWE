@@ -52,6 +52,38 @@ struct GID {
 	}
 };
 
+enum ObjectIDType {
+	kAnimationID         = 34,
+	kKeyframerID         = 123,
+	kKeyframeAnimationID = 125,
+	kKeyframeID          = 126,
+};
+
+class ObjectID {
+public:
+	ObjectID() : _value(0) {};
+	ObjectID(uint32_t value) : _value(value) {};
+	ObjectID(ObjectIDType type, uint32_t id) : _value(type | id << 9) {};
+
+	uint32_t getID() const { return _value >> 9; };
+	ObjectIDType getType() const { return ObjectIDType(_value & 0x1FF); };
+
+	bool operator==(const ObjectID &rhs) const {
+		return _value == rhs._value;
+	}
+
+	bool operator!=(const ObjectID &rhs) const {
+		return !(rhs == *this);
+	}
+
+	bool operator<(const ObjectID &rhs) const {
+		return _value < rhs._value;
+	}
+
+private:
+	uint32_t _value;
+};
+
 typedef uint32_t rid_t;
 
 enum ObjectType {
