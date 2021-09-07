@@ -102,8 +102,9 @@ find_package(fmt REQUIRED)
 find_package(OGG REQUIRED)
 find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
-find_package(GTest REQUIRED)
 find_package(spdlog REQUIRED)
+
+find_package(GTest)
 
 if(NOT USE_SYSTEM_CXXOPTS)
     set(cxxopts_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty/cxxopts/include)
@@ -216,8 +217,10 @@ install(
 
 # ------------------------------------
 # Unit Tests
-list(FILTER SOURCE_FILES EXCLUDE REGEX \\.*/awe.cpp)
-file(GLOB_RECURSE TEST_SOURCE_FILES test/*.cpp)
-add_executable(awe_test ${TEST_SOURCE_FILES})
-target_link_libraries(awe_test ${GTEST_BOTH_LIBRARIES} awe_common awe_lib)
-gtest_add_tests(TARGET awe_test)
+if (GTEST_FOUND)
+    list(FILTER SOURCE_FILES EXCLUDE REGEX \\.*/awe.cpp)
+    file(GLOB_RECURSE TEST_SOURCE_FILES test/*.cpp)
+    add_executable(awe_test ${TEST_SOURCE_FILES})
+    target_link_libraries(awe_test ${GTEST_BOTH_LIBRARIES} awe_common awe_lib)
+    gtest_add_tests(TARGET awe_test)
+endif ()

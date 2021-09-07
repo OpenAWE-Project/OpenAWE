@@ -37,7 +37,7 @@ varies depending on your operating system (and in the case of Linux, distributio
  - FMT
  - OGG
  - Theora
- - GTest
+ - GTest (Optional, only for unit tests)
  - spdlog
 
 The following dependencies can either come from your system or you can use them through the git submodules. Assuming
