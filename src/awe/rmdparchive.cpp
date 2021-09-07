@@ -231,7 +231,13 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin) {
 		entry.prevFolder = bin->readUint32BE();
 		entry.flags = bin->readUint32BE();
 
-		bin->skip(4); // Name offset
+		uint32_t nameOffset = bin->readUint32BE();
+		if (nameOffset != 0xFFFFFFFF) {
+			size_t lastPos = bin->pos();
+			bin->seek(-static_cast<int>(nameSize) + static_cast<int>(nameOffset), Common::ReadStream::END);
+			entry.name = bin->readNullTerminatedString();
+			bin->seek(lastPos);
+		}
 
 		entry.offset = bin->readUint64BE();
 		entry.size = bin->readUint64BE();
