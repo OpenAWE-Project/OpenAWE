@@ -80,6 +80,9 @@ Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 		if (path.eof())
 			break;
 
+		if (folder.nextLowerFolder == 0xFFFFFFFF)
+			return nullptr;
+
 		folder = _folderEntries[folder.nextLowerFolder];
 
 		while (nameHash != folder.nameHash) {
@@ -129,6 +132,9 @@ bool RMDPArchive::hasResource(const std::string &rid) const {
 		if (path.eof())
 			break;
 
+		if (folder.nextLowerFolder == 0xFFFFFFFF)
+			return false;
+
 		folder = _folderEntries[folder.nextLowerFolder];
 
 		while (nameHash != folder.nameHash) {
@@ -168,6 +174,9 @@ bool RMDPArchive::hasDirectory(const std::string &directory) const {
 
 	while (std::getline(path, item, '/')) {
 		nameHash = Common::crc32(Common::toLower(item));
+
+		if (folder.nextLowerFolder == 0xFFFFFFFF)
+			return false;
 
 		folder = _folderEntries[folder.nextLowerFolder];
 
