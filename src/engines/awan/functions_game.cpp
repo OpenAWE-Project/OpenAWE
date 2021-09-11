@@ -43,7 +43,7 @@ void Functions::playMusic(Functions::Context &ctx) {
 }
 
 void Functions::getStoryModeRound(Context &ctx) {
-	ctx.ret = ctx.getFunctions<Functions>().getEngine().getStoryModeRound();
+	ctx.ret = static_cast<int32_t>(ctx.getFunctions<Functions>().getEngine().getStoryModeRound());
 }
 
 void Functions::isTrial(Functions::Context &ctx) {

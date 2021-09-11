@@ -70,11 +70,11 @@ protected:
 		std::optional<Variable> ret;
 
 		float getFloat(size_t index) {
-			return reinterpret_cast<float&>(std::get<uint32_t>(parameters[index]));
+			return reinterpret_cast<float&>(std::get<int32_t>(parameters[index]));
 		}
 
 		int getInt(size_t index) {
-			return reinterpret_cast<int32_t&>(std::get<uint32_t>(parameters[index]));
+			return reinterpret_cast<int32_t&>(std::get<int32_t>(parameters[index]));
 		}
 
 		entt::entity getEntity(size_t index) {

@@ -34,7 +34,7 @@ Functions::Functions(entt::registry &registry) : _registry(registry) {
 std::optional<Variable> Functions::callObject(entt::entity object, const std::string &functionName, std::vector<Variable> parameters) {
 	if (object == entt::null) {
 		spdlog::error("Cannot call object function {} with invalid object, skipping", functionName);
-		return 0u;
+		return 0;
 	}
 
 	Context ctx{

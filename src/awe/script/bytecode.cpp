@@ -109,7 +109,7 @@ void Bytecode::run(Context &context, const std::string &entryPoint, const entt::
 }
 
 void Bytecode::push() {
-	uint32_t data = _bytecode->readUint32LE();
+	int32_t data = _bytecode->readSint32LE();
 
 	if (_parameters->hasString(data)) {
 		_stack.push(_parameters->getString(data));
@@ -157,7 +157,7 @@ void Bytecode::callGlobal(Context &ctx, const entt::entity &caller, byte numArgs
 	if (ret) {
 		_stack.push(*ret);
 	} else if (!ret && retType != 0) {
-		_stack.push(0u);
+		_stack.push(0);
 	}
 
 	spdlog::trace("call_global {} {}", numArgs, retType);
@@ -185,9 +185,9 @@ void Bytecode::callObject(Context &ctx, byte numArgs, byte retType) {
 }
 
 void Bytecode::mulInt() {
-	uint32_t value1 = std::get<uint32_t>(_stack.top());
+	int32_t value1 = std::get<int32_t>(_stack.top());
 	_stack.pop();
-	uint32_t value2 = std::get<uint32_t>(_stack.top());
+	int32_t value2 = std::get<int32_t>(_stack.top());
 	_stack.pop();
 
 	_stack.push(value1 * value2);
@@ -202,7 +202,7 @@ void Bytecode::ret() {
 }
 
 void Bytecode::intToFloat() {
-	uint32_t value = std::get<uint32_t>(_stack.top());
+	int32_t value = std::get<int32_t>(_stack.top());
 	_stack.pop();
 
 	auto fValue = static_cast<float>(value);
@@ -241,9 +241,9 @@ void Bytecode::getMember(Context &ctx, byte id) {
 }
 
 void Bytecode::cmp() {
-	uint32_t value1 = std::get<uint32_t>(_stack.top());
+	int32_t value1 = std::get<int32_t>(_stack.top());
 	_stack.pop();
-	uint32_t value2 = std::get<uint32_t>(_stack.top());
+	int32_t value2 = std::get<int32_t>(_stack.top());
 	_stack.pop();
 
 	_eq = value1 == value2;
@@ -269,32 +269,32 @@ void Bytecode::jmpIf() {
 }
 
 void Bytecode::logAnd() {
-	bool value1 = std::get<uint32_t>(_stack.top()) != 0;
+	bool value1 = std::get<int32_t>(_stack.top()) != 0;
 	_stack.pop();
-	bool value2 = std::get<uint32_t>(_stack.top()) != 0;
+	bool value2 = std::get<int32_t>(_stack.top()) != 0;
 	_stack.pop();
 
-	_stack.push((value1 && value2) ? 1u : 0u);
+	_stack.push((value1 && value2) ? 1 : 0);
 
 	spdlog::trace("and");
 }
 
 void Bytecode::logOr() {
-	bool value1 = std::get<uint32_t>(_stack.top()) != 0;
+	bool value1 = std::get<int32_t>(_stack.top()) != 0;
 	_stack.pop();
-	bool value2 = std::get<uint32_t>(_stack.top()) != 0;
+	bool value2 = std::get<int32_t>(_stack.top()) != 0;
 	_stack.pop();
 
-	_stack.push((value1 || value2) ? 1u : 0u);
+	_stack.push((value1 || value2) ? 1 : 0);
 
 	spdlog::trace("or");
 }
 
 void Bytecode::logNot() {
-	bool value = std::get<uint32_t>(_stack.top()) != 0;
+	bool value = std::get<int32_t>(_stack.top()) != 0;
 	_stack.pop();
 
-	_stack.push(!value ? 1u : 0u);
+	_stack.push(!value ? 1 : 0);
 
 	spdlog::trace("not");
 }

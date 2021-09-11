@@ -67,7 +67,7 @@ void Context::setVariable(entt::entity entity, byte id, Variable variable, std::
 Variable Context::getVariable(entt::entity entity, byte id, std::string &debug) {
 	if (entity == entt::null) {
 		spdlog::warn("Entity for variable store not found. Returning generic variable");
-		return 0u;
+		return 0;
 	}
 
 	const auto variableStore = _registry.get<VariableStorePtr>(entity);
