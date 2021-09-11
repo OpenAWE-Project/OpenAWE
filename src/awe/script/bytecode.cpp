@@ -58,15 +58,9 @@ bool Bytecode::hasEntryPoint(const std::string &entryPoint) {
 	return _entryPoints.find(entryPoint) != _entryPoints.end();
 }
 
-void Bytecode::run(Context &context, const std::string &entryPoint, const entt::entity &caller) {
-	spdlog::debug("Starting script entry point {}", entryPoint);
-	auto entryPointIter = _entryPoints.find(entryPoint);
-	if (entryPointIter == _entryPoints.end()) {
-		//spdlog::warn("Entry point {} not found", entryPoint);
-		return;
-	}
-
-	_bytecode->seek((*entryPointIter).second * 4);
+void Bytecode::run(Context &context, uint32_t offset, const entt::entity &caller) {
+	spdlog::debug("Starting script offset {}", offset);
+	_bytecode->seek(offset * 4);
 
 	_eq = false;
 	_gt = false;
@@ -106,6 +100,17 @@ void Bytecode::run(Context &context, const std::string &entryPoint, const entt::
 	}
 
 	spdlog::trace("Finishing script");
+}
+
+void Bytecode::run(Context &context, const std::string &entryPoint, const entt::entity &caller) {
+	spdlog::debug("Starting script entry point {}", entryPoint);
+	auto entryPointIter = _entryPoints.find(entryPoint);
+	if (entryPointIter == _entryPoints.end()) {
+		//spdlog::warn("Entry point {} not found", entryPoint);
+		return;
+	}
+
+	run(context, entryPointIter->second, caller);
 }
 
 void Bytecode::push() {

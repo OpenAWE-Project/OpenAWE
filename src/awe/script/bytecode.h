@@ -51,6 +51,23 @@ public:
 	 * \return if this entry point exists in this byte code
 	 */
 	bool hasEntryPoint(const std::string &entryPoint);
+
+	/*!
+	 * Run bytecode from an unnamed offset
+	 *
+	 * \param context The context
+	 * \param offset The offset to run from
+	 * \param caller The caller of the bytecode
+	 */
+	void run(Context &context, uint32_t offset, const entt::entity &caller);
+
+	/*!
+	 * Run bytecode from a specified entry point
+	 *
+	 * \param context The context to use on the execution
+	 * \param entryPoint The name of the entry point
+	 * \param caller The caller of the bytecode
+	 */
 	void run(Context &context, const std::string &entryPoint, const entt::entity &caller);
 
 private:
