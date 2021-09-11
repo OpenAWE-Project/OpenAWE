@@ -59,6 +59,12 @@ public:
 	uint64_t readUint64BE();
 
 	/*!
+	 * Read a 32 bit little endian signed int.
+	 * \return the 32 bit value
+	 */
+	int32_t readSint32LE();
+
+	/*!
 	 * Read a 32 bit little endian unsigned int.
 	 * \return the 32 bit value
 	 */

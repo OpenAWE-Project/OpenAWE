@@ -55,6 +55,15 @@ uint64_t ReadStream::readUint64BE() {
 	return value;
 }
 
+int32_t ReadStream::readSint32LE() {
+	int32_t value;
+	read(&value, sizeof(int32_t));
+#ifdef BIG_ENDIAN_SYSTEM
+	value = swapBytes(value);
+#endif // BIG_ENDIAN
+	return value;
+}
+
 uint32_t ReadStream::readUint32LE() {
 	uint32_t value;
 	read(&value, sizeof(uint32_t));
