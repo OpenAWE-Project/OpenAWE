@@ -38,7 +38,9 @@ public:
 	void update(float delta);
 
 	void add(btCollisionObject *collisionObject);
+	void add(btRigidBody *collisionObject);
 	void remove(btCollisionObject *collisionObject);
+	void remove(btRigidBody *collisionObject);
 
 private:
 	bool _debugDraw;
