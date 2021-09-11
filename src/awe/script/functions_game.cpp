@@ -33,7 +33,7 @@ void Functions::getRand01(Functions::Context &ctx) {
 
     uint32_t value;
     float fValue = distribution(generator);
-    std::memcpy(&fValue, &value, 4);
+    std::memcpy(&value, &fValue, 4);
     ctx.ret = value;
 }
 
@@ -46,7 +46,7 @@ void Functions::getRand(Functions::Context &ctx) {
 
     uint32_t value;
     float fValue = distribution(generator);
-    std::memcpy(&fValue, &value, 4);
+    std::memcpy(&value, &fValue, 4);
 
     ctx.ret = value;
 }
