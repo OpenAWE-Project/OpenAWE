@@ -46,7 +46,7 @@ void Functions::sendCustomEvent(Context &ctx) {
 		return;
 	}
 
-	AWE::Script::Context newContext(ctx.functions._registry, ctx.functions);
+	AWE::Script::Context newContext(ctx.registry, ctx.functions);
 	bytecode->run(newContext, eventName, caller);
 }
 
