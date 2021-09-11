@@ -154,8 +154,11 @@ void Bytecode::callGlobal(Context &ctx, const entt::entity &caller, byte numArgs
 		ret = ctx.getFunctions().callGlobal(object, method, arguments);
 
 	// Return variable if there is any
-	if (ret)
+	if (ret) {
 		_stack.push(*ret);
+	} else if (!ret && retType != 0) {
+		_stack.push(0u);
+	}
 
 	spdlog::trace("call_global {} {}", numArgs, retType);
 }
