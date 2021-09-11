@@ -54,12 +54,22 @@ Functions &Context::getFunctions() {
 }
 
 void Context::setVariable(entt::entity entity, byte id, Variable variable, std::string &debug) {
+	if (entity == entt::null) {
+		spdlog::warn("Entity for variable store not found. Returning generic variable");
+		return;
+	}
+
 	const auto variableStore = _registry.get<VariableStorePtr>(entity);
 	debug = variableStore->getDebugName(id);
 	variableStore->setVariable(id, std::move(variable));
 }
 
 Variable Context::getVariable(entt::entity entity, byte id, std::string &debug) {
+	if (entity == entt::null) {
+		spdlog::warn("Entity for variable store not found. Returning generic variable");
+		return 0u;
+	}
+
 	const auto variableStore = _registry.get<VariableStorePtr>(entity);
 	debug = variableStore->getDebugName(id);
 	return variableStore->getVariable(id);
