@@ -636,7 +636,8 @@ Templates::KeyFramedObject ObjectBinaryReadStream::readKeyFramedObject() {
 	std::vector<rid_t> rids = _dp->getValues(_stream.readUint32LE(), numRids);
 	keyFramedObject.gid = readGID();
 
-	_stream.skip(9);
+	keyFramedObject.keyFramer = _stream.readUint32LE();
+	_stream.skip(5);
 
 	keyFramedObject.rotation2 = readRotation();
 	keyFramedObject.position2 = readPosition();
