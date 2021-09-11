@@ -34,7 +34,13 @@ void Functions::sendCustomEvent(Context &ctx) {
 		return;
 	}
 
-	auto bytecode = ctx.functions._registry.get<AWE::Script::BytecodePtr>(caller);
+	auto bytecodeIter = ctx.registry.try_get<AWE::Script::BytecodePtr>(caller);
+	if (!bytecodeIter) {
+		spdlog::error("Bytecode for custom event {} not found", eventName);
+		return;
+	}
+
+	auto bytecode = *bytecodeIter;
 	if (!bytecode->hasEntryPoint(eventName)) {
 		spdlog::warn("Custom event {} not found, skipping", eventName);
 		return;
