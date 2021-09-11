@@ -31,6 +31,7 @@ enum Opcode {
 	kPushGID    = 0x02,
 	kCallGlobal = 0x03,
 	kCallObject = 0x04,
+	kMulInt     = 0x09,
 	kRet        = 0x0D,
 	kIntToFloat = 0x0E,
 	kSetMember  = 0x0F,
@@ -86,6 +87,7 @@ void Bytecode::run(Context &context, const std::string &entryPoint, const entt::
 			case kPushGID:    pushGID(context); break;
 			case kCallGlobal: callGlobal(context, caller, param1, param2); break;
 			case kCallObject: callObject(context, param1, param2); break;
+			case kMulInt:     mulInt(); break;
 			case kRet:        ret(); break;
 			case kIntToFloat: intToFloat(); break;
 			case kSetMember:  setMember(context, param1); break;
@@ -177,6 +179,17 @@ void Bytecode::callObject(Context &ctx, byte numArgs, byte retType) {
 		_stack.push(*ret);
 
 	spdlog::trace("call_object {} {}", numArgs, retType);
+}
+
+void Bytecode::mulInt() {
+	uint32_t value1 = std::get<uint32_t>(_stack.top());
+	_stack.pop();
+	uint32_t value2 = std::get<uint32_t>(_stack.top());
+	_stack.pop();
+
+	_stack.push(value1 * value2);
+
+	spdlog::trace("mul_int");
 }
 
 void Bytecode::ret() {
