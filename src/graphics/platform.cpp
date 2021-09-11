@@ -41,6 +41,10 @@ void Platform::terminate() {
 	glfwTerminate();
 }
 
+double Platform::getTime() {
+	return glfwGetTime();
+}
+
 void Platform::update() {
 	glfwPollEvents();
 }

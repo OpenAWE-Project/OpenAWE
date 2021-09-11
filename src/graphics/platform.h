@@ -37,6 +37,8 @@ public:
 	void init();
 	void terminate();
 
+	double getTime();
+
 	void update();
 
 private:
