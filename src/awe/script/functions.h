@@ -64,6 +64,7 @@ public:
 
 protected:
 	struct Context {
+		entt::registry &registry;
 		entt::entity thisEntity;
 		Functions &functions;
 		std::vector<Variable> parameters;

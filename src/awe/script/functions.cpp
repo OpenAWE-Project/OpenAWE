@@ -38,6 +38,7 @@ std::optional<Variable> Functions::callObject(entt::entity object, const std::st
 	}
 
 	Context ctx{
+		_registry,
 		object,
 		*this,
 		parameters
@@ -54,6 +55,7 @@ std::optional<Variable> Functions::callObject(entt::entity object, const std::st
 
 std::optional<Variable> Functions::callGlobal(const std::string &name,const std::string &functionName, std::vector<Variable> parameters) {
 	Context ctx{
+			_registry,
 			entt::null,
 			*this,
 			parameters
