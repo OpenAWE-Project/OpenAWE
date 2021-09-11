@@ -354,13 +354,16 @@ Templates::CharacterClass ObjectBinaryReadStream::readCharacterClass(unsigned in
 	characterClass.timeBetweenDazzles = _stream.readIEEEFloatLE();
 
 	if (version == 42) {
-		// Unknwon values
-		unsigned int count = _stream.readUint32LE();
-		std::vector<uint32_t> values = _dp->getValues(_stream.readUint32LE(), count);
+		unsigned int numAnimations = _stream.readUint32LE();
+		std::vector<uint32_t> values = _dp->getValues(_stream.readUint32LE(), numAnimations);
+		for (const auto &value : values) {
+			characterClass.animations.emplace_back(ObjectID(value));
+		}
 
 		characterClass.animationParameters = std::any_cast<Templates::AnimationParameters>(readObject(kAnimationParameters));
 
-		_stream.skip(12);
+		characterClass.type = _dp->getString(_stream.readUint32LE());
+		_stream.skip(8);
 	} else {
 		_stream.skip(0x49);
 	}

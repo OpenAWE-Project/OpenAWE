@@ -62,6 +62,8 @@ struct CharacterClass {
 	float kickbackMultiplier;
 	float timeBetweenDazzles;
 	AnimationParameters animationParameters;
+	std::vector<ObjectID> animations;
+	std::string type;
 };
 
 struct Character {
