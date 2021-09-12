@@ -43,7 +43,7 @@ bool Task::isActiveOnStartup() const {
 }
 
 bool Task::isActiveOnStartupRound(unsigned int round) const {
-	if (_activateOnStartupRound.size() > round)
+	if (_activateOnStartupRound.size() <= round)
 		return false;
 
 	return _activateOnStartupRound[round];
