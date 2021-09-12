@@ -41,7 +41,8 @@ std::optional<Variable> Functions::callObject(entt::entity object, const std::st
 		_registry,
 		object,
 		*this,
-		parameters
+		parameters,
+		_time
 	};
 
 	auto fun = getFunction(functionName);
@@ -58,7 +59,8 @@ std::optional<Variable> Functions::callGlobal(const std::string &name,const std:
 			_registry,
 			entt::null,
 			*this,
-			parameters
+			parameters,
+			_time
 	};
 
 	const std::string globalFunctionName = fmt::format("{}.{}", Common::toUpper(name), functionName);
@@ -69,6 +71,10 @@ std::optional<Variable> Functions::callGlobal(const std::string &name,const std:
 		spdlog::warn("TODO: Implement global script functions {}", globalFunctionName);
 
 	return ctx.ret;
+}
+
+void Functions::setTime(float time) {
+	_time = time;
 }
 
 Functions::NativeFunction Functions::getFunction(const std::string &name) {

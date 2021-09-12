@@ -62,12 +62,15 @@ public:
 			std::vector<Variable> parameters
 	);
 
+	void setTime(float time);
+
 protected:
 	struct Context {
 		entt::registry &registry;
 		entt::entity thisEntity;
 		Functions &functions;
 		std::vector<Variable> parameters;
+		float time;
 		std::optional<Variable> ret;
 
 		float getFloat(size_t index) {
@@ -96,6 +99,7 @@ protected:
 	virtual NativeFunction getFunction(const std::string &name);
 
 	entt::registry &_registry;
+	float _time;
 
 private:
 	// functions_object.cpp
