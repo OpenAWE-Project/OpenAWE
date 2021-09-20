@@ -244,6 +244,7 @@ struct TaskContent {
 
 struct KeyFramer {
 	GID gid;
+	ObjectID parentKeyFramer;
 	std::vector<ObjectID> keyFrames;
 	std::vector<ObjectID> keyFrameAnimations;
 	std::vector<rid_t> resources;

@@ -662,7 +662,7 @@ Templates::KeyFramer ObjectBinaryReadStream::readKeyFramer() {
 		keyFramer.keyFrameAnimations.emplace_back(keyFrameAnimations[i]);
 	}
 
-	const ObjectID otherKeyframer = _stream.readUint32LE();
+	keyFramer.parentKeyFramer = _stream.readUint32LE();
 	const auto val = _stream.readUint32LE();
 	const auto oid = _stream.readUint32LE();
 
