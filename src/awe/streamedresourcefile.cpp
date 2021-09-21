@@ -22,6 +22,7 @@
 #include <iostream>
 
 #include "streamedresourcefile.h"
+#include "src/awe/objectbinaryreadstreamv1.h"
 
 static const uint32_t kBadFoood = 0xBADF000D;
 

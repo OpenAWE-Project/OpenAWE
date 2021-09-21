@@ -96,23 +96,6 @@ protected:
 	glm::mat3 readRotation();
 };
 
-class ObjectBinaryReadStreamV1 : public ObjectBinaryReadStream {
-public:
-	ObjectBinaryReadStreamV1(Common::ReadStream &stream, std::shared_ptr<DPFile> dp = std::shared_ptr<DPFile>());
-
-	Object readObject(ObjectType type, unsigned int version = 0) override;
-};
-
-class ObjectBinaryReadStreamV2 : public ObjectBinaryReadStream {
-public:
-	ObjectBinaryReadStreamV2(Common::ReadStream &stream, std::shared_ptr<DPFile> dp = std::shared_ptr<DPFile>());
-
-	Object readObject(ObjectType type, unsigned int version = 0) override;
-
-private:
-	uint32_t getContentHash(ObjectType type) const;
-};
-
 }
 
 #endif //OPENAWE_OBJECTSTREAM_H

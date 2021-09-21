@@ -25,6 +25,8 @@
 #include "src/common/strutil.h"
 
 #include "src/awe/cidfile.h"
+#include "src/awe/objectbinaryreadstreamv1.h"
+#include "src/awe/objectbinaryreadstreamv2.h"
 
 static const uint32_t kDeadBeef   = 0xDEADBEEF;
 static const uint32_t kDeadBeefV2 = 0xD34DB33F;
@@ -41,8 +43,8 @@ CIDFile::CIDFile(Common::ReadStream &cid, ObjectType type, std::shared_ptr<DPFil
 	testFormat(cid);
 
 	switch (_format) {
-		case kSimple: _objectStream = std::make_unique<ObjectBinaryReadStreamV1>(cid, dp); break;
-		case kStructured: _objectStream = std::make_unique<ObjectBinaryReadStreamV2>(cid, dp); break;
+		case kSimple: _objectStream = std::make_unique<AWE::ObjectBinaryReadStreamV1>(cid, dp); break;
+		case kStructured: _objectStream = std::make_unique<AWE::ObjectBinaryReadStreamV2>(cid, dp); break;
 	}
 
 	_containers.resize(numElements);
