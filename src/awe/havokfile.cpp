@@ -27,7 +27,9 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
-#include "havokfile.h"
+#include "src/common/nurbs.h"
+
+#include "src/awe/havokfile.h"
 
 namespace AWE {
 
@@ -554,11 +556,11 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 
 	hkArray annotationTracks = readHkArray(binhkx, section);
 	
-	uint32_t numFrames = binhkx.readUint32LE();
-	uint32_t numBlocks = binhkx.readUint32LE();
-	uint32_t maxFramesPerBlock= binhkx.readUint32LE();
+	const unsigned int numFrames = binhkx.readUint32LE();
+	const unsigned int numBlocks = binhkx.readUint32LE();
+	const unsigned int maxFramesPerBlock= binhkx.readUint32LE();
 	uint32_t maskAndQuantizationSize = binhkx.readUint32LE();
-	float blockDuration = binhkx.readIEEEFloatLE();
+	animation.blockDuration = binhkx.readIEEEFloatLE();
 	float blockInverseDuration = binhkx.readIEEEFloatLE();
 	float frameDuration = binhkx.readIEEEFloatLE();
 
@@ -571,6 +573,7 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 	binhkx.seek(data.offset);
 	std::unique_ptr<Common::ReadStream> dataStream(binhkx.readStream(data.count));
 
+	unsigned int pendingFrames = numFrames;
 	std::vector<uint32_t> blockOffsets = readUint32Array(binhkx, blockOffsetsArray);
 	for (const auto &offset : blockOffsets) {
 		dataStream->seek(offset);
@@ -584,8 +587,10 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 			mask.scaleTypes        = dataStream->readByte();
 		}
 
-		size_t begin = dataStream->pos();
-		unsigned int frames = 0;
+		const size_t begin = dataStream->pos();
+		const unsigned int numBlockFrames = std::min(pendingFrames, maxFramesPerBlock);
+		pendingFrames -= numBlockFrames;
+		std::vector<hkaAnimation::Track> tracks;
 
 		for (const auto &mask : masks) {
 			const bool transformSplineX = (mask.positionTypes & 0x10) != 0;
@@ -618,10 +623,13 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 
 			if (transformSpline) {
 				uint16_t numItems = dataStream->readUint16LE();
-				frames += numItems;
 				uint8_t degree = dataStream->readByte();
 
-				dataStream->skip(numItems + degree + 2);
+				std::vector<uint8_t> knots(numItems + degree + 2);
+				for (auto &knot : knots) {
+					knot = dataStream->readByte();
+				}
+
 				if ((dataStream->pos() - begin) % 4 != 0)
 					dataStream->skip(4 - (dataStream->pos() - begin) % 4);
 
@@ -648,6 +656,7 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 					staticz = dataStream->readIEEEFloatLE();
 				}
 
+				std::vector<glm::vec3> positionControlPoints;
 				for (int i = 0; i <= numItems; ++i) {
 					glm::vec3 position(0);
 					switch (positionQuantizationType) {
@@ -684,12 +693,17 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 					if (!transformSplineZ)
 						position.z = staticz;
 
-					track.positions->emplace_back(position);
+					positionControlPoints.emplace_back(position);
+				}
+
+				Common::NURBS<glm::vec3> nurbs(positionControlPoints, knots, degree);
+				for (int i = 0; i < numBlockFrames; ++i) {
+					track.positions.emplace_back(nurbs.interpolate(i));
 				}
 
 				if ((dataStream->pos() - begin) % 4 != 0)
 					dataStream->skip(4 - (dataStream->pos() - begin) % 4);
-			} else {
+			} else if(transformStatic) {
 				glm::vec3 position(0);
 				if (transformStaticX)
 					position.x = dataStream->readIEEEFloatLE();
@@ -698,16 +712,19 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 				if (transformStaticZ)
 					position.z = dataStream->readIEEEFloatLE();
 
-				track.positions->emplace_back(position);
+				track.positions.emplace_back(position);
 			}
 
 			if (rotationTypeSpline) {
-				//uint64_t savePtr = dataStream->readUint64LE();
 				uint16_t numItems = dataStream->readUint16LE();
 				uint8_t degree = dataStream->readByte();
 
-				dataStream->skip(numItems + degree + 2);
+				std::vector<uint8_t> knots(numItems + degree + 2);
+				for (auto &knot : knots) {
+					knot = dataStream->readByte();
+				}
 
+				std::vector<glm::quat> rotationControlPoints;
 				for (int i = 0; i <= numItems; ++i) {
 					glm::quat rotation;
 
@@ -719,7 +736,12 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 							throw std::runtime_error("Invalid quantization type");
 					}
 
-					track.rotations.emplace_back(rotation);
+					rotationControlPoints.emplace_back(rotation);
+				}
+
+				Common::NURBS<glm::quat> nurbs(rotationControlPoints, knots, degree);
+				for (int i = 0; i < numBlockFrames; ++i) {
+					track.rotations.emplace_back(nurbs.interpolate(i));
 				}
 			} else if (rotationTypeStatic) {
 				glm::quat rotation;
@@ -748,8 +770,10 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 
 			}
 
-			animation.tracks.emplace_back(track);
+			tracks.emplace_back(track);
 		}
+
+		animation.tracks.emplace_back(tracks);
 	}
 
 	binhkx.seek(annotationTracks.offset);

@@ -77,12 +77,12 @@ public:
 
 	struct hkaAnimation {
 		struct Track {
-			std::optional<std::vector<glm::vec3>> positions;
+			std::vector<glm::vec3> positions;
 			std::vector<glm::quat> rotations;
 		};
 		float duration;
-		unsigned int numFrames;
-		std::vector<Track> tracks;
+		float blockDuration;
+		std::vector<std::vector<Track>> tracks;
 		std::map<std::string, size_t> boneToTrack;
 	};
 
