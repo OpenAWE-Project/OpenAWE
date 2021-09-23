@@ -33,7 +33,7 @@ set(OGG_LIBRARIES ${OGG_LIBRARY})
 set(OGG_INCLUDE_DIRS ${OGG_INCLUDE_DIR})
 
 find_package_handle_standard_args(
-        OGG
+        Ogg
         REQUIRED_VARS
         OGG_LIBRARIES
         OGG_INCLUDE_DIRS
