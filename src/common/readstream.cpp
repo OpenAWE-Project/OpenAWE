@@ -18,7 +18,6 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <endian.h>
 #include <iostream>
 #include <regex>
 
