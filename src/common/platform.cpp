@@ -21,7 +21,7 @@
 #include "src/common/platform.h"
 #include "src/common/types.h"
 
-#if defined(OS_LINUX)
+#if OS_LINUX
 #   include <pwd.h>
 #   include <unistd.h>
 #endif
