@@ -51,6 +51,10 @@ private:
 	// functions_object.cpp
 	static void hide(Context &ctx);
 
+	// Functions_timer.cpp
+	static void startTimer(Context &ctx);
+	static void startTimerWithDuration(Context &ctx);
+
 	static const std::map<std::string, NativeFunction> _functions;
 
 	Engine &_engine;
