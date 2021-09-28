@@ -282,7 +282,7 @@ void Theora::getNextAudio(Sound::Buffer &buffer, unsigned int stream) {
 	if (samplesRead <= 0)
 		throw std::runtime_error("Invalid vorbis data");
 
-	int16_t pcmDecoded[samplesRead];
+	std::vector<int16_t> pcmDecoded(samplesRead);
 	for (int i = 0; i < samplesRead; ++i) {
 		//float p = pcm[0][i];
 		//std::cout << p << std::endl;
@@ -299,7 +299,7 @@ void Theora::getNextAudio(Sound::Buffer &buffer, unsigned int stream) {
 	buffer.bufferData(
 			Sound::kFormatMono16,
 			audio.audioDecoder.vi->rate,
-			pcmDecoded,
+			pcmDecoded.data(),
 			samplesRead * sizeof(int16_t)
 	);
 }
