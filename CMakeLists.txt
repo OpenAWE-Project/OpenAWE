@@ -27,6 +27,8 @@ include(CTest)
 include(GNUInstallDirs)
 include(CheckTypeSize)
 include(CheckIncludeFile)
+include(CheckCCompilerFlag)
+include(CheckCXXCompilerFlag)
 
 test_big_endian(BIG_ENDIAN)
 if (BIG_ENDIAN)
@@ -47,6 +49,21 @@ option(USE_SYSTEM_ENTT "Use the system entt" OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
+
+# ------------------------------------
+# Compiler warnings
+function(check_and_set_compiler_flag flag)
+    check_c_compiler_flag(${flag} hasC${flag})
+    check_cxx_compiler_flag(${flag} hasCXX${flag})
+    if (hasC${flag})
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}" PARENT_SCOPE)
+    endif ()
+    if (hasCXX${flag})
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}" PARENT_SCOPE)
+    endif ()
+endfunction()
+
+check_and_set_compiler_flag("-Werror=vla")
 
 # ------------------------------------
 # C++ checks
