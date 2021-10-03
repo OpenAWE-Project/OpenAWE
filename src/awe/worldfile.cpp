@@ -30,7 +30,7 @@ WorldFile::WorldFile(Common::ReadStream &readStream) {
 	if (rootNode.name != "world")
 		throw std::runtime_error("Invalid world file");
 
-	_worldName = rootNode.properties["name"];
+	_worldName = rootNode.getString("name");
 
 	for (auto &child : rootNode.children) {
 		if (child.name != "episode")
@@ -52,14 +52,14 @@ void WorldFile::readEpisode(Common::XML::Node &node) {
 
 		Level level;
 
-		level.name = child.properties["name"];
-		level.fileName = child.properties["filename"];
-		level.number = std::stoul(child.properties["number"]);
-		level.presence = std::stoul(child.properties["presence"]);
+		level.name = child.getString("name");
+		level.fileName = child.getString("filename");
+		level.number = child.getInt("number");
+		level.presence = child.getInt("presence");
 
-		std::string startupVideo1 = child.properties["startupVideo"];
-		std::string startupVideo2 = child.properties["startupVideo2"];
-		std::string startupVideo3 = child.properties["startupVideo3"];
+		std::string startupVideo1 = child.getString("startupVideo");
+		std::string startupVideo2 = child.getString("startupVideo2");
+		std::string startupVideo3 = child.getString("startupVideo3");
 
 		if (!startupVideo1.empty())
 			level.startupVideos.emplace_back(startupVideo1);
@@ -72,7 +72,7 @@ void WorldFile::readEpisode(Common::XML::Node &node) {
 			if (item.name != "lv3")
 				continue;
 
-			level.fileNames.emplace_back(item.properties["filename"]);
+			level.fileNames.emplace_back(item.getString("filename"));
 		}
 
 		episode.levels.emplace_back(level);
