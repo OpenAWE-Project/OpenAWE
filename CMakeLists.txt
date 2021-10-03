@@ -106,6 +106,9 @@ if(UNIX AND NOT OpenGL_GL_PREFERENCE)
     set(OpenGL_GL_PREFERENCE GLVND)
 endif()
 
+# PkgConfig is used as an alternative if packages are not found.
+find_package(PkgConfig)
+
 find_package(Threads REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(glfw3 REQUIRED)
@@ -119,7 +122,6 @@ find_package(Ogg REQUIRED)
 find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(spdlog REQUIRED)
-find_package(tinyxml2 REQUIRED)
 
 find_package(GTest)
 
@@ -143,13 +145,28 @@ if (DOXYGEN_FOUND)
     )
 endif ()
 
+# Github actions machines do not have a version of tinyxml2 which has the cmake module files, so if pkg config is
+# available it is tried to use it to retrieve the tinyxml2 libraries and include dirs through the package config (pc)
+# file if the package search fails.
+if(PKG_CONFIG_FOUND)
+    find_package(tinyxml2)
+    if (NOT tinyxml2_FOUND)
+        pkg_search_module(TINYXML2 tinyxml2)
+        link_libraries(${TINYXML2_LIBRARIES})
+        include_directories(${TINYXML2_INCLUDE_DIRS})
+    endif ()
+# If pkgconfig is not available the package search stays as required
+else()
+    find_package(tinyxml2 REQUIRED)
+    link_libraries(tinyxml2::tinyxml2)
+endif ()
+
 link_libraries(
         ${CMAKE_THREAD_LIBS_INIT}
 
         glfw
         glm::glm
         fmt::fmt
-        tinyxml2::tinyxml2
 
         ${ZLIB_LIBRARIES}
         ${GLEW_LIBRARIES}
