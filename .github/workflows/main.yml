@@ -29,7 +29,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y install \
-            libxml2-dev \
+            libtinyxml2-dev \
             zlib1g-dev \
             libgl-dev \
             libglfw3-dev \
