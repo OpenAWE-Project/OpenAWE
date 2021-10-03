@@ -154,6 +154,8 @@ if(PKG_CONFIG_FOUND)
         pkg_search_module(TINYXML2 tinyxml2)
         link_libraries(${TINYXML2_LIBRARIES})
         include_directories(${TINYXML2_INCLUDE_DIRS})
+    else()
+        link_libraries(tinyxml2::tinyxml2)
     endif ()
 # If pkgconfig is not available the package search stays as required
 else()
