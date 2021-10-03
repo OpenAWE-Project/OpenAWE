@@ -80,6 +80,10 @@ public:
 		return _value < rhs._value;
 	}
 
+	operator bool() const {
+		return _value != 0;
+	}
+
 private:
 	uint32_t _value;
 };
