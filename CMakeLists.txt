@@ -111,7 +111,6 @@ find_package(ZLIB REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(glm REQUIRED)
-find_package(LibXml2 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(Bullet REQUIRED)
@@ -120,6 +119,7 @@ find_package(Ogg REQUIRED)
 find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(tinyxml2 REQUIRED)
 
 find_package(GTest)
 
@@ -149,12 +149,12 @@ link_libraries(
         glfw
         glm::glm
         fmt::fmt
+        tinyxml2::tinyxml2
 
         ${ZLIB_LIBRARIES}
         ${GLEW_LIBRARIES}
         ${OPENGL_LIBRARIES}
         ${OPENAL_LIBRARY}
-        ${LIBXML2_LIBRARIES}
         ${THEORA_LIBRARIES}
         ${VORBIS_LIBRARIES}
         ${OGG_LIBRARIES}
@@ -169,7 +169,6 @@ include_directories(
         ${ZLIB_INCLUDE_DIRS}
         ${GLEW_INCLUDE_DIRS}
         ${OPENGL_INCLUDE_DIRS}
-        ${LIBXML2_INCLUDE_DIRS}
         ${cxxopts_INCLUDE_DIRS}
         ${BULLET_INCLUDE_DIRS}
         ${spdlog_INCLUDE_DIRS}

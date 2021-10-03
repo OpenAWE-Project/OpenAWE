@@ -26,14 +26,19 @@
 #include <map>
 #include <regex>
 
-#include <libxml/parser.h>
-#include <libxml/tree.h>
+#include <tinyxml2.h>
 
-#include "readstream.h"
-#include "writestream.h"
+#include "src/common/readstream.h"
+#include "src/common/writestream.h"
 
 namespace Common {
 
+/*!
+ * \brief Class to simplify handling of xml documents
+ *
+ * This class is a helper class to handle xml documents by using DOM structure with generic nodes. It doesn't support
+ * more advanced xml features like comments (will be simply skipped) or dtd's.
+ */
 class XML {
 public:
 	class Node {
@@ -45,18 +50,51 @@ public:
 
 		std::map<std::string, std::string> properties;
 		std::vector<Node> children;
+
+		/*!
+		 * Get an attribute of the node as string
+		 * @param attribute the attribute to search for
+		 * @return the searched attribute or empty string if it doesn't exist
+		 */
+		const std::string &getString(const std::string &attribute);
+
+		/*!
+		 * Get an attribute of the node as integer
+		 * @param attribute the attribute to search for
+		 * @return The searched attribute as int
+		 */
+		int getInt(const std::string &attribute);
+
+		/*!
+		 * Get an attribute of the node as float
+		 * @param attribute the attribute to search for
+		 * @return The searched attribute as float
+		 */
+		float getFloat(const std::string &attribute);
 	};
 
+	/*!
+	 * Read xml data from a ReadStream object to the hierarchy. any other available hierarchy will be dropped
+	 * @param xml The xml readstream to parse
+	 */
 	void read(ReadStream &xml);
+
+	/*!
+	 * Write xml data from the current DOM hierarchy into a write stream.
+	 * @param xml The xml write stream
+	 * @param header If a BOM header should be prepended
+	 */
 	void write(WriteStream &xml, bool header);
 
+	/*!
+	 * Get the current root node of the DOM hierarchy
+	 * @return The current root node
+	 */
 	Node &getRootNode();
 
 private:
-	static void writeNode(WriteStream &xml, const XML::Node &node, unsigned int indent);
-	void writeIndent(WriteStream &xml, size_t indent);
-
-	static void readNode(xmlNodePtr node, Node &xmlNode);
+	static void writeNode(tinyxml2::XMLElement *element, const XML::Node &node);
+	static void readNode(tinyxml2::XMLElement *element, Node &xmlNode);
 
 	Node _rootNode;
 };

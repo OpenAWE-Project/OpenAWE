@@ -26,106 +26,111 @@
 
 namespace Common {
 
+const std::string &XML::Node::getString(const std::string &attribute) {
+	return properties[attribute];
+}
+
+int XML::Node::getInt(const std::string &attribute) {
+	return std::stoi(properties[attribute]);
+}
+
+float XML::Node::getFloat(const std::string &attribute) {
+	return std::stof(properties[attribute]);
+}
+
 XML::Node &XML::getRootNode() {
 	return _rootNode;
 }
 
 void XML::read(ReadStream &xml) {
-	_rootNode.name = "";
+	// Clear the root node
+	_rootNode = Node{};
 
+	// Read the xml document line by line
 	std::stringstream ss;
 	while (!xml.eos()) {
 		ss << xml.readLine() << "\n";
 	}
 
+	// Get the whole text
 	std::string text = ss.str();
 
-	LIBXML_TEST_VERSION
+	// Parse the document and get the root element
+	tinyxml2::XMLDocument doc;
+	doc.Parse(text.c_str());
+	const auto rootNode = doc.RootElement();
 
-	text = std::regex_replace(text, std::regex("\\r|\\n|\\t"), "");
-
-	xmlDocPtr doc;
-	doc = xmlReadMemory(text.c_str(), text.length(), nullptr, nullptr, 0);
-
-	xmlNodePtr rootNode = xmlDocGetRootElement(doc);
+	// Read recursively from the root node
 	readNode(rootNode, _rootNode);
-
-	xmlFreeDoc(doc);
 }
 
 void XML::write(WriteStream &xml, bool header) {
-	if (header)
-		xml.writeString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-
 	if (_rootNode.name.empty())
 		return;
 
-	writeNode(xml, _rootNode, 0);
+	tinyxml2::XMLDocument doc;
+
+	doc.SetBOM(header);
+
+	writeNode(doc.RootElement(), _rootNode);
+
+	// Print the data to a string
+	tinyxml2::XMLPrinter printer;
+	doc.Print(&printer);
+
+	// And write it to the write stream
+	xml.write(printer.CStr(), printer.CStrSize());
 }
 
-void XML::writeNode(WriteStream &xml, const XML::Node &node, unsigned int indent) {
-	for (int i = 0; i < indent; ++i) {
-		xml.writeString("\t");
-	}
-	xml.writeString("<" + node.name);
+void XML::writeNode(tinyxml2::XMLElement *element, const XML::Node &node) {
+	// Set the name of the root node
+	element->SetName(node.name.c_str());
+
+	// Write all attributes
 	for (const auto &property : node.properties) {
-		xml.writeString(" " + property.first + "=\"" + property.second + "\"");
+		element->SetAttribute(property.first.c_str(), property.second.c_str());
 	}
 
-	if (node.content.empty() && node.children.empty()) {
-		xml.writeString("/>\n");
-		return;
-	}
-	xml.writeString(">");
-
-	if (!node.content.empty()) {
-		xml.writeString(node.content);
-		xml.writeString("</" + node.name + ">\n");
-		return;
+	// If the node is a text node, then write a text element
+	if (node.content.empty()) {
+		tinyxml2::XMLText *text = element->GetDocument()->NewText(node.content.c_str());
+		element->InsertEndChild(text);
+	// Id the node has child nodes write the child nodes
 	} else {
-		xml.writeString("\n");
 		for (const auto &child : node.children) {
-			writeNode(xml, child, indent + 1);
+			tinyxml2::XMLNode *newChild;
+			newChild = element->GetDocument()->NewElement(child.name.c_str());
+			writeNode(newChild->ToElement(), child);
+			element->InsertEndChild(newChild);
 		}
 	}
-
-
-	for (int i = 0; i < indent; ++i) {
-		xml.writeString("\t");
-	}
-	xml.writeString("</" + node.name + ">\n");
 }
 
-void XML::readNode(xmlNodePtr node, Node &xmlNode) {
-	if (node->name)
-		xmlNode.name = std::string(reinterpret_cast<const char *>(node->name));
-	if (node->content)
-		xmlNode.content = reinterpret_cast<const char *>(node->content);
+void XML::readNode(tinyxml2::XMLElement *node, Node &xmlNode) {
+	// Set the name of the node
+	xmlNode.name = node->Name();
 
-	for (xmlAttrPtr attrib = node->properties; attrib; attrib = attrib->next) {
-		std::string name;
-		std::string value;
-		if (attrib->name)
-			name = reinterpret_cast<const char *>(attrib->name);
-		if (attrib->children)
-			value = reinterpret_cast<const char *>(attrib->children->content);
-
-		xmlNode.properties[name] = value;
+	// Set the attributes of the node
+	for (auto attribute = node->FirstAttribute(); attribute != nullptr; attribute = attribute->Next()) {
+		xmlNode.properties[attribute->Name()] = attribute->Value();
 	}
 
-	if (!node->children)
-		return;
+	// Set potential childs of the node
+	for (auto child = node->FirstChild(); child != nullptr; child = child->NextSibling()) {
+		Node childNode;
 
-	xmlNodePtr childNode;
-	for (childNode = node->children; childNode; childNode = childNode->next) {
-		Node newNode;
+		const auto xmlText = child->ToText();
+		const auto xmlElement = child->ToElement();
 
-		if (childNode->type != XML_ELEMENT_NODE)
-			continue;
+		if (xmlText) {
+			// If the node doesn't have a
+			xmlNode.content = xmlText->Value();
+			break;
+		} else if (xmlElement) {
+			readNode(xmlElement, childNode);
+		}
 
-		readNode(childNode, newNode);
-
-		xmlNode.children.push_back(newNode);
+		xmlNode.children.emplace_back(childNode);
 	}
 }
 

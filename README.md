@@ -30,7 +30,7 @@ varies depending on your operating system (and in the case of Linux, distributio
  - GLFW
  - GLEW
  - GLM
- - LibXml2
+ - TinyXML2
  - OpenGL
  - OpenAL
  - Bullet
