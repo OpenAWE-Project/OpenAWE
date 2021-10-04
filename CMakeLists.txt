@@ -27,8 +27,11 @@ include(CTest)
 include(GNUInstallDirs)
 include(CheckTypeSize)
 include(CheckIncludeFile)
+include(CheckFunctionExists)
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
+include(CheckCSourceCompiles)
+include(CheckCXXSourceCompiles)
 
 test_big_endian(BIG_ENDIAN)
 if (BIG_ENDIAN)
@@ -82,6 +85,41 @@ if(UNIX)
         message(FATAL_ERROR "unistd.h is unavailable")
     endif()
 endif()
+
+# For some reason check_function_exists doesn't work on builtin gcc/clang functions
+macro(check_builtin_function_exists function output)
+    check_cxx_source_compiles("int main(int argc, char** argv) { __builtin_${function}; return 0; }" ${output})
+endmacro()
+
+# GCC/Clang byte swap functions
+check_builtin_function_exists(bswap16 HAS_BUILTIN_BSWAP16)
+check_builtin_function_exists(bswap32 HAS_BUILTIN_BSWAP32)
+check_builtin_function_exists(bswap64 HAS_BUILTIN_BSWAP64)
+
+if (HAS_BUILTIN_BSWAP16)
+    add_definitions(-DHAS_BUILTIN_BSWAP16)
+endif ()
+if (HAS_BUILTIN_BSWAP32)
+    add_definitions(-DHAS_BUILTIN_BSWAP32)
+endif ()
+if (HAS_BUILTIN_BSWAP64)
+    add_definitions(-DHAS_BUILTIN_BSWAP64)
+endif ()
+
+# MSVC byte swap functions
+check_function_exists(_byteswap_ushort HAS_BYTESWAP_USHORT)
+check_function_exists(_byteswap_ulong HAS_BYTESWAP_ULONG)
+check_function_exists(_byteswap_uint64 HAS_BYTESWAP_UINT64)
+
+if (HAS_BYTESWAP_USHORT)
+    add_definitions(-DHAS_BYTESWAP_USHORT)
+endif ()
+if (HAS_BYTESWAP_ULONG)
+    add_definitions(-DHAS_BYTESWAP_ULONG)
+endif ()
+if (HAS_BYTESWAP_UINT64)
+    add_definitions(-DHAS_BYTESWAP_UINT64)
+endif ()
 
 # ------------------------------------
 # Third party libraries
