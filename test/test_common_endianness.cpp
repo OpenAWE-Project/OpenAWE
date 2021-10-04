@@ -33,3 +33,13 @@ TEST(Endianness, swapBytes) {
 	EXPECT_EQ(Common::swapBytes(test32bit), 0x78563412);
 	EXPECT_EQ(Common::swapBytes(test64bit), 0xEFCDAB9078563412);
 }
+
+TEST(Endianness, swapBytesManual) {
+	const uint16_t test16bit = 0x1234;
+	const uint32_t test32bit = 0x12345678;
+	const uint64_t test64bit = 0x1234567890ABCDEF;
+
+	EXPECT_EQ(MANUAL_BSWAP_16(test16bit), 0x3412);
+	EXPECT_EQ(MANUAL_BSWAP_32(test32bit), 0x78563412);
+	EXPECT_EQ(MANUAL_BSWAP_64(test64bit), 0xEFCDAB9078563412);
+}
