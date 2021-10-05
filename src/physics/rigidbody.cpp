@@ -18,44 +18,22 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_COLLISIONOBJECT_H
-#define OPENAWE_COLLISIONOBJECT_H
-
-#include <memory>
-
-#include <btBulletCollisionCommon.h>
-#include <btBulletDynamicsCommon.h>
-
-#include "src/awe/collisionsfile.h"
-#include "src/awe/havokfile.h"
-#include "src/awe/types.h"
+#include "src/physics/physicsman.h"
+#include "src/physics/rigidbody.h"
 
 namespace Physics {
 
-class CollisionObject;
+RigidBody::RigidBody() :
+	_motionState(std::make_unique<btDefaultMotionState>()) {
+	_rigidBody = new btRigidBody(0.0, _motionState.get(), new btEmptyShape);
+	setCollisionObject(_rigidBody);
+}
 
-typedef std::shared_ptr<CollisionObject> CollisionObjectPtr;
-
-class CollisionObject {
-public:
-	void setTransform(const glm::vec3 &position, const glm::mat3 &rotation);
-	virtual void setActive(bool active);
-
-protected:
-	CollisionObject();
-
-	void setCollisionShape(btCollisionShape *shape);
-	void setCollisionObject(btCollisionObject *collisionObject);
-	void setOffset(btTransform offset);
-
-	btCollisionShape &getCollisionShape();
-
-private:
-	btTransform _offset;
-	std::unique_ptr<btCollisionShape> _shape;
-	std::unique_ptr<btCollisionObject> _collision;
-};
+void RigidBody::setActive(bool active) {
+	if (active)
+		PhysicsMan.add(_rigidBody);
+	else
+		PhysicsMan.remove(_rigidBody);
+}
 
 } // End of namespace Physics
-
-#endif //OPENAWE_COLLISIONOBJECT_H

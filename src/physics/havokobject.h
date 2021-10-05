@@ -18,44 +18,20 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_COLLISIONOBJECT_H
-#define OPENAWE_COLLISIONOBJECT_H
+#ifndef OPENAWE_HAVOKOBJECT_H
+#define OPENAWE_HAVOKOBJECT_H
 
-#include <memory>
-
-#include <btBulletCollisionCommon.h>
-#include <btBulletDynamicsCommon.h>
-
-#include "src/awe/collisionsfile.h"
-#include "src/awe/havokfile.h"
 #include "src/awe/types.h"
+
+#include "src/physics/rigidbody.h"
 
 namespace Physics {
 
-class CollisionObject;
-
-typedef std::shared_ptr<CollisionObject> CollisionObjectPtr;
-
-class CollisionObject {
+class HavokObject : public RigidBody {
 public:
-	void setTransform(const glm::vec3 &position, const glm::mat3 &rotation);
-	virtual void setActive(bool active);
-
-protected:
-	CollisionObject();
-
-	void setCollisionShape(btCollisionShape *shape);
-	void setCollisionObject(btCollisionObject *collisionObject);
-	void setOffset(btTransform offset);
-
-	btCollisionShape &getCollisionShape();
-
-private:
-	btTransform _offset;
-	std::unique_ptr<btCollisionShape> _shape;
-	std::unique_ptr<btCollisionObject> _collision;
+	HavokObject(rid_t rid);
 };
 
 } // End of namespace Physics
 
-#endif //OPENAWE_COLLISIONOBJECT_H
+#endif //OPENAWE_HAVOKOBJECT_H
