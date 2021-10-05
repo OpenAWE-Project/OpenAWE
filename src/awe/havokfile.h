@@ -82,6 +82,7 @@ public:
 		};
 		float duration;
 		float blockDuration;
+		float frameDuration;
 		std::vector<std::vector<Track>> tracks;
 		std::map<std::string, size_t> boneToTrack;
 	};

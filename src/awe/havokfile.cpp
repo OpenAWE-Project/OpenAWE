@@ -562,7 +562,7 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 	uint32_t maskAndQuantizationSize = binhkx.readUint32LE();
 	animation.blockDuration = binhkx.readIEEEFloatLE();
 	float blockInverseDuration = binhkx.readIEEEFloatLE();
-	float frameDuration = binhkx.readIEEEFloatLE();
+	animation.frameDuration = binhkx.readIEEEFloatLE();
 
 	hkArray blockOffsetsArray = readHkArray(binhkx, section);
 	hkArray floatBlockOffsets = readHkArray(binhkx, section);
