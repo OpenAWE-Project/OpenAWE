@@ -41,7 +41,8 @@ public:
 	};
 
 	enum ShapeType {
-		kBox
+		kBox,
+		kCylinder
 	};
 
 	struct hkNamedVariant {
@@ -103,11 +104,17 @@ public:
 		glm::vec4 halfExtents;
 	};
 
+	struct hkpCylinderShape {
+		float radius;
+		glm::vec4 p1, p2;
+	};
+
 	struct hkpShape {
 		uint64_t userData;
 		float radius;
 		std::variant<
-			hkpBoxShape
+			hkpBoxShape,
+			hkpCylinderShape
 		> shape;
 		ShapeType type;
 	};
@@ -170,6 +177,7 @@ private:
 
 	hkpRigidBody readHkpRigidBody(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpBoxShape(Common::ReadStream &binhkx);
+	HavokFile::hkpShape readHkpCylinderShape(Common::ReadStream &binhkx);
 
 	RmdPhysicsSystem readRmdPhysicsSystem(Common::ReadStream &binhkx, uint32_t section);
 

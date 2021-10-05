@@ -201,6 +201,8 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 			object = readHkpRigidBody(binhkx, contentsSectionIndex);
 		else if (name == "hkpBoxShape")
 			object = readHkpBoxShape(binhkx);
+		else if (name == "hkpCylinderShape")
+			object = readHkpCylinderShape(binhkx);
 		else
 			spdlog::warn("TODO: Implement havok class {}", name);
 
@@ -611,6 +613,7 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 			const bool transformSpline = transformSplineX || transformSplineY || transformSplineZ;
 			const bool transformStatic = transformStaticX || transformStaticY || transformStaticZ;
 			const bool scaleSpline = scaleSplineX || scaleSplineY || scaleSplineZ;
+			const bool scaleStatic = scaleStaticX || scaleStaticY || scaleStaticZ;
 
 			hkaAnimation::Track track{};
 
@@ -760,7 +763,7 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 
 			if (scaleSpline) {
 				assert(false);
-			} else {
+			} else if (scaleStatic) {
 				if (scaleStaticX)
 					dataStream->skip(4);
 				if (scaleStaticY)
@@ -825,8 +828,11 @@ void HavokFile::readHkaAnimationBinding(Common::ReadStream &binhkx, uint32_t sec
 	hkArray floatTrackToFloatSlotIndexArray = readHkArray(binhkx, section);
 	hkArray partitionIndices = readHkArray(binhkx, section);
 
-	binhkx.seek(nameOffset);
-	binding.skeletonName = binhkx.readNullTerminatedString();
+	if (nameOffset != 0xFFFFFFFF) {
+		binhkx.seek(nameOffset);
+		binding.skeletonName = binhkx.readNullTerminatedString();
+	}
+
 	binding.animation = animation;
 
 	binding.transformTrackToBoneIndices.resize(transformTrackToBoneIndexArray.count);
@@ -940,6 +946,33 @@ HavokFile::hkpShape HavokFile::readHkpBoxShape(Common::ReadStream &binhkx) {
 	halfExtents.w = binhkx.readIEEEFloatLE();
 	boxShape.halfExtents = halfExtents;
 	shape.shape = boxShape;
+
+	return shape;
+}
+
+HavokFile::hkpShape HavokFile::readHkpCylinderShape(Common::ReadStream &binhkx) {
+	hkpShape shape{};
+	hkpCylinderShape cylinderShape{};
+
+	shape.type = kCylinder;
+
+	binhkx.skip(8); // hkReferencedObject
+	shape.userData = binhkx.readUint64LE(); // hkpShape
+	shape.radius = binhkx.readIEEEFloatLE(); // hkpConvexShape
+	//binhkx.skip(0);
+
+	cylinderShape.radius = binhkx.readIEEEFloatLE();
+	binhkx.skip(12);
+	cylinderShape.p1.x = binhkx.readIEEEFloatLE();
+	cylinderShape.p1.y = binhkx.readIEEEFloatLE();
+	cylinderShape.p1.z = binhkx.readIEEEFloatLE();
+	cylinderShape.p1.w = binhkx.readIEEEFloatLE();
+	cylinderShape.p2.x = binhkx.readIEEEFloatLE();
+	cylinderShape.p2.y = binhkx.readIEEEFloatLE();
+	cylinderShape.p2.z = binhkx.readIEEEFloatLE();
+	cylinderShape.p2.w = binhkx.readIEEEFloatLE();
+
+	shape.shape = cylinderShape;
 
 	return shape;
 }
