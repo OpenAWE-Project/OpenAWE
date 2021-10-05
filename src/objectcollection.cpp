@@ -30,7 +30,7 @@
 #include "src/graphics/model.h"
 #include "src/graphics/meshman.h"
 
-#include "src/physics/collisionobject.h"
+#include "src/physics/havokobject.h"
 #include "src/physics/terraincollision.h"
 
 #include "objectcollection.h"
