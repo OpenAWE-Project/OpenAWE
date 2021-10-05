@@ -172,7 +172,7 @@ void ObjectCollection::loadStaticObject(const AWE::Object &container) {
 
 	if (staticObject.physicsResource) {
 		try {
-			Physics::CollisionObjectPtr collisionObject = std::make_shared<Physics::CollisionObject>(
+			Physics::CollisionObjectPtr collisionObject = std::make_shared<Physics::HavokObject>(
 				staticObject.physicsResource
 			);
 
