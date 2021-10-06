@@ -18,7 +18,9 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "variablestore.h"
+#include "src/common/exception.h"
+
+#include "src/awe/script/variablestore.h"
 
 namespace AWE::Script {
 
@@ -36,13 +38,13 @@ std::string VariableStore::getDebugName(byte id) const {
 
 void VariableStore::setVariable(byte id, Variable variable) {
 	if (id > _variables.size())
-		throw std::runtime_error("Invalid variable id");
+		throw Common::Exception("Invalid variable id");
 	_variables[id] = variable;
 }
 
 Variable VariableStore::getVariable(byte id) const {
 	if (id > _variables.size())
-		throw std::runtime_error("Invalid variable id");
+		throw Common::Exception("Invalid variable id");
 	return _variables[id];
 }
 
