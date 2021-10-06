@@ -17,7 +17,7 @@ jobs:
             extra_cmake_args: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
           - name: Windows MSVC
             os: windows-2019
-            extra_cmake_args: -DCMAKE_TOOLCHAIN_FILE=%VCPKG_INSTALLATION_ROOT%/scripts/buildsystems/vcpkg.cmake
+            extra_cmake_args: -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
