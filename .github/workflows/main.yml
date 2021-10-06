@@ -15,6 +15,9 @@ jobs:
           - name: Linux Clang
             os: ubuntu-20.04
             extra_cmake_args: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+          - name: Windows MSVC
+            os: windows-2019
+            extra_cmake_args: -DCMAKE_TOOLCHAIN_FILE=%VCPKG_INSTALLATION_ROOT%/scripts/buildsystems/vcpkg.cmake
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -24,7 +27,7 @@ jobs:
         with:
           submodules: 'true'
 
-      - name: Install dependencies
+      - name: Install dependencies with APT
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         run: |
           sudo apt-get update
@@ -43,6 +46,26 @@ jobs:
             libspdlog-dev \
             libglew-dev \
             libgtest-dev
+
+      - name: Install dependencies with vcpkg
+        if: ${{ matrix.os == 'windows-2019' }}
+        run: |
+          vcpkg update
+          vcpkg install \
+            zlib \
+            glfw3 \
+            libogg \
+            libvorbis \
+            libtheora \
+            spdlog \
+            glew \
+            openal-soft \
+            bullet3 \
+            fmt \
+            gtest \
+            tinyxml2 \
+            glm \
+            opengl
 
       - name: Configure CMake
         run: |
