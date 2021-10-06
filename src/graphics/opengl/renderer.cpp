@@ -128,7 +128,7 @@ Renderer::Renderer(Graphics::Window &window) : _window(window) {
 		if (!std::regex_match(filename, objFile))
 			continue;
 
-		AWE::OBJFile obj(ResMan.getResource(item.path()));
+		AWE::OBJFile obj(ResMan.getResource(item.path().string()));
 
 		for (auto &program : obj.getPrograms()) {
 			Graphics::ShaderConverter vertexConverter(*program.shaders.front().vertexShader);
