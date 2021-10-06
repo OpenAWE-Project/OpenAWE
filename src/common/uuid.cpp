@@ -30,8 +30,6 @@
 
 #if OS_MACOS || OS_IOS
 #	include <CoreFoundation/CFUUID.h>
-#elif OS_WINDOWS
-#	include <windows.h>
 #endif
 
 namespace Common {
@@ -101,9 +99,6 @@ UUID UUID::generateRandom() {
 	uuid._id[13] = bytes.byte13;
 	uuid._id[14] = bytes.byte14;
 	uuid._id[15] = bytes.byte15;
-#elif OS_WINDOWS
-	GUID newId;
-	CoCreateGuid(&newId);
 #else
 
 	do {
