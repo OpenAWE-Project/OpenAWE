@@ -24,6 +24,7 @@
 #include <filesystem>
 #include <regex>
 #include <fstream>
+#include <sstream>
 #include <set>
 
 #include <glm/gtx/transform.hpp>
