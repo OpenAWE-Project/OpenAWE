@@ -251,7 +251,10 @@ add_library(awe_common ${SOURCE_FILES})
 file(GLOB_RECURSE SOURCE_FILES src/awe/*.cpp src/awe/*.h)
 add_library(awe_lib ${SOURCE_FILES})
 target_link_libraries(awe_lib awe_common)
-set_target_properties(awe_lib PROPERTIES OUTPUT_NAME awe)
+if (NOT WIN32)
+    # MSVC doesn't like to have libraries and executables with the same identifier
+    set_target_properties(awe_lib PROPERTIES OUTPUT_NAME awe)
+endif ()
 
 file(GLOB_RECURSE SOURCE_FILES src/graphics/*.cpp src/graphics/*.h)
 add_library(awe_graphics ${SOURCE_FILES})
