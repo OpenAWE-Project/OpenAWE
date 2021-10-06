@@ -51,7 +51,9 @@ jobs:
       - name: Install vulkan sdk for windows
         if: ${{ matrix.os == 'windows-2019' }}
         run:
-          ${{ github.workspace }}/.github/install_vulkan_sdk_win.ps1
+          Invoke-WebRequest -Uri https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe -OutFile vulkan-sdk.exe;
+          $installer = Start-Process -FilePath vulkan-sdk.exe -Wait -PassThru -ArgumentList "install", "--verbose", "--al", "--da", "--c";
+          $installer.WaitForExit();
 
       - name: Install dependencies with vcpkg
         if: ${{ matrix.os == 'windows-2019' }}
