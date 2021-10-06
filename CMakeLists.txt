@@ -161,6 +161,10 @@ find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(spdlog REQUIRED)
 
+# Vulkan is necessary since the graphics part has some stubs for future vulkan support, even if it doesn't work at the
+# moment. For this reason the awe executable is not linked to vulkan currently
+find_package(Vulkan REQUIRED)
+
 find_package(GTest)
 
 if(NOT USE_SYSTEM_CXXOPTS)
@@ -230,6 +234,7 @@ include_directories(
         ${BULLET_INCLUDE_DIRS}
         ${spdlog_INCLUDE_DIRS}
         ${ENTT_INCLUDE_DIRS}
+        ${Vulkan_INCLUDE_DIRS}
         ${MOJOSHADER_INCLUDE_DIRS}
 )
 
