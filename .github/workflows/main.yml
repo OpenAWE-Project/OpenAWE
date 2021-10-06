@@ -3,6 +3,7 @@ on: ['push', 'pull_request']
 
 env:
   BUILD_TYPE: Release
+  VCPKG_DEFAULT_TRIPLET: x64-windows
 
 jobs:
   build:
