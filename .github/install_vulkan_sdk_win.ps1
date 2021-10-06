@@ -3,5 +3,5 @@
 #>
 
 Invoke-WebRequest -Uri https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe -OutFile vulkan-sdk.exe
-$installer = Start-Process -FilePath vulkan-sdk.exe -Wait -PassThru -ArgumentList "install", "--verbose";
+$installer = Start-Process -FilePath vulkan-sdk.exe -Wait -PassThru -ArgumentList "install", "--verbose", "--al", "--da", "--c";
 $installer.WaitForExit();
