@@ -54,13 +54,16 @@ jobs:
           vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl
 
       - name: Configure CMake
+        shell: bash
         run: |
           cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.extra_cmake_args }}
 
       - name: Build
+        shell: bash
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
       - name: Test
+        shell: bash
         working-directory: ${{github.workspace}}/build
         run: ctest -C ${{env.BUILD_TYPE}}
 
