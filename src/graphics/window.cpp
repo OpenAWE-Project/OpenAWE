@@ -104,6 +104,8 @@ GLFWwindow * Window::getWindowHandle() {
 	return _window;
 }
 
+#ifdef WITH_VULKAN
+
 const char ** Window::getInstanceExtensions(unsigned int &numExtensions) {
 	return glfwGetRequiredInstanceExtensions(&numExtensions);
 }
@@ -113,6 +115,8 @@ void Window::createWindowSurface(VkInstance &instance, VkSurfaceKHR &surface) {
 	if (result != VK_SUCCESS)
 		throw std::runtime_error("Error creating window surface");
 }
+
+#endif
 
 void Window::getSize(unsigned int &width, unsigned int &height) {
 	glfwGetFramebufferSize(_window, reinterpret_cast<int *>(&width), reinterpret_cast<int *>(&height));

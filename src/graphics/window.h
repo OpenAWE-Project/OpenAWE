@@ -25,7 +25,9 @@
 #include <functional>
 
 #define GLFW_INCLUDE_NONE
-#define GLFW_INCLUDE_VULKAN
+#ifdef WITH_VULKAN
+#   define GLFW_INCLUDE_VULKAN
+#endif // WITH_VULKAN
 #include <GLFW/glfw3.h>
 
 #include "src/graphics/glcontext.h"
@@ -49,9 +51,10 @@ public:
 
 	void getSize(unsigned int &width, unsigned int &height) override;
 
+#ifdef WITH_VULKAN
 	const char **getInstanceExtensions(unsigned int &numExtensions) override;
-
 	void createWindowSurface(VkInstance &instance, VkSurfaceKHR &surface) override;
+#endif // WITH_VULKAN
 
 	void setTitle(const std::string &title);
 	bool shouldClose();

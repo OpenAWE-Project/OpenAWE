@@ -21,7 +21,9 @@
 #ifndef AWE_VULKANCONTEXT_H
 #define AWE_VULKANCONTEXT_H
 
+#ifdef WITH_VULKAN
 #include <vulkan/vulkan.h>
+#endif // WITH_VULKAN
 
 #include "src/graphics/context.h"
 
@@ -29,8 +31,10 @@ namespace Graphics {
 
 class VulkanContext : public Context {
 public:
+#ifdef WITH_VULKAN
 	virtual const char **getInstanceExtensions(unsigned int &numExtensions) = 0;
 	virtual void createWindowSurface(VkInstance &instance, VkSurfaceKHR &surface) = 0;
+#endif //WITH_VULKAN
 };
 
 }

@@ -47,6 +47,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 option(USE_SYSTEM_CXXOPTS "Use the system cxxopts" OFF)
 option(USE_SYSTEM_ENTT "Use the system entt" OFF)
 
+option(WITH_VULKAN "Compile with support for vulkan" OFF)
+
 # ------------------------------------
 # Compiler flags
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -161,9 +163,12 @@ find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(spdlog REQUIRED)
 
-# Vulkan is necessary since the graphics part has some stubs for future vulkan support, even if it doesn't work at the
-# moment. For this reason the awe executable is not linked to vulkan currently
-find_package(Vulkan REQUIRED)
+if (WITH_VULKAN)
+    # Vulkan is necessary since the graphics part has some stubs for future vulkan support, even if it doesn't work at the
+    # moment. For this reason the awe executable is not linked to vulkan currently
+    find_package(Vulkan REQUIRED)
+    add_definitions(-DWITH_VULKAN)
+endif ()
 
 find_package(GTest)
 
