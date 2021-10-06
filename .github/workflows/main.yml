@@ -48,6 +48,11 @@ jobs:
             libglew-dev \
             libgtest-dev
 
+      - name: Install vulkan sdk for windows
+        if: ${{ matrix.os == 'windows-2019' }}
+        run:
+          ${{ github.workspace }}/.github/install_vulkan_sdk_win.ps1
+
       - name: Install dependencies with vcpkg
         if: ${{ matrix.os == 'windows-2019' }}
         run: |
