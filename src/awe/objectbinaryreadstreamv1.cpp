@@ -56,7 +56,10 @@ Object ObjectBinaryReadStreamV1::readObject(ObjectType type, unsigned int versio
 		case kAttachmentResources: object = readAttachmentResources(); break;
 		case kWaypoint: object = readWaypoint(); break;
 		case kAnimationParameters: object = readAnimationParameters(); break;
-		case kKeyframedObject: object = readKeyFramedObject(); break;
+		case kKeyframedObject: object = readKeyFramedObject(version); break;
+		case kKeyframe: object = readKeyFrame(); break;
+		case kKeyframeAnimation: object = readKeyFrameAnimation(); break;
+		case kKeyframer: object = readKeyFramer(); break;
 
 		case kFileInfoMetadata: object = readFileInfoMetadata(); break;
 		case kFoliageMeshMetadata: object = readFoliageMeshMetadata(); break;

@@ -79,7 +79,7 @@ protected:
 	Templates::AttachmentResource readAttachmentResources();
 	Templates::Waypoint readWaypoint();
 	Templates::AnimationParameters readAnimationParameters();
-	Templates::KeyFramedObject readKeyFramedObject();
+	Templates::KeyFramedObject readKeyFramedObject(unsigned int version);
 	Templates::KeyFramer readKeyFramer();
 	Templates::KeyFrameAnimation readKeyFrameAnimation();
 	Templates::KeyFrame readKeyFrame();

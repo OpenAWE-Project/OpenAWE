@@ -20,6 +20,10 @@
 
 #include <stdexcept>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/ext/matrix_transform.hpp>
+
 #include "src/common/strutil.h"
 
 #include "src/awe/objectstream.h"
@@ -588,7 +592,12 @@ Templates::AnimationParameters ObjectBinaryReadStream::readAnimationParameters()
 	return animationParameters;
 }
 
-Templates::KeyFramedObject ObjectBinaryReadStream::readKeyFramedObject() {
+Templates::KeyFramedObject ObjectBinaryReadStream::readKeyFramedObject(unsigned int version) {
+	/*
+	 * Versions:
+	 * Alan Wake: 4
+	 * Alan Wakes American Nightmare: 5
+	 */
 	Templates::KeyFramedObject keyFramedObject{};
 
 	keyFramedObject.rotation = readRotation();
@@ -606,8 +615,13 @@ Templates::KeyFramedObject ObjectBinaryReadStream::readKeyFramedObject() {
 	keyFramedObject.keyFramer = _stream.readUint32LE();
 	_stream.skip(5);
 
-	keyFramedObject.rotation2 = readRotation();
-	keyFramedObject.position2 = readPosition();
+	if (version >= 5) {
+		keyFramedObject.rotation2 = readRotation();
+		keyFramedObject.position2 = readPosition();
+	} else {
+		keyFramedObject.rotation2 = glm::identity<glm::mat3>();
+		keyFramedObject.position2 = glm::zero<glm::vec3>();
+	}
 
 	return keyFramedObject;
 }
@@ -631,6 +645,7 @@ Templates::KeyFramer ObjectBinaryReadStream::readKeyFramer() {
 
 	keyFramer.parentKeyFramer = _stream.readUint32LE();
 	const auto val = _stream.readUint32LE();
+	assert(val < numKeyFrames);
 	const auto oid = _stream.readUint32LE();
 
 	const auto numResources = _stream.readUint32LE();
