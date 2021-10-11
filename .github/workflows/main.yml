@@ -3,6 +3,7 @@ on: ['push', 'pull_request']
 
 env:
   BUILD_TYPE: Release
+  VCPKG_DEFAULT_TRIPLET: x64-windows
 
 jobs:
   build:
@@ -15,6 +16,9 @@ jobs:
           - name: Linux Clang
             os: ubuntu-20.04
             extra_cmake_args: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+          - name: Windows MSVC
+            os: windows-2019
+            extra_cmake_args: -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -24,7 +28,7 @@ jobs:
         with:
           submodules: 'true'
 
-      - name: Install dependencies
+      - name: Install dependencies with APT
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         run: |
           sudo apt-get update
@@ -44,14 +48,22 @@ jobs:
             libglew-dev \
             libgtest-dev
 
-      - name: Configure CMake
+      - name: Install dependencies with vcpkg
+        if: ${{ matrix.os == 'windows-2019' }}
         run: |
-          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.extra_cmake_args }}
+          vcpkg update
+          vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          cmake -B $GITHUB_WORKSPACE/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.extra_cmake_args }} .
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        shell: bash
+        run: cmake --build $GITHUB_WORKSPACE/build --config ${{env.BUILD_TYPE}}
 
       - name: Test
-        working-directory: ${{github.workspace}}/build
+        shell: bash
         run: ctest -C ${{env.BUILD_TYPE}}
 

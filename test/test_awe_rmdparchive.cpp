@@ -41,6 +41,7 @@ byte kEmptyBinV2[] = {
 };
 
 byte kEmptyRmdpV2[] = {
+    0xff
 };
 
 byte kEmptyBinV7[] = {
@@ -58,6 +59,7 @@ byte kEmptyBinV7[] = {
 };
 
 byte kEmptyRmdpV7[] = {
+    0xff
 };
 
 byte kMultipleFilesBinV2[] = {

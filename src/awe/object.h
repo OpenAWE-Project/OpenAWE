@@ -5,6 +5,8 @@
 #ifndef OPENAWE_OBJECT_H
 #define OPENAWE_OBJECT_H
 
+#include <vector>
+
 #include "src/awe/types.h"
 
 namespace AWE::Templates {

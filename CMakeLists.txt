@@ -47,6 +47,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 option(USE_SYSTEM_CXXOPTS "Use the system cxxopts" OFF)
 option(USE_SYSTEM_ENTT "Use the system entt" OFF)
 
+option(WITH_VULKAN "Compile with support for vulkan" OFF)
+
 # ------------------------------------
 # Compiler flags
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -161,6 +163,13 @@ find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(spdlog REQUIRED)
 
+if (WITH_VULKAN)
+    # Vulkan is necessary since the graphics part has some stubs for future vulkan support, even if it doesn't work at the
+    # moment. For this reason the awe executable is not linked to vulkan currently
+    find_package(Vulkan REQUIRED)
+    add_definitions(-DWITH_VULKAN)
+endif ()
+
 find_package(GTest)
 
 if(NOT USE_SYSTEM_CXXOPTS)
@@ -230,6 +239,7 @@ include_directories(
         ${BULLET_INCLUDE_DIRS}
         ${spdlog_INCLUDE_DIRS}
         ${ENTT_INCLUDE_DIRS}
+        ${Vulkan_INCLUDE_DIRS}
         ${MOJOSHADER_INCLUDE_DIRS}
 )
 
@@ -246,7 +256,10 @@ add_library(awe_common ${SOURCE_FILES})
 file(GLOB_RECURSE SOURCE_FILES src/awe/*.cpp src/awe/*.h)
 add_library(awe_lib ${SOURCE_FILES})
 target_link_libraries(awe_lib awe_common)
-set_target_properties(awe_lib PROPERTIES OUTPUT_NAME awe)
+if (NOT WIN32)
+    # MSVC doesn't like to have libraries and executables with the same identifier
+    set_target_properties(awe_lib PROPERTIES OUTPUT_NAME awe)
+endif ()
 
 file(GLOB_RECURSE SOURCE_FILES src/graphics/*.cpp src/graphics/*.h)
 add_library(awe_graphics ${SOURCE_FILES})

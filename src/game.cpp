@@ -69,7 +69,7 @@ bool Game::parseArguments(int argc, char **argv) {
 
 	_physicsDebugDraw = result.count("debug-physics") != 0;
 
-	spdlog::set_level(spdlog::level::level_enum(6 - std::clamp(result["debug"].as<uint>(), 0u, 6u)));
+	spdlog::set_level(spdlog::level::level_enum(6 - std::clamp(result["debug"].as<unsigned int>(), 0u, 6u)));
 
 	return true;
 }

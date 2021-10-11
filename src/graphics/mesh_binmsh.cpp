@@ -20,6 +20,8 @@
 
 #include <iostream>
 #include <regex>
+#include <bitset>
+
 #include <fmt/format.h>
 
 #include <src/common/memwritestream.h>
