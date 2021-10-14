@@ -50,6 +50,7 @@ Object ObjectBinaryReadStreamV1::readObject(ObjectType type, unsigned int versio
 		case kScript: object = readScript(); break;
 		case kScriptInstance: object = readScriptInstance(); break;
 		case kPointLight: object = readPointLight(version); break;
+		case kAmbientLight: object = readAmbientLightInstance(); break;
 		case kFloatingScript: object = readFloatingScript(); break;
 		case kTrigger: object = readTrigger(version); break;
 		case kAreaTrigger: object = readAreaTrigger(); break;

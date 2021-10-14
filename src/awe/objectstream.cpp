@@ -471,6 +471,24 @@ Templates::PointLight ObjectBinaryReadStream::readPointLight(unsigned int versio
 	return pointLight;
 }
 
+Templates::AmbientLightInstance ObjectBinaryReadStream::readAmbientLightInstance() {
+	Templates::AmbientLightInstance ambientLightInstance{};
+
+	ambientLightInstance.gid = readGID();
+	ambientLightInstance.scriptGid = readGID();
+	ambientLightInstance.position = readPosition();
+
+	ambientLightInstance.color.r = _stream.readIEEEFloatLE();
+	ambientLightInstance.color.g = _stream.readIEEEFloatLE();
+	ambientLightInstance.color.b = _stream.readIEEEFloatLE();
+
+	ambientLightInstance.decay = _stream.readIEEEFloatLE();
+	ambientLightInstance.autoStart = _stream.readByte() != 0;
+	ambientLightInstance.intensity = _stream.readIEEEFloatLE();
+
+	return ambientLightInstance;
+}
+
 Templates::FloatingScript ObjectBinaryReadStream::readFloatingScript() {
 	Templates::FloatingScript floatingScript{};
 

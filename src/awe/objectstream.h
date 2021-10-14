@@ -73,6 +73,7 @@ protected:
 	Templates::Script readScript();
 	Templates::ScriptInstance readScriptInstance();
 	Templates::PointLight readPointLight(unsigned int version);
+	Templates::AmbientLightInstance readAmbientLightInstance();
 	Templates::FloatingScript readFloatingScript();
 	Templates::Trigger readTrigger(unsigned int version);
 	Templates::AreaTrigger readAreaTrigger();

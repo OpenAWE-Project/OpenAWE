@@ -208,6 +208,15 @@ struct PointLight {
 	rid_t staticShadowMapRid;
 };
 
+struct AmbientLightInstance {
+	GID gid, scriptGid;
+	glm::vec3 position;
+	glm::vec3 color;
+	float decay;
+	float intensity;
+	bool autoStart;
+};
+
 struct Trigger {
 	GID gid, gid2;
 	std::string localeString, identifier;
