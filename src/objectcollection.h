@@ -63,6 +63,7 @@ private:
 	void loadScript(const AWE::Object &container);
 	void loadFloatingScript(const AWE::Object &container);
 	void loadPointLight(const AWE::Object &container);
+	void loadAmbientLightInstance(const AWE::Object &container);
 	void loadAreaTrigger(const AWE::Object &container);
 	void loadTaskDefinition(const AWE::Object &container);
 	void loadWaypoint(const AWE::Object &container);

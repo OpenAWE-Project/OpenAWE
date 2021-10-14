@@ -127,6 +127,7 @@ void ObjectCollection::load(const AWE::Object &container, ObjectType type) {
 		case kTrigger: loadTrigger(container); break;
 		case kCharacterClass: loadCharacterClass(container); break;
 		case kKeyframedObject: loadKeyFramedObject(container); break;
+		case kAmbientLight:	loadAmbientLightInstance(container); break;
 	}
 }
 
@@ -312,6 +313,16 @@ void ObjectCollection::loadPointLight(const AWE::Object &container) {
 	_registry.emplace<Transform>(pointLightEntity) = Transform(pointLight.position, pointLight.rotation);
 
 	spdlog::debug("Loading point light {}", _gid->getString(pointLight.gid));
+}
+
+void ObjectCollection::loadAmbientLightInstance(const AWE::Object &container) {
+	const auto ambientLightInstance = std::any_cast<AWE::Templates::AmbientLightInstance>(container);
+
+	auto ambientLightEntity = _registry.create();
+	_registry.emplace<GID>(ambientLightEntity) = ambientLightInstance.gid;
+	_registry.emplace<Transform>(ambientLightEntity) = Transform(ambientLightInstance.position, glm::identity<glm::mat3>());
+
+	spdlog::debug("Loading ambient light {}", _gid->getString(ambientLightInstance.gid));
 }
 
 void ObjectCollection::loadAreaTrigger(const AWE::Object &container) {

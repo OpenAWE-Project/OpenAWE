@@ -75,6 +75,10 @@ Episode::Episode(entt::registry &registry, const std::string &world, const std::
 	spdlog::info("Loading Point Lights for {}", id);
 	load(tasks.getResource("cid_pointlight.bin"), kPointLight, dp);
 
+	spdlog::info("Loading ambient lights for {}", id);
+	load(tasks.getResource("cid_ambientlight.bin"), kAmbientLight, dp);
+	load(tasks.getResource("cid_ambientlightscript.bin"), kScript, dp);
+
 	spdlog::info("Loading Floating Scripts for {}", id);
 	load(tasks.getResource("cid_floatingscript.bin"), kFloatingScript, dp);
 
