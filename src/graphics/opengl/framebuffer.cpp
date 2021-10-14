@@ -27,6 +27,7 @@ Framebuffer::Framebuffer() {
 }
 
 Framebuffer::~Framebuffer() {
+	glDeleteRenderbuffers(_renderbuffers.size(), _renderbuffers.data());
 	glDeleteFramebuffers(1, &_id);
 }
 
@@ -41,9 +42,22 @@ void Framebuffer::attachTexture(const Texture &texture, GLenum attachmentType) {
 	_attachments.emplace_back(attachmentType);
 }
 
+void Framebuffer::attachRenderBuffer(GLsizei width, GLsizei height, GLenum format, GLenum attachmentType) {
+	GLuint rbo;
+	glCreateRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+
+	glRenderbufferStorage(GL_RENDERBUFFER, format, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentType, GL_RENDERBUFFER, rbo);
+}
+
 void Framebuffer::bind() {
 	glBindFramebuffer(GL_FRAMEBUFFER, _id);
-	glDrawBuffers(_attachments.size() * sizeof(GLenum), _attachments.data());
+	glDrawBuffers(_attachments.size(), _attachments.data());
+}
+
+void Framebuffer::bindRead() {
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
 }
 
 }

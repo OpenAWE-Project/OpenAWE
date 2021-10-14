@@ -32,10 +32,13 @@ public:
 	~Framebuffer();
 
 	void attachTexture(const Texture &texture, GLenum attachmentType);
+	void attachRenderBuffer(GLsizei width, GLsizei height, GLenum format, GLenum attachmentType);
 
 	void bind();
+	void bindRead();
 
 private:
+	std::vector<GLuint> _renderbuffers;
 	std::vector<GLenum> _attachments;
 	GLuint _id;
 };
