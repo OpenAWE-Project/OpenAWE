@@ -70,6 +70,8 @@ private:
 	std::unique_ptr<VBO> _videoQuad;
 	std::unique_ptr<VAO> _videoQuadAttributes;
 
+	std::unique_ptr<Texture> _albedoTexture;
+	std::unique_ptr<Texture> _normalTexture;
 	std::unique_ptr<Framebuffer> _deferredBuffer;
 
 	std::map<std::string, std::unique_ptr<Program>> _programs;

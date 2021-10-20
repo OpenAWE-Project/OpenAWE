@@ -251,6 +251,23 @@ Renderer::Renderer(Graphics::Window &window) : _window(window) {
 	glUseProgram(0);
 	assert(glGetError() == GL_NO_ERROR);
 
+	// Get width and height of the default framebuffer
+	unsigned int width, height;
+	window.getSize(width, height);
+
+	// Initialize deferred shading
+	//
+	_albedoTexture = std::make_unique<Texture>(width, height);
+	_normalTexture = std::make_unique<Texture>(width, height);
+
+	_deferredBuffer = std::make_unique<Framebuffer>();
+	_deferredBuffer->bind();
+
+	_deferredBuffer->attachRenderBuffer(width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT);
+
+	_deferredBuffer->attachTexture(*_albedoTexture, GL_COLOR_ATTACHMENT0);
+	_deferredBuffer->attachTexture(*_normalTexture, GL_COLOR_ATTACHMENT1);
+
 	// Initialize Pools
 	//
 
