@@ -26,7 +26,7 @@
 
 namespace Graphics::OpenGL {
 
-Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id) {
+Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id), _freeTexture(false) {
 	bool layered = decoder.getNumLayers() > 1;
 
 	switch (decoder.getType()) {
@@ -180,10 +180,10 @@ Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id) {
 	//	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
-Texture::Texture(unsigned int width, unsigned int height, GLuint id) : _id(id) {
-	bind();
+Texture::Texture(unsigned int width, unsigned int height) : _type(GL_TEXTURE_2D), _freeTexture(true) {
+	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
 
-	assert(glIsTexture(id) == GL_TRUE);
+	bind();
 
 	glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -205,7 +205,8 @@ Texture::Texture(unsigned int width, unsigned int height, GLuint id) : _id(id) {
 }
 
 Texture::~Texture() {
-	glDeleteTextures(1, &_id);
+    if (_freeTexture)
+	    glDeleteTextures(1, &_id);
 }
 
 void Texture::attachToFramebuffer(GLuint attachmentType) {

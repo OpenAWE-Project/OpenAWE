@@ -29,7 +29,7 @@ namespace Graphics::OpenGL {
 class Texture : Common::Noncopyable {
 public:
 	Texture(const ImageDecoder &decoder, GLuint id);
-	Texture(unsigned int width, unsigned int height, GLuint id);
+	Texture(unsigned int width, unsigned int height);
 	~Texture();
 
 	void attachToFramebuffer(GLuint attachmentType);
@@ -38,6 +38,8 @@ public:
 
 private:
 	friend class Framebuffer;
+
+	bool _freeTexture;
 
 	GLuint _id;
 	GLenum _type;
