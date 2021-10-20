@@ -22,12 +22,13 @@
 #include <assert.h>
 
 #include "src/common/readfile.h"
+#include "src/common/exception.h"
 
 namespace Common {
 
 ReadFile::ReadFile(const std::string &file) : _in(file) {
 	if (!std::filesystem::is_regular_file(file))
-		throw std::runtime_error("file not found");
+		throw Common::Exception("{} not found", file);
 }
 
 size_t ReadFile::read(void *data, size_t length) {
@@ -55,6 +56,13 @@ bool ReadFile::eos() const {
 }
 
 size_t ReadFile::pos() const {
+    if (_in.fail())
+        throw Common::Exception("File stream failed");
+
+    const auto pos = _in.tellg();
+    if (pos == std::istream::pos_type(-1))
+        throw Common::Exception("Invalid file stream position");
+
 	return _in.tellg();
 }
 
