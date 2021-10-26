@@ -32,7 +32,7 @@ class ReadFile : public testing::Test {
 protected:
 	void SetUp() override {
 		_filename = std::tmpnam(nullptr);
-		std::ofstream out(_filename);
+		std::ofstream out(_filename, std::ios::out | std::ios::binary);
 
 		// Make 256 byte forwards and backwards
 		for (int i = 0; i < 256; ++i) {
