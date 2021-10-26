@@ -26,7 +26,7 @@
 
 namespace Common {
 
-ReadFile::ReadFile(const std::string &file) : _in(file) {
+ReadFile::ReadFile(const std::string &file) : _in(file.c_str(), std::ios::in | std::ios::binary) {
 	if (!std::filesystem::is_regular_file(file))
 		throw Common::Exception("{} not found", file);
 }
