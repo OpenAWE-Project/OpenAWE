@@ -93,6 +93,10 @@ TEST_F(ReadFile, seek) {
     EXPECT_EQ(readFile.pos(), 0);
     EXPECT_FALSE(readFile.eos());
 
+	readFile.seek(0, Common::ReadStream::BEGIN);
+	EXPECT_EQ(readFile.pos(), 0);
+	EXPECT_FALSE(readFile.eos());
+
     readFile.seek(10, Common::ReadStream::BEGIN);
     EXPECT_EQ(readFile.pos(), 10);
     EXPECT_FALSE(readFile.eos());
@@ -100,6 +104,14 @@ TEST_F(ReadFile, seek) {
     readFile.seek(5, Common::ReadStream::CURRENT);
     EXPECT_EQ(readFile.pos(), 15);
     EXPECT_FALSE(readFile.eos());
+
+	readFile.seek(-5, Common::ReadStream::CURRENT);
+	EXPECT_EQ(readFile.pos(), 10);
+	EXPECT_FALSE(readFile.eos());
+
+	readFile.seek(0, Common::ReadStream::CURRENT);
+	EXPECT_EQ(readFile.pos(), 10);
+	EXPECT_FALSE(readFile.eos());
 
     readFile.seek(0, Common::ReadStream::END);
     EXPECT_EQ(readFile.pos(), 512);
@@ -109,8 +121,12 @@ TEST_F(ReadFile, seek) {
     EXPECT_EQ(readFile.pos(), 507);
     EXPECT_FALSE(readFile.eos());
 
+	readFile.seek(0, Common::ReadStream::END);
+	EXPECT_EQ(readFile.pos(), 512);
+	EXPECT_TRUE(readFile.eos());
+
     readFile.seek(5, Common::ReadStream::END);
-    EXPECT_ANY_THROW(readFile.pos());
+    EXPECT_EQ(readFile.pos(), 517);
     EXPECT_TRUE(readFile.eos());
 }
 
