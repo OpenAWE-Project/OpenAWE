@@ -29,48 +29,7 @@ ObjectBinaryReadStreamV1::ObjectBinaryReadStreamV1(Common::ReadStream &stream, s
 
 Object ObjectBinaryReadStreamV1::readObject(ObjectType type, unsigned int version) {
 	Object object;
-	switch (type) {
-		case kRID: object = readRID(); break;
-		case kAABB: object = readAABB(); break;
-		case kStaticObject: object = readStaticObject(); break;
-		case kDynamicObject: object = readDynamicObject(version); break;
-		case kDynamicObjectScript: object = readDynamicObjectScript(version); break;
-		case kCellInfo: object = readCellInfo(); break;
-		case kAnimation: object = readAnimation(version); break;
-		case kSkeleton: object = readSkeleton(); break;
-		case kSkeletonSetup: object = readSkeletonSetup(); break;
-		case kNotebookPage: object = readNotebookPage(); break;
-		case kSound: object = readSound(); break;
-		case kCharacter: object = readCharacter(version); break;
-		case kCharacterClass: object = readCharacterClass(version); break;
-		case kCharacterScript: object = readCharacterScript(); break;
-		case kTaskDefinition: object = readTaskDefinition(version); break;
-		case kTaskContent: object = readTaskContent(); break;
-		case kScriptVariables: object = readScriptVariables(version); break;
-		case kScript: object = readScript(); break;
-		case kScriptInstance: object = readScriptInstance(); break;
-		case kPointLight: object = readPointLight(version); break;
-		case kAmbientLight: object = readAmbientLightInstance(); break;
-		case kFloatingScript: object = readFloatingScript(); break;
-		case kTrigger: object = readTrigger(version); break;
-		case kAreaTrigger: object = readAreaTrigger(); break;
-		case kAttachmentResources: object = readAttachmentResources(); break;
-		case kWaypoint: object = readWaypoint(); break;
-		case kAnimationParameters: object = readAnimationParameters(); break;
-		case kKeyframedObject: object = readKeyFramedObject(version); break;
-		case kKeyframe: object = readKeyFrame(); break;
-		case kKeyframeAnimation: object = readKeyFrameAnimation(); break;
-		case kKeyframer: object = readKeyFramer(); break;
-
-		case kFileInfoMetadata: object = readFileInfoMetadata(); break;
-		case kFoliageMeshMetadata: object = readFoliageMeshMetadata(); break;
-		case kHavokAnimationMetadata: object = readHavokAnimationMetadata(); break;
-		case kTextureMetadata: object = readTextureMetadata(); break;
-		case kParticleSystemMetadata: object = readParticleSystemMetadata(); break;
-		case kMeshMetadata: object = readMeshMetadata(); break;
-
-		default: throw Common::Exception("Unsupported content type");
-	}
+	ObjectStream::object(object, type, version);
 
 	return object;
 }

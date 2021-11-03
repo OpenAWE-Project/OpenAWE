@@ -74,6 +74,7 @@ struct Character {
 	std::string identifier;
 	glm::vec3 position;
 	glm::mat3 rotation;
+	std::vector<rid_t> resources;
 
 	rid_t meshResource;
 	rid_t fxaResource;
@@ -244,6 +245,7 @@ struct TaskDefinition {
 	glm::mat3 rotationPlayer;
 	glm::vec3 positionPlayer;
 	bool rootTask;
+	bool topLevelTask;
 	bool activateOnStartup;
 	std::vector<bool> activateOnStartupRound;
 	std::vector<GID> playerCharacter;
@@ -259,6 +261,7 @@ struct KeyFramer {
 	std::vector<ObjectID> keyFrames;
 	std::vector<ObjectID> keyFrameAnimations;
 	std::vector<rid_t> resources;
+	uint32_t initialKeyframe;
 };
 
 struct KeyFramedObject {
@@ -270,6 +273,10 @@ struct KeyFramedObject {
 	ObjectID keyFramer;
 	glm::mat3 rotation2;
 	glm::vec3 position2;
+	uint32_t flags;
+	std::vector<rid_t> resources;
+	std::string name;
+	std::string source;
 };
 
 struct KeyFrameAnimation {

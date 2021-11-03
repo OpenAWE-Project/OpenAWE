@@ -21,7 +21,7 @@
 #ifndef OPENAWE_OBJECTBINARYREADSTREAMV1_H
 #define OPENAWE_OBJECTBINARYREADSTREAMV1_H
 
-#include "src/awe/objectstream.h"
+#include "src/awe/objectbinaryreadstream.h"
 
 namespace AWE {
 

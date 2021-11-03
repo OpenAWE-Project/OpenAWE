@@ -36,7 +36,96 @@ namespace AWE {
 
 typedef std::any Object;
 
-class ObjectReadStream{
+class ObjectStream {
+protected:
+	void resourceID(rid_t &);
+	void boundBox(Common::BoundBox &aabb);
+	void staticObject(Templates::StaticObject &staticObject);
+	void dynamicObject(Templates::DynamicObject &dynamicObject, unsigned int version);
+	void dynamicObjectScript(Templates::DynamicObjectScript &dynamicObjectScript, unsigned int version);
+	void cellInfo(Templates::CellInfo &cellInfo);
+	void animation(Templates::Animation &animation, unsigned int version);
+	void skeleton(Templates::Skeleton &skeleton);
+	void skeletonSetup(Templates::SkeletonSetup &skeletonSetup);
+	void notebookPage(Templates::NotebookPage &notebookPage);
+	void sound(Templates::Sound &sound);
+	void character(Templates::Character &character, unsigned int version);
+	void characterScript(Templates::CharacterScript &characterScript);
+	void characterClass(Templates::CharacterClass &characterClass, unsigned int version);
+	void taskDefinition(Templates::TaskDefinition &taskDefinition, unsigned int version);
+	void taskContent(Templates::TaskContent &taskContent);
+	void scriptVariables(Templates::ScriptVariables &script, unsigned int version);
+	void script(Templates::Script &script);
+	void scriptInstance(Templates::ScriptInstance &scriptInstance);
+	void pointLight(Templates::PointLight &pointLight, unsigned int version);
+	void ambientLightInstance(Templates::AmbientLightInstance ambientLightInstance);
+	void floatingScript(Templates::FloatingScript floatingScript);
+	void trigger(Templates::Trigger &trigger, unsigned int version);
+	void areaTrigger(Templates::AreaTrigger &areaTrigger);
+	void attachmentResources(Templates::AttachmentResource &attachmentResource);
+	void waypoint(Templates::Waypoint &waypoint);
+	void animationParameters(Templates::AnimationParameters &animationParameters);
+	void keyFramedObject(Templates::KeyFramedObject &keyFramedObject, unsigned int version);
+	void keyFramer(Templates::KeyFramer &keyFramer);
+	void keyFrameAnimation(Templates::KeyFrameAnimation &keyFrameAnimation);
+	void keyFrame(Templates::KeyFrame &keyFrame);
+
+	void readFileInfoMetadata(Templates::FileInfoMetadata &fileInfoMetadata);
+	void foliageMeshMetadata(Templates::FoliageMeshMetadata foliageMeshMetadata);
+	void havokAnimationMetadata(Templates::HavokAnimationMetadata &havokAnimationMetadata);
+	void readMeshMetadata(Templates::MeshMetadata &meshMetadata);
+	void readParticleSystemMetadata(Templates::ParticleSystemMetadata particleSystemMetadata);
+	void textureMetadata(Templates::TextureMetadata &textureMetadata);
+
+	virtual void skip(size_t s) = 0;
+
+	virtual void variable(const std::string &name, bool &value) = 0;
+	virtual void variable(const std::string &name, int32_t &value) = 0;
+	virtual void variable(const std::string &name, uint32_t &value, bool bigEndian = false) = 0;
+	virtual void variable(const std::string &name, float &value) = 0;
+	virtual void variable(const std::string &name, std::string &value, bool dp) = 0;
+	virtual void variable(const std::string &name, glm::vec3 &value) = 0;
+	virtual void variable(const std::string &name, glm::mat3 &value) = 0;
+	virtual void variable(const std::string &name, GID &value) = 0;
+	virtual void variable(const std::string &name, ObjectID &value) = 0;
+	virtual void variable(const std::string &name, std::vector<bool> &value, size_t fixedSize) = 0;
+	virtual void variable(const std::string &name, std::vector<int32_t> &value) = 0;
+	virtual void variable(const std::string &name, std::vector<uint32_t> &value, bool dp) = 0;
+	virtual void variable(const std::string &name, std::vector<uint32_t> &value, size_t fixedSize) = 0;
+	virtual void variable(const std::string &name, std::vector<rid_t> &value) = 0;
+	virtual void variable(const std::string &name, std::vector<glm::vec2> &value) = 0;
+	virtual void variable(const std::string &name, std::vector<float> &value) = 0;
+	virtual void variable(const std::string &name, std::vector<ObjectID> &value) = 0;
+	virtual void variable(const std::string &name, std::vector<std::string> &value) = 0;
+	virtual void variable(const std::string &name, std::vector<std::string> &value, size_t fixedSize) = 0;
+
+	void object(Object &value, ObjectType type, unsigned int version);
+	virtual void object(const std::string &name, Object &value, ObjectType type) = 0;
+	virtual void objects(const std::string &name, std::vector<Object> &value, ObjectType type) = 0;
+
+private:
+	template<typename T> T& as(Object &o) {
+		if (!o.has_value())
+			o = std::make_any<T>();
+		return std::any_cast<T&>(o);
+	}
+
+	template<typename T> void object(const std::string &name, T &value, ObjectType type) {
+		Object o = value;
+		if (!o.has_value())
+			o = std::make_any<T>();
+		object(name, o, type);
+		value = std::any_cast<T>(o);
+	}
+
+	template<typename T> void objects(const std::string &name, std::vector<T> &values, ObjectType type) {
+		std::vector<Object> os;
+		std::copy(values.begin(), values.end(), std::back_inserter(os));
+		objects(name, os, type);
+	}
+};
+
+class ObjectReadStream : public ObjectStream {
 public:
 	virtual Object readObject(ObjectType type, unsigned int version = 0) = 0;
 
@@ -44,59 +133,7 @@ protected:
 	ObjectReadStream();
 };
 
-class ObjectBinaryReadStream : public ObjectReadStream {
-public:
-	ObjectBinaryReadStream(Common::ReadStream &stream);
-	ObjectBinaryReadStream(Common::ReadStream &stream, std::shared_ptr<DPFile> dp);
-
-protected:
-	std::shared_ptr<DPFile> _dp;
-	Common::ReadStream &_stream;
-
-	rid_t readRID();
-	Common::BoundBox readAABB();
-	Templates::StaticObject readStaticObject();
-	Templates::DynamicObject readDynamicObject(unsigned int version);
-	Templates::DynamicObjectScript readDynamicObjectScript(unsigned int version);
-	Templates::CellInfo readCellInfo();
-	Templates::Animation readAnimation(unsigned int version);
-	Templates::Skeleton readSkeleton();
-	Templates::SkeletonSetup readSkeletonSetup();
-	Templates::NotebookPage readNotebookPage();
-	Templates::Sound readSound();
-	Templates::Character readCharacter(unsigned int version);
-	Templates::CharacterScript readCharacterScript();
-	Templates::CharacterClass readCharacterClass(unsigned int version);
-	Templates::TaskDefinition readTaskDefinition(unsigned int version);
-	Templates::TaskContent readTaskContent();
-	Templates::ScriptVariables readScriptVariables(unsigned int version);
-	Templates::Script readScript();
-	Templates::ScriptInstance readScriptInstance();
-	Templates::PointLight readPointLight(unsigned int version);
-	Templates::AmbientLightInstance readAmbientLightInstance();
-	Templates::FloatingScript readFloatingScript();
-	Templates::Trigger readTrigger(unsigned int version);
-	Templates::AreaTrigger readAreaTrigger();
-	Templates::AttachmentResource readAttachmentResources();
-	Templates::Waypoint readWaypoint();
-	Templates::AnimationParameters readAnimationParameters();
-	Templates::KeyFramedObject readKeyFramedObject(unsigned int version);
-	Templates::KeyFramer readKeyFramer();
-	Templates::KeyFrameAnimation readKeyFrameAnimation();
-	Templates::KeyFrame readKeyFrame();
-
-	Templates::FileInfoMetadata readFileInfoMetadata();
-	Templates::FoliageMeshMetadata readFoliageMeshMetadata();
-	Templates::HavokAnimationMetadata readHavokAnimationMetadata();
-	Templates::MeshMetadata readMeshMetadata();
-	Templates::ParticleSystemMetadata readParticleSystemMetadata();
-	Templates::TextureMetadata readTextureMetadata();
-
-	GID readGID();
-	glm::vec3 readPosition();
-	glm::mat3 readRotation();
-};
-
 }
 
 #endif //OPENAWE_OBJECTSTREAM_H
+

@@ -84,39 +84,7 @@ Object ObjectBinaryReadStreamV2::readObject(ObjectType type, unsigned int versio
 		version = tagVersion;
 
 	Object object;
-	switch (type) {
-		case kRID: object = readRID(); break;
-		case kStaticObject: object = readStaticObject(); break;
-		case kDynamicObject: object = readDynamicObject(version); break;
-		case kDynamicObjectScript: object = readDynamicObjectScript(version); break;
-		case kCellInfo: object = readCellInfo(); break;
-		case kAnimation: object = readAnimation(version); break;
-		case kSkeleton: object = readSkeleton(); break;
-		case kSkeletonSetup: object = readSkeletonSetup(); break;
-		case kNotebookPage: object = readNotebookPage(); break;
-		case kSound: object = readSound(); break;
-		case kCharacter: object = readCharacter(version); break;
-		case kCharacterClass: object = readCharacterClass(version); break;
-		case kCharacterScript: object = readCharacterScript(); break;
-		case kTaskDefinition: object = readTaskDefinition(version); break;
-		case kTaskContent: object = readTaskContent(); break;
-		case kScriptVariables: object = readScriptVariables(version); break;
-		case kScript: object = readScript(); break;
-		case kScriptInstance: object = readScriptInstance(); break;
-		case kPointLight: object = readPointLight(version); break;
-		case kAmbientLight: object = readAmbientLightInstance(); break;
-		case kFloatingScript: object = readFloatingScript(); break;
-		case kTrigger: object = readTrigger(version); break;
-		case kAreaTrigger: object = readAreaTrigger(); break;
-		case kAttachmentResources: object = readAttachmentResources(); break;
-		case kWaypoint: object = readWaypoint(); break;
-		case kAnimationParameters: object = readAnimationParameters(); break;
-		case kKeyframedObject: object = readKeyFramedObject(version); break;
-		case kKeyframer: object = readKeyFramer(); break;
-		case kKeyframeAnimation: object = readKeyFrameAnimation(); break;
-		case kKeyframe: object = readKeyFrame(); break;
-		default: _stream.skip(size - 20);
-	}
+	ObjectStream::object(object, type, version);
 
 	magicValue = _stream.readUint32LE();
 	if (magicValue != kDeadBeef)

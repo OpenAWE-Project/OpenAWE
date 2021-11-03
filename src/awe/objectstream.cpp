@@ -25,6 +25,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "src/common/strutil.h"
+#include "src/common/exception.h"
 
 #include "src/awe/objectstream.h"
 
@@ -35,792 +36,605 @@ namespace AWE {
 ObjectReadStream::ObjectReadStream() {
 }
 
-ObjectBinaryReadStream::ObjectBinaryReadStream(Common::ReadStream &stream) : _stream(stream) {
+void ObjectStream::resourceID(rid_t &rid) {
+	variable("rid", rid, true);
 }
 
-ObjectBinaryReadStream::ObjectBinaryReadStream(Common::ReadStream &stream, std::shared_ptr<DPFile> dp) : _stream(stream), _dp(dp) {
+void ObjectStream::boundBox(Common::BoundBox &aabb) {
+	variable("xmin", aabb.xmin);
+	variable("ymin", aabb.ymin);
+	variable("zmin", aabb.zmin);
+	variable("xmax", aabb.xmax);
+	variable("ymax", aabb.ymax);
+	variable("zmax", aabb.zmax);
 }
 
-rid_t ObjectBinaryReadStream::readRID() {
-	return _stream.readUint32BE();
+void ObjectStream::staticObject(Templates::StaticObject &staticObject) {
+	variable("rotation", staticObject.rotation);
+	variable("position", staticObject.position);
+
+	object("physicsResource", staticObject.physicsResource, kRID);
+	skip(4);
+	object("meshResource", staticObject.meshResource, kRID);
+	skip(17);
 }
 
-Common::BoundBox ObjectBinaryReadStream::readAABB() {
-	Common::BoundBox aabb{};
-
-	aabb.xmin = _stream.readIEEEFloatLE();
-	aabb.ymin = _stream.readIEEEFloatLE();
-	aabb.zmin = _stream.readIEEEFloatLE();
-	aabb.xmax = _stream.readIEEEFloatLE();
-	aabb.ymax = _stream.readIEEEFloatLE();
-	aabb.zmax = _stream.readIEEEFloatLE();
-
-	return aabb;
-}
-
-Templates::StaticObject ObjectBinaryReadStream::readStaticObject() {
-	Templates::StaticObject staticObject{};
-
-	staticObject.rotation = readRotation();
-	staticObject.position = readPosition();
-
-	staticObject.physicsResource = std::any_cast<rid_t>(readObject(kRID));
-	_stream.skip(4);
-	staticObject.meshResource = std::any_cast<rid_t>(readObject(kRID));
-	_stream.skip(17);
-
-	return staticObject;
-}
-
-Templates::DynamicObject ObjectBinaryReadStream::readDynamicObject(unsigned int version) {
+void ObjectStream::dynamicObject(Templates::DynamicObject &dynamicObject, unsigned int version) {
 	/*
 	 * Versions:
 	 * Alan Wake: 11
 	 * Alan Wakes American Nightmare: 12
 	 */
-	Templates::DynamicObject dynamicObject{};
+	variable("rotation", dynamicObject.rotation);
+	variable("position", dynamicObject.position);
 
-	dynamicObject.rotation = readRotation();
-	dynamicObject.position = readPosition();
+	object("physicsResource", dynamicObject.physicsResource, kRID);
+	variable("resourcePath", dynamicObject.resourcePath, true);
+	object("meshResource", dynamicObject.meshResource, kRID);
+	variable("identifier", dynamicObject.identifier, true);
 
-	dynamicObject.physicsResource = std::any_cast<rid_t>(readObject(kRID));
-	dynamicObject.resourcePath = _dp->getString(_stream.readUint32LE());
-	dynamicObject.meshResource = std::any_cast<rid_t>(readObject(kRID));
-	dynamicObject.identifier = _dp->getString(_stream.readUint32LE());
+	uint32_t unknown1, unknown2, unknown3;
+	variable("", unknown1);
+	variable("", unknown2);
+	variable("", unknown3);
 
-	unsigned int unknown1 = _stream.readUint32LE();
-	unsigned int unknown2 = _stream.readUint32LE();
-	unsigned int unknown3 = _stream.readUint32LE();
-
-	_stream.skip(4);
+	skip(4);
 	//std::string name3 = _dp->getString(cid.readUint32LE());
 
-	dynamicObject.gid = readGID();
+	variable("gid", dynamicObject.gid);
 
 	if (version == 12)
-		_stream.skip(13);
+		skip(13);
 	else // version == 11
-		_stream.skip(9);
-
-	return dynamicObject;
+		skip(9);
 }
 
-Templates::DynamicObjectScript ObjectBinaryReadStream::readDynamicObjectScript(unsigned int version) {
-	Templates::DynamicObjectScript dynamicObject{};
+void ObjectStream::dynamicObjectScript(Templates::DynamicObjectScript &dynamicObjectScript, unsigned int version) {
+	variable("gid", dynamicObjectScript.gid);
+	object("scriptVariables", dynamicObjectScript.script, kScriptVariables);
 
-	dynamicObject.gid = readGID();
-	dynamicObject.script = std::any_cast<Templates::ScriptVariables>(readObject(kScriptVariables));
-
-	uint32_t value = _stream.readUint32LE();
-	_stream.skip(4);
-
-	return dynamicObject;
+	uint32_t value;
+	variable("", value);
+	skip(4);
 }
 
-Templates::CellInfo ObjectBinaryReadStream::readCellInfo() {
-	Templates::CellInfo cellInfo{};
+void ObjectStream::cellInfo(Templates::CellInfo &cellInfo) {
+	variable("x", cellInfo.x);
+	variable("y", cellInfo.y);
 
-	cellInfo.x = _stream.readUint32LE();
-	cellInfo.y = _stream.readUint32LE();
-
-	cellInfo.lowDetailFoliageCount = _stream.readUint32LE();
-	cellInfo.highDetailFoliageCount = _stream.readUint32LE();
-
-	return cellInfo;
+	variable("lowDetailFoliageCount", cellInfo.lowDetailFoliageCount);
+	variable("highDetailFoliageCount", cellInfo.highDetailFoliageCount);
 }
 
-Templates::Animation ObjectBinaryReadStream::readAnimation(unsigned int version) {
+void ObjectStream::animation(Templates::Animation &animation, unsigned int version) {
 	/*
 	 * Versions:
 	 * Alan Wake: 17
 	 * Alan Wakes American Nightmare: 19
 	 */
-	Templates::Animation animation{};
+	variable("gid", animation.gid);
+	variable("skeletonGid", animation.skeletonGid);
+	variable("id", animation.id);
 
-	animation.gid = readGID();
-	animation.skeletonGid = readGID();
-	animation.id = _stream.readUint32LE();
-
-	animation.rid = std::any_cast<rid_t>(readObject(kRID));
+	object<rid_t>("animationResource", animation.rid, kRID);
 
 	if (version == 17)
-		_stream.skip(1);
+		skip(1);
 
-	animation.name = _dp->getString(_stream.readUint32LE());
+	variable("name", animation.name, true);
 
-	_stream.skip(15);
-
-	return animation;
+	skip(15);
 }
 
-Templates::Skeleton ObjectBinaryReadStream::readSkeleton() {
-	Templates::Skeleton skeleton{};
+void ObjectStream::skeleton(Templates::Skeleton &skeleton) {
+	variable("gid", skeleton.gid);
+	variable("name", skeleton.name, true);
 
-	skeleton.gid = readGID();
-	skeleton.name = _dp->getString(_stream.readUint32LE());
+	object("resource", skeleton.rid, kRID);
 
-	skeleton.rid = std::any_cast<rid_t>(readObject(kRID));
-
-	skeleton.id = _stream.readUint32LE();
-
-	return skeleton;
+	variable("id", skeleton.id);
 }
 
-Templates::SkeletonSetup ObjectBinaryReadStream::readSkeletonSetup() {
-	Templates::SkeletonSetup skeletonSetup{};
+void ObjectStream::skeletonSetup(Templates::SkeletonSetup &skeletonSetup) {
+	variable("rootBoneGid", skeletonSetup.rootBoneGid);
+	variable("identifier", skeletonSetup.identifier, true);
 
-	skeletonSetup.rootBoneGid = readGID();
-	skeletonSetup.identifier = _dp->getString(_stream.readUint32LE());
-
-	_stream.skip(7);
-
-	return Templates::SkeletonSetup();
+	skip(7);
 }
 
-Templates::NotebookPage ObjectBinaryReadStream::readNotebookPage() {
-	Templates::NotebookPage notebookPage{};
-
-	notebookPage.gid = readGID();
-
-	notebookPage.name = _dp->getString(_stream.readUint32LE());
+void ObjectStream::notebookPage(Templates::NotebookPage &notebookPage) {
+	variable("gid", notebookPage.gid);
+	variable("name", notebookPage.name, true);
 
 	// Probably GID?
-	_stream.skip(8);
+	skip(8);
 
-	notebookPage.episodeNumber = _stream.readUint32LE();
-	notebookPage.id = _stream.readUint32LE();
-
-	notebookPage.onlyInNightmare = _stream.readByte() == 1;
-
-	return notebookPage;
+	variable("episodeNumber", notebookPage.episodeNumber);
+	variable("id", notebookPage.id);
+	variable("onlyInNightmare", notebookPage.onlyInNightmare);
 }
 
-Templates::Sound ObjectBinaryReadStream::readSound() {
-	Templates::Sound sound{};
+void ObjectStream::sound(Templates::Sound &sound) {
+	variable("gid", sound.gid);
+	variable("threed", sound.threed);
+	variable("streamed", sound.streamed);
+	variable("looping", sound.looping);
+	variable("volume", sound.volume);
+	variable("hotspot", sound.hotspot);
+	variable("falloff", sound.falloff);
+	variable("volumeVariation", sound.volumeVariation);
+	variable("frequencyVariation", sound.frequencyVariation);
 
-	sound.gid = readGID();
-	sound.threed = _stream.readByte() == 1;
-	sound.streamed = _stream.readByte() == 1;
-	sound.looping = _stream.readUint32LE();
-	sound.volume = _stream.readIEEEFloatLE();
-	sound.hotspot = _stream.readIEEEFloatLE();
-	sound.falloff = _stream.readIEEEFloatLE();
-	sound.volumeVariation = _stream.readIEEEFloatLE();
-	sound.frequencyVariation = _stream.readIEEEFloatLE();
+	skip(0x26);
 
-	_stream.skip(0x26);
+	object("resource", sound.rid, kRID);
 
-	sound.rid = std::any_cast<rid_t>(readObject(kRID));
-
-	_stream.skip(7);
-
-	return sound;
+	skip(7);
 }
 
-Templates::Character ObjectBinaryReadStream::readCharacter(unsigned int version) {
+void ObjectStream::character(Templates::Character &character, unsigned int version) {
 	/*
 	 * Versions:
 	 * Alan Wake: 13
 	 * Alan Wakes American Nightmare: 17
 	 */
-	Templates::Character character{};
-
-	character.gid = readGID();
-	character.classGid = readGID();
+	variable("gid", character.gid);
+	variable("classGid", character.classGid);
 
 	if (version == 13)
-		_stream.skip(1);
+		skip(1);
 
 	// Mesh
-	character.meshResource = std::any_cast<rid_t>(readObject(kRID));
+	object("meshResource", character.meshResource, kRID);
 
-	character.rotation = readRotation();
-	character.position = readPosition();
+	variable("rotation", character.rotation);
+	variable("position", character.position);
 
-	uint32_t numResources = _stream.readUint32LE();
-	std::vector<rid_t> rids(numResources);
-	for (auto &rid : rids) {
-		rid = std::any_cast<rid_t>(readObject(kRID));
-	}
+	objects("resources", character.resources, kRID);
 
 	if (version == 17) {
-		_stream.skip(4);
+		skip(4);
 
-		uint32_t identifierLength = _stream.readUint32LE();
-		character.identifier = _stream.readFixedSizeString(identifierLength);
+		variable("identifier", character.identifier, false);
 
-		// Cloth
-		character.clothResource = std::any_cast<rid_t>(readObject(kRID));
+		object("clothResource", character.clothResource, kRID);
 
 		// TODO: Cloth Parameters
-		_stream.skip(48);
+		skip(48);
 
 		// FaceFX
-		character.fxaResource = std::any_cast<rid_t>(readObject(kRID));
+		object("fxaResource", character.fxaResource, kRID);
 
-		_stream.skip(1);
+		skip(1);
 
 		// Animgraphs
-		character.animgraphResource = std::any_cast<rid_t>(readObject(kRID));
+		object("animgraphResource", character.animgraphResource, kRID);
 
-		_stream.skip(9);
+		skip(9);
 
 		// Additional resources
-		const auto resource1 = std::any_cast<rid_t>(readObject(kRID));
-		const auto resource2 = std::any_cast<rid_t>(readObject(kRID));
-		const auto resource3 = std::any_cast<rid_t>(readObject(kRID));
-		const auto resource4 = std::any_cast<rid_t>(readObject(kRID));
+		rid_t resource1, resource2, resource3, resource4;
+		object("", resource1, kRID);
+		object("", resource2, kRID);
+		object("", resource3, kRID);
+		object("", resource4, kRID);
 	} else { // Version 13
-		_stream.skip(0x3A);
+		skip(0x3A);
 	}
-
-	return character;
 }
 
-Templates::CharacterScript ObjectBinaryReadStream::readCharacterScript() {
-	Templates::CharacterScript characterScript{};
+void ObjectStream::characterScript(Templates::CharacterScript &characterScript) {
+	variable("gid", characterScript.gid);
+	object("script", characterScript.script, kScriptVariables);
 
-	characterScript.gid = readGID();
-	characterScript.script = std::any_cast<Templates::ScriptVariables>(readObject(kScriptVariables));
-
-	_stream.skip(8); // Always 0?
-
-	return characterScript;
+	skip(8); // Always 0?
 }
 
-Templates::CharacterClass ObjectBinaryReadStream::readCharacterClass(unsigned int version) {
+void ObjectStream::characterClass(Templates::CharacterClass &characterClass, unsigned int version) {
 	/*
 	 * Versions:
 	 * Alan Wake: 38
 	 * Alan Wakes American Nightmare: 42
 	 */
-	Templates::CharacterClass characterClass{};
+	variable("gid", characterClass.gid);
+	variable("name", characterClass.name, true);
 
-	characterClass.gid = readGID();
-	characterClass.name = _dp->getString(_stream.readUint32LE());
-
-	uint32_t numBaseClasses = 4;
 	if (version == 42)
-		numBaseClasses = _stream.readUint32LE();
+		variable("baseClasses", characterClass.baseClasses);
+	else // version == 38
+		variable("baseClasses", characterClass.baseClasses, 4);
 
-	for (int i = 0; i < numBaseClasses; ++i) {
-		const auto baseClass = _dp->getString(_stream.readUint32LE());
-		if (!baseClass.empty())
-			characterClass.baseClasses.emplace_back(baseClass);
+	variable("skeletonGid", characterClass.skeletonGid);
+	if (version == 42) {
+		variable("parentName", characterClass.parentName, true);
+		variable("capsuleHeight", characterClass.capsuleHeight);
+		variable("capsuleRadius", characterClass.capsuleRadius);
+		variable("lethalDoseOfHitEnergy", characterClass.lethalDoseOfHitEnergy);
+		variable("healthRecoveryStartDelay", characterClass.healthRecoveryStartDelay);
+		variable("healthRecoveryTime", characterClass.healthRecoveryTime);
+		variable("shadowShieldStrength", characterClass.shadowShieldStrength);
 	}
 
-	characterClass.skeletonGid = readGID();
-	if (version == 42) {
-		characterClass.parentName = _dp->getString(_stream.readUint32LE());
-		characterClass.capsuleHeight = _stream.readIEEEFloatLE();
-		characterClass.capsuleRadius = _stream.readIEEEFloatLE();
-		characterClass.lethalDoseOfHitEnergy = _stream.readIEEEFloatLE();
-		characterClass.healthRecoveryStartDelay = _stream.readIEEEFloatLE();
-		characterClass.healthRecoveryTime = _stream.readIEEEFloatLE();
-		characterClass.shadowShieldStrength = _stream.readIEEEFloatLE();
-	}
-
-	characterClass.strongShield = _stream.readByte() != 0;
-	characterClass.kickbackMultiplier = _stream.readIEEEFloatLE();
-	characterClass.timeBetweenDazzles = _stream.readIEEEFloatLE();
+	variable("strongShield", characterClass.strongShield);
+	variable("kickbackMultiplier", characterClass.kickbackMultiplier);
+	variable("timeBetweenDazzles", characterClass.timeBetweenDazzles);
 
 	if (version == 42) {
-		unsigned int numAnimations = _stream.readUint32LE();
-		std::vector<uint32_t> values = _dp->getValues(_stream.readUint32LE(), numAnimations);
-		for (const auto &value : values) {
-			characterClass.animations.emplace_back(ObjectID(value));
-		}
-
-		characterClass.animationParameters = std::any_cast<Templates::AnimationParameters>(readObject(kAnimationParameters));
-
-		characterClass.type = _dp->getString(_stream.readUint32LE());
-		_stream.skip(8);
+		variable("animations", characterClass.animations);
+		object("animationParameters", characterClass.animationParameters, kAnimationParameters);
+		variable("type", characterClass.type, true);
+		skip(8);
 	} else {
-		_stream.skip(0x49);
+		skip(0x49);
 	}
-
-	return characterClass;
 }
 
-Templates::TaskDefinition ObjectBinaryReadStream::readTaskDefinition(unsigned int version) {
+void ObjectStream::taskDefinition(Templates::TaskDefinition &taskDefinition, unsigned int version) {
 	/*
 	 * Versions:
 	 * Alan Wake: 11
 	 * Alan Wakes American Nightmare: 15
 	 */
-	Templates::TaskDefinition taskDefinition{};
+	variable("name", taskDefinition.name, true);
 
-	taskDefinition.name = _dp->getString(_stream.readUint32LE());
+	std::vector<uint32_t> vals;
+	variable("", vals);
 
-	unsigned int count = _stream.readUint32LE();
-	uint32_t offset = _stream.readUint32LE();
-	auto values = _dp->getValues(offset, count);
+	skip(8); // Another offset and count into the dp file
 
-	_stream.skip(8); // Another offset and count into the dp file
+	variable("rootTask", taskDefinition.rootTask);
+	variable("topLevelTask", taskDefinition.topLevelTask);
 
-	bool rootTask = _stream.readByte() != 0; // Starting Task?
-	bool topLevelTask = _stream.readByte() != 0;
+	variable("rotation", taskDefinition.rotation);
+	variable("position", taskDefinition.position);
 
-	taskDefinition.rotation = readRotation();
-	taskDefinition.position = readPosition();
-
-	taskDefinition.activateOnStartup = _stream.readByte() != 0;
+	variable("activateOnStartup", taskDefinition.activateOnStartup);
 	if (version == 15) {
-		taskDefinition.activateOnStartupRound.resize(3);
-		taskDefinition.activateOnStartupRound[0] = _stream.readByte() != 0;
-		taskDefinition.activateOnStartupRound[1] = _stream.readByte() != 0;
-		taskDefinition.activateOnStartupRound[2] = _stream.readByte() != 0;
+		variable("activateOnStartupRound", taskDefinition.activateOnStartupRound, 3);
 	}
-	bool gidlessTask = _stream.readByte() != 0;
+	bool gidlessTask = false;
+	variable("", gidlessTask);
 
-	taskDefinition.gid = readGID();
+	variable("gid", taskDefinition.gid);
 
-	bool b2 = _stream.readByte() != 0; // If it is a non zero position?
+	bool b2 = false; // If it is a non zero position?
+	variable("", b2);
 
 	if (version == 15) {
-		taskDefinition.rotationPlayer = readRotation();
-		taskDefinition.positionPlayer = readPosition();
+		variable("rotationPlayer", taskDefinition.rotationPlayer);
+		variable("positionPlayer", taskDefinition.positionPlayer);
 
 		taskDefinition.playerCharacter.resize(3);
-		taskDefinition.playerCharacter[0] = readGID();
-		_stream.skip(8);
-		taskDefinition.cinematic = _dp->getString(_stream.readUint32LE());
-		taskDefinition.playerCharacter[1] = readGID();
-		taskDefinition.playerCharacter[2] = readGID();
+		variable("playerCharacter1", taskDefinition.playerCharacter[0]);
+		skip(8);
+		variable("cinematic", taskDefinition.cinematic, true);
+		variable("playerCharacter2", taskDefinition.playerCharacter[1]);
+		variable("playerCharacter3", taskDefinition.playerCharacter[2]);
 	} else {
-		_stream.skip(0x44);
+		skip(0x44);
 	}
-
-	return taskDefinition;
 }
 
-Templates::ScriptVariables ObjectBinaryReadStream::readScriptVariables(unsigned int version) {
-	Templates::ScriptVariables script{};
-
-	script.codeSize = _stream.readUint32LE();
-	script.offsetCode = _stream.readUint32LE();
-	script.numHandlers = _stream.readUint32LE();
-	script.offsetHandlers = _stream.readUint32LE();
-	script.numVariables = _stream.readUint32LE();
-	script.offsetVariables = _stream.readUint32LE();
-	script.numSignals = _stream.readUint32LE();
-	script.offsetSignals = _stream.readUint32LE();
+void ObjectStream::scriptVariables(Templates::ScriptVariables &script, unsigned int version) {
+	variable("codeSize", script.codeSize);
+	variable("offsetCode", script.offsetCode);
+	variable("numHandlers", script.numHandlers);
+	variable("offsetHandlers", script.offsetHandlers);
+	variable("numVariables", script.numVariables);
+	variable("offsetVariables", script.offsetVariables);
+	variable("numSignals", script.numSignals);
+	variable("offsetSignals", script.offsetSignals);
 
 	if (version >= 2) {
-		script.numDebugEntries = _stream.readUint32LE();
-		script.offsetDebugEntries = _stream.readUint32LE();
+		variable("numDebugEntries", script.numDebugEntries);
+		variable("offsetDebugEntries", script.offsetDebugEntries);
 	}
-
-	return script;
 }
 
-Templates::Script ObjectBinaryReadStream::readScript() {
-	Templates::Script script{};
-
-	script.gid = readGID();
-	script.script = std::any_cast<Templates::ScriptVariables>(readObject(kScriptVariables));
-
-	return script;
+void ObjectStream::script(Templates::Script &script) {
+	variable("gid", script.gid);
+	object("script", script.script, kScriptVariables);
 }
 
-Templates::ScriptInstance ObjectBinaryReadStream::readScriptInstance() {
-	Templates::ScriptInstance scriptInstance{};
+void ObjectStream::scriptInstance(Templates::ScriptInstance &scriptInstance) {
+	variable("gid2", scriptInstance.gid2);
+	variable("gid", scriptInstance.gid);
 
-	scriptInstance.gid2 = readGID();
-	scriptInstance.gid = readGID();
-
-	scriptInstance.rotation = readRotation();
-	scriptInstance.position = readPosition();
-
-	return scriptInstance;
+	variable("rotation", scriptInstance.rotation);
+	variable("position", scriptInstance.position);
 }
 
-Templates::PointLight ObjectBinaryReadStream::readPointLight(unsigned int version) {
+void ObjectStream::pointLight(Templates::PointLight &pointLight, unsigned int version) {
 	/*
      * Versions:
      * Alan Wake: 11
      * Alan Wakes American Nightmare: 13
      */
-	Templates::PointLight pointLight{};
-
-	pointLight.gid = readGID();
+	variable("gid", pointLight.gid);
 
 	if (version == 13) {
-		pointLight.gid2 = readGID();
+		variable("gid2", pointLight.gid);
 
-		pointLight.rotation = readRotation();
-		pointLight.position = readPosition();
+		variable("rotation", pointLight.rotation);
+		variable("position", pointLight.position);
 
-		float val1 = _stream.readIEEEFloatLE();
-		float val2 = _stream.readIEEEFloatLE();
-		float val3 = _stream.readIEEEFloatLE();
-		float val4 = _stream.readIEEEFloatLE();
+		float val1, val2, val3, val4, val5;
+		variable("", val1);
+		variable("", val2);
+		variable("", val3);
+		variable("", val4);
 
-		_stream.skip(10);
+		skip(10);
 
-		pointLight.meshRid = std::any_cast<rid_t>(readObject(kRID));
-		pointLight.staticShadowMapRid = std::any_cast<rid_t>(readObject(kRID));
+		object("meshResource", pointLight.meshRid, kRID);
+		object("staticShadowMapRsource", pointLight.staticShadowMapRid, kRID);
 
-		float val5 = _stream.readIEEEFloatLE();
+		variable("", val5);
 
-		_stream.skip(70);
+		skip(70);
 	} else { // Version 11
-		_stream.skip(0x94);
+		skip(0x94);
 	}
-
-	return pointLight;
 }
 
-Templates::AmbientLightInstance ObjectBinaryReadStream::readAmbientLightInstance() {
-	Templates::AmbientLightInstance ambientLightInstance{};
+void ObjectStream::ambientLightInstance(Templates::AmbientLightInstance ambientLightInstance) {
+	variable("scriptGid", ambientLightInstance.scriptGid);
+	variable("gid", ambientLightInstance.scriptGid);
+	variable("position", ambientLightInstance.position);
 
-	ambientLightInstance.gid = readGID();
-	ambientLightInstance.scriptGid = readGID();
-	ambientLightInstance.position = readPosition();
+	variable("color", ambientLightInstance.color);
 
-	ambientLightInstance.color.r = _stream.readIEEEFloatLE();
-	ambientLightInstance.color.g = _stream.readIEEEFloatLE();
-	ambientLightInstance.color.b = _stream.readIEEEFloatLE();
-
-	ambientLightInstance.decay = _stream.readIEEEFloatLE();
-	ambientLightInstance.autoStart = _stream.readByte() != 0;
-	ambientLightInstance.intensity = _stream.readIEEEFloatLE();
-
-	return ambientLightInstance;
+	variable("decay", ambientLightInstance.decay);
+	variable("autoStart", ambientLightInstance.autoStart);
+	variable("intensity", ambientLightInstance.intensity);
 }
 
-Templates::FloatingScript ObjectBinaryReadStream::readFloatingScript() {
-	Templates::FloatingScript floatingScript{};
-
-	floatingScript.gid = readGID();
-	floatingScript.script = std::any_cast<Templates::ScriptVariables>(readObject(kScriptVariables));
-	floatingScript.rotation = readRotation();
-	floatingScript.position = readPosition();
-
-	return floatingScript;
+void ObjectStream::floatingScript(Templates::FloatingScript floatingScript) {
+	variable("gid", floatingScript.gid);
+	object("script", floatingScript.script, kScriptVariables);
+	variable("rotation", floatingScript.rotation);
+	variable("position", floatingScript.position);
 }
 
-Templates::Trigger ObjectBinaryReadStream::readTrigger(unsigned int version) {
+void ObjectStream::trigger(Templates::Trigger &trigger, unsigned int version) {
 	/*
      * Versions:
      * Alan Wake: 18
      * Alan Wakes American Nightmare: 20
      */
-	Templates::Trigger trigger{};
+	variable("gid2", trigger.gid2);
+	variable("gid", trigger.gid);
 
-	trigger.gid2 = readGID();
-	trigger.gid = readGID();
+	skip(4); // Priority?
 
-	_stream.skip(4); // Priority?
+	variable("identifier", trigger.identifier, true);
 
-	trigger.identifier = _dp->getString(_stream.readUint32LE());
+	skip(4);
 
-	_stream.skip(4);
+	variable("localeString", trigger.localeString, true);
 
-	trigger.localeString = _dp->getString(_stream.readUint32LE());
-
-	_stream.skip(12);
-	unsigned int count = _stream.readUint32LE();
-	auto values = _dp->getValues(_stream.readUint32LE(), count);
+	skip(12);
+	std::vector<int32_t> values;
+	variable("", values);
 
 	if (version == 20)
-		_stream.skip(7);
+		skip(7);
 	else
-		_stream.skip(3);
-
-	return trigger;
+		skip(3);
 }
 
-Templates::AreaTrigger ObjectBinaryReadStream::readAreaTrigger() {
-	Templates::AreaTrigger  areaTrigger{};
+void ObjectStream::areaTrigger(Templates::AreaTrigger &areaTrigger) {
+	variable("gid", areaTrigger.gid);
 
-	areaTrigger.gid = readGID();
+	uint32_t value1;
+	variable("", value1);
 
-	uint32_t value1 = _stream.readUint32LE();
+	variable("identifier", areaTrigger.identifier, true);
+	variable("positions", areaTrigger.positions);
 
-	areaTrigger.identifier = _dp->getString(_stream.readUint32LE());
-
-	uint32_t numPositions = _stream.readUint32LE();
-	areaTrigger.positions = _dp->getPositions2D(_stream.readUint32LE(), numPositions);
-
-	_stream.skip(32);
-
-	return areaTrigger;
+	skip(32);
 }
 
-Templates::TaskContent ObjectBinaryReadStream::readTaskContent() {
-	Templates::TaskContent taskContent{};
-
-	unsigned int value1 = _stream.readUint32LE();
-	std::string str1 = _dp->getString(_stream.readUint32LE());
-	unsigned int value2 = _stream.readUint32LE();
+void ObjectStream::taskContent(Templates::TaskContent &taskContent) {
+	skip(12);
 
 	// List of rids
-	unsigned int numRids = _stream.readUint32LE();
-	uint32_t offsetRids = _stream.readUint32LE();
-	taskContent.rids = _dp->getValues(offsetRids, numRids);
+	variable("resources", taskContent.rids);
 
 	// List of gids + 8byte padding
-	unsigned int value4 = _stream.readUint32LE();
-	std::string str3 = _dp->getString(_stream.readUint32LE());
+	skip(8);
 
 	// Unknown container
-	readObject(kAttachmentResources);
+	Templates::AttachmentResource attachmentResource;
+	object("", attachmentResource, kAttachmentResources);
 
-	unsigned int count = _stream.readUint32LE();
-	for (int i = 0; i < count; ++i) {
-		_stream.readUint32LE();
-	}
-
-	return taskContent;
+	std::vector<uint32_t> values;
+	variable("", values, false);
 }
 
-Templates::AttachmentResource ObjectBinaryReadStream::readAttachmentResources() {
-	Templates::AttachmentResource attachmentResource{};
-
+void ObjectStream::attachmentResources(Templates::AttachmentResource &attachmentResource) {
 	// TODO
-	_stream.skip(24);
-
-	return attachmentResource;
+	skip(24);
 }
 
-Templates::Waypoint ObjectBinaryReadStream::readWaypoint() {
-	Templates::Waypoint waypoint{};
-
-	waypoint.gid = readGID();
-	waypoint.rotation = readRotation();
-	waypoint.position = readPosition();
-
-	return waypoint;
+void ObjectStream::waypoint(Templates::Waypoint &waypoint) {
+	variable("gid", waypoint.gid);
+	variable("rotation", waypoint.rotation);
+	variable("position", waypoint.position);
 }
 
-Templates::AnimationParameters ObjectBinaryReadStream::readAnimationParameters() {
-	Templates::AnimationParameters animationParameters{};
-
-	animationParameters.animationBlendTime = _stream.readIEEEFloatLE();
-	animationParameters.halfRotationTime = _stream.readIEEEFloatLE();
-	animationParameters.tiltGain = _stream.readIEEEFloatLE();
-	animationParameters.tiltRegression = _stream.readIEEEFloatLE();
-	animationParameters.tiltAngleRadians = _stream.readIEEEFloatLE();
-	animationParameters.tiltAgility = _stream.readIEEEFloatLE();
-	animationParameters.tiltScaleForward = _stream.readIEEEFloatLE();
-	animationParameters.tiltScaleBackwards = _stream.readIEEEFloatLE();
-	animationParameters.animationProfile = _stream.readUint32LE();
-
-	return animationParameters;
+void ObjectStream::animationParameters(Templates::AnimationParameters &animationParameters) {
+	variable("animationBlendTime", animationParameters.animationBlendTime);
+	variable("halfRotationTime", animationParameters.halfRotationTime);
+	variable("tiltGain", animationParameters.tiltGain);
+	variable("tiltRegression", animationParameters.tiltRegression);
+	variable("tiltAngleRadians", animationParameters.tiltAngleRadians);
+	variable("tiltAgility", animationParameters.tiltAgility);
+	variable("tiltScaleForward", animationParameters.tiltScaleForward);
+	variable("tiltScaleBackwards", animationParameters.tiltScaleBackwards);
+	variable("animationProfile", animationParameters.animationProfile);
 }
 
-Templates::KeyFramedObject ObjectBinaryReadStream::readKeyFramedObject(unsigned int version) {
+void ObjectStream::keyFramedObject(Templates::KeyFramedObject &keyFramedObject, unsigned int version) {
 	/*
 	 * Versions:
 	 * Alan Wake: 4
 	 * Alan Wakes American Nightmare: 5
 	 */
-	Templates::KeyFramedObject keyFramedObject{};
+	variable("rotation", keyFramedObject.rotation);
+	variable("position", keyFramedObject.position);
 
-	keyFramedObject.rotation = readRotation();
-	keyFramedObject.position = readPosition();
+	object("physicsResource", keyFramedObject.physicsResource, kRID);
+	variable("source", keyFramedObject.source, true);
+	object("meshResource", keyFramedObject.meshResource, kRID);
+	variable("name", keyFramedObject.name, true);
+	skip(8);
+	variable("resources", keyFramedObject.resources);
+	variable("gid", keyFramedObject.gid);
 
-	keyFramedObject.physicsResource = std::any_cast<rid_t>(readObject(kRID));
-	std::string source = _dp->getString(_stream.readUint32LE());
-	keyFramedObject.meshResource = std::any_cast<rid_t>(readObject(kRID));
-	std::string name = _dp->getString(_stream.readUint32LE());
-	_stream.skip(8);
-	const uint32_t numRids = _stream.readUint32LE();
-	std::vector<rid_t> rids = _dp->getValues(_stream.readUint32LE(), numRids);
-	keyFramedObject.gid = readGID();
-
-	keyFramedObject.keyFramer = _stream.readUint32LE();
-	_stream.skip(5);
+	variable("keyFramer", keyFramedObject.keyFramer);
+	skip(5);
 
 	if (version >= 5) {
-		keyFramedObject.rotation2 = readRotation();
-		keyFramedObject.position2 = readPosition();
+		variable("rotation2", keyFramedObject.rotation2);
+		variable("position2", keyFramedObject.position2);
 	} else {
 		keyFramedObject.rotation2 = glm::identity<glm::mat3>();
 		keyFramedObject.position2 = glm::zero<glm::vec3>();
 	}
-
-	return keyFramedObject;
 }
 
-Templates::KeyFramer ObjectBinaryReadStream::readKeyFramer() {
-	Templates::KeyFramer keyFramer{};
+void ObjectStream::keyFramer(Templates::KeyFramer &keyFramer) {
+	variable("gid", keyFramer.gid);
+	variable("keyFrames", keyFramer.keyFrames);
+	variable("keyFrameAnimations", keyFramer.keyFrameAnimations);
 
-	keyFramer.gid = readGID();
-	const uint32_t numKeyFrames = _stream.readUint32LE();
-	const auto keyFrames = _dp->getValues(_stream.readUint32LE(), numKeyFrames);
-	const uint32_t numKeyFrameAnimations = _stream.readUint32LE();
-	const auto keyFrameAnimations = _dp->getValues(_stream.readUint32LE(), numKeyFrameAnimations);
+	variable("parentKeyFramer", keyFramer.parentKeyFramer);
+	variable("initialKeyframe", keyFramer.initialKeyframe);
 
-	for (int i = 0; i < numKeyFrames; ++i) {
-		keyFramer.keyFrames.emplace_back(keyFrames[i]);
-	}
+	ObjectID oid;
+	variable("", oid);
 
-	for (int i = 0; i < numKeyFrameAnimations; ++i) {
-		keyFramer.keyFrameAnimations.emplace_back(keyFrameAnimations[i]);
-	}
-
-	keyFramer.parentKeyFramer = _stream.readUint32LE();
-	const auto val = _stream.readUint32LE();
-	assert(val < numKeyFrames);
-	const auto oid = _stream.readUint32LE();
-
-	const auto numResources = _stream.readUint32LE();
-	keyFramer.resources = _dp->getValues(_stream.readUint32LE(), numResources);
-	bool val1 = _stream.readByte();
-
-	return keyFramer;
+	variable("resources", keyFramer.resources);
+	bool val1 = false;
+	variable("", val1);
 }
 
-Templates::KeyFrameAnimation ObjectBinaryReadStream::readKeyFrameAnimation() {
-	Templates::KeyFrameAnimation keyFrameAnimation{};
-
-	keyFrameAnimation.gid = readGID();
-	keyFrameAnimation.startKeyFrame = _stream.readUint32LE();
-	keyFrameAnimation.endKeyFrame = _stream.readUint32LE();
-	keyFrameAnimation.length = _stream.readIEEEFloatLE();
+void ObjectStream::keyFrameAnimation(Templates::KeyFrameAnimation &keyFrameAnimation) {
+	variable("gid", keyFrameAnimation.gid);
+	variable("startKeyFrame", keyFrameAnimation.startKeyFrame);
+	variable("endKeyFrame", keyFrameAnimation.endKeyFrame);
+	variable("length", keyFrameAnimation.length);
 
 	// Unknown values
-	const auto num1 = _stream.readUint32LE();
-	const auto vals1 = _dp->getValues(_stream.readUint32LE(), num1);
-	const auto num2 = _stream.readUint32LE();
-	const auto vals2 = _dp->getFloats(_stream.readUint32LE(), num2);
-	const auto num3 = _stream.readUint32LE();
-	const auto vals3 = _dp->getFloats(_stream.readUint32LE(), num3);
+	std::vector<uint32_t> vals1;
+	std::vector<float> vals2, vals3;
 
-	keyFrameAnimation.animationResource = std::any_cast<rid_t>(readObject(kRID));
-	_stream.skip(4);
-	keyFrameAnimation.nextAnimation = readGID();
+	variable("", vals1);
+	variable("", vals2);
+	variable("", vals3);
 
-	return keyFrameAnimation;
+	object("animationResource", keyFrameAnimation.animationResource, kRID);
+	skip(4);
+	variable("nextAnimation", keyFrameAnimation.nextAnimation);
 }
 
-Templates::KeyFrame ObjectBinaryReadStream::readKeyFrame() {
-	Templates::KeyFrame keyFrame{};
-
-	keyFrame.position = readPosition();
-	keyFrame.rotation = readRotation();
-
-	return keyFrame;
+void ObjectStream::keyFrame(Templates::KeyFrame &keyFrame) {
+	variable("position", keyFrame.position);
+	variable("rotation", keyFrame.rotation);
 }
 
-Templates::FileInfoMetadata ObjectBinaryReadStream::readFileInfoMetadata() {
-	Templates::FileInfoMetadata fileInfoMetadata{};
-
-	fileInfoMetadata.fileSize = _stream.readUint32LE();
-	fileInfoMetadata.fileDataCRC = _stream.readUint32LE();
-	fileInfoMetadata.flags = _stream.readUint32LE();
-
-	return fileInfoMetadata;
+void ObjectStream::readFileInfoMetadata(Templates::FileInfoMetadata &fileInfoMetadata) {
+	variable("fileSize", fileInfoMetadata.fileSize);
+	variable("fileDataCRC", fileInfoMetadata.fileDataCRC);
+	variable("flags", fileInfoMetadata.flags);
 }
 
-Templates::FoliageMeshMetadata ObjectBinaryReadStream::readFoliageMeshMetadata() {
-	Templates::FoliageMeshMetadata foliageMeshMetadata{};
+void ObjectStream::foliageMeshMetadata(Templates::FoliageMeshMetadata foliageMeshMetadata) {
+	variable("vertexBufferBytes", foliageMeshMetadata.vertexBufferBytes);
+	variable("indexCount", foliageMeshMetadata.indexCount);
 
-	foliageMeshMetadata.vertexBufferBytes = _stream.readUint32LE();
-	foliageMeshMetadata.indexCount = _stream.readUint32LE();
+	object("boundBox", foliageMeshMetadata.boundBox, kAABB);
 
-	foliageMeshMetadata.boundBox = std::any_cast<Common::BoundBox>(readObject(kAABB));
+	// Does this work?
+	objects("textureResources", foliageMeshMetadata.textureRids, kRID);
+}
 
-	foliageMeshMetadata.textureRids.resize(_stream.readUint32LE());
-	for (auto &textureRid : foliageMeshMetadata.textureRids) {
-		textureRid = std::any_cast<rid_t>(readObject(kRID));
+void ObjectStream::havokAnimationMetadata(Templates::HavokAnimationMetadata &havokAnimationMetadata) {
+	variable("animationEventPath", havokAnimationMetadata.animationEventPath, false);
+}
+
+void ObjectStream::readMeshMetadata(Templates::MeshMetadata &meshMetadata) {
+	variable("vertexBufferBytes", meshMetadata.vertexBufferBytes);
+	variable("indexCount", meshMetadata.indexCount);
+	object("boundBox", meshMetadata.boundBox, kAABB);
+	variable("hasBones", meshMetadata.hasBones);
+	objects("textureResources", meshMetadata.textureRids, kRID);
+}
+
+void ObjectStream::readParticleSystemMetadata(Templates::ParticleSystemMetadata particleSystemMetadata) {
+	objects("textureResources", particleSystemMetadata.textureRids, kRID);
+}
+
+void ObjectStream::textureMetadata(Templates::TextureMetadata &textureMetadata) {
+	variable("type", textureMetadata.type);
+	variable("format", textureMetadata.format);
+	variable("filter", textureMetadata.format);
+	variable("width", textureMetadata.width);
+	variable("height", textureMetadata.height);
+	variable("depth", textureMetadata.depth);
+
+	skip(4);
+
+	variable("mipmapOffsets", textureMetadata.mipmapOffsets, 8lu);
+
+	variable("highDetailStreamDistance", textureMetadata.highDetailStreamDistance);
+	variable("useTextureLOD", textureMetadata.useTextureLOD);
+}
+
+void ObjectStream::object(Object &value, ObjectType type, unsigned int version) {
+	switch (type) {
+		case kRID: resourceID(as<rid_t>(value)); break;
+		case kAABB: boundBox(as<Common::BoundBox>(value)); break;
+		case kStaticObject: staticObject(as<Templates::StaticObject>(value)); break;
+		case kDynamicObject: dynamicObject(as<Templates::DynamicObject>(value), version); break;
+		case kDynamicObjectScript: dynamicObjectScript(as<Templates::DynamicObjectScript>(value), version); break;
+		case kCellInfo: cellInfo(as<Templates::CellInfo>(value)); break;
+		case kAnimation: animation(as<Templates::Animation>(value), version); break;
+		case kSkeleton: skeleton(as<Templates::Skeleton>(value)); break;
+		case kSkeletonSetup: skeletonSetup(as<Templates::SkeletonSetup>(value)); break;
+		case kNotebookPage: notebookPage(as<Templates::NotebookPage>(value)); break;
+		case kSound: sound(as<Templates::Sound>(value)); break;
+		case kCharacter: character(as<Templates::Character>(value), version); break;
+		case kCharacterClass: characterClass(as<Templates::CharacterClass>(value), version); break;
+		case kCharacterScript: characterScript(as<Templates::CharacterScript>(value)); break;
+		case kTaskDefinition: taskDefinition(as<Templates::TaskDefinition>(value), version); break;
+		case kTaskContent: taskContent(as<Templates::TaskContent>(value)); break;
+		case kScriptVariables: scriptVariables(as<Templates::ScriptVariables>(value), version); break;
+		case kScript: script(as<Templates::Script>(value)); break;
+		case kScriptInstance: scriptInstance(as<Templates::ScriptInstance>(value)); break;
+		case kPointLight: pointLight(as<Templates::PointLight>(value), version); break;
+		case kAmbientLight: ambientLightInstance(as<Templates::AmbientLightInstance>(value)); break;
+		case kFloatingScript: floatingScript(as<Templates::FloatingScript>(value)); break;
+		case kTrigger: trigger(as<Templates::Trigger>(value), version); break;
+		case kAreaTrigger: areaTrigger(as<Templates::AreaTrigger>(value)); break;
+		case kAttachmentResources: attachmentResources(as<Templates::AttachmentResource>(value)); break;
+		case kWaypoint: waypoint(as<Templates::Waypoint>(value)); break;
+		case kAnimationParameters: animationParameters(as<Templates::AnimationParameters>(value)); break;
+		case kKeyframedObject: keyFramedObject(as<Templates::KeyFramedObject>(value), version); break;
+		case kKeyframe: keyFrame(as<Templates::KeyFrame>(value)); break;
+		case kKeyframeAnimation: keyFrameAnimation(as<Templates::KeyFrameAnimation>(value)); break;
+		case kKeyframer: keyFramer(as<Templates::KeyFramer>(value)); break;
+
+		case kFileInfoMetadata: readFileInfoMetadata(as<Templates::FileInfoMetadata>(value)); break;
+		case kFoliageMeshMetadata: foliageMeshMetadata(as<Templates::FoliageMeshMetadata>(value)); break;
+		case kHavokAnimationMetadata: havokAnimationMetadata(as<Templates::HavokAnimationMetadata>(value)); break;
+		case kTextureMetadata: textureMetadata(as<Templates::TextureMetadata>(value)); break;
+		case kParticleSystemMetadata: readParticleSystemMetadata(as<Templates::ParticleSystemMetadata>(value)); break;
+		case kMeshMetadata: readMeshMetadata(as<Templates::MeshMetadata>(value)); break;
+
+		default: throw Common::Exception("Unsupported content type");
 	}
-
-	return foliageMeshMetadata;
-}
-
-Templates::HavokAnimationMetadata ObjectBinaryReadStream::readHavokAnimationMetadata() {
-	Templates::HavokAnimationMetadata havokAnimationMetadata{};
-
-	uint32_t pathLength = _stream.readUint32LE();
-	havokAnimationMetadata.animationEventPath = _stream.readFixedSizeString(pathLength, true);
-
-	return havokAnimationMetadata;
-}
-
-Templates::MeshMetadata ObjectBinaryReadStream::readMeshMetadata() {
-	Templates::MeshMetadata meshMetadata{};
-
-	meshMetadata.vertexBufferBytes = _stream.readUint32LE();
-	meshMetadata.indexCount = _stream.readUint32LE();
-	meshMetadata.boundBox = std::any_cast<Common::BoundBox>(readObject(kAABB));
-	meshMetadata.hasBones = _stream.readByte();
-	meshMetadata.textureRids.resize(_stream.readUint32LE());
-	for (auto &textureRid : meshMetadata.textureRids) {
-		textureRid = std::any_cast<rid_t>(readObject(kRID));
-	}
-
-	return meshMetadata;
-}
-
-Templates::ParticleSystemMetadata ObjectBinaryReadStream::readParticleSystemMetadata() {
-	Templates::ParticleSystemMetadata particleSystemMetadata{};
-
-	particleSystemMetadata.textureRids.resize(_stream.readUint32LE());
-	for (auto &textureRid : particleSystemMetadata.textureRids) {
-		textureRid = std::any_cast<rid_t>(readObject(kRID));
-	}
-
-	return particleSystemMetadata;
-}
-
-Templates::TextureMetadata ObjectBinaryReadStream::readTextureMetadata() {
-	Templates::TextureMetadata textureMetadata{};
-
-	textureMetadata.type = _stream.readUint32LE();
-	textureMetadata.format = _stream.readUint32LE();
-	textureMetadata.filter = _stream.readUint32LE();
-	textureMetadata.width = _stream.readUint32LE();
-	textureMetadata.height = _stream.readUint32LE();
-	textureMetadata.depth = _stream.readUint32LE();
-
-	_stream.skip(4);
-
-	for (int i = 0; i < 8; ++i) {
-		uint32_t offset = _stream.readUint32LE();
-		if (offset != 0xFFFFFFFF)
-			textureMetadata.mipmapOffsets.emplace_back(offset);
-	}
-
-	textureMetadata.highDetailStreamDistance = _stream.readIEEEFloatLE();
-	textureMetadata.useTextureLOD = _stream.readByte() == 1;
-
-	return textureMetadata;
-}
-
-GID ObjectBinaryReadStream::readGID() {
-	GID gid{};
-	gid.type = _stream.readUint32LE();
-	gid.id = _stream.readUint32BE();
-	return gid;
-}
-
-glm::vec3 ObjectBinaryReadStream::readPosition() {
-	glm::vec3 position;
-
-	position.x = _stream.readIEEEFloatLE();
-	position.y = _stream.readIEEEFloatLE();
-	position.z = _stream.readIEEEFloatLE();
-
-	return position;
-}
-
-glm::mat3 ObjectBinaryReadStream::readRotation() {
-	glm::mat3 rotation;
-
-	rotation[0].x = _stream.readIEEEFloatLE();
-	rotation[0].y = _stream.readIEEEFloatLE();
-	rotation[0].z = _stream.readIEEEFloatLE();
-	rotation[1].x = _stream.readIEEEFloatLE();
-	rotation[1].y = _stream.readIEEEFloatLE();
-	rotation[1].z = _stream.readIEEEFloatLE();
-	rotation[2].x = _stream.readIEEEFloatLE();
-	rotation[2].y = _stream.readIEEEFloatLE();
-	rotation[2].z = _stream.readIEEEFloatLE();
-
-	return rotation;
 }
 
 }
