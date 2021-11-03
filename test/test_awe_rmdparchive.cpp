@@ -766,7 +766,7 @@ byte kMultipleFilesRmdpV7[] = {
 
 TEST(RMDPArchive, EmptyArchiveV2) {
 	Common::ReadStream *bin = new Common::MemoryReadStream(
-		const_cast<byte *>(kEmptyBinV2),
+		kEmptyBinV2,
 		sizeof(kEmptyBinV2),
 		false
 	);
@@ -813,7 +813,7 @@ TEST(RMDPArchive, EmptyArchiveV2) {
 
 TEST(RMDPArchive, MultipleFilesArchiveV2) {
 	Common::ReadStream *bin = new Common::MemoryReadStream(
-		const_cast<byte *>(kMultipleFilesBinV2),
+		kMultipleFilesBinV2,
 		sizeof(kMultipleFilesBinV2),
 		false
 	);
@@ -877,7 +877,7 @@ TEST(RMDPArchive, MultipleFilesArchiveV2) {
 
 TEST(RMDPArchive, EmptyArchiveV7) {
 	Common::ReadStream *bin = new Common::MemoryReadStream(
-		const_cast<byte *>(kEmptyBinV7),
+		kEmptyBinV7,
 		sizeof(kEmptyBinV7),
 		false
 	);
@@ -924,12 +924,12 @@ TEST(RMDPArchive, EmptyArchiveV7) {
 
 TEST(RMDPArchive, MultipleFilesArchiveV7) {
 	Common::ReadStream *bin = new Common::MemoryReadStream(
-		const_cast<byte *>(kMultipleFilesBinV7),
+		kMultipleFilesBinV7,
 		sizeof(kMultipleFilesBinV7),
 		false
 	);
 	Common::ReadStream *rmdp = new Common::MemoryReadStream(
-		const_cast<byte *>(kMultipleFilesRmdpV7),
+		kMultipleFilesRmdpV7,
 		sizeof(kMultipleFilesRmdpV7),
 		false
 	);

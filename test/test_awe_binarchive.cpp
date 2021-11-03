@@ -141,7 +141,7 @@ static const byte kMultipleFilesBin[] = {
 };
 
 TEST(BINArchive, EmptyArchive) {
-	Common::MemoryReadStream bin(const_cast<byte *>(kEmptyBin), sizeof(kEmptyBin), false);
+	Common::MemoryReadStream bin(kEmptyBin, sizeof(kEmptyBin));
 
 	AWE::BINArchive binArchive(bin);
 
@@ -155,7 +155,7 @@ TEST(BINArchive, EmptyArchive) {
 }
 
 TEST(BINArchive, MultipleFiles) {
-	Common::MemoryReadStream bin(const_cast<byte *>(kMultipleFilesBin), sizeof(kMultipleFilesBin), false);
+	Common::MemoryReadStream bin(kMultipleFilesBin, sizeof(kMultipleFilesBin));
 
 	AWE::BINArchive binArchive(bin);
 
