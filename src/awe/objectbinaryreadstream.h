@@ -48,7 +48,7 @@ protected:
 	void variable(const std::string &name, std::vector<bool> &value, size_t fixedSize) override;
 	void variable(const std::string &name, std::vector<int32_t> &value) override;
 	void variable(const std::string &name, std::vector<uint32_t> &value, bool dp) override;
-	void variable(const std::string &name, std::vector<uint32_t> &value, size_t fixedSize) override;
+	void variable(const std::string &name, std::vector<int32_t> &value, size_t fixedSize) override;
 	void variable(const std::string &name, std::vector<rid_t> &value) override;
 	void variable(const std::string &name, std::vector<glm::vec2> &value) override;
 	void variable(const std::string &name, std::vector<float> &value) override;

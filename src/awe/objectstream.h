@@ -91,7 +91,7 @@ protected:
 	virtual void variable(const std::string &name, std::vector<bool> &value, size_t fixedSize) = 0;
 	virtual void variable(const std::string &name, std::vector<int32_t> &value) = 0;
 	virtual void variable(const std::string &name, std::vector<uint32_t> &value, bool dp) = 0;
-	virtual void variable(const std::string &name, std::vector<uint32_t> &value, size_t fixedSize) = 0;
+	virtual void variable(const std::string &name, std::vector<int32_t> &value, size_t fixedSize) = 0;
 	virtual void variable(const std::string &name, std::vector<rid_t> &value) = 0;
 	virtual void variable(const std::string &name, std::vector<glm::vec2> &value) = 0;
 	virtual void variable(const std::string &name, std::vector<float> &value) = 0;

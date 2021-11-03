@@ -113,10 +113,10 @@ void ObjectBinaryReadStream::variable(const std::string &name, std::vector<uint3
 	}
 }
 
-void ObjectBinaryReadStream::variable(const std::string &name, std::vector<uint32_t> &value, size_t fixedSize) {
+void ObjectBinaryReadStream::variable(const std::string &name, std::vector<int32_t> &value, size_t fixedSize) {
 	value.resize(fixedSize);
 	for (auto &item: value) {
-		item = _stream.readUint32LE();
+		item = _stream.readSint32LE();
 	}
 }
 
