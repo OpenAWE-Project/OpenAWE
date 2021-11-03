@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iterator>
+
 #include "objectbinaryreadstream.h"
 
 namespace AWE {
