@@ -28,6 +28,12 @@
 
 namespace Common {
 
+/*!
+ * \brief Class for accessing files as a ReadStream
+ *
+ * This class offers the possibility to access a file using a ReadStream. It offers the common methods which the base
+ * ReadStream class accesses.
+ */
 class ReadFile : public ReadStream {
 public:
 	/*!
@@ -44,10 +50,23 @@ public:
 	 */
 	size_t read(void *data, size_t length) override;
 
+	/*!
+	 * Get the current position in the file
+	 * \return The current position  in the file
+	 */
 	size_t pos() const override;
 
+	/*!
+	 * If we are at the end of the file or beyond it
+	 * \return If the current position in the file is at the end or beyond it
+	 */
 	bool eos() const override;
 
+	/*!
+	 * Seek in the file according to a certain origin
+	 * \param length The amount to seek from the origin. Can be negative too
+	 * \param origin The origin from which to seek. Can be the begin and end of the file or the current position
+	 */
 	void seek(ptrdiff_t length, SeekOrigin origin) override;
 
 private:
