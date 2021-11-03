@@ -22,6 +22,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "src/common/exception.h"
 #include "src/common/xml.h"
 
 namespace Common {
@@ -58,6 +59,8 @@ void XML::read(ReadStream &xml) {
 	// Parse the document and get the root element
 	tinyxml2::XMLDocument doc;
 	doc.Parse(text.c_str());
+	if (doc.Error())
+		throw Common::Exception("Error while parsing xml document {} {}", doc.ErrorLineNum(), doc.ErrorStr());
 	const auto rootNode = doc.RootElement();
 
 	// Read recursively from the root node
@@ -118,6 +121,9 @@ void XML::readNode(tinyxml2::XMLElement *node, Node &xmlNode) {
 	// Set potential childs of the node
 	for (auto child = node->FirstChild(); child != nullptr; child = child->NextSibling()) {
 		Node childNode;
+
+		if (child->ToComment() != nullptr)
+			continue;
 
 		const auto xmlText = child->ToText();
 		const auto xmlElement = child->ToElement();
