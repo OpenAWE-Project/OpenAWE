@@ -30,6 +30,8 @@ namespace Common {
 class MemoryReadStream : public ReadStream {
 public:
 	MemoryReadStream(byte *data, size_t length, bool dispose = true);
+	MemoryReadStream(const byte *data, size_t length);
+	MemoryReadStream(const char *data, size_t length);
 	~MemoryReadStream();
 
 	size_t read(void *data, size_t length) override;
@@ -42,7 +44,7 @@ public:
 
 private:
 	bool _dispose;
-	byte *_data;
+	const byte *_data;
 	size_t _size, _position;
 };
 
