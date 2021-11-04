@@ -27,6 +27,12 @@
 
 namespace Common {
 
+XML::Node &XML::Node::addNewNode(const std::string &name) {
+	Node newNode;
+	newNode.name = name;
+	return children.emplace_back(newNode);
+}
+
 const std::string &XML::Node::getString(const std::string &attribute) {
 	return properties[attribute];
 }
@@ -74,7 +80,7 @@ void XML::write(WriteStream &xml, bool header) {
 	tinyxml2::XMLDocument doc;
 
 	doc.SetBOM(header);
-
+	doc.InsertFirstChild(doc.NewElement(""));
 	writeNode(doc.RootElement(), _rootNode);
 
 	// Print the data to a string
@@ -95,7 +101,7 @@ void XML::writeNode(tinyxml2::XMLElement *element, const XML::Node &node) {
 	}
 
 	// If the node is a text node, then write a text element
-	if (node.content.empty()) {
+	if (!node.content.empty()) {
 		tinyxml2::XMLText *text = element->GetDocument()->NewText(node.content.c_str());
 		element->InsertEndChild(text);
 	// Id the node has child nodes write the child nodes

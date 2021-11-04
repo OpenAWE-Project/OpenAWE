@@ -52,6 +52,13 @@ public:
 		std::vector<Node> children;
 
 		/*!
+		 * Add a new child node to this node
+		 * \param name The name of the new node
+		 * \return A reference to the newly created node
+		 */
+		Node &addNewNode(const std::string &name);
+
+		/*!
 		 * Get an attribute of the node as string
 		 * @param attribute the attribute to search for
 		 * @return the searched attribute or empty string if it doesn't exist
