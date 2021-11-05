@@ -51,6 +51,16 @@ class CIDFile {
 public:
 	CIDFile(Common::ReadStream &cid, ObjectType type, std::shared_ptr<DPFile> dp = nullptr);
 
+	/*!
+	 * Get the version of the top level objects
+	 * \return The version of the top level objects
+	 */
+	[[nodiscard]] unsigned int getVersion() const;
+
+	/*!
+	 * Get the objects contained in this cid file
+	 * \return A vector containing the objects from the file
+	 */
 	[[nodiscard]] const std::vector<Object> &getContainers() const;
 
 private:
@@ -61,6 +71,8 @@ private:
 	};
 
 	void testFormat(Common::ReadStream &cid);
+
+	unsigned int _version;
 
 	FileFormat _format;
 	std::unique_ptr<ObjectReadStream> _objectStream;

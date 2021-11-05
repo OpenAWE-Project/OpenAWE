@@ -34,7 +34,7 @@ static const uint32_t kDeadBeefV2 = 0xD34DB33F;
 namespace AWE {
 
 CIDFile::CIDFile(Common::ReadStream &cid, ObjectType type, std::shared_ptr<DPFile> dp) : _dp(dp) {
-	uint32_t version = cid.readUint32LE();
+	_version = cid.readUint32LE();
 	uint32_t contentType = cid.readUint32LE(); // ?
 	uint32_t numElements = cid.readUint32LE();
 
@@ -49,8 +49,12 @@ CIDFile::CIDFile(Common::ReadStream &cid, ObjectType type, std::shared_ptr<DPFil
 
 	_containers.resize(numElements);
 	for (auto &container : _containers) {
-		container = _objectStream->readObject(type, version);
+		container = _objectStream->readObject(type, _version);
 	}
+}
+
+unsigned int CIDFile::getVersion() const {
+	return _version;
 }
 
 const std::vector<Object> &CIDFile::getContainers() const {
