@@ -133,6 +133,11 @@ protected:
 	ObjectReadStream();
 };
 
+class ObjectWriteStream : public ObjectStream {
+public:
+	virtual void writeObject(Object object, ObjectType type, unsigned int version = 0) = 0;
+};
+
 }
 
 #endif //OPENAWE_OBJECTSTREAM_H
