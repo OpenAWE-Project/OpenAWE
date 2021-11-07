@@ -71,6 +71,9 @@ private:
 	void loadTrigger(const AWE::Object &container);
 	void loadCharacterClass(const AWE::Object &container);
 	void loadKeyFramedObject(const AWE::Object &container);
+	void loadKeyFramer(const AWE::Object &container);
+	void loadKeyFrameAnimation(const AWE::Object &container);
+	void loadKeyFrame(const AWE::Object &container);
 
 	std::vector<entt::entity> _entities;
 	std::map<ObjectIDType, std::vector<entt::entity>> _objects;

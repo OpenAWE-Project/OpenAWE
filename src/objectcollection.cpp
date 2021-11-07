@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <memory>
+
 #include <spdlog/spdlog.h>
 
 #include "common/convexshape.h"
@@ -35,10 +37,10 @@
 
 #include "objectcollection.h"
 
-#include <memory>
-#include "transform.h"
-#include "task.h"
-#include "utils.h"
+#include "src/transform.h"
+#include "src/task.h"
+#include "src/utils.h"
+#include "src/keyframer.h"
 
 ObjectCollection::ObjectCollection(entt::registry &registry) : _registry(registry) {
 }
@@ -126,6 +128,9 @@ void ObjectCollection::load(const AWE::Object &container, ObjectType type) {
 		case kTrigger: loadTrigger(container); break;
 		case kCharacterClass: loadCharacterClass(container); break;
 		case kKeyframedObject: loadKeyFramedObject(container); break;
+		case kKeyframer: loadKeyFramer(container); break;
+		case kKeyframeAnimation: loadKeyFrameAnimation(container); break;
+		case kKeyframe:	loadKeyFrame(container); break;
 		case kAmbientLight:	loadAmbientLightInstance(container); break;
 	}
 }
@@ -410,8 +415,84 @@ void ObjectCollection::loadKeyFramedObject(const AWE::Object &container) {
 
 	model->setTransform(transform.getTransformation());
 
+	const auto &keyFramer = _registry.get<KeyFramerPtr>(
+		_objects[kKeyframerID][keyFramedObject.keyFramer.getID()]
+	);
+
+	transform.setKeyFramer(keyFramer);
+	transform.setKeyFrameOffset(keyFramedObject.position, keyFramedObject.rotation);
 
 	_entities.emplace_back(keyFramedObjectEntity);
 
-	spdlog::debug("Loading dynamic object {}", _gid->getString(keyFramedObject.gid));
+	spdlog::debug("Loading key framed object {}", _gid->getString(keyFramedObject.gid));
+}
+
+void ObjectCollection::loadKeyFramer(const AWE::Object &container) {
+	const auto keyFramer = std::any_cast<AWE::Templates::KeyFramer>(container);
+
+	auto keyFramerEntity = _registry.create();
+	_registry.emplace<GID>(keyFramerEntity) = keyFramer.gid;
+
+	std::vector<KeyFrame> keyFrames;
+	std::map<GID, KeyFrameAnimation> keyFrameAnimations;
+	for (const auto &keyFrame : keyFramer.keyFrames) {
+		keyFrames.emplace_back(_registry.get<KeyFrame>(_objects[kKeyframeID][keyFrame.getID()]));
+	}
+	for (const auto &keyFrameAnimation : keyFramer.keyFrameAnimations) {
+		const auto keyFrameAnimationEntity = _objects[kKeyframeAnimationID][keyFrameAnimation.getID()];
+		const auto gid = _registry.get<GID>(keyFrameAnimationEntity);
+		keyFrameAnimations[gid] = _registry.get<KeyFrameAnimation>(keyFrameAnimationEntity);
+	}
+
+	auto keyframer = _registry.emplace<KeyFramerPtr>(keyFramerEntity) = std::make_shared<KeyFramer>(keyFrames, keyFrameAnimations, keyFramer.initialKeyframe);
+
+	if (keyFramer.parentKeyFramer) {
+		const auto parentKeyFramer = _registry.get<KeyFramerPtr>(_objects[kKeyframerID][keyFramer.parentKeyFramer.getID()]);
+		keyframer->setParentKeyFramer(parentKeyFramer);
+	}
+
+	_objects[kKeyframerID].emplace_back(keyFramerEntity);
+
+	spdlog::debug("Loading keyframer {}", _gid->getString(keyFramer.gid));
+}
+
+void ObjectCollection::loadKeyFrameAnimation(const AWE::Object &container) {
+	const auto keyFrameAnimation = std::any_cast<AWE::Templates::KeyFrameAnimation>(container);
+
+	auto keyFrameAnimationEntity = _registry.create();
+	_registry.emplace<GID>(keyFrameAnimationEntity) = keyFrameAnimation.gid;
+
+	KeyFrameAnimation keyFrameAnimationObject {
+		keyFrameAnimation.startKeyFrame,
+		keyFrameAnimation.endKeyFrame,
+		keyFrameAnimation.length
+	};
+
+	if (keyFrameAnimation.animationResource)
+		keyFrameAnimationObject.animation = Graphics::Animation(keyFrameAnimation.animationResource);
+
+	if (!keyFrameAnimation.nextAnimation.isNil())
+		keyFrameAnimationObject.nextAnimation =	keyFrameAnimation.nextAnimation;
+
+	_registry.emplace<KeyFrameAnimation>(keyFrameAnimationEntity) = keyFrameAnimationObject;
+
+	_objects[kKeyframeAnimationID].emplace_back(keyFrameAnimationEntity);
+
+	spdlog::debug("Loading keyframe animation {}", _gid->getString(keyFrameAnimation.gid));
+}
+
+void ObjectCollection::loadKeyFrame(const AWE::Object &container) {
+	const auto keyFrame = std::any_cast<AWE::Templates::KeyFrame>(container);
+
+	KeyFrame keyFrameObject {
+		keyFrame.position,
+		keyFrame.rotation
+	};
+
+	auto keyFrameEntity = _registry.create();
+	_registry.emplace<KeyFrame>(keyFrameEntity) = keyFrameObject;
+
+	_objects[kKeyframeID].emplace_back(keyFrameEntity);
+
+	_entities.emplace_back(keyFrameEntity);
 }
