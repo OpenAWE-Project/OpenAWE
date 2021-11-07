@@ -93,8 +93,7 @@ void ObjectCollection::loadFoliageData(Common::ReadStream *foliageData) {
 		entt::entity foliage = _registry.create();
 		Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(foliage) = std::make_shared<Graphics::Model>(foliageMeshs[instance.foliageId]);
 
-		model->getPosition() = instance.position;
-		model->getRotation() = glm::identity<glm::mat3>();
+		model->setTransform(glm::translate(glm::identity<glm::mat4>(), instance.position));
 
 		_entities.emplace_back(foliage);
 	}
@@ -165,11 +164,11 @@ void ObjectCollection::loadStaticObject(const AWE::Object &container) {
 	const auto staticObject = std::any_cast<AWE::Templates::StaticObject>(container);
 
 	auto staticObjectEntity = _registry.create();
-	_registry.emplace<Transform>(staticObjectEntity) = Transform(staticObject.position, staticObject.rotation);
+	auto transform = _registry.emplace<Transform>(staticObjectEntity) = Transform(staticObject.position, staticObject.rotation);
 	Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(staticObjectEntity) = std::make_shared<Graphics::Model>(staticObject.meshResource);
 
-	model->getPosition() = staticObject.position;
-	model->getRotation() = staticObject.rotation;
+	model->setTransform(transform.getTransformation());
+
 
 	if (staticObject.physicsResource) {
 		try {
@@ -197,12 +196,11 @@ void ObjectCollection::loadDynamicObject(const AWE::Object &container) {
 
 	auto dynamicObjectEntity = _registry.create();
 	_registry.emplace<GID>(dynamicObjectEntity) = dynamicObject.gid;
-	_registry.emplace<Transform>(dynamicObjectEntity) = Transform(dynamicObject.position, dynamicObject.rotation);
+	auto &transform = _registry.emplace<Transform>(dynamicObjectEntity) = Transform(dynamicObject.position, dynamicObject.rotation);
 	Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(dynamicObjectEntity) = std::make_shared<Graphics::Model>(dynamicObject.meshResource);
 	// TODO: Physics Resource
 
-	model->getPosition() = dynamicObject.position;
-	model->getRotation() = dynamicObject.rotation;
+	model->setTransform(transform.getTransformation());
 
 	_entities.emplace_back(dynamicObjectEntity);
 
@@ -237,12 +235,11 @@ void ObjectCollection::loadCharacter(const AWE::Object &container) {
 
 	auto characterEntity = _registry.create();
 	_registry.emplace<GID>(characterEntity) = character.gid;
-	_registry.emplace<Transform>(characterEntity) = Transform(character.position, character.rotation);
+	auto &transform = _registry.emplace<Transform>(characterEntity) = Transform(character.position, character.rotation);
 	Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(characterEntity) = std::make_shared<Graphics::Model>(character.meshResource);
 	// TODO: Physics and Cloth Resource
 
-	model->getPosition() = character.position;
-	model->getRotation() = character.rotation;
+	model->setTransform(transform.getTransformation());
 
 	_entities.emplace_back(characterEntity);
 
@@ -402,12 +399,11 @@ void ObjectCollection::loadKeyFramedObject(const AWE::Object &container) {
 
 	auto keyFramedObjectEntity = _registry.create();
 	_registry.emplace<GID>(keyFramedObjectEntity) = keyFramedObject.gid;
-	_registry.emplace<Transform>(keyFramedObjectEntity) = Transform(keyFramedObject.position2, keyFramedObject.rotation2);
+	auto &transform = _registry.emplace<Transform>(keyFramedObjectEntity) = Transform(keyFramedObject.position2, keyFramedObject.rotation2);
 	Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(keyFramedObjectEntity) = std::make_shared<Graphics::Model>(keyFramedObject.meshResource);
 	// TODO: Physics Resource
 
-	model->getPosition() = keyFramedObject.position2;
-	model->getRotation() = keyFramedObject.rotation2;
+	model->setTransform(transform.getTransformation());
 
 
 	_entities.emplace_back(keyFramedObjectEntity);

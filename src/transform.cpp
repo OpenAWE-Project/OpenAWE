@@ -18,15 +18,49 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
+#include <utility>
+
 #include "transform.h"
 
 Transform::Transform(glm::vec3 translation, glm::mat3 rotation) : _translation(translation), _rotation(rotation) {
 }
 
-const glm::vec3 &Transform::getTranslation() const {
+void Transform::setKeyFramer(KeyFramerPtr keyFramer) {
+	_keyframer = std::move(keyFramer);
+}
+
+void Transform::setKeyFrameOffset(glm::vec3 position, glm::mat3 rotation) {
+	_localToParent = glm::translate(glm::identity<glm::mat4>(), position) * glm::mat4(rotation);
+}
+
+glm::vec3 Transform::getTranslation() const {
 	return _translation;
 }
 
-const glm::mat3 &Transform::getRotation() const {
+glm::mat3 Transform::getRotation() const {
 	return _rotation;
+}
+
+void Transform::setTranslation(const glm::vec3 &translation) {
+	_translation = translation;
+}
+
+void Transform::setRotation(const glm::mat3 &rotation) {
+	_rotation = rotation;
+}
+
+glm::mat4 Transform::getTransformation() const {
+	auto transform = glm::identity<glm::mat4>();
+
+	if (_keyframer && _keyframer->hasAnimation()) {
+		if (!_keyframer->isAbsolute())
+			transform *= glm::translate(transform, _translation) * glm::mat4(_rotation);
+		transform *= _keyframer->getTransformation();
+		transform *= _localToParent;
+	} else {
+		transform *= glm::translate(transform, _translation) * glm::mat4(_rotation);
+	}
+
+	return transform;
 }

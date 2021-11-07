@@ -50,9 +50,8 @@ public:
 	void show();
 	void hide();
 
-	glm::mat3 &getRotation();
-	glm::vec3 &getPosition();
-	glm::vec3 &getScale();
+	void setTransform(const glm::mat4 &transform);
+	glm::mat4 getTransform() const;
 
 	MeshPtr getMesh() const;
 
@@ -61,9 +60,7 @@ protected:
 
 	MeshPtr _mesh;
 
-	glm::vec3 _position;
-	glm::vec3 _scale;
-	glm::mat3 _rotation;
+	glm::mat4 _transform;
 };
 
 }

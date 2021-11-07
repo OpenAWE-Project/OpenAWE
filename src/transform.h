@@ -21,17 +21,37 @@
 #ifndef OPENAWE_TRANSFORM_H
 #define OPENAWE_TRANSFORM_H
 
+#include <optional>
+
 #include <glm/glm.hpp>
+
+#include "src/keyframer.h"
+
+class Transform;
+
+typedef std::shared_ptr<Transform> TransformPtr;
 
 class Transform {
 public:
 	Transform() = default;
 	Transform(glm::vec3 translation, glm::mat3 rotation);
 
-	const glm::vec3 &getTranslation() const;
-	const glm::mat3 &getRotation() const;
+	void setKeyFramer(KeyFramerPtr keyFramer);
+	void setKeyFrameOffset(glm::vec3 position, glm::mat3 rotation);
+
+	void setTranslation(const glm::vec3 &translation);
+	void setRotation(const glm::mat3 &rotation);
+
+	glm::mat4 getTransformation() const;
+
+	glm::vec3 getTranslation() const;
+	glm::mat3 getRotation() const;
 
 private:
+	KeyFramerPtr _keyframer;
+
+	glm::mat4 _localToParent, _parentToLocal;
+
 	glm::vec3 _translation;
 	glm::vec3 _scale;
 	glm::mat3 _rotation;

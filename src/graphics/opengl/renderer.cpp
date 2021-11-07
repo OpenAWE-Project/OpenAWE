@@ -298,10 +298,7 @@ void Renderer::drawWorld() {
 	glm::mat4 vp = p * v;
 
 	for (const auto &model : _models) {
-		const glm::mat4 rotation = model->getRotation();
-		const glm::vec3 position = model->getPosition();
-		const glm::vec3 scale = model->getScale();
-		glm::mat4 m = glm::translate(position) * rotation * glm::scale(scale);
+		glm::mat4 m = model->getTransform();
 		glm::mat4 mvp = vp * m;
 
 		const MeshPtr mesh = model->getMesh();

@@ -26,21 +26,19 @@
 
 namespace Graphics {
 
-Model::Model() : _mesh(new Mesh), _position(0.0f), _rotation(1.0f), _scale(1.0f) {
+Model::Model() : _mesh(new Mesh), _transform(glm::identity<glm::mat4>()) {
 }
 
-Model::Model(rid_t rid) : _position(0.0f, 0.0f, 0.0f), _rotation(0.0f), _scale(1.0f),
+Model::Model(rid_t rid) : _transform(glm::identity<glm::mat4>()),
 _mesh(MeshMan.getMesh(rid)) {
 	show();
 }
 
-Model::Model(const std::string &path)  : _position(0.0f, 0.0f, 0.0f),
-_rotation(1.0f), _scale(1.0f), _mesh(MeshMan.getMesh(path)) {
+Model::Model(const std::string &path)  : _transform(glm::identity<glm::mat4>()), _mesh(MeshMan.getMesh(path)) {
 	show();
 }
 
-Model::Model(MeshPtr mesh) :_position(0.0f, 0.0f, 0.0f),
-                            _rotation(1.0f), _scale(1.0f), _mesh(mesh) {
+Model::Model(MeshPtr mesh) : _mesh(mesh) {
 	show();
 }
 
@@ -56,16 +54,12 @@ void Model::hide() {
 	GfxMan.removeModel(this);
 }
 
-glm::mat3 &Model::getRotation(){
-	return _rotation;
+void Model::setTransform(const glm::mat4 &transform) {
+	_transform = transform;
 }
 
-glm::vec3 &Model::getPosition() {
-	return _position;
-}
-
-glm::vec3 &Model::getScale() {
-	return _scale;
+glm::mat4 Model::getTransform() const {
+	return _transform;
 }
 
 MeshPtr Model::getMesh() const {
