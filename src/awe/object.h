@@ -195,7 +195,7 @@ struct TextureMetadata {
 	uint32_t filter;
 	uint32_t width, height;
 	uint32_t depth;
-	std::vector<uint32_t> mipmapOffsets;
+	std::vector<int32_t> mipmapOffsets;
 	float highDetailStreamDistance;
 	bool useTextureLOD;
 };
