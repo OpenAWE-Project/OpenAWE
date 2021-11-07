@@ -98,6 +98,20 @@ Episode::Episode(entt::registry &registry, const std::string &world, const std::
 	spdlog::info("Loading waypoints for {}", id);
 	load(tasks.getResource("cid_waypoint.bin"), kWaypoint, dp);
 	load(tasks.getResource("cid_waypointscript.bin"), kScript, dp);
+
+	spdlog::info("Loading key frames for {}", id);
+	load(tasks.getResource("cid_keyframe.bin"), kKeyframe, dp);
+
+	spdlog::info("Loading key frame animations for {}", id);
+	load(tasks.getResource("cid_keyframeanimation.bin"), kKeyframeAnimation, dp);
+
+	spdlog::info("Loading key framers for {}", id);
+	load(tasks.getResource("cid_keyframer.bin"), kKeyframer, dp);
+	load(tasks.getResource("cid_keyframerscript.bin"), kScript, dp);
+
+	spdlog::info("Loading key framed objects for {}", id);
+	load(tasks.getResource("cid_keyframedobject.bin"), kKeyframedObject, dp);
+	load(tasks.getResource("cid_keyframedobjectscript.bin"), kDynamicObjectScript, dp);
 }
 
 void Episode::loadLevel(const std::string &id) {
