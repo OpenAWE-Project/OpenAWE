@@ -53,4 +53,7 @@ Global::Global(entt::registry &registry) : ObjectCollection(registry) {
 
 	spdlog::info("Loading sounds");
 	load(ResMan.getResource("global/cid_sound.bin"), kSound, dp);
+
+	spdlog::info("Loading character classes");
+	load(ResMan.getResource("global/cid_characterclass.bin"), kCharacterClass, dp);
 }
