@@ -51,6 +51,9 @@ private:
 	// functions_object.cpp
 	static void hide(Context &ctx);
 
+	// functions_keyframe.cpp
+	static void animate(Context &ctx);
+
 	// Functions_timer.cpp
 	static void startTimer(Context &ctx);
 	static void startTimerWithDuration(Context &ctx);

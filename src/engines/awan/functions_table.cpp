@@ -24,6 +24,7 @@ namespace Engines::AlanWakesAmericanNightmare {
 
 const std::map<std::string, AWE::Script::Functions::NativeFunction> Functions::_functions = {
 		{"Hide"                         , &Functions::hide                    },
+		{"Animate"                      , &Functions::animate                 },
 		{"StartTimer"                   , &Functions::startTimer              },
 		{"StartTimerWithDuration"       , &Functions::startTimerWithDuration  },
 		{"GAME.ActivateTask"            , &Functions::activateTask            },
