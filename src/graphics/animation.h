@@ -22,6 +22,8 @@
 #define OPENAWE_ANIMATION_H
 
 #include <vector>
+#include <string>
+#include <map>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
