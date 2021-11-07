@@ -389,6 +389,11 @@ void ObjectCollection::loadCharacterClass(const AWE::Object &container) {
 	_registry.emplace<GID>(characterClassEntity) = characterClass.gid;
 	_registry.emplace<AWE::Templates::CharacterClass>(characterClassEntity) = characterClass;
 
+	for (const auto &animation : characterClass.animations) {
+		const auto animationEntity = _objects[kAnimationID][animation.getID()];
+		const auto a = _registry.get<AWE::Templates::Animation>(animationEntity);
+	}
+
 	_entities.emplace_back(characterClassEntity);
 
 	spdlog::debug("Loading character class {}", _gid->getString(characterClass.gid));
