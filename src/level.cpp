@@ -70,7 +70,7 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 		AWE::BINArchive hdCellResources(fmt::format("{}/{}.resources", levelFolder, hdName));
 
 		//DPFile dphd(persistent.getResource("dp_hdcell.bin"));
-		load(hdCell.getResource("cid_staticobject.bin")/*, dphd*/, kStaticObject);
+		load(hdCell.getResource("cid_staticobject.bin"), kStaticObject);
 		load(ldCell.getResource("cid_staticobject.bin"), kStaticObject);
 		//loadTerrainData(ldCell.getResource("cid_terraindata.bin"));
 
