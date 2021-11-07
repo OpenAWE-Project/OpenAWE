@@ -72,7 +72,7 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 		//DPFile dphd(persistent.getResource("dp_hdcell.bin"));
 		load(hdCell.getResource("cid_staticobject.bin"), kStaticObject);
 		load(ldCell.getResource("cid_staticobject.bin"), kStaticObject);
-		//loadTerrainData(ldCell.getResource("cid_terraindata.bin"));
+		loadTerrainData(ldCell.getResource("cid_terraindata.bin"));
 
 		std::unique_ptr<Common::ReadStream> terrainCollisions(ResMan.getResource(fmt::format("{}/{}.collisions", levelFolder, hdName)));
 		assert(terrainCollisions);
