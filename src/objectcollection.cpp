@@ -152,6 +152,8 @@ void ObjectCollection::loadAnimation(const AWE::Object &container) {
 	_registry.emplace<GID>(animationEntity) = animation.gid;
 	// TODO: Load a representation of the animation
 
+	_objects[kAnimationID].emplace_back(animationEntity);
+
 	spdlog::debug("Loading animation {} for skeleton {}", animation.name, _gid->getString(animation.skeletonGid));
 }
 
@@ -396,7 +398,6 @@ void ObjectCollection::loadCharacterClass(const AWE::Object &container) {
 
 	for (const auto &animation : characterClass.animations) {
 		const auto animationEntity = _objects[kAnimationID][animation.getID()];
-		const auto a = _registry.get<AWE::Templates::Animation>(animationEntity);
 	}
 
 	_entities.emplace_back(characterClassEntity);
