@@ -377,7 +377,7 @@ void ObjectStream::pointLight(Templates::PointLight &pointLight, unsigned int ve
 	}
 }
 
-void ObjectStream::ambientLightInstance(Templates::AmbientLightInstance ambientLightInstance) {
+void ObjectStream::ambientLightInstance(Templates::AmbientLightInstance &ambientLightInstance) {
 	variable("scriptGid", ambientLightInstance.scriptGid);
 	variable("gid", ambientLightInstance.gid);
 	variable("position", ambientLightInstance.position);
@@ -389,7 +389,7 @@ void ObjectStream::ambientLightInstance(Templates::AmbientLightInstance ambientL
 	variable("intensity", ambientLightInstance.intensity);
 }
 
-void ObjectStream::floatingScript(Templates::FloatingScript floatingScript) {
+void ObjectStream::floatingScript(Templates::FloatingScript &floatingScript) {
 	variable("gid", floatingScript.gid);
 	object("script", floatingScript.script, kScriptVariables);
 	variable("rotation", floatingScript.rotation);

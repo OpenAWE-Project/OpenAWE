@@ -58,8 +58,8 @@ protected:
 	void script(Templates::Script &script);
 	void scriptInstance(Templates::ScriptInstance &scriptInstance);
 	void pointLight(Templates::PointLight &pointLight, unsigned int version);
-	void ambientLightInstance(Templates::AmbientLightInstance ambientLightInstance);
-	void floatingScript(Templates::FloatingScript floatingScript);
+	void ambientLightInstance(Templates::AmbientLightInstance &ambientLightInstance);
+	void floatingScript(Templates::FloatingScript &floatingScript);
 	void trigger(Templates::Trigger &trigger, unsigned int version);
 	void areaTrigger(Templates::AreaTrigger &areaTrigger);
 	void attachmentResources(Templates::AttachmentResource &attachmentResource);
