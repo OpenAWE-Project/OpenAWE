@@ -379,7 +379,7 @@ void ObjectStream::pointLight(Templates::PointLight &pointLight, unsigned int ve
 
 void ObjectStream::ambientLightInstance(Templates::AmbientLightInstance ambientLightInstance) {
 	variable("scriptGid", ambientLightInstance.scriptGid);
-	variable("gid", ambientLightInstance.scriptGid);
+	variable("gid", ambientLightInstance.gid);
 	variable("position", ambientLightInstance.position);
 
 	variable("color", ambientLightInstance.color);
