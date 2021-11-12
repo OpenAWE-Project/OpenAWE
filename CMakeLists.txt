@@ -243,8 +243,6 @@ include_directories(
         ${MOJOSHADER_INCLUDE_DIRS}
 )
 
-#message(WARNING ${FBX_INCLUDE_DIRS})
-
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 add_definitions(-DSPDLOG_FMT_EXTERNAL)
 
