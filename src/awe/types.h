@@ -130,7 +130,8 @@ enum ObjectType {
 	kAnimationParameters,
 	kKeyframedObject,
 	kKeyframeAnimation,
-	kKeyframe
+	kKeyframe,
+	kGameEvent
 };
 
 #endif //AWE_TYPES_H
