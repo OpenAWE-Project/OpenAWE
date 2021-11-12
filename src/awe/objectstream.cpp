@@ -544,6 +544,14 @@ void ObjectStream::keyFrame(Templates::KeyFrame &keyFrame) {
 	variable("rotation", keyFrame.rotation);
 }
 
+void ObjectStream::gameEvent(Templates::GameEvent &gameEvent) {
+	object("script", gameEvent.scriptVariables, kScriptVariables);
+
+	variable("gid", gameEvent.gid);
+	variable("name", gameEvent.name, true);
+	skip(8);
+}
+
 void ObjectStream::readFileInfoMetadata(Templates::FileInfoMetadata &fileInfoMetadata) {
 	variable("fileSize", fileInfoMetadata.fileSize);
 	variable("fileDataCRC", fileInfoMetadata.fileDataCRC);
@@ -625,6 +633,7 @@ void ObjectStream::object(Object &value, ObjectType type, unsigned int version) 
 		case kKeyframe: keyFrame(as<Templates::KeyFrame>(value)); break;
 		case kKeyframeAnimation: keyFrameAnimation(as<Templates::KeyFrameAnimation>(value)); break;
 		case kKeyframer: keyFramer(as<Templates::KeyFramer>(value)); break;
+		case kGameEvent: gameEvent(as<Templates::GameEvent>(value)); break;
 
 		case kFileInfoMetadata: readFileInfoMetadata(as<Templates::FileInfoMetadata>(value)); break;
 		case kFoliageMeshMetadata: foliageMeshMetadata(as<Templates::FoliageMeshMetadata>(value)); break;

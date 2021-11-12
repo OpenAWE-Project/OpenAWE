@@ -312,6 +312,12 @@ struct AttachmentResource {
 
 };
 
+struct GameEvent {
+	ScriptVariables scriptVariables;
+	GID gid;
+	std::string name;
+};
+
 } // End of namespace AWE::Templates
 
 #endif //OPENAWE_OBJECT_H
