@@ -300,6 +300,19 @@ install(
 )
 
 # ------------------------------------
+# Tools
+file(GLOB TOOLS_SOURCE_FILES tools/*.cpp)
+foreach(tool_source_file ${TOOLS_SOURCE_FILES})
+    get_filename_component(file_stem ${tool_source_file} NAME_WLE)
+    add_executable(${file_stem} ${tool_source_file})
+    target_link_libraries(${file_stem} awe_common awe_lib)
+    install(
+            TARGETS ${file_stem}
+            DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+endforeach()
+
+# ------------------------------------
 # Unit Tests
 if (GTEST_FOUND)
     list(FILTER SOURCE_FILES EXCLUDE REGEX \\.*/awe.cpp)
