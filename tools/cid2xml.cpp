@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 	auto &rootNode = xml.getRootNode();
 	rootNode.name = "cid";
 
-	const std::string stem = std::filesystem::path(cidFile).stem();
+	const std::string stem = std::filesystem::path(cidFile).stem().string();
 	ObjectType type = AWE::determineObjectTypeByFilename(stem);
 	std::shared_ptr<DPFile> dp;
 	if (!dpFile.empty())
