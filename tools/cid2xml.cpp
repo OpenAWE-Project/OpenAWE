@@ -57,12 +57,12 @@ int main(int argc, char **argv) {
 	const auto &dpFile = result["dpfile"].as<std::string>();
 	const auto &cidFile = result["cidfile"].as<std::string>();
 
-	if (!std::filesystem::is_regular_file(cidFile)) {
+	if (!std::filesystem::is_regular_file(std::filesystem::path(cidFile))) {
 		fmt::print("File {} not found", cidFile);
 		return EXIT_FAILURE;
 	}
 
-	if (!dpFile.empty() && !std::filesystem::is_regular_file(dpFile)) {
+	if (!dpFile.empty() && !std::filesystem::is_regular_file(std::filesystem::path(dpFile))) {
 		fmt::print("File {} not found", dpFile);
 		return EXIT_FAILURE;
 	}
