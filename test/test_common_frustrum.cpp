@@ -32,7 +32,7 @@ TEST(Frustrum, simpleShape) {
 		glm::vec3(0.0f, 1.0f, 0.0f)
 	);
 	const glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, 2.0f);
-	Common::Frustrum frustrum(view, projection);
+	const Common::Frustrum frustrum(view, projection);
 
 	// Points
 	//
