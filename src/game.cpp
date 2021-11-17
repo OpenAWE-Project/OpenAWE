@@ -21,7 +21,7 @@
 #include <filesystem>
 #include <memory>
 
-#include <cxxopts.hpp>
+#include <CLI/CLI.hpp>
 
 #include <src/graphics/fontman.h>
 #include "src/graphics/text.h"
@@ -46,30 +46,22 @@
 #include "src/task.h"
 
 bool Game::parseArguments(int argc, char **argv) {
-	cxxopts::Options options(argv[0], "OpenAWE - Reimplementation of the Alan Wake Engine");
+	CLI::App app("Reimplmentation of the Alan Wake Engine", "awe");
 
-	options.add_options()
-		("p,path", "Set the path to the game data",cxxopts::value<std::string>())
-		("s,shader-path", "Set the path to the glsl or obj shader files", cxxopts::value<std::string>())
-		("r,renderer", "Set the the graphics renderer",cxxopts::value<std::string>())
-		("l,locale", "Set the language of the game", cxxopts::value<std::string>())
-		("d,debug", "Set the used level for debugging messages", cxxopts::value<unsigned int>()->default_value("4"))
-		("debug-physics", "Enable the debug drawing of physics")
-		("h,help", "Print this help");
+	unsigned int debugLevel;
 
-	auto result = options.parse(argc, argv);
+	app.add_option("-p,--path", _path, "The path where the game data resides")
+		->check(CLI::ExistingDirectory)
+		->required();
+	app.add_option("-d,--debug", debugLevel, "The debug level to use")
+		->check(CLI::Range(0,6))
+		->default_val(4);
+	_physicsDebugDraw = false;
+	app.add_flag("--debug-physics", _physicsDebugDraw, "Draw physics bodies for debugging");
 
-	if (result.count("help")) {
-		std::cout << options.help() << std::endl;
-		return false;
-	}
+	CLI11_PARSE(app, argc, argv);
 
-	if (result.count("path"))
-		_path = result["path"].as<std::string>();
-
-	_physicsDebugDraw = result.count("debug-physics") != 0;
-
-	spdlog::set_level(spdlog::level::level_enum(6 - std::clamp(result["debug"].as<unsigned int>(), 0u, 6u)));
+	spdlog::set_level(spdlog::level::level_enum(6 - debugLevel));
 
 	return true;
 }

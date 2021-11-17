@@ -1,6 +1,6 @@
-[submodule "cxxopts"]
-	path = 3rdparty/cxxopts
-	url = https://github.com/jarro2783/cxxopts
 [submodule "3rdparty/entt"]
 	path = 3rdparty/entt
 	url = https://github.com/skypjack/entt
+[submodule "3rdparty/CLI11"]
+	path = 3rdparty/CLI11
+	url = https://github.com/CLIUtils/CLI11

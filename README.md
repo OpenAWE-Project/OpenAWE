@@ -45,9 +45,9 @@ you cloned the repository with `--recurse-submodules` as instructed above you wi
 submodules already:
 
  - EnTT
- - cxxopts
+ - CLI11
 
-To use these from your system instead of the submodule you can set `USE_SYSTEM_ENTT` and `USE_SYSTEM_CXXOPTS`,
+To use these from your system instead of the submodule you can set `USE_SYSTEM_ENTT` and `USE_SYSTEM_CLI11`,
 respectively.
 
 Next step is to configure CMake and build. The `cmake` invocation will fail if you don't have all aforementioned

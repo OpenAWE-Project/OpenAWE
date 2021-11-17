@@ -22,8 +22,7 @@
 
 #include <filesystem>
 
-#include <fmt/format.h>
-#include <cxxopts.hpp>
+#include <CLI/CLI.hpp>
 
 #include "src/common/writefile.h"
 #include "src/common/readfile.h"
@@ -34,46 +33,32 @@
 #include "src/awe/objectxmlwritestream.h"
 
 int main(int argc, char **argv) {
-	cxxopts::Options options(argv[0], "cid2xml - Convert cid files to readable xml");
+	CLI::App app("Convert cid files to readable xml files", "cid2xml");
 
-	options.positional_help("cidfile").allow_unrecognised_options();
+	std::string cidFile, dpFile;
 
-	options.add_options()
-		("h,help", "Print this help")
-		("i,cidfile", "File in cid format to convert", cxxopts::value<std::string>())
-		("d,dpfile", "File in dp format to use", cxxopts::value<std::string>()->default_value(""));
+	app.add_option("--dpfile", dpFile, "The dp file to load additional data")
+		->check(CLI::ExistingFile);
 
-	auto result = options.parse(argc, argv);
-	if (result.count("help")) {
-		std::cout << options.help() << std::endl;
-		return EXIT_SUCCESS;
-	}
+	app.add_option("cidfile", cidFile, "The cidfile to be converted")
+		->check(CLI::ExistingFile)
+		->required();
 
-	if (!result.count("cidfile")) {
-		std::cerr << "No cid file given" << std::endl;
-		return EXIT_FAILURE;
-	}
+	CLI11_PARSE(app, argc, argv);
 
-	const auto &dpFile = result["dpfile"].as<std::string>();
-	const auto &cidFile = result["cidfile"].as<std::string>();
-
-	if (!std::filesystem::is_regular_file(cidFile)) {
-		fmt::print("File {} not found", cidFile);
-		return EXIT_FAILURE;
-	}
-
-	if (!dpFile.empty() && !std::filesystem::is_regular_file(dpFile)) {
-		fmt::print("File {} not found", dpFile);
-		return EXIT_FAILURE;
-	}
-
+	// Open cid file as stream
 	Common::ReadFile cidFileStream(cidFile);
+
+	// Initialize xml object
 	Common::XML xml;
 	auto &rootNode = xml.getRootNode();
 	rootNode.name = "cid";
 
+	// Generate stem and deduce object type from it
 	const std::string stem = std::filesystem::path(cidFile).stem().string();
 	ObjectType type = AWE::determineObjectTypeByFilename(stem);
+
+	// Load dp file if given
 	std::shared_ptr<DPFile> dp;
 	if (!dpFile.empty())
 		dp = std::make_shared<DPFile>(new Common::ReadFile(dpFile));
