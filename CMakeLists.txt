@@ -172,10 +172,10 @@ endif ()
 
 find_package(GTest)
 
-if(NOT USE_SYSTEM_CXXOPTS)
-    set(cxxopts_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/3rdparty/cxxopts/include)
+if(NOT USE_SYSTEM_CLI11)
+    add_subdirectory(3rdparty/CLI11)
 else()
-    find_package(cxxopts REQUIRED)
+    find_package(CLI11 REQUIRED)
 endif()
 
 if(NOT USE_SYSTEM_ENTT)
@@ -216,6 +216,7 @@ link_libraries(
         glfw
         glm::glm
         fmt::fmt
+        CLI11::CLI11
 
         ${ZLIB_LIBRARIES}
         ${GLEW_LIBRARIES}
@@ -235,7 +236,6 @@ include_directories(
         ${ZLIB_INCLUDE_DIRS}
         ${GLEW_INCLUDE_DIRS}
         ${OPENGL_INCLUDE_DIRS}
-        ${cxxopts_INCLUDE_DIRS}
         ${BULLET_INCLUDE_DIRS}
         ${spdlog_INCLUDE_DIRS}
         ${ENTT_INCLUDE_DIRS}
