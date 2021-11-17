@@ -30,10 +30,11 @@
 namespace Common {
 
 Frustrum::Frustrum() : _projection(glm::identity<glm::mat4>()), _view(glm::identity<glm::mat4>()) {
+	generatePlanes();
 }
 
-Frustrum::Frustrum(glm::mat4 view, glm::mat4 projection) : _projection(projection) {
-
+Frustrum::Frustrum(glm::mat4 view, glm::mat4 projection) : _projection(projection), _view(view) {
+	generatePlanes();
 }
 
 void Frustrum::setViewMatrix(glm::mat4 view) {
