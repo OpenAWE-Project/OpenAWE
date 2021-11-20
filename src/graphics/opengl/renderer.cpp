@@ -268,6 +268,8 @@ Renderer::Renderer(Graphics::Window &window) : _window(window) {
 	_deferredBuffer->attachTexture(*_albedoTexture, GL_COLOR_ATTACHMENT0);
 	_deferredBuffer->attachTexture(*_normalTexture, GL_COLOR_ATTACHMENT1);
 
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	// Initialize Pools
 	//
 
