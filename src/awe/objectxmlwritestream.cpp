@@ -20,6 +20,7 @@
 
 #include <fmt/format.h>
 #include <glm/gtx/string_cast.hpp>
+#include <utility>
 
 #include "src/common/exception.h"
 
@@ -29,6 +30,10 @@ namespace AWE {
 
 ObjectXMLWriteStream::ObjectXMLWriteStream(Common::XML::Node &rootNode) : _rootNode(rootNode) {
 	_objectNode.emplace(_rootNode);
+}
+
+void ObjectXMLWriteStream::setBytecodeCollection(std::shared_ptr<AWE::Script::Collection> collection) {
+	_collection = std::move(collection);
 }
 
 void ObjectXMLWriteStream::writeObject(AWE::Object object, ObjectType type, unsigned int version) {
@@ -252,6 +257,15 @@ void ObjectXMLWriteStream::object(const std::string &name, Object &value, Object
 	_objectNode.push(newObjectNode);
 
 	ObjectStream::object(value, type, 0);
+
+	// If we have script variables and have the necessary collection information, try to disassemble the byte code
+	if (type == kScriptVariables && _collection) {
+		newObjectNode.children.clear();
+		Script::Disassembler disassembler = _collection->createDisassembler(
+				std::any_cast<Templates::ScriptVariables>(value)
+		);
+		newObjectNode.content = disassembler.generate();
+	}
 
 	_objectNode.pop();
 }

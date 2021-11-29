@@ -26,12 +26,20 @@
 #include "src/common/xml.h"
 
 #include "src/awe/objectstream.h"
+#include "src/awe/script/collection.h"
 
 namespace AWE {
 
 class ObjectXMLWriteStream : public ObjectWriteStream {
 public:
 	ObjectXMLWriteStream(Common::XML::Node &rootNode);
+
+	/*!
+	 * Add a script collection to the write stream. This enables to disassemble bytecode fragments and add them to their
+	 * appropriate object
+	 * \param collection The bytecode collection to add
+	 */
+	void setBytecodeCollection(std::shared_ptr<AWE::Script::Collection> collection);
 
 	void writeObject(Object object, ObjectType type, unsigned int version) override;
 
@@ -64,6 +72,8 @@ protected:
 private:
 	Common::XML::Node &_rootNode;
 	std::stack<std::reference_wrapper<Common::XML::Node>> _objectNode;
+
+	std::shared_ptr<AWE::Script::Collection> _collection;
 };
 
 } // End of namespace AWE
