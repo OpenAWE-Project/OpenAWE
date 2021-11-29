@@ -84,4 +84,26 @@ void Collection::createScript(
 	);
 }
 
+Disassembler Collection::createDisassembler(const Templates::ScriptVariables &script) {
+	std::vector<DPFile::ScriptDebugEntry> variableMappings = _bytecode->getScriptDebugEntries(script.offsetDebugEntries,
+																							  script.numDebugEntries);
+	std::vector<DPFile::ScriptMetadata> metadata = _bytecode->getScriptMetadata(script.offsetHandlers, script.numHandlers);
+	std::vector<DPFile::ScriptSignal> signals = _bytecode->getScriptSignals(script.offsetSignals, script.numSignals);
+	std::vector<uint32_t> variableValues = _bytecode->getValues(script.offsetVariables, script.numVariables);
+
+	std::map<size_t, std::string> entryPoints;
+	for (const auto &item : metadata) {
+		std::string handler = _bytecodeParameters->getString(item.name);
+		spdlog::debug("Add script entry point {}", handler);
+
+		assert(item.offset <= script.codeSize);
+
+		entryPoints[item.offset] = handler;
+	}
+
+	Disassembler disassembler(_bytecode->getStream(script.offsetCode, script.codeSize), _bytecodeParameters, entryPoints);
+
+	return disassembler;
+}
+
 }

@@ -28,6 +28,7 @@
 #include "src/awe/object.h"
 #include "src/awe/script/bytecode.h"
 #include "src/awe/script/variablestore.h"
+#include "src/awe/script/disassembler.h"
 
 namespace AWE::Script {
 
@@ -52,6 +53,13 @@ public:
 		BytecodePtr &bytecode,
 		VariableStorePtr &variablesStore
 	);
+
+	/*!
+	 * Create a disassembler from the given bytecode and parameters
+	 * \param script The script object to use for generation of the bytecode
+	 * \return A newly created disassembler
+	 */
+	Disassembler createDisassembler(const AWE::Templates::ScriptVariables &script);
 
 private:
 	std::unique_ptr<DPFile> _bytecode;
