@@ -35,7 +35,12 @@
 int main(int argc, char **argv) {
 	CLI::App app("Convert cid files to readable xml files", "cid2xml");
 
-	std::string cidFile, dpFile;
+	std::string cidFile, dpFile, bytecodeFile, bytecodeParametersFile;
+
+	app.add_option("--bytecode", bytecodeFile, "The file containing byte code")
+			->check(CLI::ExistingFile);
+	app.add_option("--bytecode-parameters", bytecodeParametersFile, "The file containing parameters for bytecode")
+			->check(CLI::ExistingFile);
 
 	app.add_option("--dpfile", dpFile, "The dp file to load additional data")
 		->check(CLI::ExistingFile);
@@ -64,6 +69,16 @@ int main(int argc, char **argv) {
 		dp = std::make_shared<DPFile>(new Common::ReadFile(dpFile));
 
 	AWE::ObjectXMLWriteStream xmlWriteStream(xml.getRootNode());
+
+	// If byte code and bytecode parameters are given, create a bytecode collection
+	if (!bytecodeFile.empty() && !bytecodeParametersFile.empty()) {
+		std::shared_ptr<AWE::Script::Collection> collection = std::make_shared<AWE::Script::Collection>(
+				new Common::ReadFile(bytecodeFile),
+				new Common::ReadFile(bytecodeParametersFile)
+		);
+		xmlWriteStream.setBytecodeCollection(collection);
+	}
+
 	AWE::CIDFile cid(cidFileStream, type, dp);
 
 	rootNode.properties["version"] = std::to_string(cid.getVersion());
