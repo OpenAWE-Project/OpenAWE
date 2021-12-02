@@ -19,6 +19,8 @@ jobs:
           - name: Windows MSVC
             os: windows-2019
             extra_cmake_args: -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
+          - name: MacOS Clang
+            os: macos-10.15
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -53,6 +55,12 @@ jobs:
         run: |
           vcpkg update
           vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl
+
+      - name: Install dependencies with brew
+        if: ${{ matrix.os == 'macos-10.15' }}
+        run: |
+          brew update
+          brew install zlib glfw libogg libvorbis theora spdlog glew bullet fmt googletest tinyxml2 glm
 
       - name: Configure CMake
         shell: bash
