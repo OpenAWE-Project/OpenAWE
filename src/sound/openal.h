@@ -21,13 +21,8 @@
 #ifndef AWE_OPENAL_H
 #define AWE_OPENAL_H
 
-#if OS_MACOS
-#	include <OpenAL/al.h>
-#	include <OpenAL/alc.h>
-#else
-#	include <AL/al.h>
-#	include <AL/alc.h>
-#	include <AL/alext.h>
-#endif
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
 
 #endif //AWE_OPENAL_H
