@@ -25,7 +25,11 @@
 #if OS_LINUX
 #   include <GL/glxew.h>
 #endif
-#include <GL/gl.h>
-#include <GL/glu.h>
+#if OS_MACOS
+#	include <OpenGL/gl.h>
+#else
+#	include <GL/gl.h>
+#	include <GL/glu.h>
+#endif
 
 #endif //AWE_OPENGL_H
