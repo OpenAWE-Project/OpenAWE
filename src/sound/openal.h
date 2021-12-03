@@ -21,8 +21,8 @@
 #ifndef AWE_OPENAL_H
 #define AWE_OPENAL_H
 
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alext.h>
+#include <al.h>
+#include <alc.h>
+#include <alext.h>
 
 #endif //AWE_OPENAL_H
