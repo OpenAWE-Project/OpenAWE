@@ -236,6 +236,7 @@ include_directories(
         ${ZLIB_INCLUDE_DIRS}
         ${GLEW_INCLUDE_DIRS}
         ${OPENGL_INCLUDE_DIRS}
+        ${OPENAL_INCLUDE_DIR}
         ${BULLET_INCLUDE_DIRS}
         ${spdlog_INCLUDE_DIRS}
         ${ENTT_INCLUDE_DIRS}
