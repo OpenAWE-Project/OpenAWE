@@ -217,9 +217,9 @@ link_libraries(
         glm::glm
         fmt::fmt
         CLI11::CLI11
+        GLEW::GLEW
 
         ${ZLIB_LIBRARIES}
-        ${GLEW_LIBRARIES}
         ${OPENGL_LIBRARIES}
         ${OPENAL_LIBRARY}
         ${THEORA_LIBRARIES}
@@ -234,7 +234,6 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
 
         ${ZLIB_INCLUDE_DIRS}
-        ${GLEW_INCLUDE_DIRS}
         ${OPENGL_INCLUDE_DIRS}
         ${OPENAL_INCLUDE_DIR}
         ${BULLET_INCLUDE_DIRS}
