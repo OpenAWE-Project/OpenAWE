@@ -30,15 +30,21 @@ Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id), _freeTexture
 	bool layered = decoder.getNumLayers() > 1;
 
 	switch (decoder.getType()) {
-		case ImageDecoder::kCubemap:
+		case kTextureCube:
 			_type = GL_TEXTURE_CUBE_MAP;
 			break;
-		case ImageDecoder::kTexture2D:
+		case kTexture2D:
 			if (layered)
 				_type = GL_TEXTURE_2D_ARRAY;
 			else
 				_type = GL_TEXTURE_2D;
 			break;
+		case kTexture3D:
+			_type = GL_TEXTURE_3D;
+			break;
+
+		default:
+			throw Common::Exception("Invalid image type", decoder.getType());
 	}
 
 	bind();
@@ -53,34 +59,34 @@ Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id), _freeTexture
 
 	GLenum format, internalFormat = 0, type = 0;
 	switch (decoder.getFormat()) {
-		case ImageDecoder::kGrayScale:
+		case kR8:
 			internalFormat = GL_R8;
 			format = GL_RED;
 			type = GL_UNSIGNED_BYTE;
 			break;
-		case ImageDecoder::kRG16:
+		case kRG16:
 			internalFormat = GL_RG16;
 			format = GL_RG;
 			type = GL_UNSIGNED_SHORT;
 			break;
-		case ImageDecoder::RGB8:
+		case kRGB8:
 			internalFormat = GL_RGB;
 			format = GL_RGB;
 			type = GL_UNSIGNED_BYTE;
 			break;
-		case ImageDecoder::kRGBA8:
+		case kRGBA8:
 			internalFormat = GL_RGBA;
 			format = GL_BGRA;
 			type = GL_UNSIGNED_BYTE;
 			break;
 
-		case ImageDecoder::kDXT1:
+		case kBC1:
 			format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
 			break;
-		case ImageDecoder::kDXT3:
+		case kBC2:
 			format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
 			break;
-		case ImageDecoder::kDXT5:
+		case kBC3:
 			format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 			break;
 
@@ -99,7 +105,7 @@ Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id), _freeTexture
 		for (const auto &mipmap : decoder.getMipmaps(i)) {
 			assert(mipmap.width != 0 && mipmap.height != 0);
 
-			if (decoder.getType() == ImageDecoder::kCubemap) {
+			if (decoder.getType() == kTextureCube) {
 				if (decoder.isCompressed()) {
 					glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, level, format, mipmap.width, mipmap.height, 0,
 					                       mipmap.dataSize, mipmap.data[0]);

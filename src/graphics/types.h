@@ -34,6 +34,28 @@ enum AttributeType {
 	kTexCoord3,
 };
 
+enum TextureType {
+	kTexture2D,
+	kTexture3D,
+	kTextureCube
+};
+
+enum TextureFormat {
+	kR8,
+	kRG16,
+	kRGB8,
+	kRGBA8,
+	kBC1,
+	kBC2,
+	kBC3
+};
+
+enum BufferType {
+	kIndexBuffer,
+	kVertexBuffer,
+	kUniformBuffer
+};
+
 inline AttributeType getTexCoord(unsigned int index) {
 	switch (index) {
 		default:

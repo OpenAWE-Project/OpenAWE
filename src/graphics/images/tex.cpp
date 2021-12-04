@@ -43,8 +43,12 @@ TEX::TEX(Common::ReadStream &tex) {
 			_type = kTexture2D;
 			break;
 
+		case 1: // Texture3D
+			_type = kTexture3D;
+			break;
+
 		case 2: // Cubemap
-			_type = kCubemap;
+			_type = kTextureCube;
 			break;
 
 		default:
@@ -53,7 +57,7 @@ TEX::TEX(Common::ReadStream &tex) {
 
 	switch (format) {
 		case 1:
-			_format = kGrayScale;
+			_format = kR8;
 			break;
 
 		// RGBA8 LUT
@@ -66,14 +70,14 @@ TEX::TEX(Common::ReadStream &tex) {
 
 		// DXT1
 		case 5:
-			_format = kDXT1;
+			_format = kBC1;
 			_compressed = true;
 			break;
 
 		// DXT5
 		case 7:
 		case 9:
-			_format = kDXT5;
+			_format = kBC3;
 			_compressed = true;
 			break;
 

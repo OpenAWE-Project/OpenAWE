@@ -49,31 +49,31 @@ bool ImageDecoder::isCompressed() const {
 	return _compressed;
 }
 
-ImageDecoder::Format ImageDecoder::getFormat() const {
+TextureFormat ImageDecoder::getFormat() const {
 	return _format;
 }
 
-ImageDecoder::Type ImageDecoder::getType() const {
+TextureType ImageDecoder::getType() const {
 	return _type;
 }
 
 size_t ImageDecoder::getImageSize(unsigned int width, unsigned int height) {
 	switch (_format) {
-		case kGrayScale:
+		case kR8:
 			return width * height;
 
-		case RGB8:
+		case kRGB8:
 			return width * height * 3;
 
 		case kRG16:
 		case kRGBA8:
 			return width * height * 4;
 
-		case kDXT1:
+		case kBC1:
 			return std::max(8u, ((width + 3) / 4) * ((height + 3) / 4) * 8);
 
-		case kDXT3:
-		case kDXT5:
+		case kBC2:
+		case kBC3:
 			return std::max(16u, ((width + 3) / 4) * ((height + 3) / 4) * 16);
 
 		default:

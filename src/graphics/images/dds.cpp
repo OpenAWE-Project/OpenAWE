@@ -57,15 +57,15 @@ DDS::DDS(Common::ReadStream *dds) {
 
 	switch (fourCC) {
 		case DDS_DXT5:
-			_format = kDXT5;
+			_format = kBC3;
 			_compressed = true;
 			break;
 		case DDS_DXT3:
-			_format = kDXT3;
+			_format = kBC2;
 			_compressed = true;
 			break;
 		case DDS_DXT1:
-			_format = kDXT1;
+			_format = kBC1;
 			_compressed = true;
 			break;
 		default:

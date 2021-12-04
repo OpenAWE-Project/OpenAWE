@@ -21,31 +21,16 @@
 #ifndef AWE_DECODER_H
 #define AWE_DECODER_H
 
-#include <src/common/types.h>
 #include <vector>
+
+#include "src/common/types.h"
+
+#include "src/graphics/types.h"
 
 namespace Graphics {
 
 class ImageDecoder : public Common::Noncopyable {
 public:
-	enum Format {
-		kGrayScale,
-		kRG16,
-		RGB8,
-		kRGBA8,
-
-		kDXT1,
-		kDXT3,
-		kDXT5
-	};
-
-	enum Type {
-		kTexture1D,
-		kTexture2D,
-		kTexture3D,
-		kCubemap
-	};
-
 	struct Mipmap {
 		std::vector<byte *> data;
 		unsigned int dataSize, width, height, depth;
@@ -57,15 +42,15 @@ public:
 	size_t getNumLayers() const;
 	[[nodiscard]] const std::vector<ImageDecoder::Mipmap> &getMipmaps(unsigned int layer = 0) const;
 	[[nodiscard]] bool isCompressed() const;
-	Format getFormat() const;
-	Type getType() const;
+	TextureFormat getFormat() const;
+	TextureType getType() const;
 
 protected:
 	size_t getImageSize(unsigned int width, unsigned int height);
 
 	std::vector<std::vector<Mipmap>> _layers;
-	Format _format;
-	Type _type;
+	TextureFormat _format;
+	TextureType _type;
 	bool _compressed;
 };
 
