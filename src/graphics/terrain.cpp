@@ -104,7 +104,7 @@ Terrain::Terrain(Common::ReadStream *terrainDataFile) {
 			blendData.writeUint16LE(blend2.data[i]);
 		}
 
-		Surface surface(blend1.size, blend1.size, ImageDecoder::kRG16);
+		Surface surface(blend1.size, blend1.size, kRG16);
 		std::memcpy(surface.getData(), blendData.getData(), blendData.getLength());
 		const auto blendid = GfxMan.registerTexture(surface);
 
