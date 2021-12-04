@@ -22,7 +22,10 @@
 #include <stdexcept>
 #include <iostream>
 #include <fmt/format.h>
-#include "texture.h"
+
+#include "src/common/exception.h"
+
+#include "src/graphics/opengl/texture.h"
 
 namespace Graphics::OpenGL {
 
