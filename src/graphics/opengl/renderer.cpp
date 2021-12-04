@@ -317,11 +317,11 @@ void Renderer::drawWorld() {
 			program->bind();
 
 			//_vaos[partmesh.vertexAttributes]->bind();
-			std::reinterpret_pointer_cast<Graphics::OpenGL::VAO>(partmesh.vertexAttributes)->bind();
+			std::static_pointer_cast<Graphics::OpenGL::VAO>(partmesh.vertexAttributes)->bind();
 
 			bool noIndices = !mesh->getIndices();
 			if (!noIndices)
-				std::reinterpret_pointer_cast<Graphics::OpenGL::VBO>(mesh->getIndices())->bind();
+				std::static_pointer_cast<Graphics::OpenGL::VBO>(mesh->getIndices())->bind();
 
 			GLuint textureSlot = 0;
 			for (const auto &attribute : partmesh.material.getAttributes()) {
@@ -352,7 +352,7 @@ void Renderer::drawWorld() {
 
 					case Material::kTexture:
 						glActiveTexture(getTextureSlot(textureSlot));
-						std::reinterpret_pointer_cast<Graphics::OpenGL::Texture>(std::get<TexturePtr>(attribute.data))->bind();
+						std::static_pointer_cast<Graphics::OpenGL::Texture>(std::get<TexturePtr>(attribute.data))->bind();
 						program->setUniformSampler(attribute.index, textureSlot);
 						textureSlot += 1;
 						break;
@@ -460,17 +460,17 @@ void Renderer::drawGUI() {
 
 	for (const auto &element : _guiElements) {
 		glm::mat4 m = glm::translate(glm::vec3(element->getPosition(), 0.0f));
-		std::reinterpret_pointer_cast<Graphics::OpenGL::VAO>(element->getVertexAttributes())->bind();
+		std::static_pointer_cast<Graphics::OpenGL::VAO>(element->getVertexAttributes())->bind();
 
 		for (const auto &part : element->getParts()) {
 			glm::mat4 m2 = m *
 					glm::scale(glm::vec3(part.scale, 1.0f)) *
 					glm::translate(glm::vec3(part.position, 1.0f))
 			;
-			std::reinterpret_pointer_cast<Graphics::OpenGL::VBO>(part.indices)->bind();
+			std::static_pointer_cast<Graphics::OpenGL::VBO>(part.indices)->bind();
 
 			glActiveTexture(getTextureSlot(0));
-			std::reinterpret_pointer_cast<Graphics::OpenGL::Texture>(part.texture)->bind();
+			std::static_pointer_cast<Graphics::OpenGL::Texture>(part.texture)->bind();
 			program->setUniformSampler(*program->getUniformLocation("g_sTexture"), 0);
 			program->setUniformMatrix4f(*program->getUniformLocation("g_mMVP"), vp * m2);
 
@@ -507,8 +507,6 @@ GLenum Renderer::getTextureSlot(unsigned int slot) {
 		case 12: return GL_TEXTURE12;
 		case 13: return GL_TEXTURE13;
 		case 14: return GL_TEXTURE14;
-		case 15: return GL_TEXTURE15;
-		case 16: return GL_TEXTURE16;
 		case 17: return GL_TEXTURE17;
 		case 18: return GL_TEXTURE18;
 		case 19: return GL_TEXTURE19;
@@ -606,7 +604,7 @@ Renderer::createAttributeObject(const std::string &shader, const std::vector<Ver
 								BufferPtr vertexData) {
 	auto vao = std::make_unique<VAO>();
 	vao->bind();
-	std::reinterpret_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
+	std::static_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
 
 	auto programIter = _programs.find(shader);
 	std::string shaderName = shader;
