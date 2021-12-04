@@ -210,7 +210,7 @@ void Theora::bufferData() {
 }
 
 Graphics::Surface * Theora::getNextFrame() {
-	auto *frame = new Graphics::Surface(_width, _height, Graphics::ImageDecoder::RGB8);
+	auto *frame = new Graphics::Surface(_width, _height, kRGB8);
 
 	ogg_packet packet;
 	while (ogg_stream_packetout(&_videoStream, &packet) != 1) {
