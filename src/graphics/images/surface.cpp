@@ -25,7 +25,7 @@
 
 namespace Graphics {
 
-Surface::Surface(unsigned int width, unsigned int height, ImageDecoder::Format format) {
+Surface::Surface(unsigned int width, unsigned int height, TextureFormat format) {
 	_format = format;
 
 	_layers.resize(1);
@@ -43,7 +43,7 @@ Surface::Surface(unsigned int width, unsigned int height, ImageDecoder::Format f
 	std::memset(mipmap.data[0], 0, mipmap.dataSize);
 }
 
-Surface::Surface(unsigned int width, unsigned int height, unsigned int numLayers, ImageDecoder::Format format) {
+Surface::Surface(unsigned int width, unsigned int height, unsigned int numLayers, TextureFormat format) {
 	_format = format;
 
 	_layers.resize(numLayers);
