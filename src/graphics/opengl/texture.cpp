@@ -29,7 +29,54 @@
 
 namespace Graphics::OpenGL {
 
+Texture::Texture(GLenum type) : _type(type), _freeTexture(true) {
+	glCreateTextures(_type, 1, &_id);
+}
+
 Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id), _freeTexture(false) {
+	load(decoder);
+}
+
+Texture::Texture(unsigned int width, unsigned int height) : _type(GL_TEXTURE_2D), _freeTexture(true) {
+	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
+
+	bind();
+
+	glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RGBA16F,
+			width,
+			height,
+			0,
+			GL_RGBA,
+			GL_FLOAT,
+			nullptr
+	);
+}
+
+Texture::~Texture() {
+    if (_freeTexture)
+	    glDeleteTextures(1, &_id);
+}
+
+void Texture::attachToFramebuffer(GLuint attachmentType) {
+	glFramebufferTexture2D(
+			GL_FRAMEBUFFER,
+			attachmentType,
+			_type,
+			_id,
+			0
+	);
+}
+
+void Texture::load(const ImageDecoder &decoder) {
 	bool layered = decoder.getNumLayers() > 1;
 
 	switch (decoder.getType()) {
@@ -51,8 +98,6 @@ Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id), _freeTexture
 	}
 
 	bind();
-
-	assert(glIsTexture(id) == GL_TRUE);
 
 	glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -111,30 +156,30 @@ Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id), _freeTexture
 			if (decoder.getType() == kTextureCube) {
 				if (decoder.isCompressed()) {
 					glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, level, format, mipmap.width, mipmap.height, 0,
-					                       mipmap.dataSize, mipmap.data[0]);
+										   mipmap.dataSize, mipmap.data[0]);
 					glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, level, format, mipmap.width, mipmap.height, 0,
-					                       mipmap.dataSize, mipmap.data[1]);
+										   mipmap.dataSize, mipmap.data[1]);
 					glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, level, format, mipmap.width, mipmap.height, 0,
-					                       mipmap.dataSize, mipmap.data[2]);
+										   mipmap.dataSize, mipmap.data[2]);
 					glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, level, format, mipmap.width, mipmap.height, 0,
-					                       mipmap.dataSize, mipmap.data[3]);
+										   mipmap.dataSize, mipmap.data[3]);
 					glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, level, format, mipmap.width, mipmap.height, 0,
-					                       mipmap.dataSize, mipmap.data[4]);
+										   mipmap.dataSize, mipmap.data[4]);
 					glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, level, format, mipmap.width, mipmap.height, 0,
-					                       mipmap.dataSize, mipmap.data[5]);
+										   mipmap.dataSize, mipmap.data[5]);
 				} else {
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, level, internalFormat, mipmap.width, mipmap.height, 0,
-					             format, type, mipmap.data[0]);
+								 format, type, mipmap.data[0]);
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, level, internalFormat, mipmap.width, mipmap.height, 0,
-					             format, type, mipmap.data[1]);
+								 format, type, mipmap.data[1]);
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, level, internalFormat, mipmap.width, mipmap.height, 0,
-					             format, type, mipmap.data[2]);
+								 format, type, mipmap.data[2]);
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, level, internalFormat, mipmap.width, mipmap.height, 0,
-					             format, type, mipmap.data[3]);
+								 format, type, mipmap.data[3]);
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, level, internalFormat, mipmap.width, mipmap.height, 0,
-					             format, type, mipmap.data[4]);
+								 format, type, mipmap.data[4]);
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, level, internalFormat, mipmap.width, mipmap.height, 0,
-					             format, type, mipmap.data[5]);
+								 format, type, mipmap.data[5]);
 				}
 			} else {
 				if (decoder.isCompressed()) {
@@ -184,48 +229,6 @@ Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id), _freeTexture
 	}
 
 	assert(glGetError() == GL_NO_ERROR);
-
-	//if (decoder.getMipmaps().size() > 1)
-	//	glGenerateMipmap(GL_TEXTURE_2D);
-}
-
-Texture::Texture(unsigned int width, unsigned int height) : _type(GL_TEXTURE_2D), _freeTexture(true) {
-	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
-
-	bind();
-
-	glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-	glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexImage2D(
-			GL_TEXTURE_2D,
-			0,
-			GL_RGBA16F,
-			width,
-			height,
-			0,
-			GL_RGBA,
-			GL_FLOAT,
-			nullptr
-	);
-}
-
-Texture::~Texture() {
-    if (_freeTexture)
-	    glDeleteTextures(1, &_id);
-}
-
-void Texture::attachToFramebuffer(GLuint attachmentType) {
-	glFramebufferTexture2D(
-			GL_FRAMEBUFFER,
-			attachmentType,
-			_type,
-			_id,
-			0
-	);
 }
 
 void Texture::bind() {

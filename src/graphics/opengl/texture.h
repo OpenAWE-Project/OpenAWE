@@ -21,13 +21,15 @@
 #ifndef AWE_TEXTURE_H
 #define AWE_TEXTURE_H
 
+#include "src/graphics/texture.h"
 #include "src/graphics/images/decoder.h"
 #include "src/graphics/opengl/opengl.h"
 
 namespace Graphics::OpenGL {
 
-class Texture : Common::Noncopyable {
+class Texture : public Graphics::Texture {
 public:
+	Texture(GLenum type);
 	Texture(const ImageDecoder &decoder, GLuint id);
 	Texture(unsigned int width, unsigned int height);
 	~Texture();
@@ -35,6 +37,8 @@ public:
 	void attachToFramebuffer(GLuint attachmentType);
 
 	void bind();
+
+	void load(const ImageDecoder &decoder) override;
 
 private:
 	friend class Framebuffer;

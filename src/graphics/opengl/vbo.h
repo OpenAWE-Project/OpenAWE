@@ -22,6 +22,8 @@
 #define AWE_VBO_H
 
 #include <src/common/types.h>
+
+#include "src/graphics/buffer.h"
 #include "src/graphics/opengl/opengl.h"
 
 namespace Graphics::OpenGL {
@@ -32,7 +34,7 @@ namespace Graphics::OpenGL {
  * A Vertex Buffer Object for storing vertex and
  * index data for later access for rendering.
  */
-class VBO : Common::Noncopyable {
+class VBO : public Buffer {
 public:
 	VBO(GLenum type);
 	~VBO();
@@ -45,6 +47,10 @@ public:
 	void unmap() const;
 
 	unsigned int getBufferSize() const;
+
+	void read(byte *data, size_t length) override;
+
+	void write(byte *data, size_t length) override;
 
 private:
 	GLuint _id;

@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
+
 #include <iostream>
 #include <assert.h>
 
@@ -57,6 +59,18 @@ unsigned int VBO::getBufferSize() const {
 	GLint bufferSize;
 	glGetBufferParameteriv(_type, GL_BUFFER_SIZE, &bufferSize);
 	return bufferSize;
+}
+
+void VBO::read(byte *data, size_t length) {
+	bind();
+	void *bufferData = glMapBuffer(_type, GL_READ_ONLY);
+	std::memcpy(data, bufferData, std::min<size_t>(length, getBufferSize()));
+	glUnmapBuffer(_type);
+}
+
+void VBO::write(byte *data, size_t length) {
+	bind();
+	glBufferData(_type, length, data, GL_STATIC_DRAW);
 }
 
 }

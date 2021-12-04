@@ -23,11 +23,12 @@
 
 #include "src/common/types.h"
 
+#include "src/graphics/attributeobject.h"
 #include "src/graphics/opengl/opengl.h"
 
 namespace Graphics::OpenGL {
 
-class VAO : Common::Noncopyable {
+class VAO : public AttributeObject {
 public:
 	VAO();
 	~VAO();
