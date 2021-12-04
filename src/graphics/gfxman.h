@@ -62,9 +62,10 @@ public:
 	 * \param data A pointer to the data which should be contained in the block
 	 * \param length The length of the data of the data block
 	 * \param type The type of the buffer
+	 * \param modifiable If the buffer should be modifiable
 	 * \return A render system specific buffer object
 	 */
-	BufferPtr createBuffer(byte* data, size_t length, BufferType type);
+	BufferPtr createBuffer(byte* data, size_t length, BufferType type, bool modifiable = false);
 
 	/*!
 	 * Create an attribute object in the initialized render system using the given shader, vertex attributes and the

@@ -205,7 +205,7 @@ Renderer::Renderer(Graphics::Window &window) : _window(window) {
 	_programs["video"]->bind();
 
 	// Create a static quad for playing videos
-	_videoQuad = std::make_unique<VBO>(GL_ARRAY_BUFFER);
+	_videoQuad = std::make_unique<VBO>(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
 
 	constexpr float videoQuadVertices[] = {
 			-1.0f, -1.0f, 0.0f, 1.0f,
@@ -567,8 +567,10 @@ TexturePtr Renderer::createTexture(TextureType type) {
 	return std::make_shared<Graphics::OpenGL::Texture>(texType);
 }
 
-BufferPtr Renderer::createBuffer(BufferType type) {
+BufferPtr Renderer::createBuffer(BufferType type, bool modifiable) {
 	GLenum bufferType;
+	GLenum usage;
+
 	switch (type) {
 		case kIndexBuffer:
 			bufferType = GL_ELEMENT_ARRAY_BUFFER;
@@ -583,7 +585,13 @@ BufferPtr Renderer::createBuffer(BufferType type) {
 			throw Common::Exception("Invalid buffer type");
 	}
 
-	return std::make_shared<Graphics::OpenGL::VBO>(bufferType);
+	if (modifiable) {
+		usage = GL_DYNAMIC_DRAW;
+	} else {
+		usage = GL_STATIC_DRAW;
+	}
+
+	return std::make_shared<Graphics::OpenGL::VBO>(bufferType, usage);
 }
 
 int Renderer::getUniformIndex(const std::string &shaderName, const std::string &id) {

@@ -36,7 +36,7 @@ namespace Graphics::OpenGL {
  */
 class VBO : public Buffer {
 public:
-	VBO(GLenum type);
+	VBO(GLenum type, GLenum usage);
 	~VBO();
 
 	void bufferData(byte *data, size_t length);
@@ -49,12 +49,12 @@ public:
 	unsigned int getBufferSize() const;
 
 	void read(byte *data, size_t length) override;
-
 	void write(byte *data, size_t length) override;
 
 private:
 	GLuint _id;
 	GLenum _type;
+	GLenum _usage;
 };
 
 } // End of namespace Graphics::OpenGL

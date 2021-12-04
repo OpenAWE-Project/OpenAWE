@@ -43,7 +43,7 @@ public:
 	void drawFrame() override;
 
 	TexturePtr createTexture(TextureType type) override;
-	BufferPtr createBuffer(BufferType type) override;
+	BufferPtr createBuffer(BufferType type, bool modifiable) override;
 
 	AttributeObjectPtr
 	createAttributeObject(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,

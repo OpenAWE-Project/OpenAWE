@@ -27,7 +27,7 @@
 
 namespace Graphics::OpenGL {
 
-VBO::VBO(GLenum type) : _type(type), _id(0) {
+VBO::VBO(GLenum type, GLenum usage) : _type(type), _usage(usage), _id(0) {
 	glGenBuffers(1, &_id);
 }
 
@@ -37,7 +37,7 @@ VBO::~VBO() {
 
 void VBO::bufferData(byte *data, size_t length) {
 	bind();
-	glBufferData(_type, length, data, GL_STATIC_DRAW);
+	glBufferData(_type, length, data, _usage);
 }
 
 void VBO::bind() const {
@@ -70,7 +70,10 @@ void VBO::read(byte *data, size_t length) {
 
 void VBO::write(byte *data, size_t length) {
 	bind();
-	glBufferData(_type, length, data, GL_STATIC_DRAW);
+	if (length != getBufferSize())
+		glBufferData(_type, length, data, _usage);
+	else
+		glBufferSubData(_type, 0, length, data);
 }
 
 }

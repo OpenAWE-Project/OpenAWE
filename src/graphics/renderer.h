@@ -49,7 +49,7 @@ public:
 	void setAmbianceState(const AmbianceState ambiance);
 
 	virtual TexturePtr createTexture(TextureType type) = 0;
-	virtual BufferPtr createBuffer(BufferType type) = 0;
+	virtual BufferPtr createBuffer(BufferType type, bool modifiable) = 0;
 	virtual AttributeObjectPtr createAttributeObject(
 		const std::string &shader,
 		const std::vector<VertexAttribute> &vertexAttributes,
