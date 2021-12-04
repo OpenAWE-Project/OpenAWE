@@ -41,7 +41,9 @@ private:
 		bool operator==(const Line &rhs) const;
 		bool operator!=(const Line &rhs) const;
 	};
+
 	std::vector<Line> _lines, _oldLines;
+	BufferPtr _buffer;
 };
 
 } // End of namespace
