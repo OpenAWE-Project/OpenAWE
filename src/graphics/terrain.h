@@ -31,7 +31,7 @@ public:
 	~Terrain();
 
 private:
-	std::vector<Common::UUID> _textures;
+	std::vector<TexturePtr> _textures;
 	std::vector<Common::UUID> _blendMaps;
 };
 

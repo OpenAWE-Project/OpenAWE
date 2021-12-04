@@ -175,100 +175,28 @@ void Program::setSymbols(const std::vector<ShaderConverter::Symbol> &symbols) {
 	}
 }
 
-void Program::setUniform1f(const std::string &name, const glm::vec1 &value) const {
-	const auto uniformLocation = getUniformLocation(name);
-	if (uniformLocation) {
-		glUniform1f(*uniformLocation, value.x);
-		return;
-	}
-
-	if (_symbols.empty())
-		return;
-
-	const auto symbol = _symbols.find(name);
-	if (symbol != _symbols.end())
-		glUniform1f(*getUniformArraySymbolLocation(symbol->second), value.x);
+void Program::setUniform1f(GLint id, const glm::vec1 &value) const {
+	glUniform1f(id, value.x);
 }
 
-void Program::setUniform2f(const std::string &name, const glm::vec2 &value) const {
-	const auto uniformLocation = getUniformLocation(name);
-	if (uniformLocation) {
-		glUniform2fv(*uniformLocation, 1, glm::value_ptr(value));
-		return;
-	}
-
-	if (_symbols.empty())
-		return;
-
-	const auto symbol = _symbols.find(name);
-	if (symbol != _symbols.end())
-		glUniform2fv(*getUniformArraySymbolLocation(symbol->second), 1, glm::value_ptr(value));
+void Program::setUniform2f(GLint id, const glm::vec2 &value) const {
+	glUniform2fv(id, 1, glm::value_ptr(value));
 }
 
-void Program::setUniform3f(const std::string &name, const glm::vec3 &value) const {
-	const auto uniformLocation = getUniformLocation(name);
-	if (uniformLocation) {
-		glUniform3fv(*uniformLocation, 1, glm::value_ptr(value));
-		return;
-	}
-
-	if (_symbols.empty())
-		return;
-
-	const auto symbol = _symbols.find(name);
-	if (symbol != _symbols.end())
-		glUniform3fv(*getUniformArraySymbolLocation(symbol->second), 1, glm::value_ptr(value));
+void Program::setUniform3f(GLint id, const glm::vec3 &value) const {
+	glUniform3fv(id, 1, glm::value_ptr(value));
 }
 
-void Program::setUniform4f(const std::string &name, const glm::vec4 &value) const {
-	const auto uniformLocation = getUniformLocation(name);
-	if (uniformLocation) {
-		glUniform4fv(*uniformLocation, 1, glm::value_ptr(value));
-		return;
-	}
-
-	if (_symbols.empty())
-		return;
-
-	const auto symbol = _symbols.find(name);
-	if (symbol != _symbols.end())
-		glUniform4fv(*getUniformArraySymbolLocation(symbol->second), 1, glm::value_ptr(value));
+void Program::setUniform4f(GLint id, const glm::vec4 &value) const {
+	glUniform4fv(id, 1, glm::value_ptr(value));
 }
 
-void Program::setUniformMatrix4f(const std::string &name, const glm::mat4 &value) const {
-	const auto uniformLocation = getUniformLocation(name);
-	if (uniformLocation) {
-		glUniformMatrix4fv(*uniformLocation, 1, GL_FALSE, glm::value_ptr(value));
-		return;
-	}
-
-	if (_symbols.empty())
-		return;
-
-	const auto symbol = _symbols.find(name);
-	if (symbol != _symbols.end()) {
-		glUniform4fv(*getUniformArraySymbolLocation(symbol->second), 1, glm::value_ptr(value[0]));
-		glUniform4fv(*getUniformArraySymbolLocation(symbol->second, 1), 1, glm::value_ptr(value[1]));
-		glUniform4fv(*getUniformArraySymbolLocation(symbol->second, 2), 1, glm::value_ptr(value[2]));
-		glUniform4fv(*getUniformArraySymbolLocation(symbol->second, 3), 1, glm::value_ptr(value[3]));
-	}
+void Program::setUniformMatrix4f(GLint id, const glm::mat4 &value) const {
+	glUniformMatrix4fv(id, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void Program::setUniformSampler(const std::string &name, const GLuint value) const {
-	const auto uniformLocation = getUniformLocation(name);
-	if (uniformLocation) {
-		glUniform1i(*uniformLocation, value);
-		return;
-	}
-
-	const auto samplerName = _samplerMappings.find(name);
-	if (samplerName != _samplerMappings.end()) {
-		const auto samplerLocation = getUniformLocation(samplerName->second);
-		if (!samplerLocation)
-			throw std::runtime_error("Sampler location not found");
-
-		glUniform1i(*samplerLocation, value);
-	}
+void Program::setUniformSampler(GLint id, const GLuint value) const {
+	glUniform1i(id, value);
 }
 
 std::optional<GLint> Program::getUniformArraySymbolLocation(const ShaderConverter::Symbol &symbol, unsigned int offset) const {
@@ -286,6 +214,7 @@ std::optional<GLint> Program::getUniformLocation(const std::string &name) const 
 	// First try to find the uniform in the cached uniforms
 	auto iter = _uniforms.find(name);
 	if (iter == _uniforms.end()) {
+		bind();
 		// If that doesn't work, try to find it usng glGetUniformLocation, for example for specific array offsets
 		GLint location = glGetUniformLocation(_id, name.c_str());
 		if (location == -1)

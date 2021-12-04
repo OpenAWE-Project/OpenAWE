@@ -21,6 +21,8 @@
 #include <memory>
 #include <regex>
 
+#include "src/common/exception.h"
+
 #include "src/graphics/images/tex.h"
 #include "src/graphics/images/dds.h"
 #include "src/graphics/textureman.h"
@@ -31,9 +33,9 @@
 
 namespace Graphics {
 
-Common::UUID TextureManager::getTexture(const std::string &path) {
+TexturePtr TextureManager::getTexture(const std::string &path) {
 	if (!std::regex_match(path, std::regex(".*(\\.tex|\\.tex_lo)$")))
-		return Common::UUID::generateNil();
+		throw Common::Exception("Invalid texture file {}", path);
 
 	if (_textures.find(path) != _textures.end())
 		return _textures[path];
@@ -49,7 +51,9 @@ Common::UUID TextureManager::getTexture(const std::string &path) {
 	else
 		decoder = std::make_unique<TEX>(*stream);
 
-	return GfxMan.registerTexture(*decoder);
+	_textures.insert(std::make_pair(path, GfxMan.createTexture(*decoder)));
+
+	return _textures[path];
 }
 
 }

@@ -77,10 +77,10 @@ Terrain::Terrain(Common::ReadStream *terrainDataFile) {
 		}
 
 		Mesh::PartMesh partMesh;
-		partMesh.vertexDataId = GfxMan.registerVertices(
+		partMesh.vertexData = GfxMan.createBuffer(
 			vertexData.getData(),
 			vertexData.getLength(),
-			Common::UUID::generateNil()
+			kVertexBuffer
 		);
 
 		const std::vector<VertexAttribute> attributes = {
@@ -106,7 +106,7 @@ Terrain::Terrain(Common::ReadStream *terrainDataFile) {
 
 		Surface surface(blend1.size, blend1.size, kRG16);
 		std::memcpy(surface.getData(), blendData.getData(), blendData.getLength());
-		const auto blendid = GfxMan.registerTexture(surface);
+		const auto blendid = GfxMan.createTexture(surface);
 
 		const auto tileset = tilesets[polygon.tilesetId];
 		const std::vector<Material::Attribute> materialAttributes = {
@@ -119,10 +119,10 @@ Terrain::Terrain(Common::ReadStream *terrainDataFile) {
 			{"g_sBlendMap",     Material::kTexture, blendid}
 		};
 
-		partMesh.vertexAttributesId = GfxMan.registerVertexAttributes(
+		partMesh.vertexAttributes = GfxMan.createAttributeObject(
 			"terrain",
 			attributes,
-			partMesh.vertexDataId
+			partMesh.vertexData
 		);
 		partMesh.renderType = Mesh::kTriangles;
 		partMesh.material = Material("terrain", materialAttributes);
@@ -137,13 +137,13 @@ Terrain::Terrain(Common::ReadStream *terrainDataFile) {
 		_mesh->addPartMesh(partMesh);
 	}
 
-	_mesh->setIndices(GfxMan.registerIndices(reinterpret_cast<byte *>(indices.data()), indices.size() * 2));
+	_mesh->setIndices(GfxMan.createBuffer(reinterpret_cast<byte*>(indices.data()), indices.size() * 2, kIndexBuffer));
 }
 
 Terrain::~Terrain() {
-	for (auto &blendMap : _blendMaps) {
+	/*for (auto &blendMap : _blendMaps) {
 		GfxMan.deregisterTexture(blendMap);
-	}
+	}*/
 }
 
 }

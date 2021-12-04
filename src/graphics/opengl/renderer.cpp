@@ -35,6 +35,7 @@
 
 #include "src/common/uuid.h"
 #include "src/common/writefile.h"
+#include "src/common/exception.h"
 
 #include "src/awe/resman.h"
 #include "src/awe/objfile.h"
@@ -315,43 +316,44 @@ void Renderer::drawWorld() {
 			std::unique_ptr<Program> &program = _programs[shaderName];
 			program->bind();
 
-			_vaos[partmesh.vertexAttributesId]->bind();
+			//_vaos[partmesh.vertexAttributes]->bind();
+			std::reinterpret_pointer_cast<Graphics::OpenGL::VAO>(partmesh.vertexAttributes)->bind();
 
-			bool noIndices = mesh->getIndices().isNil();
+			bool noIndices = !mesh->getIndices();
 			if (!noIndices)
-				_indices[mesh->getIndices()]->bind();
+				std::reinterpret_pointer_cast<Graphics::OpenGL::VBO>(mesh->getIndices())->bind();
 
 			GLuint textureSlot = 0;
 			for (const auto &attribute : partmesh.material.getAttributes()) {
 				switch (attribute.type) {
 					case Material::kVec1: {
 						glm::vec1 value = std::get<glm::vec1>(attribute.data);
-						program->setUniform1f(attribute.id, value);
+						program->setUniform1f(attribute.index, value);
 						break;
 					}
 
 					case Material::kVec2: {
 						glm::vec2 value = std::get<glm::vec2>(attribute.data);
-						program->setUniform2f(attribute.id, value);
+						program->setUniform2f(attribute.index, value);
 						break;
 					}
 
 					case Material::kVec3: {
 						glm::vec3 value = std::get<glm::vec3>(attribute.data);
-						program->setUniform3f(attribute.id, value);
+						program->setUniform3f(attribute.index, value);
 						break;
 					}
 
 					case Material::kVec4: {
 						glm::vec4 value = std::get<glm::vec4>(attribute.data);
-						program->setUniform4f(attribute.id, value);
+						program->setUniform4f(attribute.index, value);
 						break;
 					}
 
 					case Material::kTexture:
 						glActiveTexture(getTextureSlot(textureSlot));
-						_textures[std::get<Common::UUID>(attribute.data)]->bind();
-						program->setUniformSampler(attribute.id, textureSlot);
+						std::reinterpret_pointer_cast<Graphics::OpenGL::Texture>(std::get<TexturePtr>(attribute.data))->bind();
+						program->setUniformSampler(attribute.index, textureSlot);
 						textureSlot += 1;
 						break;
 				}
@@ -363,7 +365,7 @@ void Renderer::drawWorld() {
 				glUniform1f(program->getUniformLocation("g_sAmbientLight.intensity"), _ambiance.getAmbientLightIntensity());
 			}*/
 
-			program->setUniformMatrix4f("g_mLocalToView", mvp);
+			program->setUniformMatrix4f(*program->getUniformLocation("g_mLocalToView"), mvp);
 			assert(glGetError() == GL_NO_ERROR);
 
 			GLenum type;
@@ -440,7 +442,7 @@ void Renderer::drawVideo() {
 
 	glActiveTexture(getTextureSlot(0));
 	_textures[_currentVideoFrame]->bind();
-	program->setUniformSampler("g_sVideoTexture", 0);
+	program->setUniformSampler(*program->getUniformLocation("g_sVideoTexture"), 0);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -458,19 +460,19 @@ void Renderer::drawGUI() {
 
 	for (const auto &element : _guiElements) {
 		glm::mat4 m = glm::translate(glm::vec3(element->getPosition(), 0.0f));
-		_vaos[element->getVertexAttributes()]->bind();
+		std::reinterpret_pointer_cast<Graphics::OpenGL::VAO>(element->getVertexAttributes())->bind();
 
 		for (const auto &part : element->getParts()) {
 			glm::mat4 m2 = m *
 					glm::scale(glm::vec3(part.scale, 1.0f)) *
 					glm::translate(glm::vec3(part.position, 1.0f))
 			;
-			_indices[part.indices]->bind();
+			std::reinterpret_pointer_cast<Graphics::OpenGL::VBO>(part.indices)->bind();
 
 			glActiveTexture(getTextureSlot(0));
-			_textures[part.texture]->bind();
-			program->setUniformSampler("g_sTexture", 0);
-			program->setUniformMatrix4f("g_mMVP", vp * m2);
+			std::reinterpret_pointer_cast<Graphics::OpenGL::Texture>(part.texture)->bind();
+			program->setUniformSampler(*program->getUniformLocation("g_sTexture"), 0);
+			program->setUniformMatrix4f(*program->getUniformLocation("g_mMVP"), vp * m2);
 
 			glDrawElementsBaseVertex(
 					GL_TRIANGLES,
@@ -485,37 +487,126 @@ void Renderer::drawGUI() {
 	glEnable(GL_DEPTH_TEST);
 }
 
-Common::UUID Renderer::registerVertices(byte *data, size_t length) {
-	Common::UUID id = Common::UUID::generateRandom();
 
-	_vertices[id] = std::make_unique<VBO>(GL_ARRAY_BUFFER);
-	_vertices[id]->bufferData(data, length);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	return id;
+GLenum Renderer::getTextureSlot(unsigned int slot) {
+	switch (slot % 32) {
+		default:
+		case 0: return GL_TEXTURE0;
+		case 1: return GL_TEXTURE1;
+		case 2: return GL_TEXTURE2;
+		case 3: return GL_TEXTURE3;
+		case 4: return GL_TEXTURE4;
+		case 5: return GL_TEXTURE5;
+		case 6: return GL_TEXTURE6;
+		case 7: return GL_TEXTURE7;
+		case 8: return GL_TEXTURE8;
+		case 9: return GL_TEXTURE9;
+		case 10: return GL_TEXTURE10;
+		case 11: return GL_TEXTURE11;
+		case 12: return GL_TEXTURE12;
+		case 13: return GL_TEXTURE13;
+		case 14: return GL_TEXTURE14;
+		case 15: return GL_TEXTURE15;
+		case 16: return GL_TEXTURE16;
+		case 17: return GL_TEXTURE17;
+		case 18: return GL_TEXTURE18;
+		case 19: return GL_TEXTURE19;
+		case 20: return GL_TEXTURE20;
+		case 21: return GL_TEXTURE21;
+		case 22: return GL_TEXTURE22;
+		case 23: return GL_TEXTURE23;
+		case 24: return GL_TEXTURE24;
+		case 25: return GL_TEXTURE25;
+		case 26: return GL_TEXTURE26;
+		case 27: return GL_TEXTURE27;
+		case 28: return GL_TEXTURE28;
+		case 29: return GL_TEXTURE29;
+		case 30: return GL_TEXTURE30;
+		case 31: return GL_TEXTURE31;
+	}
 }
 
-Common::UUID Renderer::registerIndices(byte *data, size_t length) {
-	Common::UUID id = Common::UUID::generateRandom();
-
-	_indices[id] = std::make_unique<VBO>(GL_ELEMENT_ARRAY_BUFFER);
-	_indices[id]->bufferData(data, length);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	return id;
+void Renderer::debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+									const GLchar *message, void *userParam) {
+	switch (type) {
+		case GL_DEBUG_TYPE_ERROR:
+			spdlog::error(message);
+			return;
+		default:
+			switch (severity) {
+				case GL_DEBUG_SEVERITY_HIGH:
+					spdlog::info(message);
+					break;
+				case GL_DEBUG_SEVERITY_MEDIUM:
+					spdlog::debug(message);
+					break;
+                default:
+				case GL_DEBUG_SEVERITY_LOW:
+					spdlog::trace(message);
+					break;
+			}
+			return;
+	}
 }
 
-Common::UUID
-Renderer::registerVertexAttributes(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
-								   Common::UUID vertexData) {
-	Common::UUID id = Common::UUID::generateRandom();
+TexturePtr Renderer::createTexture(TextureType type) {
+	GLenum texType;
+	switch (type) {
+		case kTexture2D:
+			texType = GL_TEXTURE_2D;
+			break;
+		case kTexture3D:
+			texType = GL_TEXTURE_3D;
+			break;
+		case kTextureCube:
+			texType = GL_TEXTURE_CUBE_MAP;
+			break;
+		default:
+			throw Common::Exception("Invalid texture type");
+	}
 
-	const auto& vao = _vaos[id] = std::make_unique<VAO>();
+	return std::make_shared<Graphics::OpenGL::Texture>(texType);
+}
+
+BufferPtr Renderer::createBuffer(BufferType type) {
+	GLenum bufferType;
+	switch (type) {
+		case kIndexBuffer:
+			bufferType = GL_ELEMENT_ARRAY_BUFFER;
+			break;
+		case kVertexBuffer:
+			bufferType = GL_ARRAY_BUFFER;
+			break;
+		case kUniformBuffer:
+			bufferType = GL_UNIFORM_BUFFER;
+			break;
+		default:
+			throw Common::Exception("Invalid buffer type");
+	}
+
+	return std::make_shared<Graphics::OpenGL::VBO>(bufferType);
+}
+
+int Renderer::getUniformIndex(const std::string &shaderName, const std::string &id) {
+	const auto programIter = _programs.find(shaderName);
+	if (programIter == _programs.end())
+		return -1;
+
+	const auto &program = programIter->second;
+	const auto uniformLocation = program->getUniformLocation(id);
+	if (!uniformLocation)
+		return -1;
+
+	return *uniformLocation;
+}
+
+AttributeObjectPtr
+Renderer::createAttributeObject(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
+								BufferPtr vertexData) {
+	auto vao = std::make_unique<VAO>();
 	vao->bind();
-	const auto& vbo = _vertices[vertexData];
-	vbo->bind();
+	std::reinterpret_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
 
 	auto programIter = _programs.find(shader);
 	std::string shaderName = shader;
@@ -524,8 +615,6 @@ Renderer::registerVertexAttributes(const std::string &shader, const std::vector<
 
 	std::unique_ptr<Program> &program = _programs[shaderName];
 	program->bind();
-	//const std::unique_ptr<Program> &program = _programs[shader];
-	//program->bind();
 
 	// Calculate the size of the vertex element.
 	GLuint stride = 0;
@@ -609,97 +698,7 @@ Renderer::registerVertexAttributes(const std::string &shader, const std::vector<
 
 	glBindVertexArray(0);
 
-	return id;
-}
-
-Common::UUID Renderer::registerTexture(const ImageDecoder &decoder) {
-	Common::UUID id = Common::UUID::generateRandom();
-
-	if (_texturePool.empty()) {
-		_texturePool.resize(32);
-		glGenTextures(32, _texturePool.data());
-	}
-
-	GLuint textureId = _texturePool.back();
-	//assert(glIsTexture(textureId) == GL_TRUE);
-	_textures[id] = std::make_unique<Texture>(decoder, textureId);
-
-	_texturePoolAssignments[id] = textureId;
-	_texturePool.pop_back();
-
-	return id;
-}
-
-void Renderer::deregisterTexture(const Common::UUID &id) {
-	if (id.isNil())
-		return;
-
-	_textures.erase(id);
-
-	GLuint textureId = _texturePoolAssignments[id];
-	_texturePoolAssignments.erase(id);
-	_texturePool.push_back(textureId);
-}
-
-GLenum Renderer::getTextureSlot(unsigned int slot) {
-	switch (slot % 32) {
-		default:
-		case 0: return GL_TEXTURE0;
-		case 1: return GL_TEXTURE1;
-		case 2: return GL_TEXTURE2;
-		case 3: return GL_TEXTURE3;
-		case 4: return GL_TEXTURE4;
-		case 5: return GL_TEXTURE5;
-		case 6: return GL_TEXTURE6;
-		case 7: return GL_TEXTURE7;
-		case 8: return GL_TEXTURE8;
-		case 9: return GL_TEXTURE9;
-		case 10: return GL_TEXTURE10;
-		case 11: return GL_TEXTURE11;
-		case 12: return GL_TEXTURE12;
-		case 13: return GL_TEXTURE13;
-		case 14: return GL_TEXTURE14;
-		case 15: return GL_TEXTURE15;
-		case 16: return GL_TEXTURE16;
-		case 17: return GL_TEXTURE17;
-		case 18: return GL_TEXTURE18;
-		case 19: return GL_TEXTURE19;
-		case 20: return GL_TEXTURE20;
-		case 21: return GL_TEXTURE21;
-		case 22: return GL_TEXTURE22;
-		case 23: return GL_TEXTURE23;
-		case 24: return GL_TEXTURE24;
-		case 25: return GL_TEXTURE25;
-		case 26: return GL_TEXTURE26;
-		case 27: return GL_TEXTURE27;
-		case 28: return GL_TEXTURE28;
-		case 29: return GL_TEXTURE29;
-		case 30: return GL_TEXTURE30;
-		case 31: return GL_TEXTURE31;
-	}
-}
-
-void Renderer::debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-									const GLchar *message, void *userParam) {
-	switch (type) {
-		case GL_DEBUG_TYPE_ERROR:
-			spdlog::error(message);
-			return;
-		default:
-			switch (severity) {
-				case GL_DEBUG_SEVERITY_HIGH:
-					spdlog::info(message);
-					break;
-				case GL_DEBUG_SEVERITY_MEDIUM:
-					spdlog::debug(message);
-					break;
-                default:
-				case GL_DEBUG_SEVERITY_LOW:
-					spdlog::trace(message);
-					break;
-			}
-			return;
-	}
+	return vao;
 }
 
 }

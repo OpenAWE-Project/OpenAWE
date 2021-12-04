@@ -19,6 +19,7 @@
  */
 
 #include <memory>
+#include <utility>
 
 #include <fmt/format.h>
 
@@ -48,39 +49,26 @@ void GraphicsManager::addGUIElement(GUIElement *gui) {
 	_renderer->addGUIElement(gui);
 }
 
-Common::UUID GraphicsManager::registerVertices(byte *data, size_t length, Common::UUID vertexLayout) {
-	return _renderer->registerVertices(data, length);
+TexturePtr GraphicsManager::createTexture(const ImageDecoder &decoder) {
+	TexturePtr texture = _renderer->createTexture(decoder.getType());
+	texture->load(decoder);
+	return texture;
 }
 
-Common::UUID GraphicsManager::registerIndices(byte *data, size_t length) {
-	return _renderer->registerIndices(data, length);
+BufferPtr GraphicsManager::createBuffer(byte *data, size_t length, BufferType type) {
+	BufferPtr buffer = _renderer->createBuffer(type);
+	buffer->write(data, length);
+	return buffer;
 }
 
-Common::UUID GraphicsManager::registerTexture(const ImageDecoder &decoder) {
-	return _renderer->registerTexture(decoder);
+AttributeObjectPtr
+GraphicsManager::createAttributeObject(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
+									   BufferPtr vertexData) {
+	return _renderer->createAttributeObject(shader, vertexAttributes, std::move(vertexData));
 }
 
-std::future<Common::UUID> GraphicsManager::registerTextureAsync(const ImageDecoder &decoder) {
-	const std::lock_guard l(_textureAccess);
-
-	_texturesToProcess.emplace_back(decoder);
-
-	return _texturesToProcess.back().promise.get_future();
-}
-
-void GraphicsManager::deregisterTexture(Common::UUID &id) {
-	_renderer->deregisterTexture(id);
-}
-
-void GraphicsManager::deregisterTextureAsync(Common::UUID &id) {
-	const std::lock_guard l(_textureAccess);
-	_texturesToDelete.emplace_back(id);
-}
-
-Common::UUID GraphicsManager::registerVertexAttributes(const std::string &shader,
-															 const std::vector<VertexAttribute> &vertexAttributes,
-															 Common::UUID vertexData) {
-	return _renderer->registerVertexAttributes(shader, vertexAttributes, vertexData);
+int GraphicsManager::getUniformIndex(const std::string &shaderName, const std::string &id) {
+	return _renderer->getUniformIndex(shaderName, id);
 }
 
 void GraphicsManager::setCurrentVideoFrame(Common::UUID &id) {
@@ -88,21 +76,6 @@ void GraphicsManager::setCurrentVideoFrame(Common::UUID &id) {
 }
 
 void GraphicsManager::drawFrame() {
-	_textureAccess.lock();
-
-	for (auto &textureToDelete : _texturesToDelete) {
-		deregisterTexture(textureToDelete);
-	}
-	_texturesToDelete.clear();
-
-	for (auto &texture : _texturesToProcess) {
-		Common::UUID id = registerTexture(texture.decoder);
-		texture.promise.set_value(id);
-	}
-	_texturesToProcess.clear();
-
-	_textureAccess.unlock();
-
 	_renderer->drawFrame();
 }
 

@@ -40,14 +40,14 @@ BINFNTFont::BINFNTFont(Common::ReadStream &binfnt) {
 	byte *indicesData = new byte [numIndices * 2];
 	binfnt.read(indicesData, numIndices * 2);
 
-	_vertices = GfxMan.registerVertices(data, numVertices * 4 * 4, _vao);
-	_indices = GfxMan.registerIndices(indicesData, numIndices * 2);
+	_vertices = GfxMan.createBuffer(data, numVertices * 4 * 4, kVertexBuffer);
+	_indices = GfxMan.createBuffer(data, numIndices * 2, kIndexBuffer);
 
 	std::vector<VertexAttribute> attributes = {
 			{kPosition,  kVec2F},
 			{kTexCoord0, kVec2F}
 	};
-	_vao = GfxMan.registerVertexAttributes("gui", attributes, _vertices);
+	_vao = GfxMan.createAttributeObject("gui", attributes, _vertices);
 
 	delete [] data;
 	delete [] indicesData;
@@ -86,11 +86,10 @@ BINFNTFont::BINFNTFont(Common::ReadStream &binfnt) {
 	std::unique_ptr<Common::ReadStream> textureStream = std::unique_ptr<Common::ReadStream>(binfnt.readStream(textureSize));
 
 	DDS dds(textureStream.get());
-	_texture = GfxMan.registerTexture(dds);
+	_texture = GfxMan.createTexture(dds);
 }
 
 BINFNTFont::~BINFNTFont() {
-	GfxMan.deregisterTexture(_texture);
 }
 
 void BINFNTFont::getCharacterValues(char16_t c, uint16_t &vertexOffset, uint16_t &indexOffset, uint16_t &indexCount,

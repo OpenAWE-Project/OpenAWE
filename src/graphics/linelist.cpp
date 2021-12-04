@@ -59,14 +59,10 @@ void LineList::flush() {
 	partMesh.renderType = Mesh::kLines;
 	partMesh.offset = 0;
 	partMesh.length = _lines.size() * 2;
-	partMesh.vertexDataId = GfxMan.registerVertices(
-		reinterpret_cast<byte *>(lineData.data()),
-		lineData.size() * sizeof(glm::vec3),
-		Common::UUID::generateNil()
-	);
+	partMesh.vertexData = GfxMan.createBuffer(reinterpret_cast<byte *>(lineData.data()), lineData.size() * sizeof(glm::vec3), kVertexBuffer);
 	partMesh.material = Material("color", materialAttributes);
 	partMesh.material.setCullMode(Material::kNone);
-	partMesh.vertexAttributesId = GfxMan.registerVertexAttributes("color", attributes, partMesh.vertexDataId);
+	partMesh.vertexAttributes = GfxMan.createAttributeObject("color", attributes, partMesh.vertexData);
 
 	_mesh->addPartMesh(partMesh);
 }

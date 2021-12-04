@@ -42,16 +42,14 @@ public:
 
 	void drawFrame() override;
 
-	Common::UUID registerVertices(byte *data, size_t length) override;
-	Common::UUID registerIndices(byte *data, size_t length) override;
+	TexturePtr createTexture(TextureType type) override;
+	BufferPtr createBuffer(BufferType type) override;
 
-	Common::UUID
-	registerVertexAttributes(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
-							 Common::UUID vertexData) override;
+	AttributeObjectPtr
+	createAttributeObject(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
+						  BufferPtr vertexData) override;
 
-	Common::UUID registerTexture(const ImageDecoder &decoder) override;
-
-	void deregisterTexture(const Common::UUID &decoder) override;
+	int getUniformIndex(const std::string &shaderName, const std::string &id) override;
 
 private:
 	void drawWorld();

@@ -31,6 +31,7 @@
 #include "src/graphics/window.h"
 #include "src/graphics/vertexattribute.h"
 #include "src/graphics/camera.h"
+#include "src/graphics/buffer.h"
 
 namespace Graphics {
 
@@ -48,39 +49,51 @@ public:
 
 	void addGUIElement(GUIElement *gui);
 
-	Common::UUID registerVertices(byte *data, size_t length, Common::UUID vertexLayout);
-	Common::UUID registerIndices(byte* data, size_t length);
+	/*!
+	 * Create a texture in the initialized rendering system using given image data from a decoder as base. The decoder
+	 * also defines metadata, like how the dimensions of the texture are and the format of the texture.
+	 * \param decoder The decoder defining the image data
+	 * \return A render system specific texture object
+	 */
+	TexturePtr createTexture(const ImageDecoder &decoder);
 
-	Common::UUID registerTexture(const ImageDecoder &decoder);
-	std::future<Common::UUID> registerTextureAsync(const ImageDecoder &decoder);
+	/*!
+	 * Create a buffer in the intialized render system using the given data block and the buffer type.
+	 * \param data A pointer to the data which should be contained in the block
+	 * \param length The length of the data of the data block
+	 * \param type The type of the buffer
+	 * \return A render system specific buffer object
+	 */
+	BufferPtr createBuffer(byte* data, size_t length, BufferType type);
 
-	void deregisterTexture(Common::UUID &id);
-	void deregisterTextureAsync(Common::UUID &id);
+	/*!
+	 * Create an attribute object in the initialized render system using the given shader, vertex attributes and the
+	 * vertex data buffer
+	 * \param shader The shader for the attribute object
+	 * \param vertexAttributes The attributes to create the attribute object
+	 * \param vertexData The vertex data to bind the attribute object to
+	 * \return A render system specific attribute object
+	 */
+	AttributeObjectPtr createAttributeObject(
+		const std::string &shader,
+		const std::vector<VertexAttribute> &vertexAttributes,
+		BufferPtr vertexData
+	);
 
-	Common::UUID
-	registerVertexAttributes(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
-							 Common::UUID vertexData);
+	/*!
+	 * Get the index of a specific uniform from a specific shader
+	 * \param shaderName The name of the shader from which to get the uniform variable
+	 * \param id The id of the uniform variable in the given shader
+	 * \return The index of the uniform variable or -1 if the uniform variable is not found or not yet implemented
+	 */
+	int getUniformIndex(const std::string &shaderName, const std::string &id);
 
 	void setCurrentVideoFrame(Common::UUID &id);
 
 	void drawFrame();
 
 private:
-	struct AsyncTexture {
-		const ImageDecoder &decoder;
-		std::promise<Common::UUID> promise;
-
-		explicit AsyncTexture(const ImageDecoder &decoder) : decoder(decoder) {
-		}
-	};
-
 	Camera _camera;
-
-	bool _dirty;
-
-	std::mutex _textureAccess;
-	std::vector<AsyncTexture> _texturesToProcess;
-	std::vector<Common::UUID> _texturesToDelete;
 
 	std::unique_ptr<Renderer> _renderer;
 };

@@ -22,27 +22,23 @@
 
 namespace Graphics {
 
-Common::UUID Graphics::Font::getTexture() const {
+TexturePtr Graphics::Font::getTexture() const {
 	return _texture;
 }
 
-Common::UUID Graphics::Font::getVertices() const {
+BufferPtr Graphics::Font::getVertices() const {
 	return _vertices;
 }
 
-Common::UUID Graphics::Font::getIndices() const {
+BufferPtr Graphics::Font::getIndices() const {
 	return _indices;
 }
 
-Common::UUID Font::getVAO() const {
+AttributeObjectPtr Font::getVAO() const {
 	return _vao;
 }
 
-Font::Font() :
-	_texture(Common::UUID::generateNil()),
-	_vertices(Common::UUID::generateNil()),
-	_indices(Common::UUID::generateNil()),
-	_vao(Common::UUID::generateNil()) {
+Font::Font() {
 }
 
 }

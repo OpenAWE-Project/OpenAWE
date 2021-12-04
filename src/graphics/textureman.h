@@ -28,16 +28,18 @@
 #include "src/common/singleton.h"
 #include "src/common/uuid.h"
 
+#include "src/graphics/texture.h"
+
 #include "src/awe/types.h"
 
 namespace Graphics {
 
 class TextureManager : public Common::Singleton<TextureManager> {
 public:
-	Common::UUID getTexture(const std::string &path);
+	TexturePtr getTexture(const std::string &path);
 
 private:
-	std::map<std::variant<std::string, rid_t>, Common::UUID> _textures;
+	std::map<std::variant<std::string, rid_t>, TexturePtr> _textures;
 };
 
 }

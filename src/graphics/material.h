@@ -30,6 +30,8 @@
 
 #include "src/common/uuid.h"
 
+#include "src/graphics/texture.h"
+
 namespace Graphics {
 
 class Material {
@@ -51,13 +53,14 @@ public:
 			glm::vec2,
 			glm::vec3,
 			glm::vec4,
-			Common::UUID
+			TexturePtr
 	> AttributeData;
 
 	struct Attribute {
 		std::string id;
 		AttributeType type;
 		AttributeData data;
+		int index;
 	};
 
 	Material() = default;

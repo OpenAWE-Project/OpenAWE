@@ -26,6 +26,8 @@
 #include "src/common/uuid.h"
 
 #include "src/graphics/material.h"
+#include "src/graphics/buffer.h"
+#include "src/graphics/attributeobject.h"
 
 namespace Graphics {
 
@@ -44,8 +46,8 @@ public:
 	};
 
 	struct PartMesh {
-		Common::UUID vertexDataId;
-		Common::UUID vertexAttributesId;
+		BufferPtr vertexData;
+		AttributeObjectPtr vertexAttributes;
 		RenderType renderType;
 		Material material;
 		bool wireframe{false};
@@ -54,19 +56,19 @@ public:
 
 	Mesh();
 
-	[[nodiscard]] Common::UUID getIndices() const;
+	[[nodiscard]] BufferPtr getIndices() const;
 
 	[[nodiscard]] const std::vector<PartMesh> &getMeshs() const;
 	const std::map<std::string, glm::mat3x4> & getInitialJointPositions() const;
 
-	void setIndices(const Common::UUID &indices);
+	void setIndices(BufferPtr indices);
 	void addPartMesh(const PartMesh &partMesh);
 
 protected:
 	std::vector<PartMesh> _meshs;
 	std::map<std::string, glm::mat3x4> _initialPose;
 
-	Common::UUID _indices;
+	BufferPtr _indices;
 };
 
 } // End of namespace Graphics

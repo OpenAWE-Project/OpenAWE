@@ -23,14 +23,18 @@
 
 #include "src/common/uuid.h"
 
+#include "src/graphics/buffer.h"
+#include "src/graphics/texture.h"
+#include "src/graphics/attributeobject.h"
+
 namespace Graphics {
 
 class Font {
 public:
-	Common::UUID getTexture() const;
-	Common::UUID getVertices() const;
-	Common::UUID getIndices() const;
-	Common::UUID getVAO() const;
+	[[nodiscard]] TexturePtr getTexture() const;
+	[[nodiscard]] BufferPtr getVertices() const;
+	[[nodiscard]] BufferPtr getIndices() const;
+	[[nodiscard]] AttributeObjectPtr getVAO() const;
 
 	virtual void getCharacterValues(char16_t c, uint16_t &vertexOffset, uint16_t &indexOffset, uint16_t &indexCount,
 									float &characterWidth) = 0;
@@ -38,7 +42,9 @@ public:
 protected:
 	Font();
 
-	Common::UUID _vertices, _indices, _texture, _vao;
+	BufferPtr _vertices, _indices;
+	TexturePtr _texture;
+	AttributeObjectPtr _vao;
 };
 
 } // End of namespace Graphics

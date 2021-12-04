@@ -59,7 +59,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 
 	byte *indicesData = new byte[indicesCount * indicesType];
 	binmsh->read(indicesData, indicesCount * indicesType);
-	_indices = GfxMan.registerIndices(indicesData, indicesCount * indicesType);
+	_indices = GfxMan.createBuffer(indicesData, indicesCount * indicesType, kIndexBuffer);
 	delete [] indicesData;
 
 	uint32_t boneCount = binmsh->readUint32LE();
@@ -395,15 +395,11 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 		binmsh->seek(lastPos);
 
 		_meshs[i].renderType = kTriangles;
-		_meshs[i].vertexDataId = GfxMan.registerVertices(
-				writer.getData(),
-				writer.getLength(),
-				_meshs[i].vertexAttributesId
-		);
-		_meshs[i].vertexAttributesId = GfxMan.registerVertexAttributes(
+		_meshs[i].vertexData = GfxMan.createBuffer(writer.getData(), writer.getLength(), kVertexBuffer);
+		_meshs[i].vertexAttributes = GfxMan.createAttributeObject(
 				materials[i].getShaderName(),
 				attributes,
-				_meshs[i].vertexDataId
+				_meshs[i].vertexData
 		);
 		_meshs[i].material = materials[i];
 		_meshs[i].offset = faceOffset * indicesType;

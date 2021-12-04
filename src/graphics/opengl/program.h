@@ -51,18 +51,19 @@ public:
 	// ,--- Uniform access
 	void setSymbols(const std::vector<ShaderConverter::Symbol> &symbols);
 
-	void setUniform1f(const std::string &name, const glm::vec1 &value) const;
-	void setUniform2f(const std::string &name, const glm::vec2 &value) const;
-	void setUniform3f(const std::string &name, const glm::vec3 &value) const;
-	void setUniform4f(const std::string &name, const glm::vec4 &value) const;
-	void setUniformMatrix4f(const std::string &name, const glm::mat4 &value) const;
-	void setUniformSampler(const std::string &name, const GLuint value) const;
+	std::optional<GLint> getUniformLocation(const std::string &name) const;
+
+	void setUniform1f(GLint id, const glm::vec1 &value) const;
+	void setUniform2f(GLint id, const glm::vec2 &value) const;
+	void setUniform3f(GLint id, const glm::vec3 &value) const;
+	void setUniform4f(GLint id, const glm::vec4 &value) const;
+	void setUniformMatrix4f(GLint id, const glm::mat4 &value) const;
+	void setUniformSampler(GLint id, const GLuint value) const;
 	// '---
 
 private:
 	std::optional<GLint> getUniformArraySymbolLocation(const ShaderConverter::Symbol &symbol, unsigned int offset = 0) const;
 
-	std::optional<GLint> getUniformLocation(const std::string &name) const;
 	std::optional<GLint> getAttributeLocation(const std::string &name) const;
 
 	std::map<std::string, GLuint> _attributes;

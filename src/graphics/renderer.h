@@ -29,6 +29,10 @@
 #include "src/graphics/vertexattribute.h"
 #include "src/graphics/guielement.h"
 #include "src/graphics/ambiancestate.h"
+#include "src/graphics/texture.h"
+#include "src/graphics/buffer.h"
+#include "attributeobject.h"
+
 
 namespace Graphics {
 
@@ -44,14 +48,15 @@ public:
 
 	void setAmbianceState(const AmbianceState ambiance);
 
-	virtual Common::UUID registerVertices(byte *data, size_t length) = 0;
-	virtual Common::UUID registerIndices(byte* data, size_t length) = 0;
-	virtual Common::UUID
-	registerVertexAttributes(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
-							 Common::UUID vertexData) = 0;
+	virtual TexturePtr createTexture(TextureType type) = 0;
+	virtual BufferPtr createBuffer(BufferType type) = 0;
+	virtual AttributeObjectPtr createAttributeObject(
+		const std::string &shader,
+		const std::vector<VertexAttribute> &vertexAttributes,
+		BufferPtr vertexData
+	) = 0;
 
-	virtual Common::UUID registerTexture(const ImageDecoder &) = 0;
-	virtual void deregisterTexture(const Common::UUID &) = 0;
+	virtual int getUniformIndex(const std::string &shaderName, const std::string &id) = 0;
 
 	void setCurrentVideoFrame(const Common::UUID &id);
 

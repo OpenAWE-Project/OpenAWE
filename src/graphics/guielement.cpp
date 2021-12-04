@@ -23,14 +23,14 @@
 
 namespace Graphics {
 
-GUIElement::GUIElement() : _vao(Common::UUID::generateNil()) {
+GUIElement::GUIElement() {
 	_position = glm::vec2 (10,10);
 }
 
 GUIElement::~GUIElement() {
 }
 
-Common::UUID GUIElement::getVertexAttributes() const {
+AttributeObjectPtr GUIElement::getVertexAttributes() const {
 	return _vao;
 }
 

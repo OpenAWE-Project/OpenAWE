@@ -56,16 +56,18 @@ void Player::playLoop() {
 		Common::UUID lastFrame = _currentFrame;
 		_currentFrame = _texturesToDisplay.front();
 		GfxMan.setCurrentVideoFrame(_currentFrame);
-		if (!lastFrame.isNil())
-			GfxMan.deregisterTextureAsync(lastFrame);
+		// TODO
+		/*if (!lastFrame.isNil())
+			GfxMan.deregisterTextureAsync(lastFrame);*/
 		_texturesToDisplay.pop();
 		_lastFrame = now;
 	} else if (_stop && _texturesToProcess.empty() && _texturesToDisplay.empty()) {
 		Common::UUID lastFrame = _currentFrame;
 		_currentFrame = Common::UUID::generateNil();
 		GfxMan.setCurrentVideoFrame(_currentFrame);
-		if (!lastFrame.isNil())
-			GfxMan.deregisterTextureAsync(lastFrame);
+		// TODO
+		/*if (!lastFrame.isNil())
+			GfxMan.deregisterTextureAsync(lastFrame);*/
 		return;
 	}
 
@@ -79,10 +81,11 @@ void Player::preloadLoop() {
 
 		auto *frame = _codec->getNextFrame();
 
-		_texturesToProcess.push({
-			GfxMan.registerTextureAsync(*frame),
+		/*_texturesToProcess.push({
+
+			//GfxMan.registerTextureAsync(*frame),
 			std::unique_ptr<Graphics::Surface>(frame)
-		});
+		});*/
 	}
 
 	_audioStreamsMutex.lock();

@@ -19,12 +19,16 @@
  */
 
 #include "material.h"
+#include "gfxman.h"
 
 namespace Graphics {
 
 Material::Material(const std::string &shaderName, std::vector<Attribute> attributes) :
 	_shaderName(shaderName),
 	_attributes(attributes) {
+	for (auto &attribute: _attributes) {
+		attribute.index = GfxMan.getUniformIndex(_shaderName, attribute.id);
+	}
 }
 
 const std::vector<Material::Attribute> &Material::getAttributes() const {

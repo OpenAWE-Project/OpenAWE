@@ -27,6 +27,10 @@
 
 #include "src/common/uuid.h"
 
+#include "src/graphics/buffer.h"
+#include "src/graphics/texture.h"
+#include "src/graphics/attributeobject.h"
+
 namespace Graphics {
 
 class GUIElement {
@@ -34,14 +38,15 @@ public:
 	struct GUIElementPart {
 		glm::vec2 position, scale;
 		unsigned short indicesCount, indicesOffset, verticesOffset;
-		Common::UUID vertices, indices, texture;
+		BufferPtr vertices, indices;
+		TexturePtr texture;
 	};
 
 	GUIElement();
 	~GUIElement();
 
 
-	Common::UUID getVertexAttributes() const;
+	AttributeObjectPtr getVertexAttributes() const;
 	[[nodiscard]] const std::vector<GUIElementPart> &getParts() const;
 
 	void show();
@@ -49,7 +54,7 @@ public:
 	glm::vec2 getPosition();
 
 protected:
-	Common::UUID _vao;
+	AttributeObjectPtr _vao;
 
 	std::vector<GUIElementPart> _parts;
 

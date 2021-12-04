@@ -22,7 +22,7 @@
 
 namespace Graphics {
 
-Mesh::Mesh() : _indices(Common::UUID::generateNil()) {
+Mesh::Mesh() {
 
 }
 
@@ -30,7 +30,7 @@ const std::vector<Mesh::PartMesh> &Mesh::getMeshs() const {
 	return _meshs;
 }
 
-Common::UUID Mesh::getIndices() const {
+BufferPtr Mesh::getIndices() const {
 	return _indices;
 }
 
@@ -38,7 +38,7 @@ const std::map<std::string, glm::mat3x4> & Mesh::getInitialJointPositions() cons
 	return _initialPose;
 }
 
-void Mesh::setIndices(const Common::UUID &indices) {
+void Mesh::setIndices(BufferPtr indices) {
 	_indices = indices;
 }
 
