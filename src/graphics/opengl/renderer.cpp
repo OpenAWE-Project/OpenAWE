@@ -300,6 +300,8 @@ void Renderer::drawWorld() {
 	glm::mat4 v = _camera.getLookAt();
 	glm::mat4 vp = p * v;
 
+	const std::unique_ptr<Program> &defaultShader = _programs["standardmaterial"];
+
 	for (const auto &model : _models) {
 		glm::mat4 m = model->getTransform();
 		glm::mat4 mvp = vp * m;
@@ -308,15 +310,11 @@ void Renderer::drawWorld() {
 		const auto &partMeshs = mesh->getMeshs();
 
 		for (const auto &partmesh : partMeshs) {
-			auto programIter = _programs.find(partmesh.material.getShaderName());
 			std::string shaderName = partmesh.material.getShaderName();
-			if (programIter == _programs.end())
-				shaderName = "standardmaterial";
+			auto programIter = _programs.find(shaderName);
+			const std::unique_ptr<Program> &currentShader = (programIter == _programs.end()) ? defaultShader : programIter->second;
+			currentShader->bind();
 
-			std::unique_ptr<Program> &program = _programs[shaderName];
-			program->bind();
-
-			//_vaos[partmesh.vertexAttributes]->bind();
 			std::static_pointer_cast<Graphics::OpenGL::VAO>(partmesh.vertexAttributes)->bind();
 
 			bool noIndices = !mesh->getIndices();
@@ -328,32 +326,32 @@ void Renderer::drawWorld() {
 				switch (attribute.type) {
 					case Material::kVec1: {
 						glm::vec1 value = std::get<glm::vec1>(attribute.data);
-						program->setUniform1f(attribute.index, value);
+						currentShader->setUniform1f(attribute.index, value);
 						break;
 					}
 
 					case Material::kVec2: {
 						glm::vec2 value = std::get<glm::vec2>(attribute.data);
-						program->setUniform2f(attribute.index, value);
+						currentShader->setUniform2f(attribute.index, value);
 						break;
 					}
 
 					case Material::kVec3: {
 						glm::vec3 value = std::get<glm::vec3>(attribute.data);
-						program->setUniform3f(attribute.index, value);
+						currentShader->setUniform3f(attribute.index, value);
 						break;
 					}
 
 					case Material::kVec4: {
 						glm::vec4 value = std::get<glm::vec4>(attribute.data);
-						program->setUniform4f(attribute.index, value);
+						currentShader->setUniform4f(attribute.index, value);
 						break;
 					}
 
 					case Material::kTexture:
 						glActiveTexture(getTextureSlot(textureSlot));
 						std::static_pointer_cast<Graphics::OpenGL::Texture>(std::get<TexturePtr>(attribute.data))->bind();
-						program->setUniformSampler(attribute.index, textureSlot);
+						currentShader->setUniformSampler(attribute.index, textureSlot);
 						textureSlot += 1;
 						break;
 				}
@@ -365,7 +363,7 @@ void Renderer::drawWorld() {
 				glUniform1f(program->getUniformLocation("g_sAmbientLight.intensity"), _ambiance.getAmbientLightIntensity());
 			}*/
 
-			program->setUniformMatrix4f(*program->getUniformLocation("g_mLocalToView"), mvp);
+			currentShader->setUniformMatrix4f(*currentShader->getUniformLocation("g_mLocalToView"), mvp);
 			assert(glGetError() == GL_NO_ERROR);
 
 			GLenum type;
