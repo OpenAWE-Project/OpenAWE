@@ -45,6 +45,8 @@ public:
 private:
 	bool _debugDraw;
 
+	std::unique_ptr<btCollisionConfiguration> _configuration;
+
 	std::unique_ptr<btCollisionDispatcher> _dispatcher;
 	std::unique_ptr<btBroadphaseInterface> _broadphase;
 	std::unique_ptr<btSequentialImpulseConstraintSolver> _solver;

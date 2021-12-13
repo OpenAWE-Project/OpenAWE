@@ -23,22 +23,20 @@
 
 namespace Physics {
 
-PhysicsManager::PhysicsManager() : _debugDraw(false) {
-	btDefaultCollisionConfiguration configuration;
-
-	_dispatcher = std::make_unique<btCollisionDispatcher>(&configuration);
+PhysicsManager::PhysicsManager() : _debugDraw(false), _configuration(new btDefaultCollisionConfiguration()) {
+	_dispatcher = std::make_unique<btCollisionDispatcher>(_configuration.get());
 	_broadphase = std::make_unique<btDbvtBroadphase>();
 	_solver = std::make_unique<btSequentialImpulseConstraintSolver>();
 	_world = std::make_unique<btDiscreteDynamicsWorld>(
 			_dispatcher.get(),
 			_broadphase.get(),
 			_solver.get(),
-			&configuration
+			_configuration.get()
 	);
 
 	_debugDrawInterface = std::make_unique<DebugDraw>();
 
-	_world->setGravity(btVector3(0, -10, 0));
+	_world->setGravity(btVector3(0, -1, 0));
 	_world->setDebugDrawer(_debugDrawInterface.get());
 	_world->getDebugDrawer()->setDebugMode(
 		btIDebugDraw::DBG_DrawWireframe |
