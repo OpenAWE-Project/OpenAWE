@@ -84,7 +84,10 @@ void KeyFramer::update(float time) {
 
 		if (time - _start > duration) {
 			if (_currentAnimation->nextAnimation)
-				setAnimation(_keyframeAnimations[*_currentAnimation->nextAnimation], time);
+				setAnimation(
+						_keyframeAnimations[*_currentAnimation->nextAnimation],
+						_start + duration
+				);
 		}
 	}
 }
