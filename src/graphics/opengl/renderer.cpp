@@ -301,6 +301,7 @@ void Renderer::drawWorld() {
 	glm::mat4 vp = p * v;
 
 	const std::unique_ptr<Program> &defaultShader = _programs["standardmaterial"];
+	bool currentWireframe = false;
 
 	for (const auto &model : _models) {
 		glm::mat4 m = model->getTransform();
@@ -400,12 +401,14 @@ void Renderer::drawWorld() {
 					glDisable(GL_CULL_FACE);
 			}
 
-			if (partmesh.wireframe) {
+			if (partmesh.wireframe && !currentWireframe) {
 				glDisable(GL_DEPTH_TEST);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			} else {
+				currentWireframe = true;
+			} else if (!partmesh.wireframe && currentWireframe) {
 				glEnable(GL_DEPTH_TEST);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				currentWireframe = false;
 			}
 
 			if (noIndices) {
