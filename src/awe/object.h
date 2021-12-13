@@ -205,8 +205,21 @@ struct PointLight {
 	GID gid2;
 	glm::mat3x3 rotation;
 	glm::vec3 position;
+	glm::vec3 color;
+	float decay;
+	float directionalFalloff;
+	bool autoStart;
+	bool castShadows;
+	float intensity;
 	rid_t meshRid;
 	rid_t staticShadowMapRid;
+	glm::mat3 meshRotation;
+	glm::vec3 meshPosition;
+	float drainMultiplier;
+	bool enableSpecular;
+	float shadowMapRange;
+	bool enableRangeClip;
+	float rangeClip;
 };
 
 struct AmbientLightInstance {

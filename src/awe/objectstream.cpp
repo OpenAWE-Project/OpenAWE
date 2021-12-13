@@ -357,19 +357,18 @@ void ObjectStream::pointLight(Templates::PointLight &pointLight, unsigned int ve
 
 		variable("rotation", pointLight.rotation);
 		variable("position", pointLight.position);
-
-		float val1, val2, val3, val4, val5;
-		variable("", val1);
-		variable("", val2);
-		variable("", val3);
-		variable("", val4);
-
-		skip(10);
+		variable("color", pointLight.color);
+		variable("decay", pointLight.decay);
+		variable("directionalFalloff", pointLight.directionalFalloff);
+		variable("autoStart", pointLight.autoStart);
+		variable("castShadows", pointLight.castShadows);
+		variable("intensity", pointLight.intensity);
 
 		object("meshResource", pointLight.meshRid, kRID);
 		object("staticShadowMapRsource", pointLight.staticShadowMapRid, kRID);
 
-		variable("", val5);
+		variable("meshRotation", pointLight.meshRotation);
+		variable("meshPosition", pointLight.meshPosition);
 
 		skip(70);
 	} else { // Version 11
