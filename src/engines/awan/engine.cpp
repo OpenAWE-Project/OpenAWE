@@ -38,19 +38,26 @@ Engine::Engine(entt::registry &registry) : ::Engine(registry, new Functions(regi
 }
 
 void Engine::init() {
+	loadEpisode("round:1 gameworld:scene1_reststop");
 }
 
 unsigned int Engine::getStoryModeRound() const {
 	return _storyModeRound;
 }
 
-void Engine::loadEpisode(const std::string &parameters) {
+void Engine::loadEpisode(const std::string &data) {
+	const std::vector<std::string> parameters = Common::split(data, std::regex(" "));
+	const std::vector<std::string> episode = Common::split(parameters.back(), std::regex(":"));
+
+	::Engine::loadEpisode(parameters.back());
+
 	// Parse story mode round
-	const std::vector<std::string> split = Common::split(parameters, std::regex(":"));
+	const std::vector<std::string> split = Common::split(parameters.front(), std::regex(":"));
 	if (split[0] == "round") {
 		_storyModeRound = std::stoul(split[1]);
 	} else {
 		_storyModeRound = 0;
+		return;
 	}
 
 	// Activate starter tasks

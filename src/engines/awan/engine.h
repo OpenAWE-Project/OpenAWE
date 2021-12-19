@@ -36,7 +36,7 @@ public:
 
 	const char *getName() const override;
 
-	void loadEpisode(const std::string &parameters) override;
+	void loadEpisode(const std::string &data) override;
 
 private:
 	unsigned int _storyModeRound;

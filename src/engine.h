@@ -26,6 +26,7 @@
 #include "src/awe/script/functions.h"
 
 #include "src/configuration.h"
+#include "src/world.h"
 
 class Engine {
 public:
@@ -34,14 +35,19 @@ public:
 	virtual void init() = 0;
 	virtual const char *getName() const = 0;
 	AWE::Script::Functions &getFunctions();
+	AWE::Script::Context &getScriptContext();
 	Configuration &getConfiguration();
 
-	virtual void loadEpisode(const std::string &parameters);
+	virtual void loadEpisode(const std::string &data);
 
 protected:
 	entt::registry &_registry;
 	std::unique_ptr<AWE::Script::Functions> _functions;
 	std::unique_ptr<Configuration> _configuration;
+
+private:
+	std::unique_ptr<World> _world;
+	std::unique_ptr<AWE::Script::Context> _context;
 };
 
 

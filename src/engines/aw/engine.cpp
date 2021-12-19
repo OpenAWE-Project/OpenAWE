@@ -27,7 +27,7 @@ Engine::Engine(entt::registry &registry) : ::Engine(registry, new Functions(regi
 }
 
 void Engine::init() {
-
+	loadEpisode("gameworld:level_01");
 }
 
 const char *Engine::getName() const {

@@ -153,7 +153,6 @@ void Game::init() {
 	_platform.init();
 
 	_window = std::make_unique<Graphics::Window>(Graphics::Window::kOpenGL);
-	_window->setTitle(_engine->getName());
 
 	GfxMan.initOpenGL(*_window);
 	//GfxMan.setAmbianceState("scene1_reststop_creepy");
@@ -169,11 +168,21 @@ void Game::init() {
 	spdlog::info("Loading font fixedsys");
 	FontMan.load("fonts/fixedsys.binfnt", "fixedsys");
 
-	_context = std::make_unique<AWE::Script::Context>(_registry, _engine->getFunctions());
-
 	_global = std::make_unique<Global>(_registry);
 
-	loadEpisode("round:1 gameworld:scene1_reststop");
+	switch (engine) {
+		case kAlanWake:
+			_engine = std::make_unique<Engines::AlanWake::Engine>(_registry);
+			break;
+		case kAlanWakesAmericanNightmare:
+			_engine = std::make_unique<Engines::AlanWakesAmericanNightmare::Engine>(_registry);
+			break;
+		default:
+			throw Common::Exception("Game engine not recognized");
+	}
+	_window->setTitle(_engine->getName());
+
+	_engine->init();
 }
 
 void Game::start() {
@@ -245,44 +254,4 @@ void Game::start() {
 	_engine->getConfiguration().write();
 
 	_platform.terminate();
-}
-
-void Game::loadEpisode(const std::string &data) {
-	std::vector<std::string> parameters = Common::split(data, std::regex(" "));
-	std::vector<std::string> episode = Common::split(parameters.back(), std::regex(":"));
-
-	std::string worldName = episode[0];
-	std::string episodeName = episode[1];
-
-	if (!_world || _world->getName() != worldName) {
-		_world = std::make_unique<World>(_registry, worldName);
-		_world->loadGlobal();
-	}
-
-	_world->loadEpisode(episodeName);
-
-	// Call OnInit on every object
-	auto bytecodeView = _registry.view<AWE::Script::BytecodePtr>();
-	for (const auto &item : bytecodeView) {
-		auto gid = _registry.get<GID>(item);
-		auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
-		spdlog::debug("Firing OnInit on {} {:x}", gid.type, gid.id);
-		bytecode->run(*_context, "OnInit", item);
-	}
-
-	// Activate starter tasks
-	auto taskView = _registry.view<Task, AWE::Script::BytecodePtr>();
-	for (const auto &item : taskView) {
-		auto gid = _registry.get<GID>(item);
-		auto task = _registry.get<Task>(item);
-		auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
-
-		if (!task.isActiveOnStartup())
-			continue;
-
-		spdlog::debug("Firing OnTaskActivate on {} {:x}", gid.type, gid.id);
-		bytecode->run(*_context, "OnTaskActivate", item);
-	}
-
-	_engine->loadEpisode(parameters[0]);
 }

@@ -46,8 +46,6 @@ public:
 	void init();
 	void start();
 
-	void loadEpisode(const std::string &data);
-
 private:
 	bool _physicsDebugDraw;
 	std::string _path;
@@ -59,10 +57,7 @@ private:
 	Graphics::Platform _platform;
 	std::unique_ptr<Graphics::Window> _window;
 
-	std::unique_ptr<AWE::Script::Context> _context;
-
 	std::unique_ptr<Global> _global;
-	std::unique_ptr<World> _world;
 	std::unique_ptr<Engine> _engine;
 	std::unique_ptr<AWE::Script::Functions> _functions;
 };
