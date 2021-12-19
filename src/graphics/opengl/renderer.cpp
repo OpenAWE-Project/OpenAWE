@@ -302,6 +302,7 @@ void Renderer::drawWorld() {
 
 	const std::unique_ptr<Program> &defaultShader = _programs["standardmaterial"];
 	bool currentWireframe = false;
+	Material::CullMode cullMode = Material::kNone;
 
 	for (const auto &model : _models) {
 		glm::mat4 m = model->getTransform();
@@ -384,21 +385,25 @@ void Renderer::drawWorld() {
 					break;
 			}
 
-			if (partmesh.material.getCullMode() != Material::kNone) {
-				if (glIsEnabled(GL_CULL_FACE) == GL_FALSE)
+			if (cullMode != partmesh.material.getCullMode()) {
+				const Material::CullMode newCullMode = partmesh.material.getCullMode();
+				if (cullMode != Material::kNone && newCullMode == Material::kNone)
+					glDisable(GL_CULL_FACE);
+				else if (cullMode == Material::kNone && newCullMode != Material::kNone)
 					glEnable(GL_CULL_FACE);
 
-				switch (partmesh.material.getCullMode()) {
+				switch (newCullMode) {
 					case Material::kBack:
 						glCullFace(GL_BACK);
 						break;
 					case Material::kFront:
 						glCullFace(GL_FRONT_AND_BACK);
 						break;
+					default:
+						break;
 				}
-			} else {
-				if (glIsEnabled(GL_CULL_FACE) == GL_TRUE)
-					glDisable(GL_CULL_FACE);
+
+				cullMode = newCullMode;
 			}
 
 			if (partmesh.wireframe && !currentWireframe) {
