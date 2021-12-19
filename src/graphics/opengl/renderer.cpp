@@ -456,6 +456,9 @@ void Renderer::drawGUI() {
 	std::unique_ptr<Program> &program = _programs["gui"];
 	program->bind();
 
+	const GLint locationTexture = *program->getUniformLocation("g_sTexture");
+	const GLint locationMVP     = *program->getUniformLocation("g_mMVP");
+
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 
@@ -472,8 +475,8 @@ void Renderer::drawGUI() {
 
 			glActiveTexture(getTextureSlot(0));
 			std::static_pointer_cast<Graphics::OpenGL::Texture>(part.texture)->bind();
-			program->setUniformSampler(*program->getUniformLocation("g_sTexture"), 0);
-			program->setUniformMatrix4f(*program->getUniformLocation("g_mMVP"), vp * m2);
+			program->setUniformSampler(locationTexture, 0);
+			program->setUniformMatrix4f(locationMVP, vp * m2);
 
 			glDrawElementsBaseVertex(
 					GL_TRIANGLES,
