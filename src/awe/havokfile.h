@@ -42,7 +42,9 @@ public:
 
 	enum ShapeType {
 		kBox,
-		kCylinder
+		kCylinder,
+		kConvexTranslate,
+		kList
 	};
 
 	struct hkNamedVariant {
@@ -109,12 +111,23 @@ public:
 		glm::vec4 p1, p2;
 	};
 
+	struct hkpConvexTranslateShape {
+		uint32_t shape;
+		glm::vec4 translation;
+	};
+
+	struct hkpListShape {
+		std::vector<uint32_t> shapes;
+	};
+
 	struct hkpShape {
 		uint64_t userData;
 		float radius;
 		std::variant<
 			hkpBoxShape,
-			hkpCylinderShape
+			hkpCylinderShape,
+			hkpConvexTranslateShape,
+			hkpListShape
 		> shape;
 		ShapeType type;
 	};
@@ -178,6 +191,8 @@ private:
 	hkpRigidBody readHkpRigidBody(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpBoxShape(Common::ReadStream &binhkx);
 	HavokFile::hkpShape readHkpCylinderShape(Common::ReadStream &binhkx);
+	HavokFile::hkpShape readHkpConvexTranslateShape(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpShape readHkpListShape(Common::ReadStream &binhkx, uint32_t section);
 
 	RmdPhysicsSystem readRmdPhysicsSystem(Common::ReadStream &binhkx, uint32_t section);
 

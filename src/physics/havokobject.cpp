@@ -46,37 +46,8 @@ HavokObject::HavokObject(rid_t rid) {
 	const auto rigidBody = havokFile.getRigidBody(physicsSystem.rigidBodies.front());
 	const auto shape = havokFile.getShape(rigidBody.shape);
 
-	btCollisionShape *shapeObject;
-	switch (shape.type) {
-		case AWE::HavokFile::kBox: {
-			const auto boxShape = std::get<AWE::HavokFile::hkpBoxShape>(shape.shape);
-			btVector3 halfExtents(
-				boxShape.halfExtents.x,
-				boxShape.halfExtents.y,
-				boxShape.halfExtents.z
-			);
-
-			shapeObject = new btBoxShape(halfExtents);
-			break;
-		}
-
-		case AWE::HavokFile::kCylinder: {
-			const auto cylinderShape = std::get<AWE::HavokFile::hkpCylinderShape>(shape.shape);
-			btVector3 halfExtents(
-				cylinderShape.radius,
-				glm::distance(cylinderShape.p1, cylinderShape.p2) / 2,
-				cylinderShape.radius
-			);
-
-			shapeObject = new btCylinderShape(halfExtents);
-			break;
-		}
-
-		default:
-			throw Common::Exception("Invalid shape type");
-	}
-
-	setCollisionShape(shapeObject);
+	btTransform shapeTransform = btTransform::getIdentity();
+	setCollisionShape(getShape(havokFile, shape, shapeTransform));
 
 	btTransform offset;
 
@@ -95,6 +66,71 @@ HavokObject::HavokObject(rid_t rid) {
 
 	setOffset(offset);
 	setActive(true);
+}
+
+btCollisionShape *HavokObject::getShape(AWE::HavokFile &havok, const AWE::HavokFile::hkpShape &shape,
+										btTransform &shapeOffset) {
+	btCollisionShape *shapeObject;
+	switch (shape.type) {
+		case AWE::HavokFile::kBox: {
+			const auto boxShape = std::get<AWE::HavokFile::hkpBoxShape>(shape.shape);
+			btVector3 halfExtents(
+					boxShape.halfExtents.x,
+					boxShape.halfExtents.y,
+					boxShape.halfExtents.z
+			);
+
+			shapeObject = new btBoxShape(halfExtents);
+			break;
+		}
+
+		case AWE::HavokFile::kCylinder: {
+			const auto cylinderShape = std::get<AWE::HavokFile::hkpCylinderShape>(shape.shape);
+			btVector3 halfExtents(
+					cylinderShape.radius,
+					glm::distance(cylinderShape.p1, cylinderShape.p2) / 2,
+					cylinderShape.radius
+			);
+
+			shapeObject = new btCylinderShape(halfExtents);
+			break;
+		}
+
+		case AWE::HavokFile::kList: {
+			const auto listShape = std::get<AWE::HavokFile::hkpListShape>(shape.shape);
+			btCompoundShape *compoundShape = new btCompoundShape();
+
+			for (const auto &shapeId: listShape.shapes) {
+				btTransform shapeTransform = btTransform::getIdentity();
+				const auto childShape = getShape(havok, havok.getShape(shapeId), shapeTransform);
+				compoundShape->addChildShape(shapeTransform, childShape);
+			}
+
+			shapeObject = compoundShape;
+			break;
+		}
+
+		case AWE::HavokFile::kConvexTranslate: {
+			const auto convexTranslateShape = std::get<AWE::HavokFile::hkpConvexTranslateShape>(shape.shape);
+
+			btTransform transform = btTransform::getIdentity();
+			transform.setOrigin(btVector3(
+				convexTranslateShape.translation.x,
+				convexTranslateShape.translation.y,
+				convexTranslateShape.translation.z
+			));
+
+			shapeOffset *= transform;
+			shapeObject = getShape(havok, havok.getShape(convexTranslateShape.shape), transform);
+
+			break;
+		}
+
+		default:
+			throw Common::Exception("Invalid shape type");
+	}
+
+	return shapeObject;
 }
 
 } // End of namespace Physics

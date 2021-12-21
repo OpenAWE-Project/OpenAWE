@@ -27,6 +27,7 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
+#include "src/common/exception.h"
 #include "src/common/nurbs.h"
 
 #include "src/awe/havokfile.h"
@@ -161,6 +162,7 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 		//fmt::print("Global Fixup {} {} {}\n", address, metaAddress, section);
 	}
 
+	//std::cout << "------" << std::endl;
 	binhkx.seek(contentsSection.absoluteDataStart + contentsSection.virtualFixupsOffset);
 	while (!binhkx.eos()) {
 		uint32_t address = binhkx.readUint32LE();
@@ -203,6 +205,10 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 			object = readHkpBoxShape(binhkx);
 		else if (name == "hkpCylinderShape")
 			object = readHkpCylinderShape(binhkx);
+		else if (name == "hkpConvexTranslateShape")
+			object = readHkpConvexTranslateShape(binhkx, contentsSectionIndex);
+		else if (name == "hkpListShape")
+			object = readHkpListShape(binhkx, contentsSectionIndex);
 		else
 			spdlog::warn("TODO: Implement havok class {}", name);
 
@@ -236,6 +242,8 @@ HavokFile::hkpRigidBody HavokFile::getRigidBody(uint32_t address) {
 }
 
 HavokFile::hkpShape HavokFile::getShape(uint32_t address) {
+	if (_objects.find(address) == _objects.end())
+		throw Common::Exception("Couldn't find shape for address {}", address);
 	auto shape = std::any_cast<hkpShape>(_objects[address]);
 	return shape;
 }
@@ -973,6 +981,49 @@ HavokFile::hkpShape HavokFile::readHkpCylinderShape(Common::ReadStream &binhkx) 
 	cylinderShape.p2.w = binhkx.readIEEEFloatLE();
 
 	shape.shape = cylinderShape;
+
+	return shape;
+}
+
+HavokFile::hkpShape HavokFile::readHkpConvexTranslateShape(Common::ReadStream &binhkx, uint32_t section) {
+	hkpShape shape{};
+	hkpConvexTranslateShape convexTranslateShape{};
+
+	shape.type = kConvexTranslate;
+
+	binhkx.skip(8); // hkReferencedObject
+	shape.userData = binhkx.readUint64LE(); // hkpShape
+	shape.radius = binhkx.readIEEEFloatLE(); // hkpConvexShape
+	binhkx.skip(4);
+	convexTranslateShape.shape = readFixup(binhkx, section);
+
+	binhkx.skip(4);
+	convexTranslateShape.translation.x = binhkx.readIEEEFloatLE();
+	convexTranslateShape.translation.y = binhkx.readIEEEFloatLE();
+	convexTranslateShape.translation.z = binhkx.readIEEEFloatLE();
+	convexTranslateShape.translation.w = binhkx.readIEEEFloatLE();
+
+	shape.shape = convexTranslateShape;
+
+	return shape;
+}
+
+HavokFile::hkpShape HavokFile::readHkpListShape(Common::ReadStream &binhkx, uint32_t section) {
+	hkpShape shape{};
+	hkpListShape listShape{};
+
+	shape.type = kList;
+
+	binhkx.skip(24);
+	hkArray shapeArray = readHkArray(binhkx, section);
+	binhkx.seek(shapeArray.offset);
+	listShape.shapes.resize(shapeArray.count);
+	for (auto &shapeRef: listShape.shapes) {
+		shapeRef = readFixup(binhkx, section);
+		binhkx.skip(12);
+	}
+
+	shape.shape = listShape;
 
 	return shape;
 }

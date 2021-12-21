@@ -21,6 +21,7 @@
 #ifndef OPENAWE_HAVOKOBJECT_H
 #define OPENAWE_HAVOKOBJECT_H
 
+#include "src/awe/havokfile.h"
 #include "src/awe/types.h"
 
 #include "src/physics/rigidbody.h"
@@ -30,6 +31,9 @@ namespace Physics {
 class HavokObject : public RigidBody {
 public:
 	HavokObject(rid_t rid);
+
+private:
+	btCollisionShape *getShape(AWE::HavokFile &havok, const AWE::HavokFile::hkpShape &shape, btTransform &shapeOffset);
 };
 
 } // End of namespace Physics
