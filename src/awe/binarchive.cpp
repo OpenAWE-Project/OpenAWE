@@ -89,6 +89,8 @@ void BINArchive::load(Common::ReadStream &bin) {
 			compressedSize,
 			decompressedSize
 	));
+
+	delete[] data;
 }
 
 bool BINArchive::hasResource(const std::string &rid) const {
