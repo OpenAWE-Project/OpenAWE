@@ -47,12 +47,12 @@ MeshManager::MeshManager() {
 MeshPtr MeshManager::getMesh(rid_t rid) {
 	auto iter = _meshRegistry.find(rid);
 	if (iter == _meshRegistry.end()) {
-		Common::ReadStream *meshResource = ResMan.getResource(rid);
+		std::unique_ptr<Common::ReadStream> meshResource(ResMan.getResource(rid));
 		if (!meshResource)
 			return getMissingMesh();
 
 		try {
-			_meshRegistry.insert(std::make_pair(rid, std::make_shared<BINMSHMesh>(meshResource)));
+			_meshRegistry.insert(std::make_pair(rid, std::make_shared<BINMSHMesh>(meshResource.get())));
 		} catch (std::exception &e) {
 			return getBrokenMesh();
 		}
@@ -65,15 +65,15 @@ MeshPtr MeshManager::getMesh(rid_t rid) {
 MeshPtr MeshManager::getMesh(const std::string &path) {
 	auto iter = _meshRegistry.find(path);
 	if (iter == _meshRegistry.end()) {
-		Common::ReadStream *meshResource = ResMan.getResource(path);
+		std::unique_ptr<Common::ReadStream> meshResource(ResMan.getResource(path));
 		if (!meshResource)
 			return getMissingMesh();
 
 		try {
 			if (std::regex_match(path, std::regex(".*\\.(binmsh|binfbx)$")))
-				_meshRegistry.insert(std::make_pair(path, std::make_shared<BINMSHMesh>(meshResource)));
+				_meshRegistry.insert(std::make_pair(path, std::make_shared<BINMSHMesh>(meshResource.get())));
 			else if (std::regex_match(path, std::regex(".*\\.binfol$")))
-				_meshRegistry.insert(std::make_pair(path, std::make_shared<BINFOLMesh>(meshResource)));
+				_meshRegistry.insert(std::make_pair(path, std::make_shared<BINFOLMesh>(meshResource.get())));
 			else
 				throw std::runtime_error(fmt::format("Invalid or unsupported mesh file {}", path));
 		} catch (std::exception &e) {
