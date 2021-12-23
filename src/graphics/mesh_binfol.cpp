@@ -32,7 +32,8 @@ BINFOLMesh::BINFOLMesh(Common::ReadStream *binfol) {
 		throw std::runtime_error(fmt::format("Unsupported version {}. Expected 19", version));
 
 	uint32_t meshDataSize = binfol->readUint32LE();
-	BINMSHMesh::load(binfol->readStream(meshDataSize));
+	std::unique_ptr<Common::ReadStream> binmshStream(binfol->readStream(meshDataSize));
+	BINMSHMesh::load(binmshStream.get());
 
 	uint32_t billboard1Length = binfol->readUint32LE();
 	std::string billboard1 = binfol->readFixedSizeString(billboard1Length, true);
