@@ -68,6 +68,12 @@ HavokObject::HavokObject(rid_t rid) {
 	setActive(true);
 }
 
+HavokObject::~HavokObject() {
+	for (const auto &additionalShape: _additionalShapes) {
+		delete additionalShape;
+	}
+}
+
 btCollisionShape *HavokObject::getShape(AWE::HavokFile &havok, const AWE::HavokFile::hkpShape &shape,
 										btTransform &shapeOffset) {
 	btCollisionShape *shapeObject;
@@ -103,6 +109,7 @@ btCollisionShape *HavokObject::getShape(AWE::HavokFile &havok, const AWE::HavokF
 			for (const auto &shapeId: listShape.shapes) {
 				btTransform shapeTransform = btTransform::getIdentity();
 				const auto childShape = getShape(havok, havok.getShape(shapeId), shapeTransform);
+				_additionalShapes.emplace_back(childShape);
 				compoundShape->addChildShape(shapeTransform, childShape);
 			}
 

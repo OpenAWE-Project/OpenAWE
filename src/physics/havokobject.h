@@ -31,8 +31,10 @@ namespace Physics {
 class HavokObject : public RigidBody {
 public:
 	HavokObject(rid_t rid);
+	virtual ~HavokObject();
 
 private:
+	std::vector<btCollisionShape*> _additionalShapes;
 	btCollisionShape *getShape(AWE::HavokFile &havok, const AWE::HavokFile::hkpShape &shape, btTransform &shapeOffset);
 };
 
