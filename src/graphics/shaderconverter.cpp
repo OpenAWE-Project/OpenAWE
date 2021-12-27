@@ -98,7 +98,7 @@ std::string ShaderConverter::convertToGLSL() {
 
 		// Replace attribute names with mor appropriate names
 		unsigned int uvIndex = 0;
-		if (parseData->shader_type != MOJOSHADER_TYPE_VERTEX) {
+		if (parseData->shader_type == MOJOSHADER_TYPE_VERTEX) {
 			for (int i = 0; i < parseData->attribute_count; ++i) {
 				const auto &attribute = parseData->attributes[i];
 
