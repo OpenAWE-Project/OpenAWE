@@ -113,14 +113,6 @@ void Program::bind() const {
 	glUseProgram(_id);
 }
 
-void Program::setSamplerMappings(const std::map<std::string, std::string> &mappings) {
-	_samplerMappings = mappings;
-}
-
-void Program::setAttributeMappings(const std::map<AttributeType, std::string> &mappings) {
-	_attributeMappings = mappings;
-}
-
 std::optional<GLint> Program::getAttributeLocation(const AttributeType &type) {
 	std::string attributeName;
 	switch (type) {
@@ -162,17 +154,7 @@ std::optional<GLint> Program::getAttributeLocation(const AttributeType &type) {
 	if (attributeIndex)
 		return *attributeIndex;
 
-	const auto attributeIndexMapped = getAttributeLocation(_attributeMappings[type]);
-	if (attributeIndexMapped)
-		return *attributeIndexMapped;
-
 	return std::optional<GLint>();
-}
-
-void Program::setSymbols(const std::vector<ShaderConverter::Symbol> &symbols) {
-	for (const auto &symbol : symbols) {
-		_symbols[symbol.name] = symbol;
-	}
 }
 
 void Program::setUniform1f(GLint id, const glm::vec1 &value) const {
@@ -199,30 +181,18 @@ void Program::setUniformSampler(GLint id, const GLuint value) const {
 	glUniform1i(id, value);
 }
 
-std::optional<GLint> Program::getUniformArraySymbolLocation(const ShaderConverter::Symbol &symbol, unsigned int offset) const {
-	const std::string uniformArrayName =
-			(symbol.shaderType == ShaderConverter::kVertex) ? "vs_uniforms_vec4" : "ps_uniforms_vec4";
-	const std::string uniformArrayElementName = fmt::format("{}[{}]", uniformArrayName, symbol.index + offset);
-	const auto uniformArrayLocation = getUniformLocation(uniformArrayElementName);
-	if (!uniformArrayLocation)
-		return std::optional<GLint>();
-
-	return uniformArrayLocation;
-}
-
 std::optional<GLint> Program::getUniformLocation(const std::string &name) const {
 	// First try to find the uniform in the cached uniforms
-	auto iter = _uniforms.find(name);
-	if (iter == _uniforms.end()) {
-		bind();
-		// If that doesn't work, try to find it usng glGetUniformLocation, for example for specific array offsets
-		GLint location = glGetUniformLocation(_id, name.c_str());
-		if (location == -1)
-			return std::optional<GLint>();
-		else
-			return location;
-	}
-	return iter->second;
+	const auto iter = _uniforms.find(name);
+	if (iter != _uniforms.end())
+		return iter->second;
+
+	// If that doesn't work, try to find it usng glGetUniformLocation, for example for specific array offsets
+	GLint location = glGetUniformLocation(_id, name.c_str());
+	if (location == -1)
+		return std::optional<GLint>();
+	else
+		return location;
 }
 
 std::optional<GLint> Program::getAttributeLocation(const std::string &name) const {

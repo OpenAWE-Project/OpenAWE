@@ -44,6 +44,7 @@
 #include "src/graphics/opengl/renderer.h"
 #include "src/graphics/opengl/opengl.h"
 #include "src/graphics/opengl/vbo.h"
+#include "src/graphics/opengl/convertedprogram.h"
 
 namespace Graphics::OpenGL {
 
@@ -140,13 +141,16 @@ Renderer::Renderer(Graphics::Window &window) : _window(window) {
 			if (program.name == "albedo_only") {
 				vertexShader.compile();
 				fragmentShader.compile();
-				auto &p = _programs[obj.getName()] = std::make_unique<Program>();
+				auto p = std::make_unique<ConvertedProgram>();
 				p->attach(vertexShader);
 				p->attach(fragmentShader);
 				p->link();
 				p->setSymbols(vertexConverter.getSymbols());
 				p->setAttributeMappings(vertexConverter.getAttributeMappings());
-				p->setSamplerMappings(vertexConverter.getSamplerMappings());
+				p->addSamplerMappings(vertexConverter.getSamplerMappings());
+				p->addSamplerMappings(pixelConverter.getSamplerMappings());
+
+				_programs[obj.getName()] = std::move(p);
 			}
 		}
 
