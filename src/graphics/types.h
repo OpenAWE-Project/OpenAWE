@@ -42,6 +42,7 @@ enum TextureType {
 
 enum TextureFormat {
 	kR8,
+	kRG8,
 	kRG16,
 	kRGB8,
 	kRGBA8,

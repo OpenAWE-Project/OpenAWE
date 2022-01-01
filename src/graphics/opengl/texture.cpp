@@ -117,6 +117,11 @@ void Texture::load(const ImageDecoder &decoder) {
 			format = GL_RG;
 			type = GL_UNSIGNED_SHORT;
 			break;
+		case kRG8:
+			internalFormat = GL_RG8;
+			format = GL_RG;
+			type = GL_UNSIGNED_BYTE;
+			break;
 		case kRGB8:
 			internalFormat = GL_RGB;
 			format = GL_RGB;
