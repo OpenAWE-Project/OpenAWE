@@ -88,7 +88,7 @@ void Program::link() {
 		GLint size;
 		glGetActiveAttrib(_id, i, maxAttributeNameLength, &actualLength, &size, &type, name);
 		std::string attributeName(name, actualLength);
-		_attributes[attributeName] = i;
+		_attributes[attributeName] = glGetAttribLocation(_id, name);
 	}
 	delete [] name;
 
@@ -104,7 +104,7 @@ void Program::link() {
 		GLint size;
 		glGetActiveUniform(_id, i, maxUniformNameLength, &actualLength, &size, &type, name);
 		std::string uniformName(name, actualLength);
-		_uniforms[uniformName] = i;
+		_uniforms[uniformName] = glGetUniformLocation(_id, name);
 	}
 	delete [] name;
 }
