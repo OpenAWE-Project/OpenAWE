@@ -72,11 +72,15 @@ Renderer::Renderer(Graphics::Window &window) : _window(window) {
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
 	glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &maxUniformLocations);
 	glGetIntegerv(GL_MAX_PATCH_VERTICES, &maxPatchVertices);
+	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &maxVertexUniformComponents);
+	glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &maxFragmentUniformComponents);
 	spdlog::info("OpenGL Max Texture Units: {}", maxTextureUnits);
 	spdlog::info("OpenGL Max Texture Coordinates: {}", maxTextureCoords);
 	spdlog::info("OpenGL Max Vertex Attributes: {}", maxVertexAttribs);
 	spdlog::info("OpenGL Max Uniform Attributes: {}", maxVertexAttribs);
 	spdlog::info("OpenGL Max Patch Vertices: {}", maxPatchVertices);
+	spdlog::info("OpenGL Max Vertex Uniform Components: {}", maxVertexUniformComponents);
+	spdlog::info("OpenGL Max Fragment Uniform Components: {}", maxFragmentUniformComponents);
 
 	GLint numExtensions;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
