@@ -66,7 +66,7 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 	spdlog::info("GLSL Version: {}", glGetString(GL_SHADING_LANGUAGE_VERSION));
 	assert(glGetError() == GL_NO_ERROR);
 
-	GLint maxTextureUnits, maxTextureCoords, maxVertexAttribs, maxUniformLocations, maxPatchVertices;
+	GLint maxTextureUnits, maxTextureCoords, maxVertexAttribs, maxUniformLocations, maxPatchVertices, maxVertexUniformComponents, maxFragmentUniformComponents;
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
 	glGetIntegerv(GL_MAX_TEXTURE_COORDS, &maxTextureCoords);
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
