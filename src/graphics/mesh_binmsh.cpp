@@ -139,38 +139,30 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 		uint32_t numAttributes = binmsh->readUint32LE();
 		std::vector<Material::Attribute> attributes;
 		for (int j = 0; j < numAttributes; ++j) {
-			Material::Attribute attribute;
-
 			uint32_t attributeNameLength = binmsh->readUint32LE();
-			attribute.id = binmsh->readFixedSizeString(attributeNameLength, true);
+			std::string attributeName = binmsh->readFixedSizeString(attributeNameLength, true);
 
 			uint32_t dataType = binmsh->readUint32LE();
 			switch (dataType) {
 				case 0: {
 					float v1 = binmsh->readIEEEFloatLE();
-					attribute.data = glm::vec1(v1);
-					attribute.type = Material::kVec1;
 
-					attributes.emplace_back(attribute);
+					attributes.emplace_back(Material::Attribute(attributeName, glm::vec1(v1)));
 					break;
 				}
 				case 1: {
 					float v1 = binmsh->readIEEEFloatLE();
 					float v2 = binmsh->readIEEEFloatLE();
-					attribute.data = glm::vec2(v1, v2);
-					attribute.type = Material::kVec2;
 
-					attributes.emplace_back(attribute);
+					attributes.emplace_back(Material::Attribute(attributeName, glm::vec2(v1, v2)));
 					break;
 				}
 				case 2: {
 					float v1 = binmsh->readIEEEFloatLE();
 					float v2 = binmsh->readIEEEFloatLE();
 					float v3 = binmsh->readIEEEFloatLE();
-					attribute.data = glm::vec3(v1, v2, v3);
-					attribute.type = Material::kVec3;
 
-					attributes.emplace_back(attribute);
+					attributes.emplace_back(Material::Attribute(attributeName, glm::vec3(v1, v2, v3)));
 					break;
 				}
 				case 3: {
@@ -178,10 +170,8 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 					float v2 = binmsh->readIEEEFloatLE();
 					float v3 = binmsh->readIEEEFloatLE();
 					float v4 = binmsh->readIEEEFloatLE();
-					attribute.data = glm::vec4(v1, v2, v3, v4);
-					attribute.type = Material::kVec4;
 
-					attributes.emplace_back(attribute);
+					attributes.emplace_back(Material::Attribute(attributeName, glm::vec4(v1, v2, v3, v4)));
 					break;
 				}
 				case 7: {
@@ -191,10 +181,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 					file = std::regex_replace(file, std::regex("\\\\"), "/");
 					file = std::regex_replace(file, std::regex("d:/data/"), "");
 
-					attribute.data = TextureMan.getTexture(file);
-					attribute.type = Material::kTexture;
-
-					attributes.emplace_back(attribute);
+					attributes.emplace_back(Material::Attribute(attributeName, TextureMan.getTexture(file)));
 					break;
 				}
 			}
