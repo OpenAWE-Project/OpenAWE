@@ -27,6 +27,8 @@
 
 #include "src/common/singleton.h"
 
+#include "src/platform/window.h"
+
 #include "src/graphics/renderer.h"
 #include "src/platform/window.h"
 #include "src/graphics/vertexattribute.h"
@@ -37,7 +39,7 @@ namespace Graphics {
 
 class GraphicsManager : public Common::Singleton<GraphicsManager> {
 public:
-	void initOpenGL(Window &window);
+	void initOpenGL(Platform::Window &window);
 
 	Camera getCamera() const;
 	void setCamera(const Camera &camera);
