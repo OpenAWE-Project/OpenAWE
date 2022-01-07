@@ -259,9 +259,17 @@ if (NOT WIN32)
     set_target_properties(awe_lib PROPERTIES OUTPUT_NAME awe)
 endif ()
 
+file(GLOB_RECURSE SOURCE_FILES src/platform/*.cpp src/platform/*.h)
+add_library(awe_platform ${SOURCE_FILES})
+target_link_libraries(awe_platform awe_common)
+
 file(GLOB_RECURSE SOURCE_FILES src/graphics/*.cpp src/graphics/*.h)
 add_library(awe_graphics ${SOURCE_FILES})
-target_link_libraries(awe_graphics awe_common awe_lib)
+target_link_libraries(awe_graphics awe_common awe_lib awe_platform)
+
+file(GLOB_RECURSE SOURCE_FILES src/events/*.cpp src/events/*.h)
+add_library(awe_events ${SOURCE_FILES})
+target_link_libraries(awe_events awe_common awe_lib)
 
 file(GLOB_RECURSE SOURCE_FILES src/sound/*.cpp src/sound/*.h)
 add_library(awe_sound ${SOURCE_FILES})

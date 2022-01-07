@@ -18,39 +18,16 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <GLFW/glfw3.h>
-#include <spdlog/spdlog.h>
+#ifndef AWE_CONTEXT_H
+#define AWE_CONTEXT_H
 
-#include "platform.h"
+namespace Platform {
 
-namespace Graphics {
-
-Platform::Platform() {
-	glfwSetErrorCallback(&Platform::errorCallback);
-}
-
-void Platform::init() {
-	spdlog::info("GLFW Info: {}", glfwGetVersionString());
-
-	int result = glfwInit();
-	if (result == GLFW_FALSE)
-		throw std::runtime_error("Failed to initialize glfw");
-}
-
-void Platform::terminate() {
-	glfwTerminate();
-}
-
-double Platform::getTime() {
-	return glfwGetTime();
-}
-
-void Platform::update() {
-	glfwPollEvents();
-}
-
-void Platform::errorCallback(int code, const char *description) {
-	spdlog::error("GLFW Error {}: {}", code, description);
-}
+class Context {
+public:
+	virtual void getSize(unsigned int &width, unsigned int &height) = 0;
+};
 
 }
+
+#endif //AWE_CONTEXT_H

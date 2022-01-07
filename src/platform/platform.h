@@ -18,25 +18,33 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AWE_VULKANCONTEXT_H
-#define AWE_VULKANCONTEXT_H
+#ifndef AWE_PLATFORM_H
+#define AWE_PLATFORM_H
 
-#ifdef WITH_VULKAN
-#include <vulkan/vulkan.h>
-#endif // WITH_VULKAN
 
-#include "src/graphics/context.h"
+namespace Platform {
 
-namespace Graphics {
-
-class VulkanContext : public Context {
+/*!
+ * \brief class for handling platform specific stuff
+ *
+ * This class handles the global tear up and tear down
+ * of platform specific stuff contained in glfw
+ */
+class Platform {
 public:
-#ifdef WITH_VULKAN
-	virtual const char **getInstanceExtensions(unsigned int &numExtensions) = 0;
-	virtual void createWindowSurface(VkInstance &instance, VkSurfaceKHR &surface) = 0;
-#endif //WITH_VULKAN
+	Platform();
+
+	void init();
+	void terminate();
+
+	double getTime();
+
+	void update();
+
+private:
+	static void errorCallback(int code, const char *description);
 };
 
 }
 
-#endif //AWE_VULKANCONTEXT_H
+#endif //AWE_PLATFORM_H

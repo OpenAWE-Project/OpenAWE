@@ -48,7 +48,7 @@
 
 namespace Graphics::OpenGL {
 
-Renderer::Renderer(Graphics::Window &window) : _window(window) {
+Renderer::Renderer(Platform::Window &window) : _window(window) {
 	_window.makeCurrent();
 
 	// Initialize GLEW

@@ -25,7 +25,8 @@
 #include <map>
 #include <memory>
 
-#include "src/graphics/window.h"
+#include "src/platform/window.h"
+
 #include "src/graphics/renderer.h"
 #include "src/graphics/opengl/program.h"
 #include "src/graphics/opengl/vbo.h"
@@ -37,7 +38,7 @@ namespace Graphics::OpenGL {
 
 class Renderer : public Graphics::Renderer {
 public:
-	explicit Renderer(Graphics::Window &window);
+	explicit Renderer(Platform::Window &window);
 	~Renderer();
 
 	void drawFrame() override;
@@ -60,7 +61,7 @@ private:
 
 	static void debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, void *userParam);
 
-	Graphics::Window &_window;
+	Platform::Window &_window;
 
 	std::vector<GLuint> _texturePool;
 	std::map<Common::UUID, GLuint> _texturePoolAssignments;

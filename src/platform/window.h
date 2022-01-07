@@ -30,10 +30,10 @@
 #endif // WITH_VULKAN
 #include <GLFW/glfw3.h>
 
-#include "src/graphics/glcontext.h"
-#include "src/graphics/vulkancontext.h"
+#include "glcontext.h"
+#include "vulkancontext.h"
 
-namespace Graphics {
+namespace Platform {
 
 typedef std::function<void (int key, int scancode, int action, int mods)> KeyCallback;
 

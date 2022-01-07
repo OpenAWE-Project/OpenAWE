@@ -18,19 +18,25 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AWE_GLCONTEXT_H
-#define AWE_GLCONTEXT_H
+#ifndef AWE_VULKANCONTEXT_H
+#define AWE_VULKANCONTEXT_H
 
-#include "src/graphics/context.h"
+#ifdef WITH_VULKAN
+#include <vulkan/vulkan.h>
+#endif // WITH_VULKAN
 
-namespace Graphics {
+#include "context.h"
 
-class GLContext : public Context {
+namespace Platform {
+
+class VulkanContext : public Context {
 public:
-	virtual void makeCurrent() = 0;
-	virtual void swap() = 0;
+#ifdef WITH_VULKAN
+	virtual const char **getInstanceExtensions(unsigned int &numExtensions) = 0;
+	virtual void createWindowSurface(VkInstance &instance, VkSurfaceKHR &surface) = 0;
+#endif //WITH_VULKAN
 };
 
-} // End of namespace Graphics
+}
 
-#endif //AWE_GLCONTEXT_H
+#endif //AWE_VULKANCONTEXT_H

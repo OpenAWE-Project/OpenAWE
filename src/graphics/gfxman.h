@@ -28,7 +28,7 @@
 #include "src/common/singleton.h"
 
 #include "src/graphics/renderer.h"
-#include "src/graphics/window.h"
+#include "src/platform/window.h"
 #include "src/graphics/vertexattribute.h"
 #include "src/graphics/camera.h"
 #include "src/graphics/buffer.h"

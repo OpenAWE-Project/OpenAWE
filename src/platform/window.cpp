@@ -22,9 +22,9 @@
 
 #include "src/common/types.h"
 
-#include "src/graphics/window.h"
+#include "window.h"
 
-namespace Graphics {
+namespace Platform {
 
 Window::Window(ContextType type) {
 	glfwDefaultWindowHints();

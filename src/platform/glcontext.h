@@ -18,33 +18,19 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AWE_PLATFORM_H
-#define AWE_PLATFORM_H
+#ifndef AWE_GLCONTEXT_H
+#define AWE_GLCONTEXT_H
 
+#include "context.h"
 
-namespace Graphics {
+namespace Platform {
 
-/*!
- * \brief class for handling platform specific stuff
- *
- * This class handles the global tear up and tear down
- * of platform specific stuff contained in glfw
- */
-class Platform {
+class GLContext : public Context {
 public:
-	Platform();
-
-	void init();
-	void terminate();
-
-	double getTime();
-
-	void update();
-
-private:
-	static void errorCallback(int code, const char *description);
+	virtual void makeCurrent() = 0;
+	virtual void swap() = 0;
 };
 
-}
+} // End of namespace Graphics
 
-#endif //AWE_PLATFORM_H
+#endif //AWE_GLCONTEXT_H
