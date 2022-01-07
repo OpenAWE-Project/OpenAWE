@@ -50,7 +50,7 @@ bool Task::isActiveOnStartupRound(unsigned int round) const {
 }
 
 GID Task::getPlayerCharacter(unsigned int round) const {
-	if (_playerCharacter.size() > round)
+	if (_playerCharacter.size() < round)
 		return GID{0, 0};
 
 	return _playerCharacter[round];
