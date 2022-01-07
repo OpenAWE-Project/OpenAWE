@@ -152,7 +152,7 @@ void Game::init() {
 
 	_platform.init();
 
-	_window = std::make_unique<Graphics::Window>(Graphics::Window::kOpenGL);
+	_window = std::make_unique<Platform::Window>(Platform::Window::kOpenGL);
 
 	GfxMan.initOpenGL(*_window);
 	//GfxMan.setAmbianceState("scene1_reststop_creepy");

@@ -29,8 +29,8 @@
 
 #include "src/awe/script/functions.h"
 
-#include "src/graphics/window.h"
-#include "src/graphics/platform.h"
+#include "src/platform/window.h"
+#include "src/platform/platform.h"
 #include "src/graphics/gfxman.h"
 
 #include "src/video/player.h"
@@ -54,8 +54,8 @@ private:
 
 	Video::Player _player;
 
-	Graphics::Platform _platform;
-	std::unique_ptr<Graphics::Window> _window;
+	Platform::Platform _platform;
+	std::unique_ptr<Platform::Window> _window;
 
 	std::unique_ptr<Global> _global;
 	std::unique_ptr<Engine> _engine;

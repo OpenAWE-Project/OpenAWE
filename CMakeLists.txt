@@ -291,6 +291,7 @@ target_link_libraries(
         awe
         awe_common
         awe_lib
+        awe_platform
         awe_graphics
         awe_sound
         awe_physics
