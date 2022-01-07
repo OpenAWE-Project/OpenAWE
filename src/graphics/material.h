@@ -61,6 +61,12 @@ public:
 		AttributeType type;
 		AttributeData data;
 		int index;
+
+		Attribute(const std::string &id, glm::vec1 value) : id(id), data(value), type(kVec1), index(-1) {}
+		Attribute(const std::string &id, glm::vec2 value) : id(id), data(value), type(kVec2), index(-1) {}
+		Attribute(const std::string &id, glm::vec3 value) : id(id), data(value), type(kVec3), index(-1) {}
+		Attribute(const std::string &id, glm::vec4 value) : id(id), data(value), type(kVec4), index(-1) {}
+		Attribute(const std::string &id, TexturePtr value) : id(id), data(value), type(kTexture), index(-1) {}
 	};
 
 	Material() = default;
