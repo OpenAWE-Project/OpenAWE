@@ -126,7 +126,7 @@ std::string ReadStream::readFixedSizeString(size_t length, bool nullTerminated) 
 std::u16string ReadStream::readFixedSizeStringUTF16(size_t length) {
 	std::vector<char16_t> data(length);
 	read(reinterpret_cast<char *>(data.data()), length * sizeof(char16_t));
-	return std::u16string(data.data());
+	return std::u16string(data.data(), data.size());
 }
 
 std::string ReadStream::readNullTerminatedString() {
