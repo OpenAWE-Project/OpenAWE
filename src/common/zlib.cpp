@@ -27,7 +27,7 @@
 
 namespace Common {
 
-ReadStream *decompressZLIB(byte *data, size_t compressedSize, size_t decompressedSize) {
+ReadStream *decompressZLIB(const byte *data, size_t compressedSize, size_t decompressedSize) {
 	byte *uncompressedData = new byte[decompressedSize];
 
 	z_stream stream;
@@ -37,7 +37,7 @@ ReadStream *decompressZLIB(byte *data, size_t compressedSize, size_t decompresse
 	stream.opaque = Z_NULL;
 
 	stream.avail_in = compressedSize;
-	stream.next_in = reinterpret_cast<byte *>(data);
+	stream.next_in = const_cast<byte *>(data);
 	stream.avail_out = decompressedSize;
 	stream.next_out = uncompressedData;
 

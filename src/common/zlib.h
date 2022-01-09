@@ -25,7 +25,7 @@
 
 namespace Common {
 
-ReadStream *decompressZLIB(byte *data, size_t compressedSize, size_t decompressedSize);
+ReadStream *decompressZLIB(const byte *data, size_t compressedSize, size_t decompressedSize);
 ReadStream *compressZLIB(byte *data, size_t decompressedSize);
 
 } // End of namespace Common
