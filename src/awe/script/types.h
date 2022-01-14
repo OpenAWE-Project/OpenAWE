@@ -28,23 +28,30 @@ namespace AWE::Script {
 
 /*! Bytecode opcodes */
 enum Opcode {
-	kPush       = 0x01,
-	kPushGID    = 0x02,
-	kCallGlobal = 0x03,
-	kCallObject = 0x04,
-	kMulInt     = 0x09,
-	kRet        = 0x0D,
-	kIntToFloat = 0x0E,
-	kSetMember  = 0x0F,
-	kGetMember  = 0x10,
-	kCmp        = 0x13,
-	kJmp        = 0x15,
-	kJmpIf      = 0x1A,
-	kLogAnd     = 0x1C,
-	kLogOr      = 0x1D,
-	kLogNot     = 0x1E,
-	kNeq        = 0x24,
-	kEq         = 0x25,
+	kPush         = 0x01,
+	kPushGID      = 0x02,
+	kCallGlobal   = 0x03,
+	kCallObject   = 0x04,
+	kMulFloat     = 0x05, // ?
+	kMulInt       = 0x09,
+	kAddInt       = 0x0B, // ?
+	kSubInt       = 0x0C, // ?
+	kRet          = 0x0D,
+	kIntToFloat   = 0x0E,
+	kSetMember    = 0x0F,
+	kGetMember    = 0x10,
+	kCmp          = 0x13,
+	kJmp          = 0x15,
+	kJmpIf        = 0x1A,
+	kLogAnd       = 0x1C,
+	kLogOr        = 0x1D,
+	kLogNot       = 0x1E,
+	kLessThen     = 0x20, // ?
+	kGreaterThen  = 0x21, // ?
+	kLessEqual    = 0x22, // ?
+	kGreaterEqual = 0x23, // ?
+	kNeq          = 0x24,
+	kEq           = 0x25,
 };
 
 typedef std::variant<
