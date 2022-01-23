@@ -49,7 +49,7 @@ std::optional<Variable> Functions::callObject(entt::entity object, const std::st
 	if (fun)
 		fun(ctx);
 	else
-		spdlog::warn("TODO: Implement object script functions {}", functionName);
+		spdlog::warn("TODO: Implement object script functions {}({})", functionName, fmt::join(parameters, ", "));
 
 	return ctx.ret;
 }
@@ -68,7 +68,7 @@ std::optional<Variable> Functions::callGlobal(const std::string &name,const std:
 	if (fun)
 		fun(ctx);
 	else
-		spdlog::warn("TODO: Implement global script functions {}", globalFunctionName);
+		spdlog::warn("TODO: Implement global script functions {}({})", globalFunctionName, fmt::join(parameters, ", "));
 
 	return ctx.ret;
 }
