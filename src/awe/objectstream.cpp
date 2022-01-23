@@ -370,7 +370,13 @@ void ObjectStream::pointLight(Templates::PointLight &pointLight, unsigned int ve
 		variable("meshRotation", pointLight.meshRotation);
 		variable("meshPosition", pointLight.meshPosition);
 
-		skip(70);
+		variable("drainMultiplier", pointLight.drainMultiplier);
+		variable("enableSpecular", pointLight.enableSpecular);
+		variable("shadowMapRange", pointLight.shadowMapRange);
+		variable("enableRangeClip", pointLight.enableRangeClip);
+		variable("rangeClip", pointLight.rangeClip);
+
+		skip(12);
 	} else { // Version 11
 		skip(0x94);
 	}
