@@ -770,7 +770,7 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 				dataStream->skip(4 - (dataStream->pos() - begin) % 4);
 
 			if (scaleSpline) {
-				assert(false);
+				throw Common::Exception("TODO: Spline scale not supported yet");
 			} else if (scaleStatic) {
 				if (scaleStaticX)
 					dataStream->skip(4);
