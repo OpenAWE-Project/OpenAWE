@@ -22,7 +22,11 @@
 #define OPENAWE_AWE_SCRIPT_TYPES_H
 
 #include <entt/entt.hpp>
+#include <fmt/format.h>
+
 #include <variant>
+
+#include "src/awe/script/float.h"
 
 namespace AWE::Script {
 
@@ -61,5 +65,32 @@ typedef std::variant<
 > Variable;
 
 }
+
+/*!
+ * Class for formatting a bytecode variable for logging
+ */
+template<> struct fmt::formatter<AWE::Script::Variable> {
+	constexpr auto parse(fmt::format_parse_context &ctx) {
+		return ctx.end();
+	}
+
+	template<typename FormatContext> auto format(const AWE::Script::Variable &variable, FormatContext& ctx) {
+		switch (variable.index()) {
+			case 0: {
+				int32_t intValue = std::get<int32_t>(variable);
+				if (AWE::Script::isFloat(intValue))
+					return fmt::format_to(ctx.out(), "{:f}", AWE::Script::asFloat(intValue));
+				return fmt::format_to(ctx.out(), "{}", std::get<int32_t>(variable));
+			}
+			case 1:
+				return fmt::format_to(ctx.out(), "\"{}\"", std::get<std::string>(variable));
+			case 2:
+				return fmt::format_to(ctx.out(), "<{}>", static_cast<unsigned int>(std::get<entt::entity>(variable)));
+			default:
+				return fmt::format_to(ctx.out(), "<invalid>");
+
+		}
+	}
+};
 
 #endif //OPENAWE_TYPES_H
