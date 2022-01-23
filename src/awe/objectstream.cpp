@@ -263,7 +263,7 @@ void ObjectStream::characterClass(Templates::CharacterClass &characterClass, uns
 		variable("animations", characterClass.animations);
 		object("animationParameters", characterClass.animationParameters, kAnimationParameters);
 		variable("type", characterClass.type, true);
-		skip(8);
+		skip(8); // Arcade Score, Arcade Multiplier
 	} else {
 		skip(0x49);
 	}
