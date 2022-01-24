@@ -37,6 +37,9 @@ namespace AWE {
 typedef std::any Object;
 
 class ObjectStream {
+public:
+	virtual ~ObjectStream();
+
 protected:
 	void resourceID(rid_t &);
 	void boundBox(Common::BoundBox &aabb);

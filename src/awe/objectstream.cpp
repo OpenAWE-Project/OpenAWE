@@ -36,6 +36,9 @@ namespace AWE {
 ObjectReadStream::ObjectReadStream() {
 }
 
+ObjectStream::~ObjectStream() {
+}
+
 void ObjectStream::resourceID(rid_t &rid) {
 	variable("rid", rid, true);
 }
