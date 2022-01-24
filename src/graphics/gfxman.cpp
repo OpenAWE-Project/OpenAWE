@@ -87,13 +87,8 @@ void GraphicsManager::setAmbianceState(const std::string &id) {
 	_renderer->setAmbianceState(AmbianceState(*ambianceFile));
 }
 
-Camera GraphicsManager::getCamera() const {
-	return _camera;
-}
-
-void GraphicsManager::setCamera(const Camera &camera) {
-	_camera = camera;
-	_renderer->setCamera(_camera);
+void GraphicsManager::setCamera(Camera &camera) {
+	_renderer->setCamera(camera);
 }
 
 }
