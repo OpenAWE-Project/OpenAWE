@@ -26,6 +26,7 @@ namespace Graphics {
 Camera::Camera() {
 	_position = glm::vec3(0.0f, 0.0f, 0.0f);
 	_direction = glm::vec3(0.0f, 0.0f, 1.0f);
+	_up = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
 void Camera::setPosition(const glm::vec3 &position) {
@@ -36,8 +37,11 @@ void Camera::setDirection(const glm::vec3 &direction) {
 	_direction = direction;
 }
 
-glm::mat4 Camera::getLookAt() {
-	return glm::lookAt(_position, _position + _direction, glm::vec3(0.0f, 1.0f, 0.0f));
+glm::mat4 Camera::getLookAt() const {
+	return glm::lookAt(_position, _position + _direction, _up);
+}
+
+void Camera::update(float delta) {
 }
 
 }

@@ -32,11 +32,14 @@ public:
 	void setPosition(const glm::vec3 &position);
 	void setDirection(const glm::vec3 &direction);
 
-	glm::mat4 getLookAt();
+	glm::mat4 getLookAt() const;
 
-private:
+	virtual void update(float time);
+
+protected:
 	glm::vec3 _position;
 	glm::vec3 _direction;
+	glm::vec3 _up;
 };
 
 } // End of namespace Graphics
