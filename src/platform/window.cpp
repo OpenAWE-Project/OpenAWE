@@ -77,6 +77,9 @@ bool Window::shouldClose() {
 }
 
 void Window::callbackKey(GLFWwindow *window, int key, int scancode, int action, int mods) {
+	if (action == GLFW_REPEAT)
+		return;
+
 	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
 	if (!w->_keyCallback)
 		return;
