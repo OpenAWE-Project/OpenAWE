@@ -84,8 +84,13 @@ template<> struct fmt::formatter<AWE::Script::Variable> {
 			}
 			case 1:
 				return fmt::format_to(ctx.out(), "\"{}\"", std::get<std::string>(variable));
-			case 2:
-				return fmt::format_to(ctx.out(), "<{}>", static_cast<unsigned int>(std::get<entt::entity>(variable)));
+			case 2: {
+				entt::entity entity = std::get<entt::entity>(variable);
+				if (entity == entt::null)
+					return fmt::format_to(ctx.out(), "<null>");
+				else
+					return fmt::format_to(ctx.out(), "<{}>", static_cast<unsigned int>(entity));
+			}
 			default:
 				return fmt::format_to(ctx.out(), "<invalid>");
 
