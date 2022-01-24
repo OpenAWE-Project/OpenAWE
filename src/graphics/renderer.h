@@ -39,6 +39,7 @@ namespace Graphics {
 class Renderer {
 public:
 	Renderer();
+	virtual ~Renderer();
 
 	void addModel(Model *model);
 	void removeModel(Model *model);

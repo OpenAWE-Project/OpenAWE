@@ -26,6 +26,9 @@ Graphics::Renderer::Renderer() : _currentVideoFrame(Common::UUID::generateNil())
 
 }
 
+Graphics::Renderer::~Renderer() {
+}
+
 void Graphics::Renderer::addModel(Graphics::Model *model) {
 	_models.emplace_back(model);
 }
