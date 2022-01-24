@@ -41,7 +41,7 @@ BINFNTFont::BINFNTFont(Common::ReadStream &binfnt) {
 	binfnt.read(indicesData, numIndices * 2);
 
 	_vertices = GfxMan.createBuffer(data, numVertices * 4 * 4, kVertexBuffer);
-	_indices = GfxMan.createBuffer(data, numIndices * 2, kIndexBuffer);
+	_indices = GfxMan.createBuffer(indicesData, numIndices * 2, kIndexBuffer);
 
 	std::vector<VertexAttribute> attributes = {
 			{kPosition,  kVec2F},
