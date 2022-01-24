@@ -22,6 +22,9 @@
 
 namespace Graphics {
 
+Font::~Font() {
+}
+
 TexturePtr Graphics::Font::getTexture() const {
 	return _texture;
 }

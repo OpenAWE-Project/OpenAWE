@@ -31,6 +31,8 @@ namespace Graphics {
 
 class Font {
 public:
+	virtual ~Font();
+
 	[[nodiscard]] TexturePtr getTexture() const;
 	[[nodiscard]] BufferPtr getVertices() const;
 	[[nodiscard]] BufferPtr getIndices() const;
