@@ -95,8 +95,6 @@ public:
 	void drawFrame();
 
 private:
-	Camera _camera;
-
 	std::unique_ptr<Renderer> _renderer;
 };
 
