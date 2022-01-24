@@ -19,3 +19,10 @@
  */
 
 #include "archive.h"
+
+namespace AWE {
+
+Archive::~Archive() {
+}
+
+}

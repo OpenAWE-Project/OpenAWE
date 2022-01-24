@@ -35,6 +35,8 @@ namespace AWE {
  */
 class Archive : Common::Noncopyable {
 public:
+	virtual ~Archive();
+
 	/*!
 	 * Get the number of resources contained in this archive
 	 *
