@@ -30,6 +30,8 @@
 #include "src/common/strutil.h"
 #include "src/common/exception.h"
 
+#include "src/platform/keyconversion.h"
+
 #include "src/events/eventman.h"
 
 #include "src/physics/physicsman.h"
