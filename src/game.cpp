@@ -43,6 +43,7 @@
 
 #include "src/sound/soundman.h"
 
+#include "src/controlledfreecamera.h"
 #include "src/task.h"
 
 bool Game::parseArguments(int argc, char **argv) {
@@ -188,12 +189,9 @@ void Game::init() {
 void Game::start() {
 	spdlog::info("Starting AWE...");
 
-	glm::vec3 cameraPosition(0.0f, 500.0f,0.0f);
-	glm::vec3 cameraDirection(0.0f, 0.0f, -1.0f);
+	ControlledFreeCamera freeCamera;
 
-	Graphics::Camera camera;
-	camera.setPosition(cameraPosition);
-	camera.setDirection(cameraDirection);
+	GfxMan.setCamera(freeCamera);
 
 	Graphics::Text text;
 	text.setText(u"OpenAWE - v0.0.1");
@@ -201,52 +199,25 @@ void Game::start() {
 
 	bool forward = false, backward = false, left = false, right = false, up = false, down = false, turnLeft = false, turnRight = false;
 	_window->setKeyCallback([&](int key, int scancode, int action, int mods){
-		if (key == GLFW_KEY_W)
-			forward = action == GLFW_PRESS || action == GLFW_REPEAT;
-		else if (key == GLFW_KEY_S)
-			backward = action == GLFW_PRESS || action == GLFW_REPEAT;
-		else if (key == GLFW_KEY_A)
-			left = action == GLFW_PRESS || action == GLFW_REPEAT;
-		else if (key == GLFW_KEY_D)
-			right = action == GLFW_PRESS || action == GLFW_REPEAT;
-		else if (key == GLFW_KEY_R)
-			up = action == GLFW_PRESS || action == GLFW_REPEAT;
-		else if (key == GLFW_KEY_F)
-			down = action == GLFW_PRESS || action == GLFW_REPEAT;
-		else if (key == GLFW_KEY_Q)
-			turnLeft = action == GLFW_PRESS || action == GLFW_REPEAT;
-		else if (key == GLFW_KEY_E)
-			turnRight = action == GLFW_PRESS || action == GLFW_REPEAT;
+		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
 	});
 
+	double lastTime = _platform.getTime();
 	bool exit = false;
 	std::chrono::system_clock::time_point last, now;
 	while (!exit) {
+		double time = _platform.getTime();
+
+		freeCamera.update(time - lastTime);
+
+		PhysicsMan.update(time - lastTime);
 		GfxMan.drawFrame();
-
-		if (forward)
-			cameraPosition.z -= 5.0f;
-		if (backward)
-			cameraPosition.z += 5.0f;
-		if (left)
-			cameraPosition.x -= 5.0f;
-		if (right)
-			cameraPosition.x += 5.0f;
-		if (up)
-			cameraPosition.y -= 5.0f;
-		if (down)
-			cameraPosition.y += 5.0f;
-
-		if (forward || backward || left || right || up || down) {
-			camera.setPosition(cameraPosition);
-			GfxMan.setCamera(camera);
-		}
-
-		PhysicsMan.update(0.0f); // TODO
 
 		_platform.update();
 		if (_window->shouldClose())
 			exit = true;
+
+		lastTime = time;
 	}
 
 	spdlog::info("Stopping AWE...");
