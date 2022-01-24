@@ -305,7 +305,7 @@ void Renderer::drawFrame() {
 
 void Renderer::drawWorld() {
 	glm::mat4 p = glm::perspectiveFov(45.0f, 1920.0f, 1080.0f, 1.0f, 10000.0f);
-	glm::mat4 v = _camera.getLookAt();
+	glm::mat4 v = _camera ? (*_camera).get().getLookAt() : glm::identity<glm::mat4>();
 	glm::mat4 vp = p * v;
 
 	const std::unique_ptr<Program> &defaultShader = _programs["standardmaterial"];

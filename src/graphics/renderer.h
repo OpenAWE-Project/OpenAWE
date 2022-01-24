@@ -63,7 +63,7 @@ public:
 	virtual void drawFrame() = 0;
 
 protected:
-	Camera _camera;
+	std::optional<std::reference_wrapper<Camera>> _camera;
 	AmbianceState _ambiance;
 
 	Common::UUID _currentVideoFrame;
