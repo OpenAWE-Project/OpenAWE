@@ -263,6 +263,10 @@ file(GLOB_RECURSE SOURCE_FILES src/platform/*.cpp src/platform/*.h)
 add_library(awe_platform ${SOURCE_FILES})
 target_link_libraries(awe_platform awe_common)
 
+file(GLOB_RECURSE SOURCE_FILES src/events/*.cpp src/events/*.h)
+add_library(awe_events ${SOURCE_FILES})
+target_link_libraries(awe_events awe_common)
+
 file(GLOB_RECURSE SOURCE_FILES src/graphics/*.cpp src/graphics/*.h)
 add_library(awe_graphics ${SOURCE_FILES})
 target_link_libraries(awe_graphics awe_common awe_lib awe_platform)
@@ -292,6 +296,7 @@ target_link_libraries(
         awe_common
         awe_lib
         awe_platform
+        awe_events
         awe_graphics
         awe_sound
         awe_physics
