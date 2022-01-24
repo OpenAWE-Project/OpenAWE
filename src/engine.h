@@ -31,6 +31,7 @@
 class Engine {
 public:
 	Engine(entt::registry &registry, AWE::Script::Functions *);
+	virtual ~Engine();
 
 	virtual void init() = 0;
 	virtual const char *getName() const = 0;

@@ -29,6 +29,9 @@ Engine::Engine(entt::registry &registry, AWE::Script::Functions *functions) : _r
 	_context = std::make_unique<AWE::Script::Context>(_registry, *_functions);
 }
 
+Engine::~Engine() {
+}
+
 AWE::Script::Functions &Engine::getFunctions() {
 	return *_functions;
 }
