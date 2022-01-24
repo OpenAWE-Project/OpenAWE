@@ -41,8 +41,7 @@ class GraphicsManager : public Common::Singleton<GraphicsManager> {
 public:
 	void initOpenGL(Platform::Window &window);
 
-	Camera getCamera() const;
-	void setCamera(const Camera &camera);
+	void setCamera(Camera &camera);
 
 	void setAmbianceState(const std::string &id);
 
