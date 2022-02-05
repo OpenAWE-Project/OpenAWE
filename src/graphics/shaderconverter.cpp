@@ -134,6 +134,7 @@ std::string ShaderConverter::convertToGLSL() {
 		// Add symbol mappings
 		for (int i = 0; i < parseData->symbol_count; ++i) {
 			const auto symbol = parseData->symbols[i];
+
 			Symbol s{};
 			s.name = symbol.name;
 			s.shaderType = shaderType;
@@ -143,8 +144,14 @@ std::string ShaderConverter::convertToGLSL() {
 			if (symbol.register_set == MOJOSHADER_SYMREGSET_SAMPLER) {
 				for (int j = 0; j < parseData->sampler_count; ++j) {
 					const auto sampler = parseData->samplers[j];
-					if (sampler.index == symbol.register_index) {
-						_samplers[symbol.name] = sampler.name;
+					if (symbol.register_count <= 1) {
+						if (sampler.index == symbol.register_index) {
+							_samplers[symbol.name] = sampler.name;
+						}
+					} else {
+						if (sampler.index >= symbol.register_index && sampler.index < symbol.register_index + symbol.register_count) {
+							_samplers[fmt::format("{}[{}]", symbol.name, sampler.index - symbol.register_index)] = sampler.name;
+						}
 					}
 				}
 				continue;
