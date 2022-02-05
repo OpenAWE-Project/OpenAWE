@@ -137,6 +137,12 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 		AWE::OBJFile obj(ResMan.getResource(item.path().string()));
 
 		for (auto &program : obj.getPrograms()) {
+			const auto &vertexShaderStream = *program.shaders.front().vertexShader;
+			const auto &pixelShaderStream = *program.shaders.front().pixelShader;
+
+			if (vertexShaderStream.eos() || pixelShaderStream.eos())
+				continue;
+
 			Graphics::ShaderConverter vertexConverter(*program.shaders.front().vertexShader);
 			Graphics::ShaderConverter pixelConverter(*program.shaders.front().pixelShader);
 			Shader vertexShader(GL_VERTEX_SHADER, vertexConverter.convertToGLSL());
