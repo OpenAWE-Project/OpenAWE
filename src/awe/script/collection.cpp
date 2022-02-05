@@ -98,7 +98,7 @@ Disassembler Collection::createDisassembler(const Templates::ScriptVariables &sc
 
 		assert(item.offset <= script.codeSize);
 
-		entryPoints[item.offset] = handler;
+		entryPoints[item.offset * 4] = handler;
 	}
 
 	Disassembler disassembler(_bytecode->getStream(script.offsetCode, script.codeSize), _bytecodeParameters, entryPoints);
