@@ -401,3 +401,25 @@ TEST(MemoryReadStream, readNullTerminatedStringBlocked) {
 	EXPECT_EQ(stream.pos(), 36);
 	EXPECT_TRUE(stream.eos());
 }
+
+TEST(MemoryReadStream, readStream) {
+	const byte kData[] = {
+			0x01, 0x02, 0x03, 0x04,
+			0x11, 0x12, 0x13, 0x14,
+			0x21, 0x22, 0x23, 0x24,
+			0x31, 0x32, 0x33, 0x34,
+	};
+
+	Common::MemoryReadStream stream(kData, 16);
+	std::unique_ptr<Common::ReadStream> stream1(stream.readStream(8));
+	stream.seek(0, Common::ReadStream::BEGIN);
+	std::unique_ptr<Common::ReadStream> stream2(stream.readStream());
+
+	EXPECT_EQ(stream1->readUint32BE(), 0x01020304);
+	EXPECT_EQ(stream1->readUint32BE(), 0x11121314);
+
+	EXPECT_EQ(stream2->readUint32BE(), 0x01020304);
+	EXPECT_EQ(stream2->readUint32BE(), 0x11121314);
+	EXPECT_EQ(stream2->readUint32BE(), 0x21222324);
+	EXPECT_EQ(stream2->readUint32BE(), 0x31323334);
+}
