@@ -65,6 +65,22 @@ public:
 	virtual void drawFrame() = 0;
 
 protected:
+	struct RenderTask {
+		Model *model;
+		std::vector<unsigned int> partMeshsToRender;
+	};
+
+	struct RenderPass {
+		std::string programName;
+		std::vector<RenderTask> renderTasks;
+
+		RenderPass(const std::string &programName) : programName(programName) {
+		}
+	};
+
+	glm::mat4 _view;
+	glm::mat4 _projection;
+
 	std::optional<std::reference_wrapper<Camera>> _camera;
 	AmbianceState _ambiance;
 
