@@ -29,16 +29,36 @@
 
 namespace Sound {
 
+/*!
+ * \brief Reader class for fmod sound bank files
+ *
+ * This reader is responsible for loading streams from an fmod sound bank file in version 4. These files have the ending
+ * fsb and the magic 4 bytes "FSB4" in ascii.
+ */
 class FSBFile {
 public:
 	FSBFile(Common::ReadStream *fsb);
 
+	/*!
+	 * Get number of entries in the fsb file
+	 * \return The number of entries in this FSB file
+	 */
+	size_t getNumEntries();
+
+	/*!
+	 * Get a specific stream on the given index
+	 * \param index the stream to get for this index
+	 * \return The newly created stream
+	 */
+	Common::ReadStream *getStream(size_t index);
+
 private:
 	struct Entry {
 		std::string filename;
-		uint32_t compressedFileLength;
-		uint32_t loopStart, loopEnd;
+		uint32_t offset, size;
 	};
+
+	uint32_t _dataOffset;
 
 	std::vector<Entry> _entries;
 

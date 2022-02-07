@@ -40,6 +40,7 @@ FSBFile::FSBFile(Common::ReadStream *fsb) : _fsb(fsb) {
 
 	_entries.resize(numFiles);
 
+	size_t localOffset = 0;
 	for (auto &entry : _entries) {
 		uint16_t fileEntryLength = _fsb->readUint16LE();
 
@@ -49,7 +50,9 @@ FSBFile::FSBFile(Common::ReadStream *fsb) : _fsb(fsb) {
 		std::string fileName = _fsb->readFixedSizeString(30, true);
 
 		uint32_t samplesLength = _fsb->readUint32LE();
-		uint32_t compressedFileLEngth = _fsb->readUint32LE();
+		entry.size = _fsb->readUint32LE();
+		entry.offset = localOffset;
+		localOffset += entry.size;
 		uint32_t loopStart = _fsb->readUint32LE();
 		uint32_t loopEnd = _fsb->readUint32LE();
 		uint32_t mode = _fsb->readUint32LE();
@@ -64,6 +67,20 @@ FSBFile::FSBFile(Common::ReadStream *fsb) : _fsb(fsb) {
 		uint16_t variableVolume = _fsb->readUint32LE();
 		uint16_t variablePan = _fsb->readUint32LE();
 	}
+
+	_dataOffset = 48 + directoryLength;
+}
+
+size_t FSBFile::getNumEntries() {
+	return _entries.size();
+}
+
+Common::ReadStream *FSBFile::getStream(size_t index) {
+	const auto entry = _entries[index];
+
+	_fsb->seek(_dataOffset + entry.offset);
+
+	return _fsb->readStream(entry.size);
 }
 
 } // End of namespace Sound
