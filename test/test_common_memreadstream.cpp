@@ -62,6 +62,9 @@ TEST(MemoryReadStream, seek) {
 	memoryReadStream2.skip(-21);
 	EXPECT_EQ(memoryReadStream2.pos(), 25);
 	EXPECT_FALSE(memoryReadStream2.eos());
+
+	EXPECT_ANY_THROW(memoryReadStream1.seek(43, Common::ReadStream::BEGIN));
+	EXPECT_ANY_THROW(memoryReadStream2.seek(1, Common::ReadStream::END));
 }
 
 TEST(MemoryReadStream, read) {
