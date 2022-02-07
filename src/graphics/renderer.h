@@ -61,6 +61,7 @@ public:
 
 	void setCurrentVideoFrame(const Common::UUID &id);
 
+	void update();
 	virtual void drawFrame() = 0;
 
 protected:
@@ -69,7 +70,7 @@ protected:
 
 	Common::UUID _currentVideoFrame;
 
-	std::vector<Model*> _models;
+	std::vector<RenderPass> _renderPasses;
 	std::vector<GUIElement *> _guiElements;
 };
 

@@ -310,140 +310,160 @@ void Renderer::drawFrame() {
 }
 
 void Renderer::drawWorld() {
-	glm::mat4 p = glm::perspectiveFov(45.0f, 1920.0f, 1080.0f, 1.0f, 10000.0f);
-	glm::mat4 v = _camera ? (*_camera).get().getLookAt() : glm::identity<glm::mat4>();
-	glm::mat4 vp = p * v;
+	glm::mat4 vp = _projection * _view;
+	glm::mat4 viewToWorldMat = glm::inverse(_view);
 
 	const std::unique_ptr<Program> &defaultShader = _programs["standardmaterial"];
-	bool currentWireframe = false;
+	static const glm::mat4 mirrorZ = glm::scale(glm::vec3(1, 1, -1));
+
+	bool wireframe = false;
 	Material::CullMode cullMode = Material::kNone;
 
-	for (const auto &model : _models) {
-		glm::mat4 m = model->getTransform();
-		glm::mat4 mvp = vp * m;
+	for (const auto &pass: _renderPasses) {
+		if (pass.renderTasks.empty())
+			continue;
 
-		const MeshPtr mesh = model->getMesh();
-		const auto &partMeshs = mesh->getMeshs();
+		auto programIter = _programs.find(pass.programName);
+		const std::unique_ptr<Program> &currentShader = (programIter == _programs.end()) ? defaultShader : programIter->second;
+		currentShader->bind();
 
-		for (const auto &partmesh : partMeshs) {
-			std::string shaderName = partmesh.material.getShaderName();
-			auto programIter = _programs.find(shaderName);
-			const std::unique_ptr<Program> &currentShader = (programIter == _programs.end()) ? defaultShader : programIter->second;
-			currentShader->bind();
+		std::optional<GLint> localToView = currentShader->getUniformLocation("g_mLocalToView");
+		std::optional<GLint> localToClip = currentShader->getUniformLocation("g_mLocalToClip");
+		std::optional<GLint> viewToClip = currentShader->getUniformLocation("g_mViewToClip");
+		std::optional<GLint> viewToWorld = currentShader->getUniformLocation("g_mViewToWorld");
 
-			std::static_pointer_cast<Graphics::OpenGL::VAO>(partmesh.vertexAttributes)->bind();
+		for (const auto &task: pass.renderTasks) {
+			glm::mat4 m = mirrorZ * task.model->getTransform();
+			glm::mat4 mv = _view * m;
+			glm::mat4 vm = glm::inverse(mv);
+			glm::mat4 mvp = vp * m;
 
-			bool noIndices = !mesh->getIndices();
-			if (!noIndices)
-				std::static_pointer_cast<Graphics::OpenGL::VBO>(mesh->getIndices())->bind();
+			const MeshPtr mesh = task.model->getMesh();
+			const auto &partMeshs = mesh->getMeshs();
+			const auto indices = std::static_pointer_cast<Graphics::OpenGL::VBO>(mesh->getIndices());
 
-			GLuint textureSlot = 0;
-			for (const auto &attribute : partmesh.material.getAttributes()) {
-				switch (attribute.type) {
-					case Material::kVec1: {
-						glm::vec1 value = std::get<glm::vec1>(attribute.data);
-						currentShader->setUniform1f(attribute.index, value);
-						break;
+			if (localToView)
+				currentShader->setUniformMatrix4f(*localToView, mv);
+			if (localToClip)
+				currentShader->setUniformMatrix4f(*localToClip, mvp);
+			if (viewToClip)
+				currentShader->setUniformMatrix4f(*viewToClip, _projection);
+			if (viewToWorld)
+				currentShader->setUniformMatrix4f(*viewToWorld, vm);
+
+			for (const auto &meshToRender: task.partMeshsToRender) {
+				const auto partmesh = partMeshs[meshToRender];
+
+				std::static_pointer_cast<Graphics::OpenGL::VAO>(partmesh.vertexAttributes)->bind();
+				if (indices)
+					indices->bind();
+
+				GLuint textureSlot = 0;
+				for (const auto &attribute : partmesh.material.getAttributes()) {
+					switch (attribute.type) {
+						case Material::kVec1: {
+							glm::vec1 value = std::get<glm::vec1>(attribute.data);
+							currentShader->setUniform1f(attribute.index, value);
+							break;
+						}
+
+						case Material::kVec2: {
+							glm::vec2 value = std::get<glm::vec2>(attribute.data);
+							currentShader->setUniform2f(attribute.index, value);
+							break;
+						}
+
+						case Material::kVec3: {
+							glm::vec3 value = std::get<glm::vec3>(attribute.data);
+							currentShader->setUniform3f(attribute.index, value);
+							break;
+						}
+
+						case Material::kVec4: {
+							glm::vec4 value = std::get<glm::vec4>(attribute.data);
+							currentShader->setUniform4f(attribute.index, value);
+							break;
+						}
+
+						case Material::kTexture:
+							glActiveTexture(getTextureSlot(textureSlot));
+							std::static_pointer_cast<Graphics::OpenGL::Texture>(std::get<TexturePtr>(attribute.data))->bind();
+							currentShader->setUniformSampler(attribute.index, textureSlot);
+							textureSlot += 1;
+							break;
 					}
-
-					case Material::kVec2: {
-						glm::vec2 value = std::get<glm::vec2>(attribute.data);
-						currentShader->setUniform2f(attribute.index, value);
-						break;
-					}
-
-					case Material::kVec3: {
-						glm::vec3 value = std::get<glm::vec3>(attribute.data);
-						currentShader->setUniform3f(attribute.index, value);
-						break;
-					}
-
-					case Material::kVec4: {
-						glm::vec4 value = std::get<glm::vec4>(attribute.data);
-						currentShader->setUniform4f(attribute.index, value);
-						break;
-					}
-
-					case Material::kTexture:
-						glActiveTexture(getTextureSlot(textureSlot));
-						std::static_pointer_cast<Graphics::OpenGL::Texture>(std::get<TexturePtr>(attribute.data))->bind();
-						currentShader->setUniformSampler(attribute.index, textureSlot);
-						textureSlot += 1;
-						break;
+					//assert(glGetError() == GL_NO_ERROR);
 				}
-				assert(glGetError() == GL_NO_ERROR);
-			}
 
-			/*if (shaderName == "standardmaterial") {
-				glUniform3fv(program->getUniformLocation("g_sAmbientLight.color"), 1, glm::value_ptr(_ambiance.getAmbientLightColor()));
-				glUniform1f(program->getUniformLocation("g_sAmbientLight.intensity"), _ambiance.getAmbientLightIntensity());
-			}*/
-
-			currentShader->setUniformMatrix4f(*currentShader->getUniformLocation("g_mLocalToView"), mvp);
-			assert(glGetError() == GL_NO_ERROR);
-
-			GLenum type;
-			switch (partmesh.renderType) {
-				default:
-				case Mesh::kTriangles:
-					type = GL_TRIANGLES;
-					break;
-				case Mesh::kLines:
-					type = GL_LINES;
-					break;
-				case Mesh::kPoints:
-					type = GL_POINTS;
-					break;
-				case Mesh::kPatches:
-					type = GL_PATCHES;
-					break;
-			}
-
-			if (cullMode != partmesh.material.getCullMode()) {
-				const Material::CullMode newCullMode = partmesh.material.getCullMode();
-				if (cullMode != Material::kNone && newCullMode == Material::kNone)
-					glDisable(GL_CULL_FACE);
-				else if (cullMode == Material::kNone && newCullMode != Material::kNone)
-					glEnable(GL_CULL_FACE);
-
-				switch (newCullMode) {
-					case Material::kBack:
-						glCullFace(GL_BACK);
-						break;
-					case Material::kFront:
-						glCullFace(GL_FRONT_AND_BACK);
-						break;
+				GLenum type;
+				switch (partmesh.renderType) {
 					default:
+					case Mesh::kTriangles:
+						type = GL_TRIANGLES;
+						break;
+					case Mesh::kLines:
+						type = GL_LINES;
+						break;
+					case Mesh::kPoints:
+						type = GL_POINTS;
+						break;
+					case Mesh::kPatches:
+						type = GL_PATCHES;
 						break;
 				}
 
-				cullMode = newCullMode;
-			}
+				if (cullMode != partmesh.material.getCullMode()) {
+					const Material::CullMode newCullMode = partmesh.material.getCullMode();
+					if (cullMode != Material::kNone && newCullMode == Material::kNone)
+						glDisable(GL_CULL_FACE);
+					else if (cullMode == Material::kNone && newCullMode != Material::kNone)
+						glEnable(GL_CULL_FACE);
 
-			if (partmesh.wireframe && !currentWireframe) {
-				glDisable(GL_DEPTH_TEST);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				currentWireframe = true;
-			} else if (!partmesh.wireframe && currentWireframe) {
-				glEnable(GL_DEPTH_TEST);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				currentWireframe = false;
-			}
+					switch (newCullMode) {
+						case Material::kFront:
+							glCullFace(GL_FRONT);
+							break;
+						case Material::kBack:
+							glCullFace(GL_BACK);
+							break;
+						case Material::kFrontBack:
+							glCullFace(GL_FRONT_AND_BACK);
+							break;
+						default:
+							break;
+					}
 
-			if (noIndices) {
-				glDrawArrays(
-					type,
-					0,
-					partmesh.length
-				);
-			} else {
-				glDrawElements(
-					type,
-					partmesh.length,
-					GL_UNSIGNED_SHORT,
-					reinterpret_cast<void *>(partmesh.offset)
-				);
+					cullMode = newCullMode;
+				}
+
+				if (partmesh.wireframe && !wireframe) {
+					glDisable(GL_DEPTH_TEST);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					wireframe = true;
+				} else if (!partmesh.wireframe && wireframe) {
+					glEnable(GL_DEPTH_TEST);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					wireframe = false;
+				}
+
+				if (!indices) {
+					glDrawArrays(
+							type,
+							0,
+							partmesh.length
+					);
+				} else {
+					glDrawElements(
+							type,
+							partmesh.length,
+							GL_UNSIGNED_SHORT,
+							reinterpret_cast<void *>(partmesh.offset)
+					);
+				}
 			}
+		}
+	}
+}
 
 			assert(glGetError() == GL_NO_ERROR);
 		}

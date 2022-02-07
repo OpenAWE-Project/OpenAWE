@@ -30,13 +30,62 @@ Graphics::Renderer::~Renderer() {
 }
 
 void Graphics::Renderer::addModel(Graphics::Model *model) {
-	_models.emplace_back(model);
+	std::map<std::string, RenderTask> renderTasks;
+
+	// Collect all render tasks
+	const auto &partMeshs = model->getMesh()->getMeshs();
+	for (int i = 0; i < partMeshs.size(); ++i) {
+		const auto &partMesh = partMeshs[i];
+
+		const auto shaderName = partMesh.material.getShaderName();
+		const auto taskIter = renderTasks.find(shaderName);
+		if (taskIter == renderTasks.end()) {
+			RenderTask renderTask{model};
+			renderTasks.insert({shaderName, renderTask});
+		}
+		renderTasks.at(shaderName).partMeshsToRender.emplace_back(i);
+	}
+
+	// Put tasks into render passes
+	for (auto &pass : _renderPasses) {
+		auto passTask = renderTasks.find(pass.programName);
+		if (passTask == renderTasks.end())
+			continue;
+
+		pass.renderTasks.emplace_back(passTask->second);
+		renderTasks.erase(passTask);
+	}
+
+	// Try to put render tasks which cannot be put into a pass, move it into the default pass
+	if (renderTasks.empty())
+		return;
+
+	const auto &defaultPass = std::find_if(
+			_renderPasses.begin(),
+			_renderPasses.end(),
+			[](const auto &pass) -> bool {
+				return pass.programName == "standardmaterial";
+			}
+	);
+
+	for (const auto &task: renderTasks) {
+		defaultPass->renderTasks.emplace_back(task.second);
+	}
+
+	// Setup initial projection matrix
+	_projection = glm::perspectiveFov(45.0f, 1920.0f, 1080.0f, 1.0f, 10000.0f);
 }
 
 void Graphics::Renderer::removeModel(Graphics::Model *model) {
-	const auto iter = std::find(_models.begin(), _models.end(), model);
-	if (iter != _models.end())
-		_models.erase(iter);
+	for (auto &pass: _renderPasses) {
+		std::remove_if(
+				pass.renderTasks.begin(),
+				pass.renderTasks.end(),
+				[&](const auto &renderTask) -> bool {
+					return renderTask.model == model;
+				}
+		);
+	}
 }
 
 void Graphics::Renderer::addGUIElement(Graphics::GUIElement *gui) {
