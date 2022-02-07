@@ -18,6 +18,9 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <codecvt>
+#include <locale>
+
 #include "src/graphics/text.h"
 #include "src/graphics/fontman.h"
 
@@ -25,6 +28,11 @@ namespace Graphics {
 
 Text::Text() : _font(FontMan.get("fixedsys")) {
 	_vao = _font.getVAO();
+	rebuildText();
+}
+
+void Text::setText(const std::string &text) {
+	_text = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(text);
 	rebuildText();
 }
 

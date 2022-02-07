@@ -32,6 +32,7 @@ class Text : public GUIElement {
 public:
 	Text();
 
+	void setText(const std::string &text);
 	void setText(const std::u16string &text);
 
 private:
