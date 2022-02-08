@@ -211,6 +211,8 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 	for (auto &item : _programs) {
 		spdlog::info("Linking Program {}", item.first);
 		item.second->link();
+
+		_renderPasses.emplace_back(item.first);
 	}
 
 	// Initialize stuff for video playback.
@@ -461,11 +463,6 @@ void Renderer::drawWorld() {
 					);
 				}
 			}
-		}
-	}
-}
-
-			assert(glGetError() == GL_NO_ERROR);
 		}
 	}
 }
