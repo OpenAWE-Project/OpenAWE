@@ -30,6 +30,8 @@
  */
 class Configuration {
 public:
+	virtual ~Configuration() = default;
+
 	struct {
 		unsigned int width, height;
 		bool fullscreen;
