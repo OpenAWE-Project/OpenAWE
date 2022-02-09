@@ -103,3 +103,7 @@ void Graphics::Renderer::setAmbianceState(const Graphics::AmbianceState ambiance
 void Graphics::Renderer::setCurrentVideoFrame(const Common::UUID &id) {
 	_currentVideoFrame = id;
 }
+
+void Graphics::Renderer::update() {
+	_view = _camera ? (*_camera).get().getLookAt() : glm::identity<glm::mat4>();
+}

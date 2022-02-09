@@ -76,6 +76,7 @@ void GraphicsManager::setCurrentVideoFrame(Common::UUID &id) {
 }
 
 void GraphicsManager::drawFrame() {
+	_renderer->update();
 	_renderer->drawFrame();
 }
 
