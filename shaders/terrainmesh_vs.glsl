@@ -49,5 +49,5 @@ out vec2 pass_UV;
 void main() {
     // Pass UV coordinates to fragment shader
     pass_UV = in_UV0;
-    gl_Position = g_mLocalToView * vec4(in_Position, 1.0f);
+    gl_Position = g_mViewToClip * g_mLocalToView * vec4(in_Position, 1.0f);
 }

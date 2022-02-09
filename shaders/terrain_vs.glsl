@@ -21,6 +21,7 @@
 #version 330 core
 
 uniform mat4 g_mLocalToView;
+uniform mat4 g_mViewToClip;
 uniform vec4 g_vTexCoordScale1 = vec4(16.0);
 uniform vec4 g_vTexCoordScale2 = vec4(16.0);
 
@@ -44,5 +45,5 @@ void main() {
 	pass_UV2 = vTexCoords2.xy;
 	pass_BlendUV = vTexCoords2.zw;
 
-	gl_Position = g_mLocalToView * vec4(in_Position, 1.0);
+	gl_Position = g_mViewToClip * g_mLocalToView * vec4(in_Position, 1.0);
 }

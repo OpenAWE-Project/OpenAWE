@@ -21,6 +21,7 @@
 #version 330 core
 
 uniform mat4 g_mLocalToView;
+uniform mat4 g_mViewToClip;
 
 in vec3 in_Position;
 in vec2 in_UV0;
@@ -30,5 +31,5 @@ out vec2 pass_UV;
 
 void main() {
     pass_UV = in_UV0;
-    gl_Position = g_mLocalToView * vec4(in_Position, 1.0);
+    gl_Position = g_mViewToClip * g_mLocalToView * vec4(in_Position, 1.0);
 }
