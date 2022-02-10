@@ -63,8 +63,8 @@ BufferPtr GraphicsManager::createBuffer(byte *data, size_t length, BufferType ty
 
 AttributeObjectPtr
 GraphicsManager::createAttributeObject(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
-									   BufferPtr vertexData) {
-	return _renderer->createAttributeObject(shader, vertexAttributes, std::move(vertexData));
+									   BufferPtr vertexData, unsigned int offset) {
+	return _renderer->createAttributeObject(shader, vertexAttributes, std::move(vertexData), offset);
 }
 
 int GraphicsManager::getUniformIndex(const std::string &shaderName, const std::string &id) {

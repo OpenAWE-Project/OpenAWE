@@ -55,7 +55,9 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 
 	uint32_t flags = binmsh->readUint32LE();
 
-	binmsh->skip(vertexBufferSize);
+	std::vector<byte> vertexBuffer(vertexBufferSize);
+	binmsh->read(vertexBuffer.data(), vertexBuffer.size());
+	BufferPtr buffer = GfxMan.createBuffer(vertexBuffer.data(), vertexBuffer.size(), kVertexBuffer);
 
 	byte *indicesData = new byte[indicesCount * indicesType];
 	binmsh->read(indicesData, indicesCount * indicesType);
@@ -293,100 +295,15 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 
 		size_t lastPos = binmsh->pos();
 
-		size_t offset = 0;
-		Common::DynamicMemoryWriteStream writer(true);
-
-		// Normalize vectors to float
-		binmsh->seek(20 + vertexOffset);
-		for (int j = 0; j < vertexCount; ++j) {
-			for (const auto &attribute : attributes) {
-				switch (attribute.dataType) {
-					case kVec3F: {
-						float x, y, z;
-
-						x = binmsh->readIEEEFloatLE();
-						y = binmsh->readIEEEFloatLE();
-						z = binmsh->readIEEEFloatLE();
-
-						writer.writeIEEEFloatLE(x);
-						writer.writeIEEEFloatLE(y);
-						writer.writeIEEEFloatLE(z);
-
-						break;
-					}
-					case kVec4S: {
-						uint16_t x, y, z, w;
-						x = binmsh->readUint16LE();
-						y = binmsh->readUint16LE();
-						z = binmsh->readUint16LE();
-						w = binmsh->readUint16LE();
-
-						writer.writeIEEEFloatLE(static_cast<float>(x) / 65535.0f);
-						writer.writeIEEEFloatLE(static_cast<float>(y) / 65535.0f);
-						writer.writeIEEEFloatLE(static_cast<float>(z) / 65535.0f);
-						writer.writeIEEEFloatLE(static_cast<float>(w) / 65535.0f);
-						break;
-					}
-					case kVec2S: {
-						int16_t x, y;
-						x = binmsh->readSint16LE();
-						y = binmsh->readSint16LE();
-
-						writer.writeIEEEFloatLE(static_cast<float>(x) / 4096.0f);
-						writer.writeIEEEFloatLE(static_cast<float>(y) / 4096.0f);
-
-						break;
-					}
-					case kVec4BF: {
-						uint8_t x, y, z, w;
-
-						x = binmsh->readByte();
-						y = binmsh->readByte();
-						z = binmsh->readByte();
-						w = binmsh->readByte();
-
-						writer.writeIEEEFloatLE(static_cast<float>(x) / 255.0f);
-						writer.writeIEEEFloatLE(static_cast<float>(y) / 255.0f);
-						writer.writeIEEEFloatLE(static_cast<float>(z) / 255.0f);
-						writer.writeIEEEFloatLE(static_cast<float>(w) / 255.0f);
-						break;
-					}
-					case kVec4BI: {
-						writer.writeByte(binmsh->readByte());
-						writer.writeByte(binmsh->readByte());
-						writer.writeByte(binmsh->readByte());
-						writer.writeByte(binmsh->readByte());
-
-						break;
-					}
-					default:
-						break;
-				}
-			}
-		}
-
-		for (auto &attribute : attributes) {
-			switch (attribute.dataType) {
-				case kVec4BF:
-				case kVec4S:
-					attribute.dataType = kVec4F;
-					break;
-				case kVec2S:
-					attribute.dataType = kVec2F;
-					break;
-				default:
-					break;
-			}
-		}
-
 		binmsh->seek(lastPos);
 
 		_meshs[i].renderType = kTriangles;
-		_meshs[i].vertexData = GfxMan.createBuffer(writer.getData(), writer.getLength(), kVertexBuffer);
+		_meshs[i].vertexData = buffer;
 		_meshs[i].vertexAttributes = GfxMan.createAttributeObject(
 				materials[i].getShaderName(),
 				attributes,
-				_meshs[i].vertexData
+				buffer,
+				vertexOffset
 		);
 		_meshs[i].material = materials[i];
 		_meshs[i].offset = faceOffset * indicesType;

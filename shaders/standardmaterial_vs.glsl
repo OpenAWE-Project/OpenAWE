@@ -30,6 +30,6 @@ in vec4 in_Normal;
 out vec2 pass_UV;
 
 void main() {
-    pass_UV = in_UV0;
+    pass_UV = in_UV0 * (1.0/4096.0);
     gl_Position = g_mViewToClip * g_mLocalToView * vec4(in_Position, 1.0);
 }

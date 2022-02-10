@@ -48,7 +48,7 @@ public:
 
 	AttributeObjectPtr
 	createAttributeObject(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
-						  BufferPtr vertexData) override;
+						  BufferPtr vertexData, unsigned int offset) override;
 
 	int getUniformIndex(const std::string &shaderName, const std::string &id) override;
 

@@ -74,13 +74,14 @@ public:
 	 * \param shader The shader for the attribute object
 	 * \param vertexAttributes The attributes to create the attribute object
 	 * \param vertexData The vertex data to bind the attribute object to
+	 * \param offset The global offset inside the vertex data from which to start
 	 * \return A render system specific attribute object
 	 */
 	AttributeObjectPtr createAttributeObject(
 		const std::string &shader,
 		const std::vector<VertexAttribute> &vertexAttributes,
-		BufferPtr vertexData
-	);
+		BufferPtr vertexData,
+		unsigned int offset = 0);
 
 	/*!
 	 * Get the index of a specific uniform from a specific shader

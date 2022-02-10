@@ -649,7 +649,7 @@ int Renderer::getUniformIndex(const std::string &shaderName, const std::string &
 
 AttributeObjectPtr
 Renderer::createAttributeObject(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
-								BufferPtr vertexData) {
+								BufferPtr vertexData, unsigned int offset) {
 	auto vao = std::make_unique<VAO>();
 	vao->bind();
 	std::static_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
@@ -684,7 +684,7 @@ Renderer::createAttributeObject(const std::string &shader, const std::vector<Ver
 		}
 	}
 
-	GLuint offset = 0;
+	GLuint localOffset = 0;
 	for (int i = 0; i < vertexAttributes.size(); ++i) {
 		const auto vertexAttribute = vertexAttributes[i];
 		GLuint size = 0, totalSize = 0;
@@ -707,12 +707,12 @@ Renderer::createAttributeObject(const std::string &shader, const std::vector<Ver
 				totalSize = 16;
 				break;
 			case kVec2S:
-				type = GL_UNSIGNED_SHORT;
+				type = GL_SHORT;
 				size = 2;
 				totalSize = 4;
 				break;
 			case kVec4S:
-				type = GL_UNSIGNED_SHORT;
+				type = GL_SHORT;
 				size = 4;
 				totalSize = 8;
 				break;
@@ -733,11 +733,11 @@ Renderer::createAttributeObject(const std::string &shader, const std::vector<Ver
 					type,
 					GL_FALSE,
 					stride,
-					reinterpret_cast<const void *>(offset)
+					reinterpret_cast<const void *>(localOffset + offset)
 			);
 		}
 
-		offset += totalSize;
+		localOffset += totalSize;
 	}
 
 	program->validate();
