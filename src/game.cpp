@@ -49,6 +49,7 @@
 
 #include "src/controlledfreecamera.h"
 #include "src/task.h"
+#include "src/timerprocess.h"
 
 bool Game::parseArguments(int argc, char **argv) {
 	CLI::App app("Reimplmentation of the Alan Wake Engine", "awe");
@@ -206,11 +207,16 @@ void Game::start() {
 		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
 	});
 
+	entt::scheduler<float> scheduler;
+	scheduler.attach<TimerProcess>(*_engine, _registry);
+
 	double lastTime = _platform.getTime();
 	bool exit = false;
 	std::chrono::system_clock::time_point last, now;
 	while (!exit) {
 		double time = _platform.getTime();
+
+		scheduler.update(time);
 
 		freeCamera.update(time - lastTime);
 
