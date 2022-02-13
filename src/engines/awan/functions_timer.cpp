@@ -40,8 +40,8 @@ void Functions::startTimer(Context &ctx) {
 		return;
 	}
 
-	auto &timers = ctx.registry.get_or_emplace<std::vector<TimerPtr>>(caller);
-	auto timer = timers.emplace_back(std::make_shared<Timer>(ctx.time, duration));
+	auto &timers = _registry.get_or_emplace<std::vector<TimerPtr>>(caller);
+	auto timer = timers.emplace_back(std::make_shared<Timer>(_time, duration));
 	if (stopEntryPoint != 0xFFFFFFFF)
 		timer->setEndBytecodeOffset(stopEntryPoint);
 	if (startEntryPoint != 0xFFFFFFFF)
@@ -61,8 +61,8 @@ void Functions::startTimerWithDuration(Functions::Context &ctx) {
 		return;
 	}
 
-	auto &timers = ctx.registry.get_or_emplace<std::vector<TimerPtr>>(caller);
-	auto timer = timers.emplace_back(std::make_shared<Timer>(ctx.time, startTime, duration));
+	auto &timers = _registry.get_or_emplace<std::vector<TimerPtr>>(caller);
+	auto timer = timers.emplace_back(std::make_shared<Timer>(_time, startTime, duration));
 	if (stopEntryPoint != 0xFFFFFFFF)
 		timer->setEndBytecodeOffset(stopEntryPoint);
 	if (startEntryPoint != 0xFFFFFFFF)

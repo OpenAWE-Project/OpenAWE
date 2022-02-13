@@ -29,11 +29,10 @@ namespace Engines::AlanWakesAmericanNightmare {
 void Functions::activateTask(Functions::Context &ctx) {
 	const entt::entity taskEntity = ctx.getEntity(0);
 
-	entt::registry &registry = ctx.getFunctions<Functions>()._registry;
-	AWE::Script::Context newContext(registry, ctx.functions);
+	AWE::Script::Context newContext(_registry, *this);
 
-	Task task = registry.get<Task>(taskEntity);
-	AWE::Script::BytecodePtr bytecode = registry.get<AWE::Script::BytecodePtr>(taskEntity);
+	Task task = _registry.get<Task>(taskEntity);
+	AWE::Script::BytecodePtr bytecode = _registry.get<AWE::Script::BytecodePtr>(taskEntity);
 	if (bytecode->hasEntryPoint("OnTaskActivate"))
 		bytecode->run(newContext, "OnTaskActivate", taskEntity);
 }
@@ -43,7 +42,7 @@ void Functions::playMusic(Functions::Context &ctx) {
 }
 
 void Functions::getStoryModeRound(Context &ctx) {
-	ctx.ret = static_cast<int32_t>(ctx.getFunctions<Functions>().getEngine().getStoryModeRound());
+	ctx.ret = static_cast<int32_t>(_engine.getStoryModeRound());
 }
 
 void Functions::isTrial(Functions::Context &ctx) {

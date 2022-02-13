@@ -22,11 +22,15 @@
 
 namespace Engines::AlanWakesAmericanNightmare {
 
-Functions::NativeFunction Functions::getFunction(const std::string &name) {
+void Functions::callFunction(const std::string &name, Context &ctx) {
 	auto func = _functions.find(name);
-	if (func == _functions.end())
-		return AWE::Script::Functions::getFunction(name);
-	return (*func).second;
+	if (func == _functions.end()) {
+		AWE::Script::Functions::callFunction(name, ctx);
+		return;
+	}
+
+	auto fun =  (*func).second;
+	fun(this, ctx);
 }
 
 Engine &Functions::getEngine() {

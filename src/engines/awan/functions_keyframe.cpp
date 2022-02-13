@@ -21,6 +21,7 @@
 #include <spdlog/spdlog.h>
 
 #include "src/keyframer.h"
+#include "src/keyframerprocess.h"
 
 #include "src/engines/awan/functions.h"
 
@@ -34,14 +35,12 @@ void Functions::animate(Functions::Context &ctx) {
 		return;
 	}
 
-	const auto &registry = ctx.registry;
-
 	const entt::entity animation = ctx.getEntity(0);
 
-	const auto keyFramer = registry.get<KeyFramerPtr>(caller);
-	const auto &keyFrameAnimation = registry.get<KeyFrameAnimation>(animation);
+	const auto keyFramer = _registry.get<KeyFramerPtr>(caller);
+	const auto &keyFrameAnimation = _registry.get<KeyFrameAnimation>(animation);
 
-	keyFramer->setAnimation(keyFrameAnimation, ctx.time);
+	keyFramer->setAnimation(keyFrameAnimation, _time);
 }
 
 } // End of namespace Engines::AlanWakesAmericanNightmare

@@ -20,6 +20,6 @@
 
 #include "functions.h"
 
-AWE::Script::Functions::NativeFunction Engines::AlanWake::Functions::getFunction(const std::string &name) {
-	return AWE::Script::Functions::getFunction(name);
+void Engines::AlanWake::Functions::callFunction(const std::string &name, Context &ctx) {
+	return AWE::Script::Functions::callFunction(name, ctx);
 }

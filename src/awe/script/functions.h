@@ -32,7 +32,7 @@ namespace AWE::Script {
 
 class Functions {
 public:
-	Functions(entt::registry &registry);
+	Functions(entt::registry &registry, entt::scheduler<double> &scheduler);
 
 	/*!
 	 * Call an object with a certain function and optionally return a value
@@ -66,11 +66,8 @@ public:
 
 protected:
 	struct Context {
-		entt::registry &registry;
 		entt::entity thisEntity;
-		Functions &functions;
 		std::vector<Variable> parameters;
-		float time;
 		std::optional<Variable> ret;
 
 		float getFloat(size_t index) {
@@ -88,27 +85,24 @@ protected:
 		std::string getString(size_t index) {
 			return std::get<std::string>(parameters[index]);
 		}
-
-		template<typename T> T& getFunctions() {
-			return reinterpret_cast<T&>(functions);
-		}
 	};
 
-	typedef std::function<void(Context &)> NativeFunction;
+	typedef std::function<void(Functions *, class Context &)> NativeFunction;
 
-	virtual NativeFunction getFunction(const std::string &name);
+	virtual void callFunction(const std::string &name, Context &ctx);
 
 	entt::registry &_registry;
+	entt::scheduler<double> &_scheduler;
 	float _time;
 
 private:
 	// functions_object.cpp
-	static void sendCustomEvent(Context &ctx);
+	void sendCustomEvent(Context &ctx);
 
     // functions_game.cpp
-    static void getRand01(Context &ctx);
-    static void getRand(Context &ctx);
-    static void getRandInt(Context &ctx);
+    void getRand01(Context &ctx);
+    void getRand(Context &ctx);
+    void getRandInt(Context &ctx);
 
 	static const std::map<std::string, NativeFunction> _functions;
 };

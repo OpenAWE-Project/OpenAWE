@@ -27,7 +27,7 @@
 
 namespace AWE::Script {
 
-Functions::Functions(entt::registry &registry) : _registry(registry), _time(0.0f) {
+Functions::Functions(entt::registry &registry, entt::scheduler<double> &scheduler) : _registry(registry), _scheduler(scheduler), _time(0.0f) {
 
 }
 
@@ -38,49 +38,23 @@ std::optional<Variable> Functions::callObject(entt::entity object, const std::st
 	}
 
 	Context ctx{
-		_registry,
 		object,
-		*this,
-		parameters,
-		_time
+		std::move(parameters)
 	};
 
-	auto fun = getFunction(functionName);
-	if (fun)
-		fun(ctx);
-	else {
-		std::reverse(parameters.begin(), parameters.end());
-		spdlog::warn(
-			"TODO: Implement object script functions {}({})",
-			functionName,
-			fmt::join(parameters, ", ")
-		);
-	}
+	callFunction(functionName, ctx);
 
 	return ctx.ret;
 }
 
 std::optional<Variable> Functions::callGlobal(const std::string &name,const std::string &functionName, std::vector<Variable> parameters) {
 	Context ctx{
-			_registry,
 			entt::null,
-			*this,
-			parameters,
-			_time
+			std::move(parameters)
 	};
 
 	const std::string globalFunctionName = fmt::format("{}.{}", Common::toUpper(name), functionName);
-	auto fun = getFunction(globalFunctionName);
-	if (fun)
-		fun(ctx);
-	else {
-		std::reverse(parameters.begin(), parameters.end());
-		spdlog::warn(
-				"TODO: Implement global script functions {}({})",
-				globalFunctionName,
-				fmt::join(parameters, ", ")
-		);
-	}
+	callFunction(globalFunctionName, ctx);
 
 	return ctx.ret;
 }
@@ -89,11 +63,19 @@ void Functions::setTime(float time) {
 	_time = time;
 }
 
-Functions::NativeFunction Functions::getFunction(const std::string &name) {
+void Functions::callFunction(const std::string &name, Context &ctx) {
 	auto func = _functions.find(name);
-	if (func == _functions.end())
-		return nullptr;
-	return (*func).second;
+	auto fun = (*func).second;
+	if (fun)
+		fun(this, ctx);
+	else {
+		std::reverse(ctx.parameters.begin(), ctx.parameters.end());
+		spdlog::warn(
+				"TODO: Implement script functions {}({})",
+				name,
+				fmt::join(ctx.parameters, ", ")
+		);
+	}
 }
 
 }

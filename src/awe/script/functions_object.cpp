@@ -34,7 +34,7 @@ void Functions::sendCustomEvent(Context &ctx) {
 		return;
 	}
 
-	auto bytecodeIter = ctx.registry.try_get<AWE::Script::BytecodePtr>(caller);
+	auto bytecodeIter = _registry.try_get<AWE::Script::BytecodePtr>(caller);
 	if (!bytecodeIter) {
 		spdlog::error("Bytecode for custom event {} not found", eventName);
 		return;
@@ -46,7 +46,7 @@ void Functions::sendCustomEvent(Context &ctx) {
 		return;
 	}
 
-	AWE::Script::Context newContext(ctx.registry, ctx.functions);
+	AWE::Script::Context newContext(_registry, *this);
 	bytecode->run(newContext, eventName, caller);
 }
 

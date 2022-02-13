@@ -38,8 +38,7 @@ void Functions::hide(Context &ctx) {
 		return;
 	}
 
-	entt::registry &registry = ctx.getFunctions<Functions>()._registry;
-	Graphics::ModelPtr model = registry.get<Graphics::ModelPtr>(caller);
+	Graphics::ModelPtr model = _registry.get<Graphics::ModelPtr>(caller);
 
 	const bool hide = ctx.getInt(0) == 1;
 	if (hide)

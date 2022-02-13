@@ -31,32 +31,34 @@ namespace Engines::AlanWakesAmericanNightmare {
 
 class Functions : public AWE::Script::Functions {
 public:
-	Functions(entt::registry &registry, Engine &engine) : AWE::Script::Functions(registry), _engine(engine) {
+	Functions(entt::registry &registry, Engine &engine) : AWE::Script::Functions(registry, engine.getScheduler()), _engine(engine) {
 	}
 
 	Engine &getEngine();
 
 protected:
-	NativeFunction getFunction(const std::string &name) override;
+	void callFunction(const std::string &name, Context &ctx) override;
+
+	typedef std::function<void(Functions *, class Context &)> NativeFunction;
 
 private:
 	// functions_game.cpp
-	static void activateTask(Context &ctx);
-	static void playMusic(Context &ctx);
-	static void getStoryModeRound(Context &ctx);
-	static void isTrial(Context &ctx);
-	static void isTrialModeB(Context &ctx);
-	static void isManuscriptPageUnlocked(Context &ctx);
+	void activateTask(Context &ctx);
+	void playMusic(Context &ctx);
+	void getStoryModeRound(Context &ctx);
+	void isTrial(Context &ctx);
+	void isTrialModeB(Context &ctx);
+	void isManuscriptPageUnlocked(Context &ctx);
 
 	// functions_object.cpp
-	static void hide(Context &ctx);
+	void hide(Context &ctx);
 
 	// functions_keyframe.cpp
-	static void animate(Context &ctx);
+	void animate(Context &ctx);
 
 	// Functions_timer.cpp
-	static void startTimer(Context &ctx);
-	static void startTimerWithDuration(Context &ctx);
+	void startTimer(Context &ctx);
+	void startTimerWithDuration(Context &ctx);
 
 	static const std::map<std::string, NativeFunction> _functions;
 
