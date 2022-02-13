@@ -20,41 +20,38 @@
 
 #include "src/timerprocess.h"
 
-TimerProcess::TimerProcess(Engine &engine, entt::registry &registry) : _engine(engine), _registry(registry) {
+TimerProcess::TimerProcess(TimerPtr timer, entt::entity timerEntity, entt::registry &registry,
+						   AWE::Script::Context &ctx, AWE::Script::BytecodePtr bytecode)
+		: _timer(timer), _timerEntity(timerEntity), _registry(registry), _ctx(ctx), _bytecode(bytecode) {
+
 }
 
-void TimerProcess::update(float delta, void *) {
-	const auto timerView = _registry.view<std::vector<TimerPtr>, AWE::Script::BytecodePtr>();
+void TimerProcess::update(double delta, void *) {
+	const auto startBytecodeOffset = _timer->getStartBytecodeOffset();
+	const auto endBytecodeOffset = _timer->getEndBytecodeOffset();
 
-	for (const auto &view: timerView) {
-		auto timers = _registry.get<std::vector<TimerPtr>>(view);
-		auto bytecode = _registry.get<AWE::Script::BytecodePtr>(view);
-
-		for (const auto &timer: timers) {
-			const auto startBytecodeOffset = timer->getStartBytecodeOffset();
-			const auto endBytecodeOffset = timer->getEndBytecodeOffset();
-
-			const float created = timer->getCreated();
-			const float startTime = timer->getStartTime();
-			const float duration = timer->getDuration();
-			if (delta - created >= startTime && timer->getState() == Timer::kNotStarted) {
-				if (startBytecodeOffset)
-					bytecode->run(_engine.getScriptContext(), *startBytecodeOffset, view);
-				timer->setState(Timer::kStarted);
-			} else if (delta - created >= duration + startTime && timer->getState() == Timer::kStarted) {
-				if (endBytecodeOffset)
-					bytecode->run(_engine.getScriptContext(), *endBytecodeOffset, view);
-				timer->setState(Timer::kStopped);
-			}
-		}
-
-		// Remove all timers which are stopped
-		std::remove_if(timers.begin(), timers.end(), [](const auto &timer) -> bool {
-			return timer->getState() == Timer::kStopped;
-		});
-
-		// Remove the entire component, if all timers were stopped
-		if (timers.empty())
-			_registry.remove<std::vector<TimerPtr>>(view);
+	const float created = _timer->getCreated();
+	const float startTime = _timer->getStartTime();
+	const float duration = _timer->getDuration();
+	if (delta - created >= startTime && _timer->getState() == Timer::kNotStarted) {
+		if (startBytecodeOffset)
+			_bytecode->run(_ctx, *startBytecodeOffset, _timerEntity);
+		_timer->setState(Timer::kStarted);
+	} else if (delta - created >= duration + startTime && _timer->getState() == Timer::kStarted) {
+		if (endBytecodeOffset)
+			_bytecode->run(_ctx, *endBytecodeOffset, _timerEntity);
+		_timer->setState(Timer::kStopped);
+		succeed();
 	}
+}
+
+void TimerProcess::succeeded() {
+	auto &timers = _registry.get<std::vector<TimerPtr>>(_timerEntity);
+
+	// Remove the timer from the timer vector
+	std::remove(timers.begin(), timers.end(), _timer);
+
+	// Remove the entire component, if all timers were stopped
+	if (timers.empty())
+		_registry.remove<std::vector<TimerPtr>>(_timerEntity);
 }

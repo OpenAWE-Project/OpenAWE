@@ -28,15 +28,20 @@
 #include "src/engine.h"
 #include "src/timer.h"
 
-class TimerProcess : public entt::process<TimerProcess, float> {
+class TimerProcess : public entt::process<TimerProcess, double> {
 public:
-	TimerProcess(Engine &engine, entt::registry &registry);
+	TimerProcess(TimerPtr timer, entt::entity timerEntity, entt::registry &registry,
+				 AWE::Script::Context &ctx, AWE::Script::BytecodePtr bytecode);
 
-	void update(float delta, void *);
+	void update(double delta, void *);
+	void succeeded();
 
 private:
-	Engine &_engine;
+	TimerPtr _timer;
+	entt::entity _timerEntity;
 	entt::registry &_registry;
+	AWE::Script::Context &_ctx;
+	AWE::Script::BytecodePtr _bytecode;
 };
 
 
