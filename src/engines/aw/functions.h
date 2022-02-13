@@ -29,7 +29,7 @@ namespace Engines::AlanWake {
 
 class Functions : public AWE::Script::Functions {
 public:
-	Functions(entt::registry &registry, entt::scheduler<double> &scheduler, Engine &engine) : AWE::Script::Functions(registry, scheduler), _engine(engine) {
+	Functions(entt::registry &registry, Engine &engine) : AWE::Script::Functions(registry, engine.getScheduler()), _engine(engine) {
 	}
 
 protected:
