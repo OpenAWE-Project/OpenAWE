@@ -110,6 +110,7 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
+	glFrontFace(GL_CW);
 	//glEnable(GL_TEXTURE_2D);
 
 	glDepthFunc(GL_LEQUAL);
