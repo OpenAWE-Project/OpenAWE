@@ -23,7 +23,8 @@
 #include "renderer.h"
 
 Graphics::Renderer::Renderer() : _currentVideoFrame(Common::UUID::generateNil()) {
-
+	// Setup initial projection matrix
+	_projection = glm::perspectiveFov(45.0f, 1920.0f, 1080.0f, 1.0f, 10000.0f);
 }
 
 Graphics::Renderer::~Renderer() {
@@ -71,9 +72,6 @@ void Graphics::Renderer::addModel(Graphics::Model *model) {
 	for (const auto &task: renderTasks) {
 		defaultPass->renderTasks.emplace_back(task.second);
 	}
-
-	// Setup initial projection matrix
-	_projection = glm::perspectiveFov(45.0f, 1920.0f, 1080.0f, 1.0f, 10000.0f);
 }
 
 void Graphics::Renderer::removeModel(Graphics::Model *model) {
