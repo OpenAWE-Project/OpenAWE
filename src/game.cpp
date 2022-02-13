@@ -207,16 +207,13 @@ void Game::start() {
 		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
 	});
 
-	entt::scheduler<float> scheduler;
-	scheduler.attach<TimerProcess>(*_engine, _registry);
-
 	double lastTime = _platform.getTime();
 	bool exit = false;
 	std::chrono::system_clock::time_point last, now;
 	while (!exit) {
 		double time = _platform.getTime();
 
-		scheduler.update(time);
+		_engine->getScheduler().update(time);
 
 		freeCamera.update(time - lastTime);
 

@@ -37,12 +37,15 @@ public:
 	virtual const char *getName() const = 0;
 	AWE::Script::Functions &getFunctions();
 	AWE::Script::Context &getScriptContext();
+	entt::scheduler<double> & getScheduler();
+
 	Configuration &getConfiguration();
 
 	virtual void loadEpisode(const std::string &data);
 
 protected:
 	entt::registry &_registry;
+	entt::scheduler<double> _scheduler;
 	std::unique_ptr<AWE::Script::Functions> _functions;
 	std::unique_ptr<Configuration> _configuration;
 

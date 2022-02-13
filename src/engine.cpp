@@ -85,3 +85,7 @@ void Engine::loadEpisode(const std::string &data) {
 		bytecode->run(*_context, "OnTaskActivate", item);
 	}
 }
+
+entt::scheduler<double> & Engine::getScheduler() {
+	return _scheduler;
+}
