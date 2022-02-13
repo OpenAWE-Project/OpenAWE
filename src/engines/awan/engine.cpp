@@ -20,6 +20,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "src/common/threadpool.h"
 #include "src/common/strutil.h"
 
 #include "src/awe/resman.h"
