@@ -25,6 +25,7 @@
 #include "src/engines/awan/functions.h"
 
 #include "src/timer.h"
+#include "src/timerprocess.h"
 
 namespace Engines::AlanWakesAmericanNightmare {
 
@@ -46,6 +47,10 @@ void Functions::startTimer(Context &ctx) {
 		timer->setEndBytecodeOffset(stopEntryPoint);
 	if (startEntryPoint != 0xFFFFFFFF)
 		timer->setStartBytecodeOffset(startEntryPoint);
+
+	const auto bytecode = _registry.get<AWE::Script::BytecodePtr>(caller);
+
+	_scheduler.attach<TimerProcess>(timer, caller, _registry, _engine.getScriptContext(), bytecode);
 }
 
 void Functions::startTimerWithDuration(Functions::Context &ctx) {
@@ -67,6 +72,10 @@ void Functions::startTimerWithDuration(Functions::Context &ctx) {
 		timer->setEndBytecodeOffset(stopEntryPoint);
 	if (startEntryPoint != 0xFFFFFFFF)
 		timer->setStartBytecodeOffset(startEntryPoint);
+
+	const auto bytecode = _registry.get<AWE::Script::BytecodePtr>(caller);
+
+	_scheduler.attach<TimerProcess>(timer, caller, _registry, _engine.getScriptContext(), bytecode);
 }
 
 } // End of namespace Engines::AlanWakesAmericanNightmare
