@@ -24,6 +24,8 @@
 
 #include <fmt/format.h>
 
+#include "src/common/strutil.h"
+
 #include <src/common/memwritestream.h>
 #include <src/awe/resman.h>
 #include <src/graphics/images/tex.h>
@@ -126,6 +128,8 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 
 		uint32_t shaderNameLength = binmsh->readUint32LE();
 		std::string shaderName    = binmsh->readFixedSizeString(shaderNameLength, true);
+		shaderName = Common::toLower(shaderName);
+		shaderName = std::regex_replace(shaderName, std::regex("\\.rfx"), "");
 
 		//binmsh->skip(4);
 		uint32_t properties = binmsh->readUint32LE();
