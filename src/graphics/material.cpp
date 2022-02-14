@@ -25,7 +25,8 @@ namespace Graphics {
 
 Material::Material(const std::string &shaderName, std::vector<Attribute> attributes) :
 	_shaderName(shaderName),
-	_attributes(attributes) {
+	_attributes(attributes),
+	_blendMode(BlendMode::kNone) {
 	for (auto &attribute: _attributes) {
 		attribute.index = GfxMan.getUniformIndex(_shaderName, attribute.id);
 	}
@@ -45,6 +46,14 @@ void Material::setCullMode(Material::CullMode cullMode) {
 
 Material::CullMode Material::getCullMode() const {
 	return _cullMode;
+}
+
+BlendMode Material::getBlendMode() const {
+	return _blendMode;
+}
+
+void Material::setBlendMode(BlendMode blendMode) {
+	_blendMode = blendMode;
 }
 
 }

@@ -44,10 +44,6 @@ public:
 		kNone, kFront, kBack, kFrontBack
 	};
 
-	enum BlendMode {
-		kOpaque
-	};
-
 	typedef std::variant<
 			glm::vec1,
 			glm::vec2,
@@ -78,8 +74,13 @@ public:
 	void setCullMode(CullMode cullMode);
 	CullMode getCullMode() const;
 
+	BlendMode getBlendMode() const;
+
+	void setBlendMode(BlendMode blendMode);
+
 private:
 	CullMode _cullMode;
+	BlendMode _blendMode;
 	bool _refractive, _specular, _castShadow;
 	std::vector<Attribute> _attributes;
 	std::string _shaderName;

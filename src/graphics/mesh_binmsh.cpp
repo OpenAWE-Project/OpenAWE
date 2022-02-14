@@ -24,6 +24,7 @@
 
 #include <fmt/format.h>
 
+#include "src/common/exception.h"
 #include "src/common/strutil.h"
 
 #include <src/common/memwritestream.h>
@@ -204,6 +205,17 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 				break;
 			default:
 				throw std::runtime_error("Invalid Cull Mode");
+		}
+
+		switch (blendMode) {
+			case 0:
+				material.setBlendMode(kNone);
+				break;
+			case 3:
+				material.setBlendMode(kMultiply);
+				break;
+			default:
+				throw Common::Exception("Invalid blend mode {}", blendMode);
 		}
 	}
 

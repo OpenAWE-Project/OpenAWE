@@ -57,6 +57,11 @@ enum BufferType {
 	kUniformBuffer
 };
 
+enum BlendMode {
+	kNone,
+	kMultiply
+};
+
 inline AttributeType getTexCoord(unsigned int index) {
 	switch (index) {
 		default:
