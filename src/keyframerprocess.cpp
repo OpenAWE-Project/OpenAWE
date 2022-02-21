@@ -20,33 +20,25 @@
 
 #include <spdlog/spdlog.h>
 
-#include "src/keyframer.h"
 #include "src/keyframerprocess.h"
+#include "src/transform.h"
 
-#include "src/engines/awan/functions.h"
+KeyFramerProcess::KeyFramerProcess(entt::entity keyFramerEntity, entt::registry &registry) :
+	_keyFramerEntity(keyFramerEntity), _registry(registry) {
+	_keyFramer = _registry.get<KeyFramerPtr>(_keyFramerEntity);
+}
 
-namespace Engines::AlanWakesAmericanNightmare {
-
-void Functions::animate(Functions::Context &ctx) {
-	const entt::entity caller = ctx.thisEntity;
-
-	if (caller == entt::null) {
-		spdlog::warn("Cannot animate invalid entity, skipping");
+void KeyFramerProcess::update(float delta, void *) {
+	if (!_keyFramer->hasAnimation()) {
+		succeed();
 		return;
 	}
 
-	const entt::entity animation = ctx.getEntity(0);
+	_keyFramer->update(delta);
 
-	const auto keyFramer = _registry.get<KeyFramerPtr>(caller);
-	const auto &keyFrameAnimation = _registry.get<KeyFrameAnimation>(animation);
-
-	const bool isAlreadyPlaying = keyFramer->hasAnimation();
-	keyFramer->setAnimation(keyFrameAnimation, _time);
-
-	if (!isAlreadyPlaying)
-		_scheduler.attach<KeyFramerProcess>(caller, _registry);
-	else
-		spdlog::warn("Couldn't start keyframer because it is already running");
+	for (const auto &affectedEntity: _keyFramer->getAffectedEntities()) {
+		_registry.patch<Transform>(affectedEntity, [&](auto &transform){
+			transform.setKeyFramerTransform(_keyFramer->getTransformation(), _keyFramer->isAbsolute());
+		});
+	}
 }
-
-} // End of namespace Engines::AlanWakesAmericanNightmare
