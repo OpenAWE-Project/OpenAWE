@@ -27,6 +27,7 @@
 #include <map>
 
 #include <glm/glm.hpp>
+#include <entt/entt.hpp>
 
 #include "src/awe/types.h"
 
@@ -74,8 +75,14 @@ public:
 	 */
 	glm::mat4 getTransformation() const;
 
+	glm::mat4 getTranslation() const;
+	glm::mat4 getRotation() const;
+
 	bool hasAnimation() const;
 	bool isAbsolute() const;
+
+	const std::vector<entt::entity> &getAffectedEntities() const;
+	void addAffectedEntity(entt::entity entity);
 
 	/*!
 	 * Set a keyframer as parent keyframer
@@ -101,9 +108,10 @@ private:
 	unsigned int _initialKeyframe;
 	KeyFramerPtr _parentKeyFramer;
 	std::optional<KeyFrameAnimation> _currentAnimation;
+	std::vector<entt::entity> _affectedEntities;
 	std::vector<KeyFrame> _keyFrames;
 	std::map<GID, KeyFrameAnimation> _keyframeAnimations;
-	glm::mat4 _transformation;
+	glm::mat4 _transformation, _translation, _rotation;
 };
 
 #endif //OPENAWE_KEYFRAMER_H

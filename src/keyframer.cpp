@@ -42,7 +42,9 @@ void KeyFramer::setAnimation(const KeyFrameAnimation &keyFrameAnimation, float t
 
 void KeyFramer::update(float time) {
 	if (!_currentAnimation) {
-		_transformation = glm::translate(glm::identity<glm::mat4>(), _keyFrames[_initialKeyframe].position) * glm::mat4(_keyFrames[_initialKeyframe].rotation);
+		_transformation =
+				glm::translate(glm::identity<glm::mat4>(), _keyFrames[_initialKeyframe].position) *
+				glm::mat4(_keyFrames[_initialKeyframe].rotation);
 		return;
 	}
 
@@ -54,18 +56,24 @@ void KeyFramer::update(float time) {
 
 		_transformation *= havokAnimation->calculateTransformation(
 			"Bone00",
-			std::min(delta - _start, havokAnimation->getDuration())
+			std::min(time - _start, havokAnimation->getDuration())
 		);
 
-		if (delta - _start > havokAnimation->getDuration()) {
-			if (_currentAnimation->nextAnimation)
-				setAnimation(_keyframeAnimations[*_currentAnimation->nextAnimation], delta);
+		if (time - _start > havokAnimation->getDuration()) {
+			if (_currentAnimation->nextAnimation) {
+				setAnimation(
+						_keyframeAnimations[*_currentAnimation->nextAnimation],
+						_start + havokAnimation->getDuration()
+				);
+			} else {
+				_currentAnimation.reset();
+			}
 		}*/
 	} else {
-		const float duration = _currentAnimation->duration;
+		const float duration  = _currentAnimation->duration;
 		const auto startFrame = _keyFrames[_currentAnimation->start];
-		const auto endFrame = _keyFrames[_currentAnimation->end];
-		const float factor = std::min(time - _start, duration) / duration;
+		const auto endFrame   = _keyFrames[_currentAnimation->end];
+		const float factor    = std::min(time - _start, duration) / duration;
 
 		glm::vec3 position = glm::mix(
 			startFrame.position,
@@ -79,7 +87,6 @@ void KeyFramer::update(float time) {
 			factor
 		));
 
-		_transformation = glm::identity<glm::mat4>();
 		_transformation *= glm::translate(glm::identity<glm::mat4>(), position) * glm::mat4(rotation);
 
 		if (time - _start > duration) {
@@ -97,7 +104,10 @@ bool KeyFramer::hasAnimation() const {
 }
 
 bool KeyFramer::isAbsolute() const {
-	return !_currentAnimation->animation;
+	if (_currentAnimation)
+		return !_currentAnimation->animation;
+	else
+		return true;
 }
 
 void KeyFramer::setParentKeyFramer(const KeyFramerPtr &parentKeyFramer) {
@@ -107,11 +117,35 @@ void KeyFramer::setParentKeyFramer(const KeyFramerPtr &parentKeyFramer) {
 glm::mat4 KeyFramer::getTransformation() const {
 	glm::mat4 transformation = glm::identity<glm::mat4>();
 
-	if (_parentKeyFramer)
+	if (_parentKeyFramer) {
+		const auto keyframe = _keyFrames[_initialKeyframe];
+		glm::mat4 offset = glm::translate(glm::identity<glm::mat4>(), keyframe.position) * glm::mat4(keyframe.rotation);
+
+		transformation *= glm::inverse(offset);
 		transformation *= _parentKeyFramer->getTransformation();
-	transformation *= _transformation;
+		transformation *= offset;
+		transformation *= _transformation;
+	} else {
+		transformation *= _transformation;
+	}
 
 	return transformation;
+}
+
+glm::mat4 KeyFramer::getTranslation() const {
+	return _translation;
+}
+
+glm::mat4 KeyFramer::getRotation() const {
+	return _rotation;
+}
+
+const std::vector<entt::entity> &KeyFramer::getAffectedEntities() const {
+	return _affectedEntities;
+}
+
+void KeyFramer::addAffectedEntity(entt::entity entity) {
+	_affectedEntities.emplace_back(entity);
 }
 
 
