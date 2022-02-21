@@ -23,15 +23,12 @@
 
 #include "transform.h"
 
-Transform::Transform(glm::vec3 translation, glm::mat3 rotation) : _translation(translation), _rotation(rotation) {
-}
-
-void Transform::setKeyFramer(KeyFramerPtr keyFramer) {
-	_keyframer = std::move(keyFramer);
+Transform::Transform(glm::vec3 translation, glm::mat3 rotation) : _translation(translation), _rotation(rotation), _keyFramerTransform(glm::identity<glm::mat4>()), _absoluteKeyFramer(false) {
 }
 
 void Transform::setKeyFrameOffset(glm::vec3 position, glm::mat3 rotation) {
 	_localToParent = glm::translate(glm::identity<glm::mat4>(), position) * glm::mat4(rotation);
+	_parentToLocal = glm::inverse(_localToParent);
 }
 
 glm::vec3 Transform::getTranslation() const {
@@ -50,17 +47,22 @@ void Transform::setRotation(const glm::mat3 &rotation) {
 	_rotation = rotation;
 }
 
+void Transform::setKeyFramerTransform(const glm::mat4 &keyFramerTransform, bool absolute) {
+	_keyFramerTransform = glm::identity<glm::mat4>();
+	_absoluteKeyFramer = absolute;
+	if (!absolute) {
+		_keyFramerTransform *= _parentToLocal;
+	}
+	_keyFramerTransform *= keyFramerTransform;
+	_keyFramerTransform *= _localToParent;
+}
+
 glm::mat4 Transform::getTransformation() const {
 	auto transform = glm::identity<glm::mat4>();
 
-	if (_keyframer && _keyframer->hasAnimation()) {
-		if (!_keyframer->isAbsolute())
-			transform *= glm::translate(transform, _translation) * glm::mat4(_rotation);
-		transform *= _keyframer->getTransformation();
-		transform *= _localToParent;
-	} else {
+	if (!_absoluteKeyFramer)
 		transform *= glm::translate(transform, _translation) * glm::mat4(_rotation);
-	}
+	transform *= _keyFramerTransform;
 
 	return transform;
 }

@@ -36,11 +36,12 @@ public:
 	Transform() = default;
 	Transform(glm::vec3 translation, glm::mat3 rotation);
 
-	void setKeyFramer(KeyFramerPtr keyFramer);
 	void setKeyFrameOffset(glm::vec3 position, glm::mat3 rotation);
 
 	void setTranslation(const glm::vec3 &translation);
 	void setRotation(const glm::mat3 &rotation);
+
+	void setKeyFramerTransform(const glm::mat4 &keyFrameTransform, bool absolute);
 
 	glm::mat4 getTransformation() const;
 
@@ -48,8 +49,8 @@ public:
 	glm::mat3 getRotation() const;
 
 private:
-	KeyFramerPtr _keyframer;
-
+	bool _absoluteKeyFramer;
+	glm::mat4 _keyFramerTransform;
 	glm::mat4 _localToParent, _parentToLocal;
 
 	glm::vec3 _translation;
