@@ -419,9 +419,11 @@ void ObjectCollection::loadKeyFramedObject(const AWE::Object &container) {
 	const auto &keyFramer = _registry.get<KeyFramerPtr>(
 		_objects[kKeyframerID][keyFramedObject.keyFramer.getID()]
 	);
+	const auto &keyFramerEntity = _objects[kKeyframerID][keyFramedObject.keyFramer.getID()];
 
-	transform.setKeyFramer(keyFramer);
 	transform.setKeyFrameOffset(keyFramedObject.position, keyFramedObject.rotation);
+
+	keyFramer->addAffectedEntity(keyFramedObjectEntity);
 
 	_entities.emplace_back(keyFramedObjectEntity);
 
