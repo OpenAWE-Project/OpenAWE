@@ -56,6 +56,12 @@ public:
 
 	void writeUint16LE(uint16_t value);
 
+	/*!
+	 * Write a uint16 value as big endian to this stream
+	 * @param value The value to write
+	 */
+	void writeUint16BE(uint16_t value);
+
 	void writeUint32LE(uint32_t value);
 
 	void writeUint32BE(uint32_t value);

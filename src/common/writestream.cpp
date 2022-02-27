@@ -49,6 +49,13 @@ void WriteStream::writeUint16LE(uint16_t value) {
 	write(&value, sizeof(uint16_t));
 }
 
+void WriteStream::writeUint16BE(uint16_t value) {
+#ifdef LITTLE_ENDIAN_SYSTEM
+	value = swapBytes(value);
+#endif // LITTLE_ENDIAN_SYSTEM
+	write(&value, sizeof(uint16_t));
+}
+
 void WriteStream::writeUint32LE(uint32_t value) {
 #ifdef BIG_ENDIAN_SYSTEM
 	value = swapBytes(value);
