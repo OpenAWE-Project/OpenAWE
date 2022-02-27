@@ -46,7 +46,7 @@ void VBO::bind() const {
 
 void *VBO::map() const {
 	bind();
-	return glMapBuffer(_type, GL_READ_WRITE);
+	return glMapBufferRange(_type, 0, getBufferSize(), GL_READ_WRITE);
 }
 
 void VBO::unmap() const {
@@ -63,7 +63,7 @@ unsigned int VBO::getBufferSize() const {
 
 void VBO::read(byte *data, size_t length) {
 	bind();
-	void *bufferData = glMapBuffer(_type, GL_READ_ONLY);
+	void *bufferData = glMapBufferRange(_type, 0, getBufferSize(), GL_READ_ONLY);
 	std::memcpy(data, bufferData, std::min<size_t>(length, getBufferSize()));
 	glUnmapBuffer(_type);
 }
