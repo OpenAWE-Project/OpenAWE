@@ -47,7 +47,7 @@ FSBFile::FSBFile(Common::ReadStream *fsb) : _fsb(fsb) {
 		if (fileEntryLength != 80)
 			throw std::runtime_error("Invalid FSB entry length");
 
-		std::string fileName = _fsb->readFixedSizeString(30, true);
+		entry.fileName = _fsb->readFixedSizeString(30, true);
 
 		uint32_t samplesLength = _fsb->readUint32LE();
 		entry.size = _fsb->readUint32LE();
@@ -57,15 +57,15 @@ FSBFile::FSBFile(Common::ReadStream *fsb) : _fsb(fsb) {
 		uint32_t loopEnd = _fsb->readUint32LE();
 		uint32_t mode = _fsb->readUint32LE();
 		uint32_t sampleRate = _fsb->readUint32LE();
-		uint16_t volume = _fsb->readUint32LE();
+		uint16_t volume = _fsb->readUint16LE();
 		uint16_t pan = _fsb->readUint16LE();
 		uint16_t pri = _fsb->readUint16LE();
 		uint16_t numChannels = _fsb->readUint16LE();
 		uint32_t minimumDistance = _fsb->readUint32LE();
 		uint32_t maximumDistance = _fsb->readUint32LE();
 		uint32_t variableFrequency = _fsb->readUint32LE();
-		uint16_t variableVolume = _fsb->readUint32LE();
-		uint16_t variablePan = _fsb->readUint32LE();
+		uint16_t variableVolume = _fsb->readUint16LE();
+		uint16_t variablePan = _fsb->readUint16LE();
 	}
 
 	_dataOffset = 48 + directoryLength;
@@ -81,6 +81,11 @@ Common::ReadStream *FSBFile::getStream(size_t index) {
 	_fsb->seek(_dataOffset + entry.offset);
 
 	return _fsb->readStream(entry.size);
+}
+
+std::string FSBFile::getFileName(size_t index) {
+	const auto entry = _entries[index];
+	return entry.fileName;
 }
 
 } // End of namespace Sound

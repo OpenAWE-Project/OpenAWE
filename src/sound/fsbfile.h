@@ -52,9 +52,11 @@ public:
 	 */
 	Common::ReadStream *getStream(size_t index);
 
+	std::string getFileName(size_t index);
+
 private:
 	struct Entry {
-		std::string filename;
+		std::string fileName;
 		uint32_t offset, size;
 	};
 
