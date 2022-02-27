@@ -235,8 +235,6 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 
 		assert(meshLayer < lodCount);
 
-		unsigned int vertexSize = 0;
-
 		uint8_t vertexAttributeCount = binmsh->readByte();
 		std::vector<VertexAttribute> attributes;
 		attributes.resize(vertexAttributeCount);
@@ -275,25 +273,20 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 			switch (dataType) {
 				case 0:
 					vertexAttribute.dataType = kVec3F;
-					vertexSize += 12;
 					break;
 				case 1:
 					vertexAttribute.dataType = kVec4S;
-					vertexSize += 16;
 					break;
 				case 2:
 					vertexAttribute.dataType = kVec2S;
-					vertexSize += 8;
 					break;
 				case 6:
 				case 3:
 				case 4:
 					vertexAttribute.dataType = kVec4BF;
-					vertexSize += 16;
 					break;
 				case 5:
 					vertexAttribute.dataType = kVec4BI;
-					vertexSize += 4;
 					break;
 				default:
 					std::cout << "Unknown" << std::endl;
