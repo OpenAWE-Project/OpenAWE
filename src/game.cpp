@@ -202,7 +202,6 @@ void Game::start() {
 	text.setText(u"OpenAWE - v0.0.1");
 	text.show();
 
-	bool forward = false, backward = false, left = false, right = false, up = false, down = false, turnLeft = false, turnRight = false;
 	_window->setKeyCallback([&](int key, int scancode, int action, int mods){
 		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
 	});
