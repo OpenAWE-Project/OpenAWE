@@ -687,6 +687,7 @@ Renderer::createAttributeObject(const std::string &shader, const std::vector<Ver
 	}
 
 	GLuint localOffset = 0;
+	bool integer = false;
 	for (int i = 0; i < vertexAttributes.size(); ++i) {
 		const auto vertexAttribute = vertexAttributes[i];
 		GLuint size = 0, totalSize = 0;
@@ -719,6 +720,7 @@ Renderer::createAttributeObject(const std::string &shader, const std::vector<Ver
 				totalSize = 8;
 				break;
 			case kVec4BI:
+				integer = true;
 			case kVec4BF:
 				type = GL_UNSIGNED_BYTE;
 				size = 4;
@@ -729,14 +731,24 @@ Renderer::createAttributeObject(const std::string &shader, const std::vector<Ver
 		const auto index = program->getAttributeLocation(vertexAttribute.component);
 		if (index) {
 			glEnableVertexAttribArray(*index);
-			glVertexAttribPointer(
-					*index,
-					size,
-					type,
-					GL_FALSE,
-					stride,
-					reinterpret_cast<const void *>(localOffset + offset)
-			);
+			if (integer) {
+				glVertexAttribIPointer(
+						*index,
+						size,
+						type,
+						stride,
+						reinterpret_cast<const void *>(localOffset + offset)
+				);
+			} else {
+				glVertexAttribPointer(
+						*index,
+						size,
+						type,
+						GL_FALSE,
+						stride,
+						reinterpret_cast<const void *>(localOffset + offset)
+				);
+			}
 		}
 
 		localOffset += totalSize;
