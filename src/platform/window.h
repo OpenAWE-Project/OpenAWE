@@ -41,6 +41,7 @@ class Window : public GLContext, public VulkanContext {
 public:
 	enum ContextType {
 		kOpenGL,
+		kOpenGLES,
 		kVulkan
 	};
 
