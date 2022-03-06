@@ -30,6 +30,7 @@ namespace AWE {
 class OBJFile {
 public:
 	struct Shader {
+		uint32_t flags;
 		std::unique_ptr<Common::ReadStream> vertexShader;
 		std::unique_ptr<Common::ReadStream> pixelShader;
 	};

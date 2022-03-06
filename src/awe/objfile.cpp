@@ -51,14 +51,10 @@ AWE::OBJFile::OBJFile(Common::ReadStream *obj) : _obj(obj) {
 		uint32_t programNameLength = obj->readUint32LE();
 		program.name = obj->readFixedSizeString(programNameLength);
 
-		uint64_t numShaders = obj->readUint64LE();
+		uint64_t numShaders = obj->readUint32LE();
 		program.shaders.resize(numShaders);
-		bool skipFirst = false;
 		for (auto &shader : program.shaders) {
-			if (skipFirst)
-				obj->skip(4);
-			else
-				skipFirst = true;
+			shader.flags = obj->readUint32LE();
 			uint32_t vertexShaderFileSize = obj->readUint32LE();
 			shader.vertexShader.reset(obj->readStream(vertexShaderFileSize));
 			uint32_t pixelShaderFileSize = obj->readUint32LE();
