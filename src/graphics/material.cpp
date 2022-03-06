@@ -23,10 +23,11 @@
 
 namespace Graphics {
 
-Material::Material(const std::string &shaderName, std::vector<Attribute> attributes) :
+Material::Material(const std::string &shaderName, uint32_t properties, std::vector<Attribute> attributes) :
 	_shaderName(shaderName),
 	_attributes(attributes),
-	_blendMode(BlendMode::kNone) {
+	_blendMode(BlendMode::kNone),
+	_properties(properties) {
 	for (auto &attribute: _attributes) {
 		attribute.index = GfxMan.getUniformIndex(_shaderName, attribute.id);
 	}
@@ -54,6 +55,10 @@ BlendMode Material::getBlendMode() const {
 
 void Material::setBlendMode(BlendMode blendMode) {
 	_blendMode = blendMode;
+}
+
+uint32_t Material::getProperties() const {
+	return _properties;
 }
 
 }

@@ -66,7 +66,7 @@ public:
 	};
 
 	Material() = default;
-	Material(const std::string &shaderName, std::vector<Attribute> attributes);
+	Material(const std::string &shaderName, uint32_t properties, std::vector<Attribute> attributes);
 
 	const std::vector<Attribute> &getAttributes() const;
 	const std::string &getShaderName() const;
@@ -78,10 +78,13 @@ public:
 
 	void setBlendMode(BlendMode blendMode);
 
+	uint32_t getProperties() const;
+
 private:
 	CullMode _cullMode;
 	BlendMode _blendMode;
 	bool _refractive, _specular, _castShadow;
+	uint32_t _properties;
 	std::vector<Attribute> _attributes;
 	std::string _shaderName;
 };
