@@ -23,7 +23,7 @@
 
 namespace Graphics {
 
-Material::Material(const std::string &shaderName, uint32_t properties, std::vector<Attribute> attributes) :
+Material::Material(const std::string &shaderName, std::vector<Attribute> attributes, uint32_t properties) :
 	_shaderName(shaderName),
 	_attributes(attributes),
 	_blendMode(BlendMode::kNone),

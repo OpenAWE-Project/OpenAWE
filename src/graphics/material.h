@@ -66,7 +66,7 @@ public:
 	};
 
 	Material() = default;
-	Material(const std::string &shaderName, uint32_t properties, std::vector<Attribute> attributes);
+	Material(const std::string &shaderName, std::vector<Attribute> attributes, uint32_t properties = 0);
 
 	const std::vector<Attribute> &getAttributes() const;
 	const std::string &getShaderName() const;
