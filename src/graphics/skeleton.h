@@ -29,8 +29,6 @@
 #include "src/awe/types.h"
 
 #include "src/graphics/animation.h"
-#include "src/graphics/pointlist.h"
-#include "linelist.h"
 
 namespace Graphics {
 
