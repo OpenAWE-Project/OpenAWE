@@ -46,6 +46,9 @@ public:
 	Animation(rid_t rid);
 
 	float getDuration() const;
+
+	bool hasTrackForBone(const std::string &boneName) const;
+
 	glm::mat4 calculateTransformation(const std::string &boneName, float time) const;
 
 private:

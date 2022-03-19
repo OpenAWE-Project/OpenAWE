@@ -106,6 +106,10 @@ float Animation::getDuration() const {
 	return _duration;
 }
 
+bool Animation::hasTrackForBone(const std::string &boneName) const {
+	return _keyframes.find(boneName) != _keyframes.end();
+}
+
 glm::mat4 Animation::calculateTransformation(const std::string &name, float time) const {
 	auto transform = glm::identity<glm::mat4>();
 
