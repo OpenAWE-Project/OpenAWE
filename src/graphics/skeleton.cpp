@@ -28,7 +28,6 @@
 #include "src/common/exception.h"
 
 #include "src/graphics/skeleton.h"
-#include "src/graphics/pointlist.h"
 
 #include "src/awe/havokfile.h"
 #include "src/awe/resman.h"
