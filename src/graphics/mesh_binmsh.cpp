@@ -194,7 +194,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 			}
 		}
 
-		material = Material(shaderName, properties, attributes);
+		material = Material(shaderName, attributes, properties);
 
 		switch (cullMode) {
 			case 2:
