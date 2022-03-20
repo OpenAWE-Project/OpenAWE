@@ -126,7 +126,15 @@ void ObjectStream::animation(Templates::Animation &animation, unsigned int versi
 
 	variable("name", animation.name, true);
 
-	skip(15);
+	variable("useFingersLeft", animation.useFingersLeft);
+	variable("useFingersRight", animation.useFingersRight);
+	variable("useFootIK", animation.useFootIK);
+	variable("attachLeftHand", animation.attachLeftHand);
+	variable("legSyncLoopCount", animation.legSyncLoopCount);
+	variable("scriptedBlendIn", animation.scriptedBlendIn);
+	variable("scriptedBlendInTime", animation.scriptedBlendInTime);
+	variable("scriptedBlendOut", animation.scriptedBlendOut);
+	variable("scriptedMoveCapsule", animation.scriptedMoveCapsule);
 }
 
 void ObjectStream::skeleton(Templates::Skeleton &skeleton) {

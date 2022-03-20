@@ -130,6 +130,15 @@ struct Animation {
 	uint32_t id;
 	rid_t rid;
 	std::string name;
+	bool useFingersLeft;
+	bool useFingersRight;
+	bool useFootIK;
+	bool attachLeftHand;
+	uint32_t legSyncLoopCount;
+	bool scriptedBlendIn;
+	float scriptedBlendInTime;
+	bool scriptedBlendOut;
+	bool scriptedMoveCapsule;
 };
 
 struct AreaTrigger {
