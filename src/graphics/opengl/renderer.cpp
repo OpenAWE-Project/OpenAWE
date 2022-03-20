@@ -687,9 +687,9 @@ Renderer::createAttributeObject(const std::string &shader, const std::vector<Ver
 	}
 
 	GLuint localOffset = 0;
-	bool integer = false;
 	for (int i = 0; i < vertexAttributes.size(); ++i) {
 		const auto vertexAttribute = vertexAttributes[i];
+		bool integer = false;
 		GLuint size = 0, totalSize = 0;
 		GLenum type = 0;
 
