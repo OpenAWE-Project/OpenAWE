@@ -114,7 +114,17 @@ glm::mat4 Animation::calculateTransformation(const std::string &name, float time
 	auto transform = glm::identity<glm::mat4>();
 
 	const float factor = std::clamp(time, 0.0f, _duration) / _duration;
+
+	if (_keyframes.find(name) == _keyframes.end())
+		return transform;
+
 	const std::vector<Keyframe> &keyframes = _keyframes.at(name);
+	if (keyframes.size() == 1) {
+		const Keyframe staticKeyframe = keyframes[0];
+		transform *= glm::translate(staticKeyframe.position);
+		transform *= glm::toMat4(staticKeyframe.rotation);
+	}
+
 	Keyframe lastKeyframe;
 	for (const auto &keyframe : keyframes) {
 		if (time < keyframe.time) {
