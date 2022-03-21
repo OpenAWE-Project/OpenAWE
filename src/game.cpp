@@ -103,13 +103,6 @@ void Game::init() {
 	if (identifiers.empty())
 		throw std::runtime_error("No .rmdp files found in the set data path, exiting ...");
 
-	/*ResMan.indexArchive(_path + "/ep999-000.bin", _path + "/ep999-000.rmdp");
-	identifiers.emplace_back("ep999-000");*/
-
-	//Common::ReadStream *s = ResMan.getResource("skeletons/female_skeleton.binhkx");
-	//Common::ReadStream *s = ResMan.getResource("animations/emmaxx/ingame/emmaxx_stand.binhkt");
-	//HavokFile female_skeleton(*s);
-
 	GameEngine engine;
 
 	// Check if the resources have packmeta files and load them and if not load streamed resources
