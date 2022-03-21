@@ -50,6 +50,7 @@ public:
 		AttributeObjectPtr vertexAttributes;
 		RenderType renderType;
 		Material material;
+		std::vector<std::string> boneMap;
 		bool wireframe{false};
 		unsigned int offset{}, length{};
 	};

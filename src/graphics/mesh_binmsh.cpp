@@ -68,9 +68,11 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 	delete [] indicesData;
 
 	uint32_t boneCount = binmsh->readUint32LE();
+	std::vector<std::string> boneNames(boneCount);
 	for (int i = 0; i < boneCount; ++i) {
 		uint32_t boneNameLength = binmsh->readUint32LE();
 		std::string boneName = binmsh->readFixedSizeString(boneNameLength, true);
+		boneNames[i] = boneName;
 
 		glm::mat4x3 boneTransform;
 		glm::mat3x4 boneTransform2;
@@ -294,8 +296,10 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 			}
 		}
 
-		uint32_t boneMapCount = binmsh->readUint32LE();
-		binmsh->skip(boneMapCount);
+		const uint32_t boneMapCount = binmsh->readUint32LE();
+		std::vector<std::string> boneMap(boneMapCount);
+		for (auto &boneName: boneMap)
+			boneName = boneNames[binmsh->readByte()];
 
 		if (meshLayer != 0)
 			continue;
@@ -317,6 +321,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 		_meshs[i].material = materials[i];
 		_meshs[i].offset = faceOffset * indicesType;
 		_meshs[i].length = faceCount * 3;
+		_meshs[i].boneMap = boneMap;
 	}
 }
 }
