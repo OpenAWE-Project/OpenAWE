@@ -18,11 +18,11 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <memory>
 #include <cstring>
-#include <cstdint>
 #include <algorithm>
-#include "memreadstream.h"
+
+#include "src/common/exception.h"
+#include "src/common/memreadstream.h"
 
 namespace Common {
 
@@ -65,7 +65,7 @@ void MemoryReadStream::seek(ptrdiff_t length, ReadStream::SeekOrigin origin) {
 	}
 
 	if (_position > _size || _position < 0)
-		throw std::runtime_error("Memory stream out of bounds");
+		throw Common::Exception("Memory stream out of bounds");
 }
 
 bool MemoryReadStream::eos() const {
