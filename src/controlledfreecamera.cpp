@@ -38,11 +38,14 @@ static constexpr uint32_t kRotateRight    = Common::crc32("FREECAM_ROTATE_RIGHT"
 static constexpr uint32_t kRotateUp       = Common::crc32("FREECAM_ROTATE_UP");
 static constexpr uint32_t kRotateDown     = Common::crc32("FREECAM_ROTATE_DOWN");
 
+static constexpr uint32_t kIncreaseSpeed = Common::crc32("FREECAM_INCREASE_SPEED");
+static constexpr uint32_t kDecreaseSpeed = Common::crc32("FREECAM_DECREASE_SPEED");
+
 ControlledFreeCamera::ControlledFreeCamera() {
 	Events::EventCallback callback = [this](auto && PH1) { handleEvent(std::forward<decltype(PH1)>(PH1)); };
 
 	EventMan.setActionCallback(
-		{kMoveForward, kMoveBackward, kMoveLeft, kMoveRight, kMoveUp, kMoveDown, kRotateLeft, kRotateRight},
+		{kMoveForward, kMoveBackward, kMoveLeft, kMoveRight, kMoveUp, kMoveDown, kRotateLeft, kRotateRight, kIncreaseSpeed, kDecreaseSpeed},
 		callback
 	);
 
@@ -55,6 +58,9 @@ ControlledFreeCamera::ControlledFreeCamera() {
 
 	EventMan.addBinding(kRotateLeft, Events::kKeyQ);
 	EventMan.addBinding(kRotateRight, Events::kKeyE);
+
+	EventMan.addBinding(kIncreaseSpeed, Events::kKeyT);
+	EventMan.addBinding(kDecreaseSpeed, Events::kKeyG);
 }
 
 void ControlledFreeCamera::handleEvent(const Events::Event &event) {
@@ -69,5 +75,16 @@ void ControlledFreeCamera::handleEvent(const Events::Event &event) {
 
 		case kRotateLeft:  _movementRotation.y = (keyEvent.state == Events::kPress) ?  1.0 : 0.0; break;
 		case kRotateRight: _movementRotation.y = (keyEvent.state == Events::kPress) ? -1.0 : 0.0; break;
+	}
+
+	if (keyEvent.state == Events::kRelease) {
+		switch (event.action) {
+			case kIncreaseSpeed:
+				setMovementFactor(getMovementFactor() * 2.0f);
+				break;
+			case kDecreaseSpeed:
+				setMovementFactor(getMovementFactor() * 0.5f);
+				break;
+		}
 	}
 }
