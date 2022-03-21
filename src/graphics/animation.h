@@ -53,7 +53,6 @@ public:
 
 private:
 	float _duration;
-	rid_t _rid;
 	std::map<std::string, std::vector<Keyframe>> _keyframes;
 };
 

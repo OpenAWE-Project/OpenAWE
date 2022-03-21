@@ -45,7 +45,7 @@ namespace Graphics {
 Animation::Animation() {
 }
 
-Animation::Animation(rid_t rid) : _rid(rid) {
+Animation::Animation(rid_t rid) {
 	std::unique_ptr<Common::ReadStream> havok(ResMan.getResource(rid));
 	if (!havok)
 		throw Common::Exception(fmt::format("Havok file for animation not found with the rid {:x}", rid));
