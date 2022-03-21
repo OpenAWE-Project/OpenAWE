@@ -457,10 +457,10 @@ std::any HavokFile::readHkaSkeleton(Common::ReadStream &binhkx, uint32_t section
 				binhkx.skip(4);
 
 				glm::quat rotation;
-				rotation.w = binhkx.readIEEEFloatLE();
 				rotation.x = binhkx.readIEEEFloatLE();
 				rotation.y = binhkx.readIEEEFloatLE();
 				rotation.z = binhkx.readIEEEFloatLE();
+				rotation.w = binhkx.readIEEEFloatLE();
 
 				glm::vec3 scale;
 				scale.x = binhkx.readIEEEFloatLE();
