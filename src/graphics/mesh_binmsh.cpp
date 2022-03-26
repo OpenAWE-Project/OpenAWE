@@ -45,18 +45,18 @@ BINMSHMesh::BINMSHMesh() {
 }
 
 void BINMSHMesh::load(Common::ReadStream *binmsh) {
-	uint32_t version = binmsh->readUint32LE();
+	const uint32_t version = binmsh->readUint32LE();
 
 	if (version != 21 && version != 20 && version != 19)
 		throw std::runtime_error(fmt::format("Unsupported version {}", version));
 
-	uint32_t vertexBufferSize = binmsh->readUint32LE();
-	uint32_t indicesCount     = binmsh->readUint32LE();
-	uint32_t indicesType      = binmsh->readUint32LE();
+	const uint32_t vertexBufferSize = binmsh->readUint32LE();
+	const uint32_t indicesCount     = binmsh->readUint32LE();
+	const uint32_t indicesType      = binmsh->readUint32LE();
 
 	assert(indicesType == 2);
 
-	uint32_t flags = binmsh->readUint32LE();
+	const uint32_t flags = binmsh->readUint32LE();
 
 	std::vector<byte> vertexBuffer(vertexBufferSize);
 	binmsh->read(vertexBuffer.data(), vertexBuffer.size());
@@ -119,9 +119,9 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 	assert(boundBox.ymax >= boundBox.ymin);
 	assert(boundBox.zmax >= boundBox.zmin);
 
-	uint32_t lodCount = binmsh->readUint32LE();
+	const uint32_t lodCount = binmsh->readUint32LE();
 
-	uint32_t materialCount = binmsh->readUint32LE();
+	const uint32_t materialCount = binmsh->readUint32LE();
 	std::vector<Material> materials(materialCount);
 	for (auto &material : materials) {
 		if (version >= 20) {
@@ -129,23 +129,22 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 			std::string name = binmsh->readFixedSizeString(nameLength);
 		}
 
-		uint32_t shaderNameLength = binmsh->readUint32LE();
+		const uint32_t shaderNameLength = binmsh->readUint32LE();
 		std::string shaderName    = binmsh->readFixedSizeString(shaderNameLength, true);
 		shaderName = Common::toLower(shaderName);
 		shaderName = std::regex_replace(shaderName, std::regex("\\.rfx"), "");
 
-		//binmsh->skip(4);
-		uint32_t properties = binmsh->readUint32LE();
-		uint32_t blendMode = binmsh->readUint32LE();
-		uint32_t cullMode = binmsh->readUint32LE();
-		uint32_t materialFlags = binmsh->readUint32LE();
+		const uint32_t properties = binmsh->readUint32LE();
+		const uint32_t blendMode = binmsh->readUint32LE();
+		const uint32_t cullMode = binmsh->readUint32LE();
+		const uint32_t materialFlags = binmsh->readUint32LE();
 
-		std::bitset<32> f(materialFlags);
-		bool castShadow = f[0];
-		bool refractive = f[1];
-		bool specular = f[2];
+		const std::bitset<32> f(materialFlags);
+		const bool castShadow = f[0];
+		const bool refractive = f[1];
+		const bool specular = f[2];
 
-		uint32_t numAttributes = binmsh->readUint32LE();
+		const uint32_t numAttributes = binmsh->readUint32LE();
 		std::vector<Material::Attribute> attributes;
 		for (int j = 0; j < numAttributes; ++j) {
 			uint32_t attributeNameLength = binmsh->readUint32LE();
@@ -154,31 +153,31 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 			uint32_t dataType = binmsh->readUint32LE();
 			switch (dataType) {
 				case 0: {
-					float v1 = binmsh->readIEEEFloatLE();
+					const float v1 = binmsh->readIEEEFloatLE();
 
 					attributes.emplace_back(Material::Attribute(attributeName, glm::vec1(v1)));
 					break;
 				}
 				case 1: {
-					float v1 = binmsh->readIEEEFloatLE();
-					float v2 = binmsh->readIEEEFloatLE();
+					const float v1 = binmsh->readIEEEFloatLE();
+					const float v2 = binmsh->readIEEEFloatLE();
 
 					attributes.emplace_back(Material::Attribute(attributeName, glm::vec2(v1, v2)));
 					break;
 				}
 				case 2: {
-					float v1 = binmsh->readIEEEFloatLE();
-					float v2 = binmsh->readIEEEFloatLE();
-					float v3 = binmsh->readIEEEFloatLE();
+					const float v1 = binmsh->readIEEEFloatLE();
+					const float v2 = binmsh->readIEEEFloatLE();
+					const float v3 = binmsh->readIEEEFloatLE();
 
 					attributes.emplace_back(Material::Attribute(attributeName, glm::vec3(v1, v2, v3)));
 					break;
 				}
 				case 3: {
-					float v1 = binmsh->readIEEEFloatLE();
-					float v2 = binmsh->readIEEEFloatLE();
-					float v3 = binmsh->readIEEEFloatLE();
-					float v4 = binmsh->readIEEEFloatLE();
+					const float v1 = binmsh->readIEEEFloatLE();
+					const float v2 = binmsh->readIEEEFloatLE();
+					const float v3 = binmsh->readIEEEFloatLE();
+					const float v4 = binmsh->readIEEEFloatLE();
 
 					attributes.emplace_back(Material::Attribute(attributeName, glm::vec4(v1, v2, v3, v4)));
 					break;
@@ -225,11 +224,11 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 	for (int i = 0; i < meshCount; ++i) {
 		Mesh mesh;
 
-		uint32_t meshLayer    = binmsh->readUint32LE();
-		uint32_t vertexCount  = binmsh->readUint32LE();
-		uint32_t faceCount    = binmsh->readUint32LE();
-		uint32_t vertexOffset = binmsh->readUint32LE();
-		uint32_t faceOffset   = binmsh->readUint32LE();
+		const uint32_t meshLayer    = binmsh->readUint32LE();
+		const uint32_t vertexCount  = binmsh->readUint32LE();
+		const uint32_t faceCount    = binmsh->readUint32LE();
+		const uint32_t vertexOffset = binmsh->readUint32LE();
+		const uint32_t faceOffset   = binmsh->readUint32LE();
 		binmsh->skip(4); // Unknown
 
 		if (version >= 21)
