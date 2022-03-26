@@ -74,23 +74,22 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 		std::string boneName = binmsh->readFixedSizeString(boneNameLength, true);
 		boneNames[i] = boneName;
 
-		glm::mat4x3 boneTransform;
-		glm::mat3x4 boneTransform2;
+		glm::mat4 boneTransform = glm::identity<glm::mat4>();
 
-		boneTransform2[0][0] = binmsh->readIEEEFloatLE();
-		boneTransform2[0][1] = binmsh->readIEEEFloatLE();
-		boneTransform2[0][2] = binmsh->readIEEEFloatLE();
-		boneTransform2[0][3] = binmsh->readIEEEFloatLE();
-		boneTransform2[1][0] = binmsh->readIEEEFloatLE();
-		boneTransform2[1][1] = binmsh->readIEEEFloatLE();
-		boneTransform2[1][2] = binmsh->readIEEEFloatLE();
-		boneTransform2[1][3] = binmsh->readIEEEFloatLE();
-		boneTransform2[2][0] = binmsh->readIEEEFloatLE();
+		boneTransform[0][0] = binmsh->readIEEEFloatLE();
+		boneTransform[0][1] = binmsh->readIEEEFloatLE();
+		boneTransform[0][2] = binmsh->readIEEEFloatLE();
+		boneTransform[1][0] = binmsh->readIEEEFloatLE();
+		boneTransform[1][1] = binmsh->readIEEEFloatLE();
+		boneTransform[1][2] = binmsh->readIEEEFloatLE();
+		boneTransform[2][0] = binmsh->readIEEEFloatLE();
+		boneTransform[2][1] = binmsh->readIEEEFloatLE();
+		boneTransform[2][2] = binmsh->readIEEEFloatLE();
 
 		// translation
-		boneTransform2[2][1] = binmsh->readIEEEFloatLE();
-		boneTransform2[2][2] = binmsh->readIEEEFloatLE();
-		boneTransform2[2][3] = binmsh->readIEEEFloatLE();
+		boneTransform[3][0] = binmsh->readIEEEFloatLE();
+		boneTransform[3][1] = binmsh->readIEEEFloatLE();
+		boneTransform[3][2] = binmsh->readIEEEFloatLE();
 
 		Common::BoundSphere boneBoundSphere{};
 		boneBoundSphere.position.x = binmsh->readIEEEFloatLE();
