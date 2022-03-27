@@ -21,6 +21,7 @@
 #include "src/graphics/model.h"
 #include "src/graphics/gfxman.h"
 #include "src/graphics/meshman.h"
+#include "src/graphics/skeleton.h"
 
 #include "src/awe/havokfile.h"
 
@@ -64,6 +65,19 @@ glm::mat4 Model::getTransform() const {
 
 MeshPtr Model::getMesh() const {
 	return _mesh;
+}
+
+void Model::setSkeleton(const Skeleton &skeleton) {
+	_skeleton = std::make_unique<Skeleton>(skeleton);
+	_skeleton->setInverseTransform(_mesh->getInitialJointPositions());
+}
+
+const Skeleton &Model::getSkeleton() const {
+	return *_skeleton;
+}
+
+bool Model::hasSkeleton() const {
+	return !!_skeleton;
 }
 
 }

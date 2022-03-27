@@ -31,12 +31,14 @@
 
 #include "src/graphics/material.h"
 #include "src/graphics/mesh.h"
+#include "src/graphics/animation.h"
 
 #include "src/awe/types.h"
 
 namespace Graphics {
 
 class Model;
+class Skeleton;
 
 typedef std::shared_ptr<Model> ModelPtr;
 
@@ -54,11 +56,15 @@ public:
 	glm::mat4 getTransform() const;
 
 	MeshPtr getMesh() const;
+	void setSkeleton(const Skeleton &skeleton);
+	const Skeleton &getSkeleton() const;
+	bool hasSkeleton() const;
 
 protected:
 	Model();
 
 	MeshPtr _mesh;
+	std::unique_ptr<Skeleton> _skeleton;
 
 	glm::mat4 _transform;
 };
