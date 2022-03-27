@@ -60,14 +60,14 @@ public:
 	[[nodiscard]] BufferPtr getIndices() const;
 
 	[[nodiscard]] const std::vector<PartMesh> &getMeshs() const;
-	const std::map<std::string, glm::mat3x4> & getInitialJointPositions() const;
+	const std::map<std::string, glm::mat4> & getInitialJointPositions() const;
 
 	void setIndices(BufferPtr indices);
 	void addPartMesh(const PartMesh &partMesh);
 
 protected:
 	std::vector<PartMesh> _meshs;
-	std::map<std::string, glm::mat3x4> _initialPose;
+	std::map<std::string, glm::mat4> _initialPose;
 
 	BufferPtr _indices;
 };
