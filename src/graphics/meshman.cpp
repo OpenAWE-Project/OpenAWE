@@ -22,6 +22,7 @@
 #include <regex>
 
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include "meshman.h"
 #include "src/awe/resman.h"
@@ -54,6 +55,7 @@ MeshPtr MeshManager::getMesh(rid_t rid) {
 		try {
 			_meshRegistry.insert(std::make_pair(rid, std::make_shared<BINMSHMesh>(meshResource.get())));
 		} catch (std::exception &e) {
+			spdlog::error("Error while loading mesh {:x}: {}", rid, e.what());
 			return getBrokenMesh();
 		}
 		return _meshRegistry[rid];
@@ -77,6 +79,7 @@ MeshPtr MeshManager::getMesh(const std::string &path) {
 			else
 				throw std::runtime_error(fmt::format("Invalid or unsupported mesh file {}", path));
 		} catch (std::exception &e) {
+			spdlog::error("Error while loading mesh \"{}\": {}", path, e.what());
 			return getBrokenMesh();
 		}
 		return _meshRegistry[path];
