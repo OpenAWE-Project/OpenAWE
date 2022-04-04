@@ -405,6 +405,9 @@ void Renderer::drawWorld() {
 					case Mesh::kTriangles:
 						type = GL_TRIANGLES;
 						break;
+					case Mesh::kTriangleFan:
+						type = GL_TRIANGLE_FAN;
+						break;
 					case Mesh::kLines:
 						type = GL_LINES;
 						break;

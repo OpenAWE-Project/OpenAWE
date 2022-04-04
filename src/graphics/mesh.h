@@ -39,6 +39,7 @@ class Mesh {
 public:
 	enum RenderType {
 		kTriangles,
+		kTriangleFan,
 		kQuads,
 		kLines,
 		kPoints,
