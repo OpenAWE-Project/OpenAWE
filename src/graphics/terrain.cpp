@@ -69,13 +69,6 @@ Terrain::Terrain(Common::ReadStream *terrainDataFile) {
 			}
 		}
 
-		std::vector<uint16_t> localIndices;
-		for (int i = 0; i + 2 < polygon.indices.size(); i++) {
-			localIndices.emplace_back((i * 2) % 4);
-			localIndices.emplace_back((i * 2 + 1) % 4);
-			localIndices.emplace_back((i * 2 + 2) % 4);
-		}
-
 		Mesh::PartMesh partMesh;
 		partMesh.vertexData = GfxMan.createBuffer(
 			vertexData.getData(),
@@ -126,20 +119,14 @@ Terrain::Terrain(Common::ReadStream *terrainDataFile) {
 			attributes,
 			partMesh.vertexData
 		);
-		partMesh.renderType = Mesh::kTriangles;
+		partMesh.renderType = Mesh::kTriangleFan;
 		partMesh.material = Material("terrain", materialAttributes);
 		partMesh.material.setCullMode(Material::kNone);
-		partMesh.offset = indices.size() * 2;
-		partMesh.length = localIndices.size();
-
-		for (const auto &localIndex : localIndices) {
-			indices.emplace_back(localIndex);
-		}
+		partMesh.offset = 0;
+		partMesh.length = polygon.indices.size();
 
 		_mesh->addPartMesh(partMesh);
 	}
-
-	_mesh->setIndices(GfxMan.createBuffer(reinterpret_cast<byte*>(indices.data()), indices.size() * 2, kIndexBuffer));
 }
 
 Terrain::~Terrain() {
