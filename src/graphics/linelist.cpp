@@ -26,6 +26,28 @@ namespace Graphics {
 LineList::LineList() {
 	_mesh = std::make_shared<Mesh>();
 
+	const std::vector<VertexAttribute> attributes = {
+			{kPosition, kVec3F},
+			{kColor,    kVec3F}
+	};
+
+	const std::vector<Material::Attribute> materialAttributes{
+	};
+
+	Mesh::PartMesh partMesh;
+
+	partMesh.renderType = Mesh::kLines;
+	partMesh.offset = 0;
+	partMesh.length = _lines.size() * 2;
+
+	_buffer = GfxMan.createEmptyBuffer(kVertexBuffer, true);
+	partMesh.vertexData = _buffer;
+	partMesh.material = Material("color", materialAttributes, 0);
+	partMesh.material.setCullMode(Material::kNone);
+	partMesh.vertexAttributes = GfxMan.createAttributeObject("color", attributes, partMesh.vertexData);
+
+	_mesh->addPartMesh(partMesh);
+
 	show();
 }
 
@@ -46,36 +68,8 @@ void LineList::flush() {
 		lineData.push_back(line.color);
 	}
 
-	if (!_buffer) {
-		const std::vector<VertexAttribute> attributes = {
-				{kPosition, kVec3F},
-				{kColor,    kVec3F}
-		};
-
-		const std::vector<Material::Attribute> materialAttributes{
-		};
-
-		Mesh::PartMesh partMesh;
-
-		partMesh.renderType = Mesh::kLines;
-		partMesh.offset = 0;
-		partMesh.length = _lines.size() * 2;
-
-		_buffer = GfxMan.createBuffer(
-				reinterpret_cast<byte *>(lineData.data()),
-				lineData.size() * sizeof(glm::vec3),
-				kVertexBuffer,
-				true
-		);
-		partMesh.vertexData = _buffer;
-		partMesh.material = Material("color", materialAttributes);
-		partMesh.material.setCullMode(Material::kNone);
-		partMesh.vertexAttributes = GfxMan.createAttributeObject("color", attributes, partMesh.vertexData);
-
-		_mesh->addPartMesh(partMesh);
-	} else {
-		_buffer->write(reinterpret_cast<byte *>(lineData.data()), lineData.size() * sizeof(glm::vec3));
-	}
+	_mesh->setPartMeshSize(0, _lines.size() * 2);
+	_buffer->write(reinterpret_cast<byte *>(lineData.data()), lineData.size() * sizeof(glm::vec3));
 }
 
 void LineList::addLine(glm::vec3 from, glm::vec3 to, glm::vec3 color) {

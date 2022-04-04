@@ -69,6 +69,15 @@ public:
 	BufferPtr createBuffer(byte* data, size_t length, BufferType type, bool modifiable = false);
 
 	/*!
+	 * Create an empty buffer with the size of zero and no contents contained. It is assumed, that this buffer is used
+	 * for frequently changing content, and therefore it is hinted, that it is modifiable by default
+	 * \param type The type of the buffer
+	 * \param modifiable If the buffer is frequently changed
+	 * \return The newly created empty buffer
+	 */
+	BufferPtr createEmptyBuffer(BufferType type, bool modifiable = true);
+
+	/*!
 	 * Create an attribute object in the initialized render system using the given shader, vertex attributes and the
 	 * vertex data buffer
 	 * \param shader The shader for the attribute object

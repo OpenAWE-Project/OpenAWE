@@ -61,6 +61,11 @@ BufferPtr GraphicsManager::createBuffer(byte *data, size_t length, BufferType ty
 	return buffer;
 }
 
+BufferPtr GraphicsManager::createEmptyBuffer(BufferType type, bool modifiable) {
+	BufferPtr buffer = _renderer->createBuffer(type, modifiable);
+	return buffer;
+}
+
 AttributeObjectPtr
 GraphicsManager::createAttributeObject(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
 									   BufferPtr vertexData, unsigned int offset) {
