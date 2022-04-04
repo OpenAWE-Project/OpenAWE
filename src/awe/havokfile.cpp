@@ -195,6 +195,8 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 			readHkaAnimationBinding(binhkx, contentsSectionIndex);
 		else if (name == "hkaAnimationContainer")
 			readHkaAnimationContainer(binhkx, contentsSectionIndex);
+		else if (name == "hkaDefaultAnimatedReferenceFrame")
+			readHkaDefaultAnimatedReferenceFrame(binhkx, contentsSectionIndex);
 		else if (name == "hkxScene")
 			readHkxScene(binhkx);
 		else if (name == "RmdPhysicsSystem")
@@ -876,6 +878,10 @@ void HavokFile::readHkaAnimationContainer(Common::ReadStream &binhkx, uint32_t s
 			_animationContainer.skeletons = readFixupArray(binhkx, skeletons, numSkeletons, section);
 		}
 	}
+}
+
+void HavokFile::readHkaDefaultAnimatedReferenceFrame(Common::ReadStream &binhkx, uint32_t section) {
+	// TODO
 }
 
 HavokFile::RmdPhysicsSystem HavokFile::readRmdPhysicsSystem(Common::ReadStream &binhkx, uint32_t section) {

@@ -187,6 +187,7 @@ private:
 	hkaAnimation readHkaDeltaCompressedAnimation(Common::ReadStream &binhkx, uint32_t section);
 	void readHkaAnimationBinding(Common::ReadStream &binhkx, uint32_t section);
 	void readHkaAnimationContainer(Common::ReadStream &binhkx, uint32_t section);
+	void readHkaDefaultAnimatedReferenceFrame(Common::ReadStream &binhkx, uint32_t section);
 
 	hkpRigidBody readHkpRigidBody(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpBoxShape(Common::ReadStream &binhkx);
