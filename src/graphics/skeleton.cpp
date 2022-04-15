@@ -130,10 +130,10 @@ const std::string &Skeleton::getName() const {
 	return _name;
 }
 
-std::vector<glm::mat3x4> Skeleton::getSkinningMatrices(std::vector<std::string> indices) const {
-	std::vector<glm::mat3x4> transformation(indices.size());
+std::vector<glm::mat4x3> Skeleton::getSkinningMatrices(std::vector<std::string> indices) const {
+	std::vector<glm::mat4x3> transformation(indices.size());
 	for (int i = 0; i < indices.size(); ++i) {
-		transformation[i] = glm::transpose(_transformations.at(indices[i]));
+		transformation[i] = _transformations.at(indices[i]);
 	}
 
 	for (int i = 0; i < 64 - transformation.size(); ++i) {

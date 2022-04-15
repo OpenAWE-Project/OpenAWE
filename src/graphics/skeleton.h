@@ -75,7 +75,7 @@ public:
 	 * \param indices The bone names to get the skinning matrices for
 	 * \return A vector of the requested skinning matrices
 	 */
-	std::vector<glm::mat3x4> getSkinningMatrices(std::vector<std::string> indices) const;
+	std::vector<glm::mat4x3> getSkinningMatrices(std::vector<std::string> indices) const;
 
 	/*!
 	 * Set the inverse transform matrices for this skeleton

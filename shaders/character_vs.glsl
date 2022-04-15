@@ -25,7 +25,7 @@
 uniform mat4 g_mLocalToView;
 uniform mat4 g_mViewToClip;
 
-uniform mat3x4 GPU_skinning_matrices[MAX_BONES];
+uniform mat4x3 GPU_skinning_matrices[MAX_BONES];
 
 in vec3 in_Position;
 in vec2 in_UV0;
@@ -36,11 +36,11 @@ in vec4 in_BoneWeight;
 out vec2 pass_UV;
 
 void main() {
-    mat3x4 mAnimationFactor = mat3x4(0.0f);
+    mat4x3 mAnimationFactor = mat4x3(0.0f);
     for (int i = 0; i < 4; i++) {
         mAnimationFactor += (in_BoneWeight[i] * (1.0/255.0)) * GPU_skinning_matrices[in_BoneID[i]];
     }
 
     pass_UV = in_UV0 * 1.0/4096.0;
-    gl_Position = g_mViewToClip * g_mLocalToView * mat4(transpose(mAnimationFactor)) * vec4(in_Position, 1.0);
+    gl_Position = g_mViewToClip * g_mLocalToView * mat4(mAnimationFactor) * vec4(in_Position, 1.0);
 }
