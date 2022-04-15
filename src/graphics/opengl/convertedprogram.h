@@ -44,6 +44,8 @@ public:
 
 	void setUniformMatrix4f(GLint id, const glm::mat4 &value) const override;
 
+	void setUniformMatrix4x3fArray(GLint id, const std::vector<glm::mat4x3> &values) const override;
+
 private:
 	std::optional<GLint> getUniformArraySymbolLocation(const ShaderConverter::Symbol &symbol, unsigned int offset = 0) const;
 

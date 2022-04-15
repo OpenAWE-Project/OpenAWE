@@ -97,4 +97,16 @@ void ConvertedProgram::setUniformMatrix4f(GLint id, const glm::mat4 &value) cons
 	Program::setUniform4f(id + 3, matRow4);
 }
 
+void ConvertedProgram::setUniformMatrix4x3fArray(GLint id, const std::vector<glm::mat4x3> &values) const {
+	for (const auto &value: values) {
+		glm::mat4 transposedValue = glm::transpose(value);
+
+		setUniform4f(id, transposedValue[0]);
+		setUniform4f(id + 1, transposedValue[1]);
+		setUniform4f(id + 2, transposedValue[2]);
+
+		id += 3;
+	}
+}
+
 }

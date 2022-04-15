@@ -54,7 +54,7 @@ public:
 	virtual void setUniform3f(GLint id, const glm::vec3 &value) const;
 	void setUniform4f(GLint id, const glm::vec4 &value) const;
 	virtual void setUniformMatrix4f(GLint id, const glm::mat4 &value) const;
-	void setUniformMatrix4fArray(GLint id, const std::vector<glm::mat4> &values) const;
+	virtual void setUniformMatrix4x3fArray(GLint id, const std::vector<glm::mat4x3> &values) const;
 	void setUniformSampler(GLint id, const GLuint value) const;
 	// '---
 

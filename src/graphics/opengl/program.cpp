@@ -177,8 +177,8 @@ void Program::setUniformMatrix4f(GLint id, const glm::mat4 &value) const {
 	glUniformMatrix4fv(id, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void Program::setUniformMatrix4fArray(GLint id, const std::vector<glm::mat4> &values) const {
-	glUniformMatrix4fv(id, values.size(), GL_FALSE, reinterpret_cast<const GLfloat *>(values.data()));
+void Program::setUniformMatrix4x3fArray(GLint id, const std::vector<glm::mat4x3> &values) const {
+	glUniformMatrix4x3fv(id, values.size(), GL_FALSE, reinterpret_cast<const GLfloat *>(values.data()));
 }
 
 void Program::setUniformSampler(GLint id, const GLuint value) const {
