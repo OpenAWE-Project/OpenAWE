@@ -66,6 +66,8 @@ public:
 	void setIndices(BufferPtr indices);
 	void addPartMesh(const PartMesh &partMesh);
 
+	void setPartMeshSize(size_t index, size_t size);
+
 protected:
 	std::vector<PartMesh> _meshs;
 	std::map<std::string, glm::mat4> _initialPose;

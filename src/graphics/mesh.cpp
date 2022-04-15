@@ -46,4 +46,8 @@ void Mesh::addPartMesh(const Mesh::PartMesh &partMesh) {
 	_meshs.emplace_back(partMesh);
 }
 
+void Mesh::setPartMeshSize(size_t index, size_t size) {
+	_meshs[index].length = size;
+}
+
 }
