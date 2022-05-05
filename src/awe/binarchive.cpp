@@ -23,6 +23,7 @@
 #include <src/common/memreadstream.h>
 #include "src/common/zlib.h"
 #include "src/common/readstream.h"
+#include "src/common/exception.h"
 
 #include "binarchive.h"
 #include "resman.h"
@@ -39,7 +40,7 @@ BINArchive::BINArchive(const std::string &resource) {
 	load(*bin);
 }
 
-size_t BINArchive::getNumResources() {
+size_t BINArchive::getNumResources() const {
 	return _fileEntries.size();
 }
 
@@ -107,6 +108,17 @@ bool BINArchive::hasDirectory(const std::string &directory) const {
 	if (directory.empty())
 		return true;
 	return false;
+}
+
+std::string BINArchive::getResourcePath(size_t index) const {
+	if (index >= getNumResources())
+		throw Common::Exception(
+				"Index {} exceeds number of file entries {}",
+				index,
+				getNumResources()
+		);
+
+	return _fileEntries[index].name;
 }
 
 } // End of namespace AWE

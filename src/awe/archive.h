@@ -42,7 +42,15 @@ public:
 	 *
 	 * \return the number of resources in this archive
 	 */
-	virtual size_t getNumResources() = 0;
+	virtual size_t getNumResources() const = 0;
+
+	/*!
+	 * Get the path of a resource at a specific index in the archive
+	 *
+	 * \param index The index in the archive
+	 * \return The path of the resource at that index
+	 */
+	virtual std::string getResourcePath(size_t index) const = 0;
 
 	/*!
 	 * Try to get a resource using the virtual path to it.

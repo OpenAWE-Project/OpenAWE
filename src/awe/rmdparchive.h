@@ -59,7 +59,16 @@ public:
 	 *
 	 * \return the number of resources contained inside this archive
 	 */
-	size_t getNumResources() override;
+	size_t getNumResources() const override;
+
+	/*!
+	 * Get the path for a resource including its filename at a specific index. Throws
+	 * an error if the index is equal or exceeds the number of resources in this archive
+	 *
+	 * \param index The index of a resource to get the path for
+	 * \return The path of the resource at the specified index
+	 */
+	std::string getResourcePath(size_t index) const override;
 
 	/*!
 	 * Loads a file from the bin/rmdp archive and get the metadata by

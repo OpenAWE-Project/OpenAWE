@@ -25,6 +25,7 @@
 
 #include "src/common/strutil.h"
 #include "src/common/memreadstream.h"
+#include "src/common/exception.h"
 
 #include "rmdparchive.h"
 
@@ -56,8 +57,41 @@ RMDPArchive::RMDPArchive(Common::ReadStream *bin, Common::ReadStream *rmdp) : _r
 	delete bin;
 }
 
-size_t RMDPArchive::getNumResources() {
+size_t RMDPArchive::getNumResources() const {
 	return _fileEntries.size();
+}
+
+std::string RMDPArchive::getResourcePath(size_t index) const {
+	// Check if the index is less than the number of resources
+	if (index >= getNumResources())
+		throw Common::Exception(
+				"Index {} exceeds number of file entries {}",
+				index,
+				getNumResources()
+		);
+
+
+	const auto &fileEntry = _fileEntries[index];
+	std::string path = fileEntry.name;
+
+	// Check if the file is in the root directory
+	if (fileEntry.prevFolder == 0xFFFFFFFF)
+		return path;
+
+	// Get the first folder entry
+	auto folderEntry = _folderEntries[fileEntry.prevFolder];
+	path = folderEntry.name + "/" + path;
+
+	// Iterate over all preceeding folder entries
+	while (folderEntry.prevFolder != 0xFFFFFFFF) {
+		folderEntry = _folderEntries[folderEntry.prevFolder];
+		if (!folderEntry.name.empty())
+			path = folderEntry.name + "/" + path;
+	}
+
+	path = std::regex_replace(path, std::regex("d:/data/"), "");
+
+	return path;
 }
 
 Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {

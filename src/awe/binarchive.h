@@ -54,7 +54,9 @@ public:
 
 	bool hasResource(const std::string &rid) const override;
 
-	size_t getNumResources() override;
+	size_t getNumResources() const override;
+
+	std::string getResourcePath(size_t index) const override;
 
 	bool hasDirectory(const std::string &directory) const override;
 
