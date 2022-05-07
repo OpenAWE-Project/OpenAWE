@@ -25,6 +25,8 @@
 
 #include <stdexcept>
 
+#define CreateException(...) Common::Exception("{}:{}: {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
+
 namespace Common {
 
 /*!
