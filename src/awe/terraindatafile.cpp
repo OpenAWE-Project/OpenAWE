@@ -53,12 +53,12 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 		uint32_t numTilesets = terrainData.readUint32LE();
 		_tilesets.resize(numTilesets);
 		for (auto &tileset : _tilesets) {
-			tileset.colorTile1 = terrainData.readUint16LE();
-			tileset.colorTile2 = terrainData.readUint16LE();
-			tileset.colorTile3 = terrainData.readUint16LE();
-			tileset.normalTile1 = terrainData.readUint16LE();
-			tileset.normalTile2 = terrainData.readUint16LE();
-			tileset.normalTile3 = terrainData.readUint16LE();
+			tileset.colorTiles[0] = terrainData.readUint16LE();
+			tileset.colorTiles[1] = terrainData.readUint16LE();
+			tileset.colorTiles[2] = terrainData.readUint16LE();
+			tileset.normalTiles[0] = terrainData.readUint16LE();
+			tileset.normalTiles[1] = terrainData.readUint16LE();
+			tileset.normalTiles[2] = terrainData.readUint16LE();
 		}
 
 		// Read vertices

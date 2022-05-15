@@ -32,8 +32,8 @@ namespace AWE {
 class TerrainDataFile {
 public:
 	struct Tileset {
-		uint16_t colorTile1, colorTile2, colorTile3;
-		uint16_t normalTile1, normalTile2, normalTile3;
+		uint16_t colorTiles[3];
+		uint16_t normalTiles[3];
 	};
 
 	struct Vertex {

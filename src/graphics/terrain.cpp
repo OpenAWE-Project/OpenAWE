@@ -103,12 +103,12 @@ Terrain::Terrain(Common::ReadStream *terrainDataFile) {
 
 		const auto tileset = tilesets[polygon.tilesetId];
 		const std::vector<Material::Attribute> materialAttributes = {
-			Material::Attribute("g_sColorMaps[0]",  _textures[tileset.colorTile1]),
-			Material::Attribute("g_sColorMaps[1]",  _textures[tileset.colorTile2]),
-			Material::Attribute("g_sColorMaps[2]",  _textures[tileset.colorTile3]),
-			Material::Attribute("g_sNormalMaps[0]", _textures[tileset.normalTile1]),
-			Material::Attribute("g_sNormalMaps[1]", _textures[tileset.normalTile2]),
-			Material::Attribute("g_sNormalMaps[2]", _textures[tileset.normalTile3]),
+			Material::Attribute("g_sColorMaps[0]",  _textures[tileset.colorTiles[0]]),
+			Material::Attribute("g_sColorMaps[1]",  _textures[tileset.colorTiles[1]]),
+			Material::Attribute("g_sColorMaps[2]",  _textures[tileset.colorTiles[2]]),
+			Material::Attribute("g_sNormalMaps[0]", _textures[tileset.normalTiles[0]]),
+			Material::Attribute("g_sNormalMaps[1]", _textures[tileset.normalTiles[1]]),
+			Material::Attribute("g_sNormalMaps[2]", _textures[tileset.normalTiles[2]]),
 			Material::Attribute("g_sBlendMap",      blendid),
 			Material::Attribute("g_vTexCoordScale1",glm::vec4(16.0)),
 			Material::Attribute("g_vTexCoordScale2",glm::vec4(16.0))
