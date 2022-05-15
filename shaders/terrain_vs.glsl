@@ -27,10 +27,8 @@ uniform vec4 g_vTexCoordScale2 = vec4(16.0);
 
 in vec3 in_Position;
 in vec3 in_Normal;
-in vec2 in_UV0;
-in vec2 in_UV1;
-in vec2 in_UV2;
-in vec2 in_UV3;
+in vec4 in_UV0;
+in vec4 in_UV1;
 
 out vec2 pass_UV0;
 out vec2 pass_UV1;
@@ -38,8 +36,8 @@ out vec2 pass_UV2;
 out vec2 pass_BlendUV;
 
 void main() {
-	vec4 vTexCoords1 = vec4(in_UV0, in_UV1) * g_vTexCoordScale1;
-	vec4 vTexCoords2 = vec4(in_UV2, in_UV3) * g_vTexCoordScale2;
+	vec4 vTexCoords1 = in_UV0 * g_vTexCoordScale1;
+	vec4 vTexCoords2 = in_UV1 * g_vTexCoordScale2;
 	pass_UV0 = vTexCoords1.xy;
 	pass_UV1 = vTexCoords1.zw;
 	pass_UV2 = vTexCoords2.xy;
