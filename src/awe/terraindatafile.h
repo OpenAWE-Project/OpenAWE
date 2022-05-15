@@ -54,7 +54,7 @@ public:
 		std::vector<glm::vec3> tangents[3];
 		uint16_t tilesetId;
 		uint16_t flags;
-		Blend blend1, blend2;
+		Blend blend1, blendMap;
 	};
 
 	TerrainDataFile(Common::ReadStream &readStream);

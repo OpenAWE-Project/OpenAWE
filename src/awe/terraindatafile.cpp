@@ -182,8 +182,9 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 		_polygons[polygonId].blend1 = blend;
 	}
 
-	uint32_t numBlends2 = terrainData.readUint32LE();
-	for (int i = 0; i < numBlends2; i++) {
+	// Blend maps
+	uint32_t numBlendMaps = terrainData.readUint32LE();
+	for (int i = 0; i < numBlendMaps; i++) {
 		Blend blend;
 		uint32_t polygonId = terrainData.readUint32LE();
 		blend.size = terrainData.readUint32LE();
@@ -193,7 +194,7 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 		blend.data.resize(dataSize);
 		terrainData.read(blend.data.data(), dataSize * 2);
 
-		_polygons[polygonId].blend2 = blend;
+		_polygons[polygonId].blendMap = blend;
 	}
 }
 

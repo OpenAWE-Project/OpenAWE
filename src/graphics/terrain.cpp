@@ -86,18 +86,17 @@ Terrain::Terrain(Common::ReadStream *terrainDataFile) {
 		};
 
 		// Generate blend map
+		const auto &blendMap = polygon.blendMap;
 		const auto &blend1 = polygon.blend1;
-		const auto &blend2 = polygon.blend2;
 
-		assert(blend1.size == blend2.size);
+		assert(blend1.size == blendMap.size);
 
-		Common::DynamicMemoryWriteStream blendData(true);
-		for (int i = 0; i < blend1.size * blend1.size; ++i) {
-			blendData.writeUint16LE(blend1.data[i]);
-			blendData.writeUint16LE(blend2.data[i]);
+		Common::DynamicMemoryWriteStream blendData(false);
+		for (int i = 0; i < blendMap.size * blendMap.size; ++i) {
+			blendData.writeUint16BE(blendMap.data[i]);
 		}
 
-		Surface surface(blend1.size, blend1.size, kRG16);
+		Surface surface(blendMap.size, blendMap.size, kRG8);
 		std::memcpy(surface.getData(), blendData.getData(), blendData.getLength());
 		const auto blendid = GfxMan.createTexture(surface);
 
