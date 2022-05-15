@@ -147,7 +147,9 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 
 			polygon.tilesetId = terrainData.readUint16LE();
 
-			// 0x2 -> ?
+			// 0x02 -> ?
+			// 0x08 -> ?
+			// 0x10 -> ?
 			polygon.flags = terrainData.readUint16LE();
 
 			terrainData.skip(4);
