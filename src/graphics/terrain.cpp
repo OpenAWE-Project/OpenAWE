@@ -79,10 +79,8 @@ Terrain::Terrain(Common::ReadStream *terrainDataFile) {
 		const std::vector<VertexAttribute> attributes = {
 			{kPosition,       kVec3F},
 			{kNormal,         kVec3F},
-			{kTexCoord0,      kVec2F},
-			{kTexCoord1,      kVec2F},
-			{kTexCoord2,      kVec2F},
-			{kTexCoord3,      kVec2F}
+			{kTexCoord0,      kVec4F},
+			{kTexCoord1,      kVec4F},
 		};
 
 		// Generate blend map
