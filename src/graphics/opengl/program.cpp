@@ -131,6 +131,9 @@ std::optional<GLint> Program::getAttributeLocation(const AttributeType &type) {
 		case kBoneIndex:
 			attributeName = "in_BoneID";
 			break;
+		case kTangent:
+			attributeName = "in_Tangent";
+			break;
 		case kDisplacementFactor:
 			attributeName = "in_DisplacementFactor";
 			break;

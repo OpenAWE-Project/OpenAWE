@@ -27,6 +27,7 @@ enum AttributeType {
 	kBoneIndex,
 	kBoneWeight,
 	kColor,
+	kTangent,
 	kDisplacementFactor,
 	kTexCoord0,
 	kTexCoord1,

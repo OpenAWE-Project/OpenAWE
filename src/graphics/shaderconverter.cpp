@@ -121,6 +121,9 @@ std::string ShaderConverter::convertToGLSL() {
 					case MOJOSHADER_USAGE_BLENDWEIGHT:
 						_attributes[kBoneWeight] = attribute.name;
 						break;
+					case MOJOSHADER_USAGE_TANGENT:
+						_attributes[kTangent] = attribute.name;
+						break;
 					case MOJOSHADER_USAGE_TEXCOORD:
 						_attributes[getTexCoord(uvIndex)] = attribute.name;
 						uvIndex++;

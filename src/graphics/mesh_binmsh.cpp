@@ -250,7 +250,11 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 					vertexAttribute.component = kPosition;
 					break;
 				case 0x04:
-					vertexAttribute.component = kColor;
+					if (dataType == 3) {
+						vertexAttribute.component = kTangent;
+					} else {
+						vertexAttribute.component = kColor;
+					}
 					break;
 				case 0x05:
 					if (dataType == 5)
