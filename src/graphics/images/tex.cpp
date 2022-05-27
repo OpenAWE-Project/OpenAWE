@@ -75,6 +75,7 @@ TEX::TEX(Common::ReadStream &tex) {
 			break;
 
 		// DXT5
+		case 3:
 		case 7:
 		case 9:
 			_format = kBC3;
