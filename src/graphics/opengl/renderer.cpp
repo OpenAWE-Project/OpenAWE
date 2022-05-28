@@ -36,6 +36,7 @@
 #include "src/common/uuid.h"
 #include "src/common/writefile.h"
 #include "src/common/exception.h"
+#include "src/common/strutil.h"
 
 #include "src/awe/resman.h"
 #include "src/awe/objfile.h"
@@ -133,7 +134,7 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 		if (!item.is_regular_file())
 			continue;
 
-		if (!std::regex_match(filename, objFile))
+		if (!std::regex_match(Common::toLower(filename), objFile))
 			continue;
 
 		AWE::OBJFile obj(ResMan.getResource(item.path().string()));

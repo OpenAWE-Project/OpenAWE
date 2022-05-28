@@ -32,7 +32,7 @@ AWE::OBJFile::OBJFile(Common::ReadStream *obj) : _obj(obj) {
 		throw std::runtime_error("Invalid obj file");
 
 	uint32_t version = obj->readUint32LE();
-	if (version != 10)
+	if (version != 10 && version != 9)
 		throw std::runtime_error("Invalid version, only 10 is supported");
 
 	uint32_t numStrings = obj->readUint32LE();
@@ -43,7 +43,7 @@ AWE::OBJFile::OBJFile(Common::ReadStream *obj) : _obj(obj) {
 		obj->skip(4); // CRC32 Hash for these files
 	}
 
-	_name = std::regex_replace(strings[0], std::regex("\\.rfx"), "");
+	_name = Common::toLower(std::regex_replace(strings[0], std::regex("\\.rfx"), ""));
 
 	uint32_t numPrograms = obj->readUint32LE();
 	_programs.resize(numPrograms);
