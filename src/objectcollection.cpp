@@ -23,6 +23,7 @@
 #include <spdlog/spdlog.h>
 
 #include "common/convexshape.h"
+#include "src/common/exception.h"
 
 #include "awe/cidfile.h"
 #include "awe/dpfile.h"
@@ -186,7 +187,7 @@ void ObjectCollection::loadStaticObject(const AWE::Object &container) {
 			collisionObject->setTransform(staticObject.position, staticObject.rotation);
 
 			_registry.emplace<Physics::CollisionObjectPtr>(staticObjectEntity) = collisionObject;
-		} catch (std::exception &e) {
+		} catch (Common::Exception &e) {
 			/*
 			 * Due to the fact, that not all havok primitives are working it might throw exceptions. In this case we
 			 * simply skip the creation fo the collision object
@@ -471,8 +472,13 @@ void ObjectCollection::loadKeyFrameAnimation(const AWE::Object &container) {
 		keyFrameAnimation.length
 	};
 
-	if (keyFrameAnimation.animationResource)
-		keyFrameAnimationObject.animation = Graphics::Animation(keyFrameAnimation.animationResource);
+	try {
+		if (keyFrameAnimation.animationResource)
+			keyFrameAnimationObject.animation = Graphics::Animation(keyFrameAnimation.animationResource);
+	} catch (Common::Exception &e) {
+		spdlog::error("Failed to load keyframe animation: {}", e.what());
+		return;
+	}
 
 	if (!keyFrameAnimation.nextAnimation.isNil())
 		keyFrameAnimationObject.nextAnimation =	keyFrameAnimation.nextAnimation;
