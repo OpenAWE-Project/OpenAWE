@@ -62,6 +62,15 @@ public:
 	size_t getNumResources() const override;
 
 	/*!
+	 * Get a list of indices to all files in the specific directory. If the list is empty or the directory does not
+	 * exist, it will return an empty list
+	 *
+	 * \param directory The directory from which to get the files
+	 * \return A vector containing all indices
+	 */
+	std::vector<size_t> getDirectoryResources(const std::string &directory) override;
+
+	/*!
 	 * Get the path for a resource including its filename at a specific index. Throws
 	 * an error if the index is equal or exceeds the number of resources in this archive
 	 *

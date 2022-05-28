@@ -121,4 +121,16 @@ std::string BINArchive::getResourcePath(size_t index) const {
 	return _fileEntries[index].name;
 }
 
+std::vector<size_t> BINArchive::getDirectoryResources(const std::string &directory) {
+	if (!directory.empty())
+		return {};
+
+	std::vector<size_t> indices;
+	for (int i = 0; i < getNumResources(); ++i) {
+		indices.emplace_back(i);
+	}
+
+	return indices;
+}
+
 } // End of namespace AWE

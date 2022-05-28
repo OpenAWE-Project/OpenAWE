@@ -61,6 +61,54 @@ size_t RMDPArchive::getNumResources() const {
 	return _fileEntries.size();
 }
 
+
+std::vector<size_t> RMDPArchive::getDirectoryResources(const std::string &directory) {
+	std::stringstream path(
+		std::regex_replace(
+			(_pathPrefix ? "d:/data/" : "") + directory,
+			std::regex("\\\\"),
+			"/"
+		)
+	);
+	std::string item;
+
+	FolderEntry folder = _folderEntries.front();
+
+	uint32_t nameHash = 0;
+
+	while (std::getline(path, item, '/')) {
+		nameHash = Common::crc32(Common::toLower(item));
+
+		if (folder.nextLowerFolder == 0xFFFFFFFF)
+			return {};
+
+		folder = _folderEntries[folder.nextLowerFolder];
+
+		while (nameHash != folder.nameHash) {
+			if (folder.nextNeighbourFolder == 0xFFFFFFFF)
+				return {};
+			folder = _folderEntries[folder.nextNeighbourFolder];
+		}
+
+		if (path.eof())
+			break;
+	}
+
+	if (folder.nextFile == 0xFFFFFFFF)
+		return {};
+
+	std::vector<size_t> indices;
+	FileEntry file = _fileEntries[folder.nextFile];
+	indices.emplace_back(folder.nextFile);
+
+	while (file.nextFile != 0xFFFFFFFF) {
+		indices.emplace_back(file.nextFile);
+		file = _fileEntries[file.nextFile];
+	}
+
+	return indices;
+}
+
 std::string RMDPArchive::getResourcePath(size_t index) const {
 	// Check if the index is less than the number of resources
 	if (index >= getNumResources())

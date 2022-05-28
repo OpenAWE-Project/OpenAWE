@@ -56,6 +56,8 @@ public:
 
 	size_t getNumResources() const override;
 
+	std::vector<size_t> getDirectoryResources(const std::string &directory) override;
+
 	std::string getResourcePath(size_t index) const override;
 
 	bool hasDirectory(const std::string &directory) const override;

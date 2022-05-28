@@ -21,6 +21,8 @@
 #ifndef AWE_ARCHIVE_H
 #define AWE_ARCHIVE_H
 
+#include <vector>
+
 #include "src/common/readstream.h"
 
 namespace AWE {
@@ -43,6 +45,14 @@ public:
 	 * \return the number of resources in this archive
 	 */
 	virtual size_t getNumResources() const = 0;
+
+	/*!
+	 * Get all indices of resources in a specific directory
+	 *
+	 * \param directory The directory to get the resource indices for
+	 * \return A vector of all indices of resources in this directory
+	 */
+	virtual std::vector<size_t> getDirectoryResources(const std::string &directory) = 0;
 
 	/*!
 	 * Get the path of a resource at a specific index in the archive
