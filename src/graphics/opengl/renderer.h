@@ -54,7 +54,6 @@ public:
 
 private:
 	void drawWorld();
-	void drawVideo();
 	void drawGUI();
 
 	GLenum getTextureSlot(unsigned int slot);
@@ -63,22 +62,11 @@ private:
 
 	Platform::Window &_window;
 
-	std::vector<GLuint> _texturePool;
-	std::map<Common::UUID, GLuint> _texturePoolAssignments;
-
-	std::unique_ptr<VBO> _videoQuad;
-	std::unique_ptr<VAO> _videoQuadAttributes;
-
 	std::unique_ptr<Texture> _albedoTexture;
 	std::unique_ptr<Texture> _normalTexture;
 	std::unique_ptr<Framebuffer> _deferredBuffer;
 
 	std::map<std::string, std::unique_ptr<Program>> _programs;
-
-	std::map<Common::UUID, std::unique_ptr<VBO>> _vertices;
-	std::map<Common::UUID, std::unique_ptr<VBO>> _indices;
-	std::map<Common::UUID, std::unique_ptr<VAO>> _vaos;
-	std::map<Common::UUID, std::unique_ptr<Texture>> _textures;
 };
 
 }

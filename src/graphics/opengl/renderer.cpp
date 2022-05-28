@@ -217,59 +217,6 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 		_renderPasses.emplace_back(item.first);
 	}
 
-	// Initialize stuff for video playback.
-	//
-
-	_programs["video"]->bind();
-
-	// Create a static quad for playing videos
-	_videoQuad = std::make_unique<VBO>(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-
-	constexpr float videoQuadVertices[] = {
-			-1.0f, -1.0f, 0.0f, 1.0f,
-			1.0f, -1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 0.0f,
-			1.0f, 1.0f, 1.0f, 0.0f,
-			-1.0f, 1.0f, 0.0f, 0.0f,
-			-1.0f, -1.0f, 0.0f, 1.0f
-	};
-
-	_videoQuad->bufferData((byte *) videoQuadVertices, 24 * sizeof(float));
-
-	_videoQuadAttributes = std::make_unique<VAO>();
-	_videoQuadAttributes->bind();
-	_videoQuad->bind();
-
-	const auto &videoProgram = _programs["video"];
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(
-		*videoProgram->getAttributeLocation(kPosition),
-		2,
-		GL_FLOAT,
-		GL_FALSE,
-		4 * sizeof(float),
-		nullptr
-	);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(
-		*videoProgram->getAttributeLocation(kTexCoord0),
-		2,
-		GL_FLOAT,
-		GL_FALSE,
-		4 * sizeof(float),
-		reinterpret_cast<void *>(2 * sizeof(float))
-	);
-
-	glBindVertexArray(0);
-
-	//glDisableVertexAttribArray(0);
-	//glDisableVertexAttribArray(1);
-
-	glUseProgram(0);
-	assert(glGetError() == GL_NO_ERROR);
-
 	// Get width and height of the default framebuffer
 	unsigned int width, height;
 	window.getSize(width, height);
@@ -289,25 +236,17 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	// Initialize Pools
-	//
-
-	_texturePool.resize(64);
-	glGenTextures(64, _texturePool.data());
-
 	// Check for errors
     assert(glGetError() == GL_NO_ERROR);
 }
 
 Renderer::~Renderer() {
-	glDeleteTextures(64, _texturePool.data());
 }
 
 void Renderer::drawFrame() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	drawWorld();
-	drawVideo();
 	drawGUI();
 
 	_window.swap();
@@ -470,25 +409,6 @@ void Renderer::drawWorld() {
 			}
 		}
 	}
-}
-
-void Renderer::drawVideo() {
-	// If no video frame is loaded, skip video drawing
-	if (_currentVideoFrame.isNil())
-		return;
-
-	auto &program = _programs["video"];
-	program->bind();
-
-	_videoQuadAttributes->bind();
-
-	glActiveTexture(getTextureSlot(0));
-	_textures[_currentVideoFrame]->bind();
-	program->setUniformSampler(*program->getUniformLocation("g_sVideoTexture"), 0);
-
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-
-	glUseProgram(0);
 }
 
 void Renderer::drawGUI() {
