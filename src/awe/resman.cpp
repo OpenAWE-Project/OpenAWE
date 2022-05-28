@@ -75,6 +75,18 @@ bool RessourceManager::hasDirectory(const std::string &path) {
 	return false;
 }
 
+std::vector<std::string> RessourceManager::getDirectoryResources(const std::string &path) {
+	std::vector<std::string> paths;
+	for (auto &archive : _archives) {
+		const auto indices = archive->getDirectoryResources(path);
+		for (const auto &index: indices) {
+			paths.emplace_back(archive->getResourcePath(index));
+		}
+	}
+
+	return paths;
+}
+
 Common::ReadStream *RessourceManager::getResource(const std::string &path) {
 	if (std::filesystem::is_regular_file(path))
 		return new Common::ReadFile(path);
