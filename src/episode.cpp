@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <regex>
+
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
@@ -41,77 +43,83 @@ Episode::Episode(entt::registry &registry, const std::string &world, const std::
 	spdlog::info("Loading task definitions for {}", id);
 	load(episode.getResource("cid_taskdefinition.bin"), kTaskDefinition, dp);
 
-	// TODO: Alan Wake has several archives without a proper pattern
-	std::unique_ptr<Common::ReadStream> tasksStream;
-	if (ResMan.hasResource(fmt::format("{}/tasks.bin", episodeFolder)))
-		tasksStream.reset(ResMan.getResource(fmt::format("{}/tasks.bin", episodeFolder)));
-	else if (ResMan.hasResource(fmt::format("{}/root.bin", episodeFolder)))
-		tasksStream.reset(ResMan.getResource(fmt::format("{}/root.bin", episodeFolder)));
+	const auto archives = ResMan.getDirectoryResources(episodeFolder);
 
-	AWE::BINArchive tasks(*tasksStream);
+	for (const auto &archive: archives) {
+		if (
+			!std::regex_match(archive, std::regex(".*\\.bin$")) ||
+			std::regex_match(archive, std::regex(".*episode\\.bin$"))
+		)
+			continue;
 
-	loadBytecode(
+		spdlog::info("Loading {}", archive);
+
+		std::unique_ptr<Common::ReadStream> tasksStream(ResMan.getResource(archive));
+		AWE::BINArchive tasks(*tasksStream);
+
+		loadBytecode(
 			tasks.getResource("dp_bytecode.bin"),
 			tasks.getResource("dp_bytecodeparameters.bin")
-	);
+		);
 
-	dp = std::make_shared<DPFile>(tasks.getResource("dp_task.bin"));
+		dp = std::make_shared<DPFile>(tasks.getResource("dp_task.bin"));
 
-	spdlog::info("Loading static objects for {}", id);
-	load(tasks.getResource("cid_staticobject.bin"), kStaticObject, dp);
+		spdlog::info("Loading static objects for {}", id);
+		load(tasks.getResource("cid_staticobject.bin"), kStaticObject, dp);
 
-	spdlog::info("Loading dynamic objects for {}", id);
-	load(tasks.getResource("cid_dynamicobject.bin"), kDynamicObject, dp);
-	load(tasks.getResource("cid_dynamicobjectscript.bin"), kDynamicObjectScript, dp);
+		spdlog::info("Loading dynamic objects for {}", id);
+		load(tasks.getResource("cid_dynamicobject.bin"), kDynamicObject, dp);
+		load(tasks.getResource("cid_dynamicobjectscript.bin"), kDynamicObjectScript, dp);
 
-	spdlog::info("Loading characters for {}", id);
-	load(tasks.getResource("cid_character.bin"), kCharacter, dp);
-	load(tasks.getResource("cid_characterscript.bin"), kCharacterScript, dp);
+		spdlog::info("Loading characters for {}", id);
+		load(tasks.getResource("cid_character.bin"), kCharacter, dp);
+		load(tasks.getResource("cid_characterscript.bin"), kCharacterScript, dp);
 
-	spdlog::info("Loading script instances for {}", id);
-	load(tasks.getResource("cid_scriptinstance.bin"), kScriptInstance, dp);
-	load(tasks.getResource("cid_scriptinstancescript.bin"), kScript, dp);
+		spdlog::info("Loading script instances for {}", id);
+		load(tasks.getResource("cid_scriptinstance.bin"), kScriptInstance, dp);
+		load(tasks.getResource("cid_scriptinstancescript.bin"), kScript, dp);
 
-	spdlog::info("Loading Point Lights for {}", id);
-	load(tasks.getResource("cid_pointlight.bin"), kPointLight, dp);
+		spdlog::info("Loading Point Lights for {}", id);
+		load(tasks.getResource("cid_pointlight.bin"), kPointLight, dp);
 
-	spdlog::info("Loading ambient lights for {}", id);
-	load(tasks.getResource("cid_ambientlight.bin"), kAmbientLight, dp);
-	load(tasks.getResource("cid_ambientlightscript.bin"), kScript, dp);
+		spdlog::info("Loading ambient lights for {}", id);
+		load(tasks.getResource("cid_ambientlight.bin"), kAmbientLight, dp);
+		load(tasks.getResource("cid_ambientlightscript.bin"), kScript, dp);
 
-	spdlog::info("Loading Floating Scripts for {}", id);
-	load(tasks.getResource("cid_floatingscript.bin"), kFloatingScript, dp);
+		spdlog::info("Loading Floating Scripts for {}", id);
+		load(tasks.getResource("cid_floatingscript.bin"), kFloatingScript, dp);
 
-	spdlog::info("Loading Triggers for {}", id);
-	load(tasks.getResource("cid_trigger.bin"), kTrigger, dp);
-	load(tasks.getResource("cid_triggerscript.bin"), kScript, dp);
+		spdlog::info("Loading Triggers for {}", id);
+		load(tasks.getResource("cid_trigger.bin"), kTrigger, dp);
+		load(tasks.getResource("cid_triggerscript.bin"), kScript, dp);
 
-	spdlog::info("Loading area triggers for {}", id);
-	load(tasks.getResource("cid_areatrigger.bin"), kAreaTrigger, dp);
-	load(tasks.getResource("cid_areatriggerscript.bin"), kScript, dp);
+		spdlog::info("Loading area triggers for {}", id);
+		load(tasks.getResource("cid_areatrigger.bin"), kAreaTrigger, dp);
+		load(tasks.getResource("cid_areatriggerscript.bin"), kScript, dp);
 
-	load(tasks.getResource("cid_taskcontent.bin"), kTaskContent, dp);
+		load(tasks.getResource("cid_taskcontent.bin"), kTaskContent, dp);
 
-	spdlog::info("Loading task scripts for {}", id);
-	load(tasks.getResource("cid_taskscript.bin"), kScript, dp);
+		spdlog::info("Loading task scripts for {}", id);
+		load(tasks.getResource("cid_taskscript.bin"), kScript, dp);
 
-	spdlog::info("Loading waypoints for {}", id);
-	load(tasks.getResource("cid_waypoint.bin"), kWaypoint, dp);
-	load(tasks.getResource("cid_waypointscript.bin"), kScript, dp);
+		spdlog::info("Loading waypoints for {}", id);
+		load(tasks.getResource("cid_waypoint.bin"), kWaypoint, dp);
+		load(tasks.getResource("cid_waypointscript.bin"), kScript, dp);
 
-	spdlog::info("Loading key frames for {}", id);
-	load(tasks.getResource("cid_keyframe.bin"), kKeyframe, dp);
+		spdlog::info("Loading key frames for {}", id);
+		load(tasks.getResource("cid_keyframe.bin"), kKeyframe, dp);
 
-	spdlog::info("Loading key frame animations for {}", id);
-	load(tasks.getResource("cid_keyframeanimation.bin"), kKeyframeAnimation, dp);
+		spdlog::info("Loading key frame animations for {}", id);
+		load(tasks.getResource("cid_keyframeanimation.bin"), kKeyframeAnimation, dp);
 
-	spdlog::info("Loading key framers for {}", id);
-	load(tasks.getResource("cid_keyframer.bin"), kKeyframer, dp);
-	load(tasks.getResource("cid_keyframerscript.bin"), kScript, dp);
+		spdlog::info("Loading key framers for {}", id);
+		load(tasks.getResource("cid_keyframer.bin"), kKeyframer, dp);
+		load(tasks.getResource("cid_keyframerscript.bin"), kScript, dp);
 
-	spdlog::info("Loading key framed objects for {}", id);
-	load(tasks.getResource("cid_keyframedobject.bin"), kKeyframedObject, dp);
-	load(tasks.getResource("cid_keyframedobjectscript.bin"), kDynamicObjectScript, dp);
+		spdlog::info("Loading key framed objects for {}", id);
+		load(tasks.getResource("cid_keyframedobject.bin"), kKeyframedObject, dp);
+		load(tasks.getResource("cid_keyframedobjectscript.bin"), kDynamicObjectScript, dp);
+	}
 }
 
 void Episode::loadLevel(const std::string &id) {
