@@ -61,6 +61,7 @@ void Bytecode::run(Context &context, uint32_t offset, const entt::entity &caller
 			case kPushGID:    pushGID(context); break;
 			case kCallGlobal: callGlobal(context, caller, param1, param2); break;
 			case kCallObject: callObject(context, param1, param2); break;
+			case kMulFloat:   mulFloat(); break;
 			case kMulInt:     mulInt(); break;
 			case kRet:        ret(); break;
 			case kIntToFloat: intToFloat(); break;
@@ -167,6 +168,24 @@ void Bytecode::callObject(Context &ctx, byte numArgs, byte retType) {
 		_stack.push(*ret);
 
 	spdlog::trace("call_object {} {}", numArgs, retType);
+}
+
+void Bytecode::mulFloat() {
+	int32_t value1 = std::get<int32_t>(_stack.top());
+	_stack.pop();
+	int32_t value2 = std::get<int32_t>(_stack.top());
+	_stack.pop();
+
+	float fValue1, fValue2, fResultValue;
+	memcpy(&fValue1, &value1, 4);
+	memcpy(&fValue2, &value2, 4);
+
+	fResultValue = fValue1 * fValue2;
+	memcpy(&value1, &fResultValue, 4);
+
+	_stack.push(value1);
+
+	spdlog::trace("mul_float");
 }
 
 void Bytecode::mulInt() {
