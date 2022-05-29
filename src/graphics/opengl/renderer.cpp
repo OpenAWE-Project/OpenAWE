@@ -170,8 +170,7 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 	}
 	assert(glGetError() == GL_NO_ERROR);
 
-	const std::regex shaderFile("^[a-z]+\\_(vs|ps)\\.glsl$");
-	//const std::regex shaderFile("^[a-z]+\\_(tes|tcs|vs|ps)\\.glsl$");
+	const std::regex shaderFile("^[a-z]+\\.(vert|frag|tesc|tese)\\.glsl$");
 	std::vector<std::unique_ptr<Shader>> shaders;
 	for (const auto &item : std::filesystem::directory_iterator("../shaders")) {
 		std::string filename = item.path().filename().string();
@@ -183,20 +182,20 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 
 		std::string name, type;
 		std::stringstream ss(filename);
-		std::getline(ss, name, '_');
+		std::getline(ss, name, '.');
 		std::getline(ss, type, '.');
 
 		std::ifstream in(item.path());
 		std::string source((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
 
 		GLenum shaderType;
-		if (type == "ps")
+		if (type == "frag")
 			shaderType = GL_FRAGMENT_SHADER;
-		else if (type == "vs")
+		else if (type == "vert")
 			shaderType = GL_VERTEX_SHADER;
-		else if (type == "tcs")
+		else if (type == "tesc")
 			shaderType = GL_TESS_CONTROL_SHADER;
-		else if (type == "tes")
+		else if (type == "tese")
 			shaderType = GL_TESS_EVALUATION_SHADER;
 		else
 			throw std::runtime_error("Unknown or unsupported shader");
