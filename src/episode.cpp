@@ -57,12 +57,18 @@ Episode::Episode(entt::registry &registry, const std::string &world, const std::
 		std::unique_ptr<Common::ReadStream> tasksStream(ResMan.getResource(archive));
 		AWE::BINArchive tasks(*tasksStream);
 
-		loadBytecode(
-			tasks.getResource("dp_bytecode.bin"),
-			tasks.getResource("dp_bytecodeparameters.bin")
-		);
+		if (tasks.hasResource("dp_bytecode.bin") && tasks.hasResource("dp_bytecodeparameters.bin"))
+			loadBytecode(
+				tasks.getResource("dp_bytecode.bin"),
+				tasks.getResource("dp_bytecodeparameters.bin")
+			);
 
-		dp = std::make_shared<DPFile>(tasks.getResource("dp_task.bin"));
+		// Search for a dp file
+		for (const auto &item: tasks.getDirectoryResources("")) {
+			const auto filename = tasks.getResourcePath(item);
+			if (std::regex_match(filename, std::regex("dp_[a-z]*\\.bin")) && !std::regex_match(filename, std::regex(".*bytecode(parameters)?.*")))
+				dp = std::make_shared<DPFile>(tasks.getResource(filename));
+		}
 
 		spdlog::info("Loading static objects for {}", id);
 		load(tasks.getResource("cid_staticobject.bin"), kStaticObject, dp);
