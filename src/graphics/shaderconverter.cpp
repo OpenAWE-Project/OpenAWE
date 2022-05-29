@@ -98,6 +98,7 @@ std::string ShaderConverter::convertToGLSL() {
 
 		// Replace attribute names with mor appropriate names
 		unsigned int uvIndex = 0;
+		unsigned int colorIndex = 0;
 		if (parseData->shader_type == MOJOSHADER_TYPE_VERTEX) {
 			for (int i = 0; i < parseData->attribute_count; ++i) {
 				const auto &attribute = parseData->attributes[i];
@@ -113,7 +114,8 @@ std::string ShaderConverter::convertToGLSL() {
 						_attributes[kNormal] = attribute.name;
 						break;
 					case MOJOSHADER_USAGE_COLOR:
-						_attributes[kColor] = attribute.name;
+						_attributes[getColor(colorIndex)] = attribute.name;
+						colorIndex++;
 						break;
 					case MOJOSHADER_USAGE_BLENDINDICES:
 						_attributes[kBoneIndex] = attribute.name;

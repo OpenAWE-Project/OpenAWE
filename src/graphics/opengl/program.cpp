@@ -122,8 +122,17 @@ std::optional<GLint> Program::getAttributeLocation(const AttributeType &type) {
 		case kNormal:
 			attributeName = "in_Normal";
 			break;
-		case kColor:
-			attributeName = "in_Color";
+		case kColor0:
+			attributeName = "in_Color0";
+			break;
+		case kColor1:
+			attributeName = "in_Color1";
+			break;
+		case kColor2:
+			attributeName = "in_Color2";
+			break;
+		case kColor3:
+			attributeName = "in_Color3";
 			break;
 		case kBoneWeight:
 			attributeName = "in_BoneWeight";

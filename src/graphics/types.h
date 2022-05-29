@@ -26,7 +26,10 @@ enum AttributeType {
 	kNormal,
 	kBoneIndex,
 	kBoneWeight,
-	kColor,
+	kColor0,
+	kColor1,
+	kColor2,
+	kColor3,
 	kTangent,
 	kDisplacementFactor,
 	kTexCoord0,
@@ -70,6 +73,16 @@ inline AttributeType getTexCoord(unsigned int index) {
 		case 1: return kTexCoord1;
 		case 2: return kTexCoord2;
 		case 3: return kTexCoord3;
+	}
+}
+
+inline AttributeType getColor(unsigned int index) {
+	switch (index) {
+		default:
+		case 0: return kColor0;
+		case 1: return kColor1;
+		case 2: return kColor2;
+		case 3: return kColor3;
 	}
 }
 

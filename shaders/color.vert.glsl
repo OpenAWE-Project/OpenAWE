@@ -24,11 +24,11 @@ uniform mat4 g_mLocalToView;
 uniform mat4 g_mViewToClip;
 
 in vec3 in_Position;
-in vec3 in_Color;
+in vec3 in_Color0;
 
 out vec3 pass_Color;
 
 void main() {
-    pass_Color = in_Color;
+    pass_Color = in_Color0;
     gl_Position = g_mViewToClip * g_mLocalToView * vec4(in_Position, 1.0f);
 }

@@ -239,6 +239,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 		std::vector<VertexAttribute> attributes;
 		attributes.resize(vertexAttributeCount);
 		unsigned int uvs = 0;
+		unsigned int colors = 0;
 		for (int j = 0; j < vertexAttributeCount; ++j) {
 			VertexAttribute &vertexAttribute = attributes[j];
 			binmsh->skip(1);
@@ -253,7 +254,8 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 					if (dataType == 3) {
 						vertexAttribute.component = kTangent;
 					} else {
-						vertexAttribute.component = kColor;
+						vertexAttribute.component = getColor(colors);
+						colors++;
 					}
 					break;
 				case 0x05:

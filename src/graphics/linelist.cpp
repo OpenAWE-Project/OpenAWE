@@ -28,7 +28,7 @@ LineList::LineList() {
 
 	const std::vector<VertexAttribute> attributes = {
 			{kPosition, kVec3F},
-			{kColor,    kVec3F}
+			{kColor0,   kVec3F}
 	};
 
 	const std::vector<Material::Attribute> materialAttributes{
