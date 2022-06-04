@@ -56,6 +56,13 @@ void ConvertedProgram::setAttributeMappings(const std::map<AttributeType, std::s
 void ConvertedProgram::setSymbols(const std::vector<ShaderConverter::Symbol> &symbols) {
 	for (const auto &symbol : symbols) {
 		_symbols[symbol.name] = symbol;
+
+		const auto location = getUniformLocation(symbol.name);
+
+		if (!location)
+			continue;
+
+		_symbolLength[*location] = symbol.length;
 	}
 }
 
@@ -86,15 +93,15 @@ void ConvertedProgram::setUniform3f(GLint id, const glm::vec3 &value) const {
 }
 
 void ConvertedProgram::setUniformMatrix4f(GLint id, const glm::mat4 &value) const {
-	glm::mat4 transposedValue = glm::transpose(value);
-	glm::vec4 matRow1 = transposedValue[0];
-	glm::vec4 matRow2 = transposedValue[1];
-	glm::vec4 matRow3 = transposedValue[2];
-	glm::vec4 matRow4 = transposedValue[3];
-	Program::setUniform4f(id, matRow1);
-	Program::setUniform4f(id + 1, matRow2);
-	Program::setUniform4f(id + 2, matRow3);
-	Program::setUniform4f(id + 3, matRow4);
+	if (id < 0)
+		return;
+
+	const glm::mat4 transposedValue = glm::transpose(value);
+	const unsigned int length = _symbolLength.at(id);
+
+	for (int i = 0; i < std::min(length, 4u); ++i) {
+		Program::setUniform4f(id + i, transposedValue[i]);
+	}
 }
 
 void ConvertedProgram::setUniformMatrix4x3fArray(GLint id, const std::vector<glm::mat4x3> &values) const {

@@ -52,6 +52,7 @@ private:
 	std::map<std::string, std::string> _samplerMappings;
 	std::map<AttributeType, std::string> _attributeMappings;
 	std::map<std::string, ShaderConverter::Symbol> _symbols;
+	std::map<GLint, unsigned int> _symbolLength;
 };
 
 } // End of namespace Graphics::OpenGL
