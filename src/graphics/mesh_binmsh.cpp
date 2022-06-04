@@ -211,6 +211,9 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 			case 0:
 				material.setBlendMode(kNone);
 				break;
+			case 1:
+				material.setBlendMode(kMultiply); // TODO: multiply blend mode is only a placeholder
+				break;
 			case 3:
 				material.setBlendMode(kMultiply);
 				break;
