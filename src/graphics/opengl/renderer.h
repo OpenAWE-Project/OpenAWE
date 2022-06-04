@@ -62,7 +62,7 @@ private:
 
 	Platform::Window &_window;
 
-	std::unique_ptr<Texture> _albedoTexture;
+	std::unique_ptr<Texture> _depthTexture;
 	std::unique_ptr<Texture> _normalTexture;
 	std::unique_ptr<Framebuffer> _deferredBuffer;
 
