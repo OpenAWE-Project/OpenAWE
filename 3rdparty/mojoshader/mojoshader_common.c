@@ -194,7 +194,7 @@ HashTable *hash_create(void *data, const HashTable_HashFn hashfn,
     return table;
 } // hash_create
 
-void hash_destroy(HashTable *table)
+void hash_destroy(HashTable *table, const void *ctx)
 {
     uint32 i;
     void *data = table->data;
@@ -206,7 +206,7 @@ void hash_destroy(HashTable *table)
         while (item != NULL)
         {
             HashItem *next = item->next;
-            table->nuke(item->key, item->value, data);
+            table->nuke(ctx, item->key, item->value, data);
             f(item, d);
             item = next;
         } // while
@@ -216,7 +216,7 @@ void hash_destroy(HashTable *table)
     f(table, d);
 } // hash_destroy
 
-int hash_remove(HashTable *table, const void *key)
+int hash_remove(HashTable *table, const void *key, const void *ctx)
 {
     HashItem *item = NULL;
     HashItem *prev = NULL;
@@ -231,7 +231,7 @@ int hash_remove(HashTable *table, const void *key)
             else
                 table->table[hash] = item->next;
 
-            table->nuke(item->key, item->value, data);
+            table->nuke(ctx, item->key, item->value, data);
             table->f(item, table->d);
             return 1;
         } // if
@@ -272,9 +272,9 @@ int hash_keymatch_string(const void *a, const void *b, void *data)
 
 // string -> string map...
 
-static void stringmap_nuke_noop(const void *key, const void *val, void *d) {}
+static void stringmap_nuke_noop(const void *ctx, const void *key, const void *val, void *d) {}
 
-static void stringmap_nuke(const void *key, const void *val, void *d)
+static void stringmap_nuke(const void *ctx, const void *key, const void *val, void *d)
 {
     StringMap *smap = (StringMap *) d;
     smap->f((void *) key, smap->d);
@@ -294,7 +294,7 @@ StringMap *stringmap_create(const int copy, MOJOSHADER_malloc m,
 
 void stringmap_destroy(StringMap *smap)
 {
-    hash_destroy(smap);
+    hash_destroy(smap, NULL);
 } // stringmap_destroy
 
 int stringmap_insert(StringMap *smap, const char *key, const char *value)
@@ -327,7 +327,7 @@ int stringmap_insert(StringMap *smap, const char *key, const char *value)
 
 int stringmap_remove(StringMap *smap, const char *key)
 {
-    return hash_remove(smap, key);
+    return hash_remove(smap, key, NULL);
 } // stringmap_remove
 
 int stringmap_find(const StringMap *smap, const char *key, const char **_value)
@@ -1071,10 +1071,15 @@ void MOJOSHADER_spirv_link_attributes(const MOJOSHADER_parseData *vertex,
     const uint32 texcoord0Loc = pTable->attrib_offsets[MOJOSHADER_USAGE_TEXCOORD][0];
 
     // We need locations for color outputs first!
-    for (i = 0; i < pixel->output_count; i ++)
+    for (i = 0; i < pixel->output_count; i++)
     {
         const MOJOSHADER_attribute *pAttr = &pixel->outputs[i];
-        assert(pAttr->usage == MOJOSHADER_USAGE_COLOR);
+        if (pAttr->usage != MOJOSHADER_USAGE_COLOR)
+        {
+            // This should be FragDepth, which is builtin
+            assert(pAttr->usage == MOJOSHADER_USAGE_DEPTH);
+            continue;
+        } // if
 
         // Set the loc for the output declaration...
         pOffset = pTable->output_offsets[pAttr->index];
@@ -1099,6 +1104,8 @@ void MOJOSHADER_spirv_link_attributes(const MOJOSHADER_parseData *vertex,
         const MOJOSHADER_attribute *pAttr = &pixel->attributes[i];
         if (pAttr->usage == MOJOSHADER_USAGE_UNKNOWN)
             continue; // Probably something like VPOS, ignore!
+        if (pAttr->usage == MOJOSHADER_USAGE_DEPTH)
+            continue; // This should be FragDepth, which is builtin
         if (pAttr->usage == MOJOSHADER_USAGE_COLOR && pTable->output_offsets[pAttr->index])
             continue;
 

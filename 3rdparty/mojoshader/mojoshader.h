@@ -58,6 +58,10 @@ extern "C" {
  *    const int linked_against = MOJOSHADER_version();
  *
  * The version is a single integer that increments, not a major/minor value.
+ *
+ * Please note that since moving to git, this function always returns -1;
+ *  when hosted in Mercurial, this number meant something, but even
+ *  there it wasn't reliable. With git, this number no longer exists at all.
  */
 DECLSPEC int MOJOSHADER_version(void);
 
@@ -2622,6 +2626,13 @@ DECLSPEC MOJOSHADER_glContext *MOJOSHADER_glCreateContext(const char *profile,
  *
  * It is legal to call this with a NULL pointer to make no context current,
  *  but you need a valid context to be current to use most of MojoShader.
+ *
+ * In current times, this allows one context to be current _per thread_,
+ *  as the internal state inside MojoShader is marked thread local. Each
+ *  new thread should call this function before using the context, even if
+ *  other threads have previously set it current. You _also_ have to set
+ *  the OpenGL context itself current for each thread (and have an OpenGL
+ *  implementation that allows that in the first place).
  */
 DECLSPEC void MOJOSHADER_glMakeContextCurrent(MOJOSHADER_glContext *ctx);
 
@@ -3620,6 +3631,9 @@ typedef struct MOJOSHADER_vkProgram MOJOSHADER_vkProgram;
  * You must pass in the graphics queue family index and the memory type index
  * you will be using with your Vulkan instance.
  *
+ * You can only have one MOJOSHADER_vkContext per actual Vulkan context, or
+ *  undefined behaviour will result.
+ *
  * As MojoShader requires some memory to be allocated, you may provide a
  *  custom allocator to this function, which will be used to allocate/free
  *  memory. They function just like malloc() and free(). We do not use
@@ -3646,19 +3660,6 @@ DECLSPEC MOJOSHADER_vkContext *MOJOSHADER_vkCreateContext(VkInstance *instance,
                                                           void *malloc_d);
 
 /*
- * You must call this before using the context that you got from
- *  MOJOSHADER_vkCreateContext(), and must use it when you switch to a new GL
- *  context.
- *
- * You can only have one MOJOSHADER_vkContext per actual Vulkan context, or
- *  undefined behaviour will result.
- *
- * It is legal to call this with a NULL pointer to make no context current,
- *  but you need a valid context to be current to use most of MojoShader.
- */
-DECLSPEC void MOJOSHADER_vkMakeContextCurrent(MOJOSHADER_vkContext *_ctx);
-
-/*
  * Get any error state we might have picked up.
  *
  * Returns a human-readable string. This string is for debugging purposes, and
@@ -3677,7 +3678,7 @@ DECLSPEC void MOJOSHADER_vkMakeContextCurrent(MOJOSHADER_vkContext *_ctx);
  *  current. The error buffer is shared between contexts, so you can get
  *  error results from a failed MOJOSHADER_vkCreateContext().
  */
-DECLSPEC const char *MOJOSHADER_vkGetError();
+DECLSPEC const char *MOJOSHADER_vkGetError(MOJOSHADER_vkContext *context);
 
 /*
  * Deinitialize MojoShader's Vulkan shader management.
@@ -3708,12 +3709,10 @@ DECLSPEC void MOJOSHADER_vkDestroyContext(MOJOSHADER_vkContext *ctx);
  *
  * Returns NULL on error, or a shader handle on success.
  *
- * This call requires a valid MOJOSHADER_vkContext to have been made current,
- *  or it will crash your program. See MOJOSHADER_vkMakeContextCurrent().
- *
  * Compiled shaders from this function may not be shared between contexts.
  */
-DECLSPEC MOJOSHADER_vkShader *MOJOSHADER_vkCompileShader(const char *mainfn,
+DECLSPEC MOJOSHADER_vkShader *MOJOSHADER_vkCompileShader(MOJOSHADER_vkContext *context,
+                                                         const char *mainfn,
                                                          const unsigned char *tokenbuf,
                                                          const unsigned int bufsize,
                                                          const MOJOSHADER_swizzle *swiz,
@@ -3724,23 +3723,17 @@ DECLSPEC MOJOSHADER_vkShader *MOJOSHADER_vkCompileShader(const char *mainfn,
 /*
  * Increments a shader's internal refcount.
  *
- * To decrement the refcount, call
- *  MOJOSHADER_vkDeleteShader().
- *
- * This call requires a valid MOJOSHADER_vkContext to have been made current,
- *  or it will crash your program. See MOJOSHADER_vkMakeContextCurrent().
+ * To decrement the refcount, call MOJOSHADER_vkDeleteShader().
  */
 DECLSPEC void MOJOSHADER_vkShaderAddRef(MOJOSHADER_vkShader *shader);
 
 /*
- * Increments a shader's internal refcount.
+ * Decrements a shader's internal refcount, and deletes if the refcount is zero.
  *
- * To decrement the refcount, call MOJOSHADER_vkDeleteShader().
- *
- * This call requires a valid MOJOSHADER_vkContext to have been made current,
- *  or it will crash your program. See MOJOSHADER_vkMakeContextCurrent().
+ * To increment the refcount, call MOJOSHADER_vkShaderAddRef().
  */
-DECLSPEC void MOJOSHADER_vkDeleteShader(MOJOSHADER_vkShader *shader);
+DECLSPEC void MOJOSHADER_vkDeleteShader(MOJOSHADER_vkContext *context,
+                                        MOJOSHADER_vkShader *shader);
 
 /*
  * Get the MOJOSHADER_parseData structure that was produced from the
@@ -3749,8 +3742,7 @@ DECLSPEC void MOJOSHADER_vkDeleteShader(MOJOSHADER_vkShader *shader);
  * This data is read-only, and you should NOT attempt to free it. This
  *  pointer remains valid until the shader is deleted.
  */
-DECLSPEC const MOJOSHADER_parseData *MOJOSHADER_vkGetShaderParseData(
-                                                MOJOSHADER_vkShader *shader);
+DECLSPEC const MOJOSHADER_parseData *MOJOSHADER_vkGetShaderParseData(MOJOSHADER_vkShader *shader);
 
 /*
  * Link a vertex and pixel shader into a working Vulkan shader program.
@@ -3765,11 +3757,9 @@ DECLSPEC const MOJOSHADER_parseData *MOJOSHADER_vkGetShaderParseData(
  * Once you have successfully linked a program, you may render with it.
  *
  * Returns NULL on error, or a program handle on success.
- *
- * This call requires a valid MOJOSHADER_vkContext to have been made current,
- *  or it will crash your program. See MOJOSHADER_vkMakeContextCurrent().
  */
-DECLSPEC MOJOSHADER_vkProgram *MOJOSHADER_vkLinkProgram(MOJOSHADER_vkShader *vshader,
+DECLSPEC MOJOSHADER_vkProgram *MOJOSHADER_vkLinkProgram(MOJOSHADER_vkContext *context,
+                                                        MOJOSHADER_vkShader *vshader,
                                                         MOJOSHADER_vkShader *pshader);
 
 /*
@@ -3781,11 +3771,9 @@ DECLSPEC MOJOSHADER_vkProgram *MOJOSHADER_vkLinkProgram(MOJOSHADER_vkShader *vsh
  *  using MOJOSHADER_vkGetVertexAttribLocation(), and finally call
  *  MOJOSHADER_vkGetShaderModules() to get the final modules. Then you may
  *  begin building your pipeline state objects.
- *
- * This call requires a valid MOJOSHADER_vkContext to have been made current,
- *  or it will crash your program. See MOJOSHADER_vkMakeContextCurrent().
  */
-DECLSPEC void MOJOSHADER_vkBindProgram(MOJOSHADER_vkProgram *program);
+DECLSPEC void MOJOSHADER_vkBindProgram(MOJOSHADER_vkContext *context,
+                                       MOJOSHADER_vkProgram *program);
 
 /*
  * Free the resources of a linked program. This will delete the shader modules
@@ -3793,11 +3781,9 @@ DECLSPEC void MOJOSHADER_vkBindProgram(MOJOSHADER_vkProgram *program);
  *
  * If the program is currently bound by MOJOSHADER_vkBindProgram(), it will
  *  be deleted as soon as it becomes unbound.
- *
- * This call requires a valid MOJOSHADER_vkContext to have been made current,
- *  or it will crash your program. See MOJOSHADER_vkMakeContextCurrent().
  */
-DECLSPEC void MOJOSHADER_vkDeleteProgram(MOJOSHADER_vkProgram *program);
+DECLSPEC void MOJOSHADER_vkDeleteProgram(MOJOSHADER_vkContext *context,
+                                         MOJOSHADER_vkProgram *program);
 
 /*
  * This "binds" individual shaders, which effectively means the context
@@ -3806,11 +3792,9 @@ DECLSPEC void MOJOSHADER_vkDeleteProgram(MOJOSHADER_vkProgram *program);
  *
  * This function is only for convenience, specifically for compatibility
  *  with the effects API.
- *
- * This call requires a valid MOJOSHADER_vkContext to have been made current,
- *  or it will crash your program. See MOJOSHADER_vkMakeContextCurrent().
  */
-DECLSPEC void MOJOSHADER_vkBindShaders(MOJOSHADER_vkShader *vshader,
+DECLSPEC void MOJOSHADER_vkBindShaders(MOJOSHADER_vkContext *context,
+                                       MOJOSHADER_vkShader *vshader,
                                        MOJOSHADER_vkShader *pshader);
 
 /*
@@ -3818,11 +3802,9 @@ DECLSPEC void MOJOSHADER_vkBindShaders(MOJOSHADER_vkShader *vshader,
  *
  * This function is only for convenience, specifically for compatibility
  *  with the effects API.
- *
- * This call requires a valid MOJOSHADER_vkContext to have been made current,
- *  or it will crash your program. See MOJOSHADER_vkMakeContextCurrent().
  */
-DECLSPEC void MOJOSHADER_vkGetBoundShaders(MOJOSHADER_vkShader **vshader,
+DECLSPEC void MOJOSHADER_vkGetBoundShaders(MOJOSHADER_vkContext *context,
+                                           MOJOSHADER_vkShader **vshader,
                                            MOJOSHADER_vkShader **pshader);
 
 /*
@@ -3831,21 +3813,16 @@ DECLSPEC void MOJOSHADER_vkGetBoundShaders(MOJOSHADER_vkShader **vshader,
  *
  * This function is really just for the effects API, you should NOT be using
  *  this unless you know every single line of MojoShader from memory.
- *
- * This call requires a valid MOJOSHADER_vkContext to have been made current,
- *  or it will crash your program. See MOJOSHADER_vkMakeContextCurrent().
  */
-DECLSPEC void MOJOSHADER_vkMapUniformBufferMemory(float **vsf, int **vsi, unsigned char **vsb,
+DECLSPEC void MOJOSHADER_vkMapUniformBufferMemory(MOJOSHADER_vkContext *context,
+                                                  float **vsf, int **vsi, unsigned char **vsb,
                                                   float **psf, int **psi, unsigned char **psb);
 
 /*
  * Tells the context that you are done with the memory mapped by
  *  MOJOSHADER_vkMapUniformBufferMemory().
- *
- * This call requires a valid MOJOSHADER_vkContext to have been made current,
- *  or it will crash your program. See MOJOSHADER_vkMakeContextCurrent().
  */
-DECLSPEC void MOJOSHADER_vkUnmapUniformBufferMemory();
+DECLSPEC void MOJOSHADER_vkUnmapUniformBufferMemory(MOJOSHADER_vkContext *context);
 
 /*
  * This queries for the uniform buffer, byte offset and byte size for each of the
@@ -3853,11 +3830,9 @@ DECLSPEC void MOJOSHADER_vkUnmapUniformBufferMemory();
  *
  * This function is only for convenience, specifically for compatibility with
  *  the effects API.
- *
- * This call requires a valid MOJOSHADER_vkContext to have been made current,
- *  or it will crash your program. See MOJOSHADER_vkMakeContextCurrent().
  */
-DECLSPEC void MOJOSHADER_vkGetUniformBuffers(VkBuffer *vbuf,
+DECLSPEC void MOJOSHADER_vkGetUniformBuffers(MOJOSHADER_vkContext *context,
+                                             VkBuffer *vbuf,
                                              unsigned long long *voff,
                                              unsigned long long *vsize,
                                              VkBuffer *pbuf,
@@ -3869,7 +3844,7 @@ DECLSPEC void MOJOSHADER_vkGetUniformBuffers(VkBuffer *vbuf,
  *
  * Always call this after submitting the final command buffer for a frame!
  */
-DECLSPEC void MOJOSHADER_vkEndFrame();
+DECLSPEC void MOJOSHADER_vkEndFrame(MOJOSHADER_vkContext *context);
 
 /*
  * Return the location of a vertex attribute for the given shader.
@@ -3879,9 +3854,6 @@ DECLSPEC void MOJOSHADER_vkEndFrame();
  *
  * The return value is the index of the attribute to be used to create
  *  a VkVertexInputAttributeDescription, or -1 if the stream is not used.
- *
- *  This call requires a valid MOJOSHADER_vkContext to have been made current,
- *  or it will crash your program. See MOJOSHADER_vkMakeContextCurrent().
  */
 DECLSPEC int MOJOSHADER_vkGetVertexAttribLocation(MOJOSHADER_vkShader *vert,
                                                   MOJOSHADER_usage usage,
@@ -3890,11 +3862,13 @@ DECLSPEC int MOJOSHADER_vkGetVertexAttribLocation(MOJOSHADER_vkShader *vert,
 /*
  * Get the VkShaderModules from the currently bound shader program.
  */
-DECLSPEC void MOJOSHADER_vkGetShaderModules(VkShaderModule *vmodule,
+DECLSPEC void MOJOSHADER_vkGetShaderModules(MOJOSHADER_vkContext *context,
+                                            VkShaderModule *vmodule,
                                             VkShaderModule *pmodule);
 
 /* D3D11 interface... */
 
+typedef struct MOJOSHADER_d3d11Context MOJOSHADER_d3d11Context;
 typedef struct MOJOSHADER_d3d11Shader MOJOSHADER_d3d11Shader;
 
 /*
@@ -3916,9 +3890,11 @@ typedef struct MOJOSHADER_d3d11Shader MOJOSHADER_d3d11Shader;
  *  context from multiple threads, you must protect this call with whatever
  *  thread synchronization technique you have for your other D3D calls.
  */
-DECLSPEC int MOJOSHADER_d3d11CreateContext(void *device, void *deviceContext,
-                                           MOJOSHADER_malloc m, MOJOSHADER_free f,
-                                           void *malloc_d);
+DECLSPEC MOJOSHADER_d3d11Context *MOJOSHADER_d3d11CreateContext(void *device,
+                                                                void *deviceContext,
+                                                                MOJOSHADER_malloc m,
+                                                                MOJOSHADER_free f,
+                                                                void *malloc_d);
 
 /*
  * Get any error state we might have picked up, such as failed shader
@@ -3936,7 +3912,7 @@ DECLSPEC int MOJOSHADER_d3d11CreateContext(void *device, void *deviceContext,
  *  buffer. Do not keep the pointer around, either, as it's likely to become
  *  invalid as soon as you call into MojoShader again.
  */
-DECLSPEC const char *MOJOSHADER_d3d11GetError(void);
+DECLSPEC const char *MOJOSHADER_d3d11GetError(MOJOSHADER_d3d11Context *context);
 
 /*
  * Compile a buffer of Direct3D 9 shader bytecode into a Direct3D 11 shader.
@@ -3954,7 +3930,8 @@ DECLSPEC const char *MOJOSHADER_d3d11GetError(void);
  *  context from multiple threads, you must protect this call with whatever
  *  thread synchronization technique you have for your other D3D calls.
  */
-DECLSPEC MOJOSHADER_d3d11Shader *MOJOSHADER_d3d11CompileShader(const char *mainfn,
+DECLSPEC MOJOSHADER_d3d11Shader *MOJOSHADER_d3d11CompileShader(MOJOSHADER_d3d11Context *context,
+                                                               const char *mainfn,
                                                                const unsigned char *tokenbuf,
                                                                const unsigned int bufsize,
                                                                const MOJOSHADER_swizzle *swiz,
@@ -3990,7 +3967,8 @@ DECLSPEC const MOJOSHADER_parseData *MOJOSHADER_d3d11GetShaderParseData(
  *  context from multiple threads, you must protect this call with whatever
  *  thread synchronization technique you have for your other D3D calls.
  */
-DECLSPEC void MOJOSHADER_d3d11BindShaders(MOJOSHADER_d3d11Shader *vshader,
+DECLSPEC void MOJOSHADER_d3d11BindShaders(MOJOSHADER_d3d11Context *context,
+                                          MOJOSHADER_d3d11Shader *vshader,
                                           MOJOSHADER_d3d11Shader *pshader);
 
 /*
@@ -4003,7 +3981,8 @@ DECLSPEC void MOJOSHADER_d3d11BindShaders(MOJOSHADER_d3d11Shader *vshader,
  *  context from multiple threads, you must protect this call with whatever
  *  thread synchronization technique you have for your other D3D calls.
  */
-DECLSPEC void MOJOSHADER_d3d11GetBoundShaders(MOJOSHADER_d3d11Shader **vshader,
+DECLSPEC void MOJOSHADER_d3d11GetBoundShaders(MOJOSHADER_d3d11Context *context,
+                                              MOJOSHADER_d3d11Shader **vshader,
                                               MOJOSHADER_d3d11Shader **pshader);
 
 /*
@@ -4017,7 +3996,8 @@ DECLSPEC void MOJOSHADER_d3d11GetBoundShaders(MOJOSHADER_d3d11Shader **vshader,
  *  context from multiple threads, you must protect this call with whatever
  *  thread synchronization technique you have for your other D3D calls.
  */
-DECLSPEC void MOJOSHADER_d3d11MapUniformBufferMemory(float **vsf, int **vsi, unsigned char **vsb,
+DECLSPEC void MOJOSHADER_d3d11MapUniformBufferMemory(MOJOSHADER_d3d11Context *context,
+                                                     float **vsf, int **vsi, unsigned char **vsb,
                                                      float **psf, int **psi, unsigned char **psb);
 
 /*
@@ -4028,7 +4008,7 @@ DECLSPEC void MOJOSHADER_d3d11MapUniformBufferMemory(float **vsf, int **vsi, uns
  *  context from multiple threads, you must protect this call with whatever
  *  thread synchronization technique you have for your other D3D calls.
  */
-DECLSPEC void MOJOSHADER_d3d11UnmapUniformBufferMemory();
+DECLSPEC void MOJOSHADER_d3d11UnmapUniformBufferMemory(MOJOSHADER_d3d11Context *context);
 
 /*
  * Return the location of a vertex attribute for the given vertex shader.
@@ -4057,7 +4037,8 @@ DECLSPEC int MOJOSHADER_d3d11GetVertexAttribLocation(MOJOSHADER_d3d11Shader *ver
  *  context from multiple threads, you must protect this call with whatever
  *  thread synchronization technique you have for your other D3D calls.
  */
-DECLSPEC void MOJOSHADER_d3d11CompileVertexShader(unsigned long long inputLayoutHash,
+DECLSPEC void MOJOSHADER_d3d11CompileVertexShader(MOJOSHADER_d3d11Context *ctx,
+                                                  unsigned long long inputLayoutHash,
                                                   void *elements, int elementCount,
                                                   void **bytecode, int *bytecodeLength);
 
@@ -4073,7 +4054,8 @@ DECLSPEC void MOJOSHADER_d3d11CompileVertexShader(unsigned long long inputLayout
  *  context from multiple threads, you must protect this call with whatever
  *  thread synchronization technique you have for your other D3D calls.
  */
-DECLSPEC void MOJOSHADER_d3d11ProgramReady(unsigned long long inputLayoutHash);
+DECLSPEC void MOJOSHADER_d3d11ProgramReady(MOJOSHADER_d3d11Context *context,
+                                           unsigned long long inputLayoutHash);
 
 /*
  * Free the resources of a compiled shader. This will delete the shader object
@@ -4083,7 +4065,8 @@ DECLSPEC void MOJOSHADER_d3d11ProgramReady(unsigned long long inputLayoutHash);
  *  context from multiple threads, you must protect this call with whatever
  *  thread synchronization technique you have for your other D3D calls.
  */
-DECLSPEC void MOJOSHADER_d3d11DeleteShader(MOJOSHADER_d3d11Shader *shader);
+DECLSPEC void MOJOSHADER_d3d11DeleteShader(MOJOSHADER_d3d11Context *context,
+                                           MOJOSHADER_d3d11Shader *shader);
 
 /*
  * Deinitialize MojoShader's D3D11 shader management.
@@ -4093,7 +4076,7 @@ DECLSPEC void MOJOSHADER_d3d11DeleteShader(MOJOSHADER_d3d11Shader *shader);
  * This will NOT clean up shaders you created! Please destroy all shaders
  *  before calling this function.
  */
-DECLSPEC void MOJOSHADER_d3d11DestroyContext(void);
+DECLSPEC void MOJOSHADER_d3d11DestroyContext(MOJOSHADER_d3d11Context *context);
 
 
 /* Effects interface... */

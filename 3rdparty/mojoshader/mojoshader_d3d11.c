@@ -10,6 +10,7 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN 1
 #include <windows.h> // Include this early to avoid SDL conflicts
+#endif
 
 #define __MOJOSHADER_INTERNAL__ 1
 #include "mojoshader_internal.h"
@@ -26,6 +27,18 @@
 #endif
 #if WINAPI_FAMILY_WINRT
 #include <d3dcompiler.h>
+#elif defined(_WIN32)
+#define LOAD_D3DCOMPILER LoadLibrary("d3dcompiler_47.dll")
+#define UNLOAD_D3DCOMPILER(d) FreeLibrary(d)
+#define LOAD_D3DCOMPILE(d) GetProcAddress(d, "D3DCompile")
+#else
+#if defined(__APPLE__)
+#define LOAD_D3DCOMPILER dlopen("libd3dcompiler.dylib", RTLD_NOW|RTLD_LOCAL)
+#else
+#define LOAD_D3DCOMPILER dlopen("libd3dcompiler.so", RTLD_NOW|RTLD_LOCAL)
+#endif
+#define UNLOAD_D3DCOMPILER(d) dlclose(d)
+#define LOAD_D3DCOMPILE(d) dlsym(d, "D3DCompile")
 #endif
 
 // D3DCompile optimization can be overzealous and cause very visible bugs,
@@ -134,8 +147,6 @@ typedef struct MOJOSHADER_d3d11Context
 #endif
 } MOJOSHADER_d3d11Context;
 
-static MOJOSHADER_d3d11Context *ctx = NULL;
-
 /* Uniform buffer utilities */
 
 static inline int next_highest_alignment(int n)
@@ -149,8 +160,10 @@ static inline void *get_uniform_buffer(MOJOSHADER_d3d11Shader *shader)
     return (shader == NULL || shader->ubo == NULL) ? NULL : shader->ubo;
 } // get_uniform_buffer
 
-static void update_uniform_buffer(MOJOSHADER_d3d11Shader *shader)
-{
+static void update_uniform_buffer(
+    MOJOSHADER_d3d11Context *ctx,
+    MOJOSHADER_d3d11Shader *shader
+) {
     int i, j;
     float *regF; int *regI; uint8 *regB;
     int needsUpdate;
@@ -256,8 +269,10 @@ static void update_uniform_buffer(MOJOSHADER_d3d11Shader *shader)
     } // if
 } // update_uniform_buffer
 
-static inline void expand_map(MOJOSHADER_d3d11Shader *shader)
-{
+static inline void expand_map(
+    MOJOSHADER_d3d11Context *ctx,
+    MOJOSHADER_d3d11Shader *shader
+) {
     if (shader->numMaps == shader->mapCapacity)
     {
         d3d11ShaderMap *newMap = (d3d11ShaderMap *) ctx->malloc_fn(
@@ -304,10 +319,13 @@ static inline int element_is_int(DXGI_FORMAT format)
 
 /* Shader Compilation Utilities */
 
-static ID3D11VertexShader *compileVertexShader(MOJOSHADER_d3d11Shader *shader,
-                                               const char *src, int src_len,
-                                               ID3D10Blob **blob)
-{
+static ID3D11VertexShader *compileVertexShader(
+    MOJOSHADER_d3d11Context *ctx,
+    MOJOSHADER_d3d11Shader *shader,
+    const char *src,
+    int src_len,
+    ID3D10Blob **blob
+) {
     const MOJOSHADER_parseData *pd = shader->parseData;
     HRESULT result = ctx->D3DCompileFunc(src, src_len, pd->mainfn,
                                          NULL, NULL, pd->mainfn, "vs_4_0",
@@ -328,9 +346,12 @@ static ID3D11VertexShader *compileVertexShader(MOJOSHADER_d3d11Shader *shader,
     return ret;
 } // compileVertexShader
 
-static void replaceVarname(const char *find, const char *replace,
-                           const char **source)
-{
+static void replaceVarname(
+    MOJOSHADER_d3d11Context *ctx,
+    const char *find,
+    const char *replace,
+    const char **source
+) {
     const char *srcbuf = *source;
     size_t find_len = strlen(find);
     size_t replace_len = strlen(replace);
@@ -406,9 +427,11 @@ static void replaceVarname(const char *find, const char *replace,
     *source = newbuf;
 } // replaceVarname
 
-static char *rewritePixelShader(MOJOSHADER_d3d11Shader *vshader,
-                                MOJOSHADER_d3d11Shader *pshader)
-{
+static char *rewritePixelShader(
+    MOJOSHADER_d3d11Context *ctx,
+    MOJOSHADER_d3d11Shader *vshader,
+    MOJOSHADER_d3d11Shader *pshader
+) {
     const MOJOSHADER_parseData *vpd = vshader->parseData;
     const MOJOSHADER_parseData *ppd = pshader->parseData;
     const char *_Output = "_Output" ENDLINE_STR "{" ENDLINE_STR;
@@ -452,29 +475,40 @@ static char *rewritePixelShader(MOJOSHADER_d3d11Shader *vshader,
     const char *pvarname, *vvarname;
     for (i = 0; i < ppd->attribute_count; i++)
     {
+        int found_matching_vs_output_for_ps_input = 0;
         for (j = 0; j < vpd->output_count; j++)
         {
             if (ppd->attributes[i].usage == vpd->outputs[j].usage &&
                 ppd->attributes[i].index == vpd->outputs[j].index)
             {
+                found_matching_vs_output_for_ps_input = 1;
                 pvarname = ppd->attributes[i].name;
                 vvarname = vpd->outputs[j].name;
                 if (strcmp(pvarname, vvarname) != 0)
-                    replaceVarname(pvarname, vvarname, &pend);
+                    replaceVarname(ctx, pvarname, vvarname, &pend);
             } // if
             else if (strcmp(ppd->attributes[i].name, "vPos") == 0 &&
                      vpd->outputs[j].usage == MOJOSHADER_USAGE_POSITION &&
                      vpd->outputs[j].index == 0)
             {
+                found_matching_vs_output_for_ps_input = 1;
                 pvarname = ppd->attributes[i].name;
                 vvarname = vpd->outputs[j].name;
                 if (strcmp(pvarname, vvarname) != 0)
-                    replaceVarname(pvarname, vvarname, &pend);
+                    replaceVarname(ctx, pvarname, vvarname, &pend);
             } // else if
         } // for
 
         if (strcmp(ppd->attributes[i].name, "vFace") == 0)
             vfaceidx = i;
+
+        // A vertex shader that doesn't properly initialize all its outputs
+        //  can produce a situation where vpd->outputs is missing a matching
+        //  entry for the PS's inputs, even though fxc will happily compile
+        //  both shaders together as a technique in FX mode
+        // I don't know how to fix this yet, but a workaround is to
+        //  correct your shader to zero-initialize all its outputs -kg
+        assert(found_matching_vs_output_for_ps_input);
     } // for
 
     // Special handling for VFACE
@@ -499,9 +533,11 @@ static char *rewritePixelShader(MOJOSHADER_d3d11Shader *vshader,
     return pfinal;
 } // spliceVertexShaderInput
 
-static ID3D11PixelShader *compilePixelShader(MOJOSHADER_d3d11Shader *vshader,
-                                             MOJOSHADER_d3d11Shader *pshader)
-{
+static ID3D11PixelShader *compilePixelShader(
+    MOJOSHADER_d3d11Context *ctx,
+    MOJOSHADER_d3d11Shader *vshader,
+    MOJOSHADER_d3d11Shader *pshader
+) {
     ID3D11PixelShader *retval = NULL;
     const char *source;
     ID3DBlob *blob;
@@ -510,7 +546,7 @@ static ID3D11PixelShader *compilePixelShader(MOJOSHADER_d3d11Shader *vshader,
 
     if (pshader->parseData->attribute_count > 0)
     {
-        source = rewritePixelShader(vshader, pshader);
+        source = rewritePixelShader(ctx, vshader, pshader);
         needs_free = 1;
     } // if
     else
@@ -544,11 +580,30 @@ static ID3D11PixelShader *compilePixelShader(MOJOSHADER_d3d11Shader *vshader,
 
 /* Public API */
 
-int MOJOSHADER_d3d11CreateContext(void *device, void *deviceContext,
-                                  MOJOSHADER_malloc m, MOJOSHADER_free f,
-                                  void *malloc_d)
-{
-    assert(ctx == NULL);
+MOJOSHADER_d3d11Context* MOJOSHADER_d3d11CreateContext(
+    void *device,
+    void *deviceContext,
+    MOJOSHADER_malloc m,
+    MOJOSHADER_free f,
+    void *malloc_d
+) {
+    MOJOSHADER_d3d11Context *ctx;
+    PFN_D3DCOMPILE compileFunc;
+
+#if WINAPI_FAMILY_WINRT
+    compileFunc = D3DCompile;
+#else
+    HMODULE compileDLL;
+    compileDLL = LOAD_D3DCOMPILER;
+    if (compileDLL == NULL)
+        return NULL;
+    compileFunc = (PFN_D3DCOMPILE) LOAD_D3DCOMPILE(compileDLL);
+    if (compileFunc == NULL)
+    {
+        UNLOAD_D3DCOMPILER(compileDLL);
+        return NULL;
+    } // if
+#endif
 
     if (m == NULL) m = MOJOSHADER_internal_malloc;
     if (f == NULL) f = MOJOSHADER_internal_free;
@@ -569,34 +624,30 @@ int MOJOSHADER_d3d11CreateContext(void *device, void *deviceContext,
     ctx->device = (ID3D11Device*) device;
     ctx->deviceContext = (ID3D11DeviceContext*) deviceContext;
 
-    // Grab the D3DCompile function pointer
-#if WINAPI_FAMILY_WINRT
-    ctx->D3DCompileFunc = D3DCompile;
-#else
-    ctx->d3dcompilerDLL = LoadLibrary("d3dcompiler_47.dll");
-    assert(ctx->d3dcompilerDLL != NULL);
-    ctx->D3DCompileFunc = (PFN_D3DCOMPILE) GetProcAddress(ctx->d3dcompilerDLL,
-                                                          "D3DCompile");
-#endif /* WINAPI_FAMILY_WINRT */
+    // Store the d3dcompiler info
+    ctx->D3DCompileFunc = compileFunc;
+#if !WINAPI_FAMILY_WINRT
+    ctx->d3dcompilerDLL = compileDLL;
+#endif
 
-    return 0;
+    return ctx;
 
 init_fail:
     if (ctx != NULL)
         f(ctx, malloc_d);
-    return -1;
+    return NULL;
 } // MOJOSHADER_d3d11CreateContext
 
-void MOJOSHADER_d3d11DestroyContext(void)
+void MOJOSHADER_d3d11DestroyContext(MOJOSHADER_d3d11Context *ctx)
 {
 #if !WINAPI_FAMILY_WINRT
-    FreeLibrary(ctx->d3dcompilerDLL);
+    UNLOAD_D3DCOMPILER(ctx->d3dcompilerDLL);
 #endif
     ctx->free_fn(ctx, ctx->malloc_data);
-    ctx = NULL;
 } // MOJOSHADER_d3d11DestroyContext
 
-MOJOSHADER_d3d11Shader *MOJOSHADER_d3d11CompileShader(const char *mainfn,
+MOJOSHADER_d3d11Shader *MOJOSHADER_d3d11CompileShader(MOJOSHADER_d3d11Context *ctx,
+                                                      const char *mainfn,
                                                       const unsigned char *tokenbuf,
                                                       const unsigned int bufsize,
                                                       const MOJOSHADER_swizzle *swiz,
@@ -678,8 +729,10 @@ void MOJOSHADER_d3d11ShaderAddRef(MOJOSHADER_d3d11Shader *shader)
         shader->refcount++;
 } // MOJOSHADER_d3d11ShaderAddRef
 
-void MOJOSHADER_d3d11DeleteShader(MOJOSHADER_d3d11Shader *shader)
-{
+void MOJOSHADER_d3d11DeleteShader(
+    MOJOSHADER_d3d11Context *ctx,
+    MOJOSHADER_d3d11Shader *shader
+) {
     if (shader != NULL)
     {
         if (shader->refcount > 1)
@@ -720,9 +773,11 @@ const MOJOSHADER_parseData *MOJOSHADER_d3d11GetShaderParseData(
     return (shader != NULL) ? shader->parseData : NULL;
 } // MOJOSHADER_d3d11GetParseData
 
-void MOJOSHADER_d3d11BindShaders(MOJOSHADER_d3d11Shader *vshader,
-                                 MOJOSHADER_d3d11Shader *pshader)
-{
+void MOJOSHADER_d3d11BindShaders(
+    MOJOSHADER_d3d11Context *ctx,
+    MOJOSHADER_d3d11Shader *vshader,
+    MOJOSHADER_d3d11Shader *pshader
+) {
     // Use the last bound shaders in case of NULL
     if (vshader != NULL)
     {
@@ -737,16 +792,20 @@ void MOJOSHADER_d3d11BindShaders(MOJOSHADER_d3d11Shader *vshader,
     } // if
 } // MOJOSHADER_d3d11BindShaders
 
-void MOJOSHADER_d3d11GetBoundShaders(MOJOSHADER_d3d11Shader **vshader,
-                                     MOJOSHADER_d3d11Shader **pshader)
-{
+void MOJOSHADER_d3d11GetBoundShaders(
+    MOJOSHADER_d3d11Context *ctx,
+    MOJOSHADER_d3d11Shader **vshader,
+    MOJOSHADER_d3d11Shader **pshader
+) {
     *vshader = ctx->vertexShader;
     *pshader = ctx->pixelShader;
 } // MOJOSHADER_d3d11GetBoundShaders
 
-void MOJOSHADER_d3d11MapUniformBufferMemory(float **vsf, int **vsi, unsigned char **vsb,
-                                            float **psf, int **psi, unsigned char **psb)
-{
+void MOJOSHADER_d3d11MapUniformBufferMemory(
+    MOJOSHADER_d3d11Context *ctx,
+    float **vsf, int **vsi, unsigned char **vsb,
+    float **psf, int **psi, unsigned char **psb
+) {
     *vsf = ctx->vs_reg_file_f;
     *vsi = ctx->vs_reg_file_i;
     *vsb = ctx->vs_reg_file_b;
@@ -755,16 +814,16 @@ void MOJOSHADER_d3d11MapUniformBufferMemory(float **vsf, int **vsi, unsigned cha
     *psb = ctx->ps_reg_file_b;
 } // MOJOSHADER_d3d11MapUniformBufferMemory
 
-void MOJOSHADER_d3d11UnmapUniformBufferMemory()
+void MOJOSHADER_d3d11UnmapUniformBufferMemory(MOJOSHADER_d3d11Context *ctx)
 {
     /* This has nothing to do with unmapping memory
      * and everything to do with updating uniform
      * buffers with the latest parameter contents.
      */
     MOJOSHADER_d3d11Shader *vs, *ps;
-    MOJOSHADER_d3d11GetBoundShaders(&vs, &ps);
-    update_uniform_buffer(vs);
-    update_uniform_buffer(ps);
+    MOJOSHADER_d3d11GetBoundShaders(ctx, &vs, &ps);
+    update_uniform_buffer(ctx, vs);
+    update_uniform_buffer(ctx, ps);
 } // MOJOSHADER_d3d11UnmapUniformBufferMemory
 
 int MOJOSHADER_d3d11GetVertexAttribLocation(MOJOSHADER_d3d11Shader *vert,
@@ -786,10 +845,14 @@ int MOJOSHADER_d3d11GetVertexAttribLocation(MOJOSHADER_d3d11Shader *vert,
     return -1;
 } // MOJOSHADER_d3d11GetVertexAttribLocation
 
-void MOJOSHADER_d3d11CompileVertexShader(unsigned long long inputLayoutHash,
-                                         void* elements, int elementCount,
-                                         void **bytecode, int *bytecodeLength)
-{
+void MOJOSHADER_d3d11CompileVertexShader(
+    MOJOSHADER_d3d11Context *ctx,
+    unsigned long long inputLayoutHash,
+    void* elements,
+    int elementCount,
+    void **bytecode,
+    int *bytecodeLength
+) {
     MOJOSHADER_d3d11Shader *vshader = ctx->vertexShader;
     ID3D10Blob *blob;
 
@@ -847,11 +910,11 @@ void MOJOSHADER_d3d11CompileVertexShader(unsigned long long inputLayoutHash,
     } // for
 
     // Expand the map array, if needed
-    expand_map(vshader);
+    expand_map(ctx, vshader);
 
     // Add the new mapping
     vshader->shaderMaps[vshader->numMaps].vertex.layoutHash = inputLayoutHash;
-    ID3D11VertexShader *vs = compileVertexShader(vshader, newSource,
+    ID3D11VertexShader *vs = compileVertexShader(ctx, vshader, newSource,
                                                  srcLength, &blob);
     if (newSource != origSource)
         ctx->free_fn((void *) newSource, ctx->malloc_data);
@@ -865,8 +928,10 @@ void MOJOSHADER_d3d11CompileVertexShader(unsigned long long inputLayoutHash,
     *bytecodeLength = ID3D10Blob_GetBufferSize(blob);
 } // MOJOSHADER_d3d11CompileVertexShader
 
-void MOJOSHADER_d3d11ProgramReady(unsigned long long inputLayoutHash)
-{
+void MOJOSHADER_d3d11ProgramReady(
+    MOJOSHADER_d3d11Context *ctx,
+    unsigned long long inputLayoutHash
+) {
     MOJOSHADER_d3d11Shader *vshader = ctx->vertexShader;
     MOJOSHADER_d3d11Shader *pshader = ctx->pixelShader;
 
@@ -907,11 +972,11 @@ void MOJOSHADER_d3d11ProgramReady(unsigned long long inputLayoutHash)
         if (realPS == NULL)
         {
             // Expand the map array, if needed
-            expand_map(pshader);
+            expand_map(ctx, pshader);
 
             // Add the new mapping
             pshader->shaderMaps[pshader->numMaps].pixel.vshader = vshader;
-            realPS = compilePixelShader(vshader, pshader);
+            realPS = compilePixelShader(ctx, vshader, pshader);
             pshader->shaderMaps[pshader->numMaps].val = realPS;
             pshader->numMaps++;
             assert(realPS != NULL);
@@ -924,12 +989,11 @@ void MOJOSHADER_d3d11ProgramReady(unsigned long long inputLayoutHash)
     } // if
 } // MOJOSHADER_d3d11ProgramReady
 
-const char *MOJOSHADER_d3d11GetError(void)
+const char *MOJOSHADER_d3d11GetError(MOJOSHADER_d3d11Context *ctx)
 {
     return error_buffer;
 } // MOJOSHADER_d3d11GetError
 
 #endif /* SUPPORT_PROFILE_HLSL */
-#endif /* _WIN32 */
 
 // end of mojoshader_d3d11.c ...

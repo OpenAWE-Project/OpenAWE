@@ -1677,6 +1677,7 @@ static void spv_link_ps_attributes(Context *ctx, uint32 id, RegisterType regtype
             break;
         case REG_TYPE_DEPTHOUT:
             spv_output_builtin(ctx, id, SpvBuiltInFragDepth);
+            ctx->spirv.hasdepth = 1;
             break;
         case REG_TYPE_MISCTYPE:
             // inputs
@@ -2611,6 +2612,10 @@ void emit_SPIRV_finalize(Context *ctx)
         // vk semantics = default origin is upper left
         // gl semantics = default origin is lower left
         spv_emit(ctx, 3, SpvOpExecutionMode, ctx->spirv.idmain, SpvExecutionModeOriginUpperLeft);
+
+        // This must be explicitly marked when FragDepth is in use!
+        if (ctx->spirv.hasdepth)
+            spv_emit(ctx, 3, SpvOpExecutionMode, ctx->spirv.idmain, SpvExecutionModeDepthReplacing);
     } // if
 
     pop_output(ctx);

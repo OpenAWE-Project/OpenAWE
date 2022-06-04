@@ -683,13 +683,14 @@ static void readsmallobjects(const uint32 numsmallobjects,
             snprintf(mainfn, sizeof(mainfn), "ShaderFunction%u", (unsigned int) index);
             object->shader.technique = -1;
             object->shader.pass = -1;
-            object->shader.shader = effect->ctx.compileShader(mainfn, *ptr, length,
+            object->shader.shader = effect->ctx.compileShader(effect->ctx.shaderContext,
+                                                              mainfn, *ptr, length,
                                                               swiz, swizcount,
                                                               smap, smapcount);
             if (object->shader.shader == NULL)
             {
                 // Bail ASAP, so we can get the error to the application
-                errorlist_add(errors, NULL, 0, effect->ctx.getError());
+                errorlist_add(errors, NULL, 0, effect->ctx.getError(effect->ctx.shaderContext));
                 return;
             } // if
             pd = effect->ctx.getParseData(object->shader.shader);
@@ -819,13 +820,14 @@ static void readlargeobjects(const uint32 numlargeobjects,
             {
                 char mainfn[32];
                 snprintf(mainfn, sizeof (mainfn), "ShaderFunction%u", (unsigned int) objectIndex);
-                object->shader.shader = effect->ctx.compileShader(mainfn, *ptr, length,
+                object->shader.shader = effect->ctx.compileShader(effect->ctx.shaderContext,
+                                                                  mainfn, *ptr, length,
                                                                   swiz, swizcount,
                                                                   smap, smapcount);
                 if (object->shader.shader == NULL)
                 {
                     // Bail ASAP, so we can get the error to the application
-                    errorlist_add(errors, NULL, 0, effect->ctx.getError());
+                    errorlist_add(errors, NULL, 0, effect->ctx.getError(effect->ctx.shaderContext));
                     return;
                 } // if
                 pd = effect->ctx.getParseData(object->shader.shader);
@@ -1149,7 +1151,7 @@ void MOJOSHADER_deleteEffect(const MOJOSHADER_effect *_effect)
             if (object->shader.is_preshader)
                 MOJOSHADER_freePreshader(object->shader.preshader);
             else
-                effect->ctx.deleteShader(object->shader.shader);
+                effect->ctx.deleteShader(effect->ctx.shaderContext, object->shader.shader);
             f((void *) object->shader.params, d);
             f((void *) object->shader.samplers, d);
             f((void *) object->shader.preshader_params, d);
@@ -1677,7 +1679,8 @@ void MOJOSHADER_effectBegin(MOJOSHADER_effect *effect,
 
     if (effect->restore_shader_state)
     {
-        effect->ctx.getBoundShaders(&effect->prev_vertex_shader,
+        effect->ctx.getBoundShaders(effect->ctx.shaderContext,
+                                    &effect->prev_vertex_shader,
                                     &effect->prev_pixel_shader);
     } // if
 } // MOJOSHADER_effectBegin
@@ -1693,7 +1696,8 @@ void MOJOSHADER_effectBeginPass(MOJOSHADER_effect *effect,
     MOJOSHADER_effectShader *rawPixl = effect->current_pixl_raw;
     int has_preshader = 0;
 
-    effect->ctx.getBoundShaders(&effect->current_vert,
+    effect->ctx.getBoundShaders(effect->ctx.shaderContext,
+                                &effect->current_vert,
                                 &effect->current_pixl);
 
     assert(effect->current_pass == -1);
@@ -1734,7 +1738,8 @@ void MOJOSHADER_effectBeginPass(MOJOSHADER_effect *effect,
      */
     if (!has_preshader)
     {
-        effect->ctx.bindShaders(effect->current_vert,
+        effect->ctx.bindShaders(effect->ctx.shaderContext,
+                                effect->current_vert,
                                 effect->current_pixl);
         if (effect->current_vert_raw != NULL)
         {
@@ -1858,7 +1863,8 @@ void MOJOSHADER_effectCommitChanges(MOJOSHADER_effect *effect)
     #undef SELECT_SHADER_FROM_PRESHADER
     if (selector_ran)
     {
-        effect->ctx.bindShaders(effect->current_vert,
+        effect->ctx.bindShaders(effect->ctx.shaderContext,
+                                effect->current_vert,
                                 effect->current_pixl);
         if (effect->current_vert_raw != NULL)
         {
@@ -1901,11 +1907,12 @@ void MOJOSHADER_effectCommitChanges(MOJOSHADER_effect *effect)
                 MOJOSHADER_runPreshader(pd->preshader, stage##_reg_file_f); \
             } \
         }
-    effect->ctx.mapUniformBufferMemory(&vs_reg_file_f, &vs_reg_file_i, &vs_reg_file_b,
+    effect->ctx.mapUniformBufferMemory(effect->ctx.shaderContext,
+                                       &vs_reg_file_f, &vs_reg_file_i, &vs_reg_file_b,
                                        &ps_reg_file_f, &ps_reg_file_i, &ps_reg_file_b);
     COPY_PARAMETER_DATA(rawVert, vs)
     COPY_PARAMETER_DATA(rawPixl, ps)
-    effect->ctx.unmapUniformBufferMemory();
+    effect->ctx.unmapUniformBufferMemory(effect->ctx.shaderContext);
     #undef COPY_PARAMETER_DATA
 } // MOJOSHADER_effectCommitChanges
 
@@ -1922,7 +1929,8 @@ void MOJOSHADER_effectEnd(MOJOSHADER_effect *effect)
     if (effect->restore_shader_state)
     {
         effect->restore_shader_state = 0;
-        effect->ctx.bindShaders(effect->prev_vertex_shader,
+        effect->ctx.bindShaders(effect->ctx.shaderContext,
+                                effect->prev_vertex_shader,
                                 effect->prev_pixel_shader);
     } // if
 

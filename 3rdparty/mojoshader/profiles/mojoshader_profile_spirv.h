@@ -166,6 +166,7 @@ typedef struct SpirvContext
     uint32 id_vs_main_end;
 #endif // SUPPORT_PROFILE_GLSPIRV
     SpirvMode mode;
+    uint32 hasdepth;
     // ext. glsl instructions have been imported
     uint32 idext;
     uint32 idmax;

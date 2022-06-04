@@ -480,6 +480,7 @@ typedef struct MOJOSHADER_effectStateChanges
  */
 
 typedef void* (MOJOSHADERCALL * MOJOSHADER_compileShaderFunc)(
+    const void *ctx,
     const char *mainfn,
     const unsigned char *tokenbuf,
     const unsigned int bufsize,
@@ -489,24 +490,34 @@ typedef void* (MOJOSHADERCALL * MOJOSHADER_compileShaderFunc)(
     const unsigned int smapcount
 );
 typedef void (MOJOSHADERCALL * MOJOSHADER_shaderAddRefFunc)(void* shader);
-typedef void (MOJOSHADERCALL * MOJOSHADER_deleteShaderFunc)(void* shader);
+typedef void (MOJOSHADERCALL * MOJOSHADER_deleteShaderFunc)(
+    const void *ctx,
+    void* shader
+);
 typedef MOJOSHADER_parseData* (MOJOSHADERCALL * MOJOSHADER_getParseDataFunc)(
     void *shader
 );
 typedef void (MOJOSHADERCALL * MOJOSHADER_bindShadersFunc)(
+    const void *ctx,
     void *vshader,
     void *pshader
 );
 typedef void (MOJOSHADERCALL * MOJOSHADER_getBoundShadersFunc)(
+    const void *ctx,
     void **vshader,
     void **pshader
 );
 typedef void (MOJOSHADERCALL * MOJOSHADER_mapUniformBufferMemoryFunc)(
+    const void *ctx,
     float **vsf, int **vsi, unsigned char **vsb,
     float **psf, int **psi, unsigned char **psb
 );
-typedef void (MOJOSHADERCALL * MOJOSHADER_unmapUniformBufferMemoryFunc)();
-typedef const char* (MOJOSHADERCALL * MOJOSHADER_getErrorFunc)();
+typedef void (MOJOSHADERCALL * MOJOSHADER_unmapUniformBufferMemoryFunc)(
+    const void *ctx
+);
+typedef const char* (MOJOSHADERCALL * MOJOSHADER_getErrorFunc)(
+    const void *ctx
+);
 
 typedef struct MOJOSHADER_effectShaderContext
 {
@@ -520,6 +531,9 @@ typedef struct MOJOSHADER_effectShaderContext
     MOJOSHADER_mapUniformBufferMemoryFunc mapUniformBufferMemory;
     MOJOSHADER_unmapUniformBufferMemoryFunc unmapUniformBufferMemory;
     MOJOSHADER_getErrorFunc getError;
+
+    /* Shader context */
+    const void *shaderContext;
 
     /* Allocator */
     MOJOSHADER_malloc m;

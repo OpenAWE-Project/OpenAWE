@@ -139,6 +139,10 @@ add_library(mojoshader ${MOJOSHADER_SOURCE_FILES})
 target_include_directories(mojoshader PUBLIC 3rdparty/mojoshader)
 set(MOJOSHADER_LIBRARIES mojoshader)
 set(MOJOSHADER_INCLUDE_DIRS 3rdparty/mojoshader)
+add_definitions(-DMOJOSHADER_NO_VERSION_INCLUDE)
+add_definitions(-DSUPPORT_PROFILE_HLSL=0)
+add_definitions(-DSUPPORT_PROFILE_SPIRV=0)
+add_definitions(-DSUPPORT_PROFILE_GLSPIRV=0)
 
 # ------------------------------------
 # Dependencies

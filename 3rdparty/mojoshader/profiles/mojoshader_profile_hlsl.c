@@ -1048,23 +1048,31 @@ void emit_HLSL_attribute(Context *ctx, RegisterType regtype, int regnum,
 
             else
             {
-                if (usage == MOJOSHADER_USAGE_TEXCOORD)
+                switch (usage)
                 {
-                    // ps_1_1 does a different hack for this attribute.
-                    //  Refer to emit_HLSL_global()'s REG_TYPE_ADDRESS code.
-                    if (!shader_version_atleast(ctx, 1, 4))
-                        skipreference = 1;
-                    output_line(ctx, "float4 m_%s : TEXCOORD%d;", var, index);
-                } // if
-
-                else if (usage == MOJOSHADER_USAGE_COLOR)
-                    output_line(ctx, "float4 m_%s : COLOR%d;", var, index);
-
-                else if (usage == MOJOSHADER_USAGE_FOG)
-                    output_line(ctx, "float m_%s : FOG;", var);
-
-                else if (usage == MOJOSHADER_USAGE_NORMAL)
-                    output_line(ctx, "float4 m_%s : NORMAL;", var);
+                    case MOJOSHADER_USAGE_TEXCOORD:
+                        // ps_1_1 does a different hack for this attribute.
+                        //  Refer to emit_HLSL_global()'s REG_TYPE_ADDRESS code.
+                        if (!shader_version_atleast(ctx, 1, 4))
+                            skipreference = 1;
+                        output_line(ctx, "float4 m_%s : TEXCOORD%d;", var, index);
+                        break;
+                    case MOJOSHADER_USAGE_COLOR:
+                        output_line(ctx, "float4 m_%s : COLOR%d;", var, index);
+                        break;
+                    case MOJOSHADER_USAGE_FOG:
+                        output_line(ctx, "float m_%s : FOG;", var);
+                        break;
+                    case MOJOSHADER_USAGE_NORMAL:
+                        output_line(ctx, "float4 m_%s : NORMAL;", var);
+                        break;
+                    case MOJOSHADER_USAGE_POSITION:
+                        output_line(ctx, "float4 m_%s : POSITION%d;", var, index);
+                        break;
+                    default:
+                        fail(ctx, "BUG: unhandled pixel shader input");
+                        break;
+                } // switch
             } // else
 
             pop_output(ctx);
