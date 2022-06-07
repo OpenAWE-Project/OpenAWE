@@ -185,7 +185,7 @@ Shape generateCone(float radius, float height, unsigned int resolution) {
 	// Generate base vertices
 	for (int i = 0; i < resolution; ++i) {
 		const float ratio = static_cast<float>(i) / static_cast<float>(resolution);
-		const float r = ratio * (M_PIf * 2.0f);
+		const float r = ratio * (M_PI * 2.0f);
 		const float x = std::cos(r) * radius;
 		const float y = std::sin(r) * radius;
 		coneShape.positions.emplace_back(x, y, 0.0f);
