@@ -25,12 +25,12 @@
 #include "src/common/shape.h"
 
 TEST(Shape, generateIcoSphere) {
-	const Common::Shape icoSphereß = Common::generateIcoSphere(5.0, 0);
+	const Common::Shape icoSphere0 = Common::generateIcoSphere(5.0, 0);
 	const Common::Shape icoSphere1 = Common::generateIcoSphere(1.0, 1);
 	const Common::Shape icoSphere2 = Common::generateIcoSphere(3.0, 2);
 
-	EXPECT_EQ(icoSphereß.positions.size(), 12);
-	EXPECT_EQ(icoSphereß.indices.size(), 60);
+	EXPECT_EQ(icoSphere0.positions.size(), 12);
+	EXPECT_EQ(icoSphere0.indices.size(), 60);
 
 	EXPECT_EQ(icoSphere1.positions.size(), 42);
 	EXPECT_EQ(icoSphere1.indices.size(), 240);
@@ -38,7 +38,7 @@ TEST(Shape, generateIcoSphere) {
 	EXPECT_EQ(icoSphere2.positions.size(), 162);
 	EXPECT_EQ(icoSphere2.indices.size(), 960);
 
-	for (const auto &position: icoSphereß.positions) {
+	for (const auto &position: icoSphere0.positions) {
 		EXPECT_NEAR(glm::length(position), 5.0, 0.0001);
 	}
 
@@ -50,8 +50,8 @@ TEST(Shape, generateIcoSphere) {
 		EXPECT_NEAR(glm::length(position), 3.0, 0.0001);
 	}
 
-	for (int i = 0; i < icoSphereß.positions.size(); ++i) {
-		EXPECT_EQ(std::count(icoSphereß.indices.begin(), icoSphereß.indices.end(), i), 5);
+	for (int i = 0; i < icoSphere0.positions.size(); ++i) {
+		EXPECT_EQ(std::count(icoSphere0.indices.begin(), icoSphere0.indices.end(), i), 5);
 	}
 
 	for (int i = 0; i < icoSphere1.positions.size(); ++i) {
