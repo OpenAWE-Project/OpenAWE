@@ -123,6 +123,11 @@ if (HAS_BYTESWAP_UINT64)
     add_definitions(-DHAS_BYTESWAP_UINT64)
 endif ()
 
+# MSVC needs _USE_MATH_DEFINES defined to use c++ math constants like M_PI
+if (MSVC)
+    add_definitions(-D_USE_MATH_DEFINES)
+endif ()
+
 # ------------------------------------
 # Third party libraries
 
