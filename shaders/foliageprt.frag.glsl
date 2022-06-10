@@ -25,7 +25,7 @@ uniform vec4 g_vColorMultiplier = vec4(1.0);
 
 in vec2 pass_UV;
 
-layout(location = 0) out vec4 out_Color;
+out vec4 out_Color;
 
 void main() {
     out_Color = texture(g_sColorMap, pass_UV) * g_vColorMultiplier;
