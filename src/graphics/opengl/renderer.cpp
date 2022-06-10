@@ -67,21 +67,28 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 	spdlog::info("GLSL Version: {}", glGetString(GL_SHADING_LANGUAGE_VERSION));
 	assert(glGetError() == GL_NO_ERROR);
 
-	GLint maxTextureUnits, maxTextureCoords, maxVertexAttribs, maxUniformLocations, maxPatchVertices, maxVertexUniformComponents, maxFragmentUniformComponents;
+	GLint maxTextureUnits, maxTextureCoords, maxVertexAttribs, maxUniformLocations, maxVertexUniformComponents, maxFragmentUniformComponents;
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
 	glGetIntegerv(GL_MAX_TEXTURE_COORDS, &maxTextureCoords);
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
 	glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &maxUniformLocations);
-	glGetIntegerv(GL_MAX_PATCH_VERTICES, &maxPatchVertices);
 	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &maxVertexUniformComponents);
 	glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &maxFragmentUniformComponents);
 	spdlog::info("OpenGL Max Texture Units: {}", maxTextureUnits);
 	spdlog::info("OpenGL Max Texture Coordinates: {}", maxTextureCoords);
 	spdlog::info("OpenGL Max Vertex Attributes: {}", maxVertexAttribs);
 	spdlog::info("OpenGL Max Uniform Attributes: {}", maxVertexAttribs);
-	spdlog::info("OpenGL Max Patch Vertices: {}", maxPatchVertices);
 	spdlog::info("OpenGL Max Vertex Uniform Components: {}", maxVertexUniformComponents);
 	spdlog::info("OpenGL Max Fragment Uniform Components: {}", maxFragmentUniformComponents);
+
+	if (GLEW_ARB_tessellation_shader) {
+		GLint maxPatchVertices;
+		glGetIntegerv(GL_MAX_PATCH_VERTICES, &maxPatchVertices);
+		spdlog::info("OpenGL Max Patch Vertices: {}", maxPatchVertices);
+		if (maxPatchVertices < 4) {
+			throw CreateException("Not enough patch vertices available. Expected 4, got {}", maxPatchVertices);
+		}
+	}
 
 	GLint numExtensions;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
@@ -95,10 +102,6 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 
 	if (!GLEW_EXT_texture_compression_s3tc) {
 		throw std::runtime_error("No S3TC extension available");
-	}
-
-	if (maxPatchVertices < 4) {
-		throw std::runtime_error("Not enough patch vertices available");
 	}
 
 	// Make some initial settings
