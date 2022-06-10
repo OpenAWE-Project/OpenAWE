@@ -151,9 +151,6 @@ add_definitions(-DSUPPORT_PROFILE_GLSPIRV=0)
 
 # ------------------------------------
 # Dependencies
-if(UNIX AND NOT OpenGL_GL_PREFERENCE)
-    set(OpenGL_GL_PREFERENCE GLVND)
-endif()
 
 # PkgConfig is used as an alternative if packages are not found.
 find_package(PkgConfig)
