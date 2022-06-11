@@ -364,7 +364,7 @@ void ObjectStream::pointLight(Templates::PointLight &pointLight, unsigned int ve
 	variable("gid", pointLight.gid);
 
 	if (version == 13) {
-		variable("gid2", pointLight.gid);
+		variable("gid2", pointLight.gid2);
 
 		variable("rotation", pointLight.rotation);
 		variable("position", pointLight.position);
