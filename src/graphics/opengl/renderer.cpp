@@ -53,7 +53,7 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 	_window.makeCurrent();
 
 	// Initialize GLEW
-	glewExperimental = true;
+	glewExperimental = false; // TODO: Make a config argument out of it
 	GLenum result = glewInit();
 	if (result != GLEW_OK)
 		throw std::runtime_error(reinterpret_cast<const char *>(glewGetErrorString(result)));
