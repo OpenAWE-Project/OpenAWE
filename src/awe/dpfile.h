@@ -69,6 +69,7 @@ public:
 	std::vector<uint32_t> getValues(uint32_t offset, unsigned int count);
 	std::vector<float> getFloats(uint32_t offset, unsigned int count);
 	std::vector<glm::vec2> getPositions2D(uint32_t offset, unsigned int count);
+	std::vector<GID> getGIDs(uint32_t offset, unsigned int count);
 	std::vector<ScriptMetadata> getScriptMetadata(uint32_t offset, unsigned int count);
 	std::vector<ScriptSignal> getScriptSignals(uint32_t offset, unsigned int count);
 	std::vector<ScriptDebugEntry> getScriptDebugEntries(uint32_t offset, unsigned int count);

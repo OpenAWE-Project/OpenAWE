@@ -150,6 +150,25 @@ std::vector<glm::vec2> DPFile::getPositions2D(uint32_t offset, unsigned int coun
 	return positions;
 }
 
+std::vector<GID> DPFile::getGIDs(uint32_t offset, unsigned int count) {
+	std::vector<GID> gids(count);
+
+	bool overlap = (offset & 0x80u) != 0;
+	uint32_t relativeOffset = (offset >> 8u) * 8;
+	if (overlap)
+		relativeOffset += 4;
+
+	_dp->seek(-static_cast<int>(_dataSize) + static_cast<int>(relativeOffset), Common::ReadStream::END);
+	for (auto &gid: gids) {
+		size_t pos = _dp->pos();
+		gid.type = _dp->readUint32LE();
+		gid.id = _dp->readUint32BE();
+		_dp->skip(8); // Always 0? Maybe aligning?
+	}
+
+	return gids;
+}
+
 std::vector<DPFile::ScriptMetadata> DPFile::getScriptMetadata(uint32_t offset, unsigned int count) {
 	std::vector<ScriptMetadata> metadata(count);
 
