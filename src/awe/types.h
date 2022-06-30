@@ -53,10 +53,11 @@ struct GID {
 };
 
 enum ObjectIDType {
-	kAnimationID         = 34,
-	kKeyframerID         = 123,
-	kKeyframeAnimationID = 125,
-	kKeyframeID          = 126,
+	kAnimationID           = 34,
+	kKeyframerID           = 123,
+	kKeyframeAnimationID   = 125,
+	kKeyframeID            = 126,
+	kAttachmentContainerID = 164,
 };
 
 class ObjectID {
