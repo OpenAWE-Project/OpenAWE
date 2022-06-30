@@ -18,12 +18,17 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "framebuffer.h"
+#include "src/common/exception.h"
+
+#include "src/graphics/opengl/framebuffer.h"
 
 namespace Graphics::OpenGL {
 
 Framebuffer::Framebuffer() {
 	glGenFramebuffers(1, &_id);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		throw CreateException("Failed to initialize framebuffer");
 }
 
 Framebuffer::~Framebuffer() {
@@ -39,6 +44,10 @@ void Framebuffer::attachTexture(const Texture &texture, GLenum attachmentType) {
 			texture._id,
 			0
 	);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		throw CreateException("Failed to attach framebuffer to texture");
+
 	_attachments.emplace_back(attachmentType);
 }
 
@@ -49,6 +58,9 @@ void Framebuffer::attachRenderBuffer(GLsizei width, GLsizei height, GLenum forma
 
 	glRenderbufferStorage(GL_RENDERBUFFER, format, width, height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentType, GL_RENDERBUFFER, rbo);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		throw CreateException("Failed to attach renderbuffer tot exture");
 }
 
 void Framebuffer::bind() {
