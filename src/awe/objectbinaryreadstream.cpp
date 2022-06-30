@@ -146,6 +146,12 @@ void ObjectBinaryReadStream::variable(const std::string &name, std::vector<Objec
 	std::copy(values.begin(), values.end(), std::back_inserter(value));
 }
 
+void ObjectBinaryReadStream::variable(const std::string &name, std::vector<GID> &value) {
+	uint32_t count = _stream.readUint32LE();
+	uint32_t offset = _stream.readUint32LE();
+	value = _dp->getGIDs(offset, count);
+}
+
 void ObjectBinaryReadStream::variable(const std::string &name, std::vector<std::string> &value) {
 	uint32_t count = _stream.readUint32LE();
 	value.resize(count);

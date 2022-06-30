@@ -53,6 +53,8 @@ protected:
 	void variable(const std::string &name, std::vector<glm::vec2> &value) override;
 	void variable(const std::string &name, std::vector<float> &value) override;
 	void variable(const std::string &name, std::vector<ObjectID> &value) override;
+	void variable(const std::string &name, std::vector<GID> &value) override;
+
 	void variable(const std::string &name, std::vector<std::string> &value) override;
 	void variable(const std::string &name, std::vector<std::string> &value, size_t fixedSize) override;
 

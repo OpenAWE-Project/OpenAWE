@@ -221,6 +221,22 @@ void ObjectXMLWriteStream::variable(const std::string &name, std::vector<ObjectI
 	}
 }
 
+void ObjectXMLWriteStream::variable(const std::string &name, std::vector<GID> &value) {
+	Common::XML::Node &currentObjectNode = _objectNode.top();
+	auto &newVariableNode = currentObjectNode.addNewNode("variable");
+	newVariableNode.properties["name"] = name;
+
+	for (const auto &gid: value) {
+		auto &itemNode = newVariableNode.addNewNode("item");
+
+		auto &typeNode = itemNode.addNewNode("type");
+		typeNode.content = std::to_string(gid.type);
+
+		auto &idNode = itemNode.addNewNode("id");
+		idNode.content = fmt::format("{:x}", gid.id);
+	}
+}
+
 void ObjectXMLWriteStream::variable(const std::string &name, std::vector<std::string> &value) {
 	Common::XML::Node &currentObjectNode = _objectNode.top();
 	auto &newVariableNode = currentObjectNode.addNewNode("variable");
