@@ -50,6 +50,7 @@ static constexpr uint32_t kCid_KeyframeAnimation   = Common::crc32("cid_keyframe
 static constexpr uint32_t kCid_Keyframe            = Common::crc32("cid_keyframe");
 static constexpr uint32_t kCid_Sound               = Common::crc32("cid_sound");
 static constexpr uint32_t kCid_GameEvent           = Common::crc32("cid_game_event");
+static constexpr uint32_t kCid_AttachmentContainer = Common::crc32("cid_attachmentcontainer");
 
 static constexpr uint32_t kCid_ScriptInstanceScript  = Common::crc32("cid_scriptinstancescript");
 static constexpr uint32_t kCid_AmbientLightScript    = Common::crc32("cid_ambientlightscript");
@@ -92,6 +93,7 @@ ObjectType determineObjectTypeByFilename(const std::string &fileName) {
 		case kCid_Keyframe:            return kKeyframe;
 		case kCid_Sound:               return kSound;
 		case kCid_GameEvent:           return kGameEvent;
+		case kCid_AttachmentContainer: return kAttachmentContainer;
 
 		case kCid_ScriptInstanceScript:
 		case kCid_AmbientLightScript:
