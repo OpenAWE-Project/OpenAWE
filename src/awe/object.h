@@ -92,6 +92,18 @@ struct DynamicObject {
 	std::string identifier;
 };
 
+struct AttachmentContainer {
+	std::vector<GID> spotLights;
+	std::vector<GID> particleSystems;
+	std::vector<GID> soundInstances;
+	std::vector<GID> unk4;
+	std::vector<GID> pointLights;
+	std::vector<GID> ambientLights;
+	std::vector<GID> triggers;
+	std::vector<GID> scriptInstances;
+	std::vector<GID> lensFlares;
+};
+
 struct ScriptVariables {
 	uint32_t offsetCode;
 	uint32_t offsetHandlers;

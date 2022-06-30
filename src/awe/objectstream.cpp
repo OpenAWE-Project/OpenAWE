@@ -101,6 +101,18 @@ void ObjectStream::dynamicObjectScript(Templates::DynamicObjectScript &dynamicOb
 	skip(4);
 }
 
+void ObjectStream::attachmentContainer(Templates::AttachmentContainer &attachmentContainer, unsigned int version) {
+	variable("spotLights", attachmentContainer.spotLights);
+	variable("particleSystems", attachmentContainer.particleSystems);
+	variable("soundInstances", attachmentContainer.soundInstances);
+	variable("simulatedSoundInstances", attachmentContainer.unk4);
+	variable("pointLights", attachmentContainer.pointLights);
+	variable("ambientLights", attachmentContainer.ambientLights);
+	variable("triggers", attachmentContainer.triggers);
+	variable("scriptInstances", attachmentContainer.scriptInstances);
+	variable("lensFlares", attachmentContainer.lensFlares); // ?
+}
+
 void ObjectStream::cellInfo(Templates::CellInfo &cellInfo) {
 	variable("x", cellInfo.x);
 	variable("y", cellInfo.y);
@@ -623,6 +635,7 @@ void ObjectStream::object(Object &value, ObjectType type, unsigned int version) 
 		case kStaticObject: staticObject(as<Templates::StaticObject>(value)); break;
 		case kDynamicObject: dynamicObject(as<Templates::DynamicObject>(value), version); break;
 		case kDynamicObjectScript: dynamicObjectScript(as<Templates::DynamicObjectScript>(value), version); break;
+		case kAttachmentContainer: attachmentContainer(as<Templates::AttachmentContainer>(value), version); break;
 		case kCellInfo: cellInfo(as<Templates::CellInfo>(value)); break;
 		case kAnimation: animation(as<Templates::Animation>(value), version); break;
 		case kSkeleton: skeleton(as<Templates::Skeleton>(value)); break;

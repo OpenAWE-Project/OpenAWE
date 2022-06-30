@@ -45,6 +45,7 @@ protected:
 	void boundBox(Common::BoundBox &aabb);
 	void staticObject(Templates::StaticObject &staticObject);
 	void dynamicObject(Templates::DynamicObject &dynamicObject, unsigned int version);
+	void attachmentContainer(Templates::AttachmentContainer &attachmentContainer, unsigned int version);
 	void dynamicObjectScript(Templates::DynamicObjectScript &dynamicObjectScript, unsigned int version);
 	void cellInfo(Templates::CellInfo &cellInfo);
 	void animation(Templates::Animation &animation, unsigned int version);
@@ -100,6 +101,7 @@ protected:
 	virtual void variable(const std::string &name, std::vector<glm::vec2> &value) = 0;
 	virtual void variable(const std::string &name, std::vector<float> &value) = 0;
 	virtual void variable(const std::string &name, std::vector<ObjectID> &value) = 0;
+	virtual void variable(const std::string &name, std::vector<GID> &value) = 0;
 	virtual void variable(const std::string &name, std::vector<std::string> &value) = 0;
 	virtual void variable(const std::string &name, std::vector<std::string> &value, size_t fixedSize) = 0;
 
