@@ -78,7 +78,7 @@ void ObjectStream::dynamicObject(Templates::DynamicObject &dynamicObject, unsign
 
 	uint32_t unknown1, unknown2, unknown3;
 	variable("", unknown1);
-	variable("", unknown2);
+	variable("attachmentContainer", dynamicObject.attachmentContainer);
 	variable("", unknown3);
 
 	skip(4);
@@ -540,8 +540,7 @@ void ObjectStream::keyFramer(Templates::KeyFramer &keyFramer) {
 	variable("parentKeyFramer", keyFramer.parentKeyFramer);
 	variable("initialKeyframe", keyFramer.initialKeyframe);
 
-	ObjectID oid;
-	variable("", oid);
+	variable("attachmentContainer", keyFramer.attachmentContainer);
 
 	variable("resources", keyFramer.resources);
 	bool val1 = false;

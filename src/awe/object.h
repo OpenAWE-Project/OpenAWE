@@ -90,6 +90,7 @@ struct DynamicObject {
 	rid_t physicsResource;
 	std::string resourcePath;
 	std::string identifier;
+	ObjectID attachmentContainer;
 };
 
 struct AttachmentContainer {
@@ -292,6 +293,7 @@ struct TaskContent {
 struct KeyFramer {
 	GID gid;
 	ObjectID parentKeyFramer;
+	ObjectID attachmentContainer;
 	std::vector<ObjectID> keyFrames;
 	std::vector<ObjectID> keyFrameAnimations;
 	std::vector<rid_t> resources;
