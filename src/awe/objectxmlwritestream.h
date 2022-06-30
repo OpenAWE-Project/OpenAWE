@@ -72,6 +72,7 @@ protected:
 	void objects(const std::string &name, std::vector<Object> &value, ObjectType type) override;
 
 private:
+	unsigned int _index;
 	Common::XML::Node &_rootNode;
 	std::stack<std::reference_wrapper<Common::XML::Node>> _objectNode;
 

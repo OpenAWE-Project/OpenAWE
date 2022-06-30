@@ -28,7 +28,7 @@
 
 namespace AWE {
 
-ObjectXMLWriteStream::ObjectXMLWriteStream(Common::XML::Node &rootNode) : _rootNode(rootNode) {
+ObjectXMLWriteStream::ObjectXMLWriteStream(Common::XML::Node &rootNode) : _rootNode(rootNode), _index(0) {
 	_objectNode.emplace(_rootNode);
 }
 
@@ -40,11 +40,14 @@ void ObjectXMLWriteStream::writeObject(AWE::Object object, ObjectType type, unsi
 	Common::XML::Node &currentNode = _objectNode.top();
 	auto &newObjectNode = currentNode.addNewNode("object");
 	newObjectNode.properties["version"] = std::to_string(version);
+	if (_objectNode.size() == 1)
+		newObjectNode.properties["index"] = std::to_string(_index);
 	_objectNode.push(newObjectNode);
 
 	ObjectStream::object(object, type, version);
 
 	_objectNode.pop();
+	_index++;
 }
 
 void ObjectXMLWriteStream::skip(size_t s) {
