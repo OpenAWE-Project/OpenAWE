@@ -41,16 +41,10 @@ std::string getHomeDirectory() {
 		else
 			home = ".";
 	}
+#elif OS_WINDOWS
+    home = std::getenv("USERPROFILE");
 #endif
 	return home;
-}
-
-std::string getConfigDirectory() {
-#if OS_LINUX
-	return std::getenv("XDG_CONFIG_HOME");
-#endif
-
-	return ".";
 }
 
 std::string getUserDataDirectory() {
@@ -66,6 +60,9 @@ std::string getUserDataDirectory() {
 	} else {
 		userData = xdgUserData;
 	}
+#elif OS_WINDOWS
+    std::string appData = std::getenv("APPDATA");
+    userData = appData;
 #endif
 
 	return userData;

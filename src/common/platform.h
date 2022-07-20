@@ -18,17 +18,27 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AWE_PLATFORM_H
-#define AWE_PLATFORM_H
+#ifndef COMMON_PLATFORM_H
+#define COMMON_PLATFORM_H
 
 #include <string>
 
 namespace Common {
 
+/*!
+ * Get the home directory of the current user depending on the operating system
+ *
+ * \return The current users home directory
+ */
 std::string getHomeDirectory();
-std::string getConfigDirectory();
+
+/*!
+ * Get the directory for user data for the current user
+ *
+ * \return The current users user data directory
+ */
 std::string getUserDataDirectory();
 
 }
 
-#endif //AWE_PLATFORM_H
+#endif // COMMON_PLATFORM_H
