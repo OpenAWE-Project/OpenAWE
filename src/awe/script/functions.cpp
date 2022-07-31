@@ -65,6 +65,16 @@ void Functions::setTime(float time) {
 
 void Functions::callFunction(const std::string &name, Context &ctx) {
 	auto func = _functions.find(name);
+	if (func == _functions.end()) {
+		std::reverse(ctx.parameters.begin(), ctx.parameters.end());
+		spdlog::warn(
+			"TODO: Implement script functions {}({})",
+			name,
+			fmt::join(ctx.parameters, ", ")
+		);
+		return;
+	}
+
 	auto fun = (*func).second;
 	if (fun)
 		fun(this, ctx);
