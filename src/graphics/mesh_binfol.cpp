@@ -42,6 +42,14 @@ BINFOLMesh::BINFOLMesh(Common::ReadStream *binfol) {
 	uint32_t billboard3Length = binfol->readUint32LE();
 	std::string billboard3 = binfol->readFixedSizeString(billboard3Length, true);
 
+	glm::vec2 billboardSize, atlasPosition, atlasSize;
+	billboardSize.x = binfol->readIEEEFloatLE();
+	billboardSize.y = binfol->readIEEEFloatLE();
+	atlasPosition.x = binfol->readIEEEFloatLE();
+	atlasPosition.y = binfol->readIEEEFloatLE();
+	atlasSize.x = binfol->readIEEEFloatLE();
+	atlasSize.y = binfol->readIEEEFloatLE();
+
 	// TODO: Here are way more values
 }
 
