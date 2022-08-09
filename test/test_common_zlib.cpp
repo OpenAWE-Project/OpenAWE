@@ -127,10 +127,17 @@ static const byte kLipsumCompressed[] = {
 		0x92, 0x9c, 0x69, 0xfc, 0xf2, 0x1f, 0xf2, 0x19, 0x36, 0x10
 };
 
-static const unsigned int kLipsumCompressedSize = 1210;
+static const byte kInvalidLipsumCompressed[] = {
+	0x78, 0x9c, 0x9d, 0x56
+};
 
 TEST(ZLIB, decompress) {
 	std::unique_ptr<Common::ReadStream> stream(Common::decompressZLIB(kLipsumCompressed, sizeof(kLipsumCompressed), strlen(kLipsum)));
 
 	EXPECT_STREQ(stream->readNullTerminatedString().c_str(), kLipsum);
+}
+
+TEST(ZLIB, decompressInvalid) {
+	EXPECT_ANY_THROW(Common::decompressZLIB(nullptr, -1, 3));
+	EXPECT_ANY_THROW(Common::decompressZLIB(kInvalidLipsumCompressed, sizeof(kInvalidLipsumCompressed), strlen(kLipsum)));
 }
