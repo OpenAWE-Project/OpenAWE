@@ -20,9 +20,20 @@
 
 #include <stdexcept>
 
-#include "fsbfile.h"
+#include <filesystem>
+
+#include "src/common/exception.h"
+
+#include "src/codecs/adpcm.h"
+
+#include "src/sound/fsbfile.h"
 
 static const uint32_t kFSB4 = MKTAG('F', 'S', 'B', '4');
+
+enum SampleFlags {
+	kFormatMP3      = 0x00000200,
+	kFormatImaAdpcm = 0x00400000
+};
 
 namespace Sound {
 
@@ -48,19 +59,20 @@ FSBFile::FSBFile(Common::ReadStream *fsb) : _fsb(fsb) {
 			throw std::runtime_error("Invalid FSB entry length");
 
 		entry.fileName = _fsb->readFixedSizeString(30, true);
+		entry.fileName = std::filesystem::path(entry.fileName).stem().string() + ".wav";
 
-		uint32_t samplesLength = _fsb->readUint32LE();
+		entry.totalSamples = _fsb->readUint32LE();
 		entry.size = _fsb->readUint32LE();
 		entry.offset = localOffset;
 		localOffset += entry.size;
 		uint32_t loopStart = _fsb->readUint32LE();
 		uint32_t loopEnd = _fsb->readUint32LE();
-		uint32_t mode = _fsb->readUint32LE();
-		uint32_t sampleRate = _fsb->readUint32LE();
+		entry.flags = _fsb->readUint32LE();
+		entry.sampleRate = _fsb->readUint32LE();
 		uint16_t volume = _fsb->readUint16LE();
 		uint16_t pan = _fsb->readUint16LE();
 		uint16_t pri = _fsb->readUint16LE();
-		uint16_t numChannels = _fsb->readUint16LE();
+		entry.numChannels = _fsb->readUint16LE();
 		uint32_t minimumDistance = _fsb->readUint32LE();
 		uint32_t maximumDistance = _fsb->readUint32LE();
 		uint32_t variableFrequency = _fsb->readUint32LE();
@@ -75,12 +87,21 @@ size_t FSBFile::getNumEntries() {
 	return _entries.size();
 }
 
-Common::ReadStream *FSBFile::getStream(size_t index) {
+Codecs::AudioStream *FSBFile::getStream(size_t index) {
 	const auto entry = _entries[index];
 
 	_fsb->seek(_dataOffset + entry.offset);
 
-	return _fsb->readStream(entry.size);
+	if (!(entry.flags & kFormatImaAdpcm))
+		throw CreateException("Unknown and unimplemented audio codecs found");
+
+	return new Codecs::MsImaAdpcmStream(
+		_fsb->readStream(entry.size),
+		entry.sampleRate,
+		entry.numChannels,
+		entry.totalSamples,
+		8
+	);
 }
 
 std::string FSBFile::getFileName(size_t index) {

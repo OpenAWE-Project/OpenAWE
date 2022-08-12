@@ -27,6 +27,8 @@
 
 #include "src/common/readstream.h"
 
+#include "src/codecs/audiostream.h"
+
 namespace Sound {
 
 /*!
@@ -50,13 +52,17 @@ public:
 	 * \param index the stream to get for this index
 	 * \return The newly created stream
 	 */
-	Common::ReadStream *getStream(size_t index);
+	Codecs::AudioStream *getStream(size_t index);
 
 	std::string getFileName(size_t index);
 
 private:
 	struct Entry {
 		std::string fileName;
+		uint32_t sampleRate;
+		uint32_t totalSamples;
+		uint16_t numChannels;
+		uint32_t flags;
 		uint32_t offset, size;
 	};
 
