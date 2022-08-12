@@ -97,7 +97,7 @@ struct AttachmentContainer {
 	std::vector<GID> spotLights;
 	std::vector<GID> particleSystems;
 	std::vector<GID> soundInstances;
-	std::vector<GID> unk4;
+	std::vector<GID> simulatedSoundInstances;
 	std::vector<GID> pointLights;
 	std::vector<GID> ambientLights;
 	std::vector<GID> triggers;

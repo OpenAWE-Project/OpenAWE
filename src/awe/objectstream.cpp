@@ -105,7 +105,7 @@ void ObjectStream::attachmentContainer(Templates::AttachmentContainer &attachmen
 	variable("spotLights", attachmentContainer.spotLights);
 	variable("particleSystems", attachmentContainer.particleSystems);
 	variable("soundInstances", attachmentContainer.soundInstances);
-	variable("simulatedSoundInstances", attachmentContainer.unk4);
+	variable("simulatedSoundInstances", attachmentContainer.simulatedSoundInstances);
 	variable("pointLights", attachmentContainer.pointLights);
 	variable("ambientLights", attachmentContainer.ambientLights);
 	variable("triggers", attachmentContainer.triggers);
