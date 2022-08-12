@@ -22,7 +22,14 @@
 
 namespace Sound {
 
-void dumpWAV(Common::WriteStream &wav, void *data, size_t size) {
+void dumpWAV(
+	Common::WriteStream &wav,
+	void *data,
+	size_t size,
+	unsigned int sampleRate,
+	unsigned int bitsPerSample,
+	unsigned int numChannels
+) {
 	unsigned int riffSize = 4 + 24 + 8 + size;
 
 	// Write RIFF header
@@ -34,11 +41,11 @@ void dumpWAV(Common::WriteStream &wav, void *data, size_t size) {
 	wav.writeUint32BE(MKTAG('f', 'm', 't', ' '));
 	wav.writeUint32LE(16);
 	wav.writeUint16LE(1); // PCM
-	wav.writeUint16LE(1); // Channels
-	wav.writeUint32LE(48000); // Sample Rate
-	wav.writeUint32LE(96000); // Bitrate
-	wav.writeUint16LE(2); // Bytes per sample
-	wav.writeUint16LE(16); // Bits per sample
+	wav.writeUint16LE(numChannels); // Channels
+	wav.writeUint32LE(sampleRate); // Sample Rate
+	wav.writeUint32LE(sampleRate * numChannels * (bitsPerSample / 8)); // Bitrate
+	wav.writeUint16LE((bitsPerSample * numChannels) / 8); // Bytes per sample
+	wav.writeUint16LE(bitsPerSample); // Bits per sample
 
 	// Write data chunk
 	wav.writeUint32BE(MKTAG('d', 'a', 't', 'a'));

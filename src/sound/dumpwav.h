@@ -25,7 +25,7 @@
 
 namespace Sound {
 
-void dumpWAV(Common::WriteStream &wav, void* data, size_t size);
+void dumpWAV(Common::WriteStream &wav, void* data, size_t size, unsigned int sampleRate, unsigned int bitsPerSample, unsigned int numChannels);
 
 }
 
