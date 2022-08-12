@@ -257,6 +257,9 @@ add_definitions(-DSPDLOG_FMT_EXTERNAL)
 file(GLOB_RECURSE SOURCE_FILES src/common/*.cpp src/common/*.h)
 add_library(awe_common ${SOURCE_FILES})
 
+file(GLOB_RECURSE SOURCE_FILES src/codecs/*.cpp src/codecs/*.h)
+add_library(awe_codecs ${SOURCE_FILES})
+
 file(GLOB_RECURSE SOURCE_FILES src/awe/*.cpp src/awe/*.h)
 add_library(awe_lib ${SOURCE_FILES})
 target_link_libraries(awe_lib awe_common)
