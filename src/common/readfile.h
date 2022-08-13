@@ -69,7 +69,10 @@ public:
 	 */
 	void seek(ptrdiff_t length, SeekOrigin origin) override;
 
+	size_t size() const override;
+
 private:
+	size_t _fileSize;
 	mutable std::ifstream _in;
 };
 

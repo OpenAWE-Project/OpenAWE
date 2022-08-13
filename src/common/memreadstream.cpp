@@ -76,4 +76,8 @@ size_t MemoryReadStream::pos() const {
 	return _position;
 }
 
+size_t MemoryReadStream::size() const {
+	return _size;
+}
+
 }

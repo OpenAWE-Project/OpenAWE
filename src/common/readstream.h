@@ -176,6 +176,12 @@ public:
 	 * \return if the stream is at it's end
 	 */
 	virtual bool eos() const = 0;
+
+	/*!
+	 * Get the total size of the stream in bytes
+	 * \return The total size of the stream
+	 */
+	 virtual size_t size() const = 0;
 };
 
 } // End of namespace Common

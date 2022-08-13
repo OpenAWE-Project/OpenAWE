@@ -42,6 +42,8 @@ public:
 
 	void seek(ptrdiff_t length, SeekOrigin origin) override;
 
+	size_t size() const override;
+
 private:
 	bool _dispose;
 	const byte *_data;

@@ -130,6 +130,12 @@ TEST_F(ReadFile, seek) {
     EXPECT_TRUE(readFile.eos());
 }
 
+TEST_F(ReadFile, size) {
+	Common::ReadFile readFile(_filename);
+
+	EXPECT_EQ(readFile.size(), 512);
+}
+
 TEST_F(ReadFile, invalidFile) {
     EXPECT_ANY_THROW(Common::ReadFile readFile(_filename + "_invalid"));
 }

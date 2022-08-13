@@ -26,7 +26,9 @@
 
 namespace Common {
 
-ReadFile::ReadFile(const std::string &file) : _in(file.c_str(), std::ios::in | std::ios::binary) {
+ReadFile::ReadFile(const std::string &file) :
+	_fileSize(std::filesystem::file_size(file)),
+	_in(file.c_str(), std::ios::in | std::ios::binary) {
 	if (!std::filesystem::is_regular_file(file))
 		throw Common::Exception("{} not found", file);
 }
@@ -64,6 +66,10 @@ size_t ReadFile::pos() const {
         throw Common::Exception("Invalid file stream position");
 
 	return _in.tellg();
+}
+
+size_t ReadFile::size() const {
+	return _fileSize;
 }
 
 }

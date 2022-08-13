@@ -426,3 +426,14 @@ TEST(MemoryReadStream, readStream) {
 	EXPECT_EQ(stream2->readUint32BE(), 0x21222324);
 	EXPECT_EQ(stream2->readUint32BE(), 0x31323334);
 }
+
+TEST(MemoryReadStream, size) {
+	static const byte data1[42] = {0};
+	static const byte data2[46] = {0};
+
+	Common::MemoryReadStream memoryReadStream1(data1, 42);
+	Common::MemoryReadStream memoryReadStream2(data2, 46);
+
+	EXPECT_EQ(memoryReadStream1.size(), 42);
+	EXPECT_EQ(memoryReadStream2.size(), 46);
+}
