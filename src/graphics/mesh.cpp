@@ -50,4 +50,12 @@ void Mesh::setPartMeshSize(size_t index, size_t size) {
 	_meshs[index].length = size;
 }
 
+bool Mesh::hasBoundingSphere() const {
+	return _boundingSphere.has_value();
+}
+
+const Common::BoundSphere &Mesh::getBoundingSphere() const {
+	return *_boundingSphere;
+}
+
 }

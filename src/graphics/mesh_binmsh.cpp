@@ -105,6 +105,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 	boundSphere.position.y = binmsh->readIEEEFloatLE();
 	boundSphere.position.z = binmsh->readIEEEFloatLE();
 	boundSphere.radius = binmsh->readIEEEFloatLE();
+	_boundingSphere = boundSphere;
 
 	Common::BoundBox boundBox{};
 	boundBox.xmin = binmsh->readIEEEFloatLE();

@@ -22,6 +22,7 @@
 #define AWE_MESH_H
 
 #include <memory>
+#include <optional>
 
 #include "src/common/uuid.h"
 
@@ -68,7 +69,11 @@ public:
 
 	void setPartMeshSize(size_t index, size_t size);
 
+	bool hasBoundingSphere() const;
+	const Common::BoundSphere &getBoundingSphere() const;
+
 protected:
+	std::optional<Common::BoundSphere> _boundingSphere;
 	std::vector<PartMesh> _meshs;
 	std::map<std::string, glm::mat4> _initialPose;
 
