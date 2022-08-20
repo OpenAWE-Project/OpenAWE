@@ -101,7 +101,8 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 	std::string extensions;
 	spdlog::debug("Found Extensions:");
 	for (int i = 0; i < numExtensions; ++i) {
-		spdlog::debug("- {}", glGetStringi(GL_EXTENSIONS, i));
+		const std::string extension = reinterpret_cast<const char *>(glGetStringi(GL_EXTENSIONS, i));
+		spdlog::debug("- {}", extension);
 	}
 
 	if (!GLEW_EXT_texture_compression_s3tc) {
