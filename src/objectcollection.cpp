@@ -219,8 +219,14 @@ void ObjectCollection::loadDynamicObjectScript(const AWE::Object &container) {
 	const auto dynamicObjectScript = std::any_cast<AWE::Templates::DynamicObjectScript>(container);
 
 	const entt::entity scriptEntity = getEntityByGID(_registry, dynamicObjectScript.gid);
-	if (scriptEntity == entt::null)
-		throw std::runtime_error("Couldn't find script entity");
+	if (scriptEntity == entt::null) {
+		spdlog::error(
+			"Couldn't find entity {}:{:x} for script, skipping it",
+			dynamicObjectScript.gid.type,
+			dynamicObjectScript.gid.id
+		);
+		return;
+	}
 
 	AWE::Script::BytecodePtr bytecode;
 	AWE::Script::VariableStorePtr variableStore;
@@ -268,8 +274,14 @@ void ObjectCollection::loadScript(const AWE::Object &container) {
 	const auto scriptInstanceScript = std::any_cast<AWE::Templates::Script>(container);
 
 	entt::entity scriptEntity = getEntityByGID(_registry, scriptInstanceScript.gid);
-	if (scriptEntity == entt::null)
-		throw std::runtime_error("Couldn't find script entity");
+	if (scriptEntity == entt::null) {
+		spdlog::error(
+			"Couldn't find entity {}:{:x} for script, skipping it",
+			scriptInstanceScript.gid.type,
+			scriptInstanceScript.gid.id
+		);
+		return;
+	}
 
 	AWE::Script::BytecodePtr bytecode;
 	AWE::Script::VariableStorePtr variableStore;
