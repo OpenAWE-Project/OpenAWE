@@ -61,10 +61,14 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 	// Dump OpenGL Information
 	//
 
-	spdlog::info("OpenGL Vendor: {}", glGetString(GL_VENDOR));
-	spdlog::info("OpenGL Renderer: {}", glGetString(GL_RENDERER));
-	spdlog::info("OpenGL Version: {}", glGetString(GL_VERSION));
-	spdlog::info("GLSL Version: {}", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	const std::string vendor       = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+	const std::string renderer     = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+	const std::string version      = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+	const std::string glslVersion  = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+	spdlog::info("OpenGL Vendor: {}", vendor);
+	spdlog::info("OpenGL Renderer: {}", renderer);
+	spdlog::info("OpenGL Version: {}", version);
+	spdlog::info("GLSL Version: {}", glslVersion);
 	assert(glGetError() == GL_NO_ERROR);
 
 	GLint maxTextureUnits, maxTextureCoords, maxVertexAttribs, maxUniformLocations, maxVertexUniformComponents, maxFragmentUniformComponents;
