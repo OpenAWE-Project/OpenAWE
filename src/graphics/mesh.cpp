@@ -34,8 +34,8 @@ BufferPtr Mesh::getIndices() const {
 	return _indices;
 }
 
-const std::map<std::string, glm::mat4> & Mesh::getInitialJointPositions() const {
-	return _initialPose;
+const std::map<std::string, glm::mat4> & Mesh::getInverseRestTransforms() const {
+	return _inverseRestTransforms;
 }
 
 void Mesh::setIndices(BufferPtr indices) {

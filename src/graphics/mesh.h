@@ -62,7 +62,7 @@ public:
 	[[nodiscard]] BufferPtr getIndices() const;
 
 	[[nodiscard]] const std::vector<PartMesh> &getMeshs() const;
-	const std::map<std::string, glm::mat4> & getInitialJointPositions() const;
+	const std::map<std::string, glm::mat4> & getInverseRestTransforms() const;
 
 	void setIndices(BufferPtr indices);
 	void addPartMesh(const PartMesh &partMesh);
@@ -75,7 +75,7 @@ public:
 protected:
 	std::optional<Common::BoundSphere> _boundingSphere;
 	std::vector<PartMesh> _meshs;
-	std::map<std::string, glm::mat4> _initialPose;
+	std::map<std::string, glm::mat4> _inverseRestTransforms;
 
 	BufferPtr _indices;
 };

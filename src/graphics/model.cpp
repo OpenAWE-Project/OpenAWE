@@ -69,7 +69,7 @@ MeshPtr Model::getMesh() const {
 
 void Model::setSkeleton(const Skeleton &skeleton) {
 	_skeleton = std::make_unique<Skeleton>(skeleton);
-	_skeleton->setInverseTransform(_mesh->getInitialJointPositions());
+	_skeleton->setInverseTransform(_mesh->getInverseRestTransforms());
 }
 
 const Skeleton &Model::getSkeleton() const {

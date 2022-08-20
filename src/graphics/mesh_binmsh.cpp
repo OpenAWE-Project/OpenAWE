@@ -97,7 +97,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 		boneBoundSphere.position.z = binmsh->readIEEEFloatLE();
 		boneBoundSphere.radius = binmsh->readIEEEFloatLE();
 
-		_initialPose[boneName] = boneTransform;
+		_inverseRestTransforms[boneName] = boneTransform;
 	}
 
 	Common::BoundSphere boundSphere{};
