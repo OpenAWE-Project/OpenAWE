@@ -86,7 +86,7 @@ template<> struct fmt::formatter<AWE::Script::Variable> {
 		return ctx.end();
 	}
 
-	template<typename FormatContext> auto format(const AWE::Script::Variable &variable, FormatContext& ctx) {
+	template<typename FormatContext> auto format(const AWE::Script::Variable &variable, FormatContext& ctx) const {
 		switch (variable.index()) {
 			case 0: {
 				int32_t intValue = std::get<AWE::Script::Number>(variable).integer;
