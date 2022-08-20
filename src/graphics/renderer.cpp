@@ -25,6 +25,9 @@
 Graphics::Renderer::Renderer() : _currentVideoFrame(Common::UUID::generateNil()) {
 	// Setup initial projection matrix
 	_projection = glm::perspectiveFov(45.0f, 1920.0f, 1080.0f, 1.0f, 10000.0f);
+
+	// Initialize frustrum with projection matrix
+	_frustrum.setProjectionMatrix(_projection);
 }
 
 Graphics::Renderer::~Renderer() {
@@ -104,4 +107,5 @@ void Graphics::Renderer::setCurrentVideoFrame(const Common::UUID &id) {
 
 void Graphics::Renderer::update() {
 	_view = _camera ? (*_camera).get().getLookAt() : glm::identity<glm::mat4>();
+	_frustrum.setViewMatrix(_view);
 }

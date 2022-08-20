@@ -22,7 +22,8 @@
 #define AWE_RENDERER_H
 
 #include <vector>
-#include <src/graphics/images/decoder.h>
+
+#include "src/common/frustrum.h"
 
 #include "src/graphics/model.h"
 #include "src/graphics/camera.h"
@@ -31,7 +32,8 @@
 #include "src/graphics/ambiancestate.h"
 #include "src/graphics/texture.h"
 #include "src/graphics/buffer.h"
-#include "attributeobject.h"
+#include "src/graphics/attributeobject.h"
+#include "src/graphics/images/decoder.h"
 
 
 namespace Graphics {
@@ -86,6 +88,8 @@ protected:
 	AmbianceState _ambiance;
 
 	Common::UUID _currentVideoFrame;
+
+	Common::Frustrum _frustrum;
 
 	std::vector<RenderPass> _renderPasses;
 	std::vector<GUIElement *> _guiElements;

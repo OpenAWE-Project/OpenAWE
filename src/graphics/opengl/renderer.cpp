@@ -285,6 +285,13 @@ void Renderer::drawWorld() {
 			glm::mat4 mvp = vp * m;
 
 			const MeshPtr mesh = task.model->getMesh();
+			if (mesh->hasBoundingSphere()) {
+				auto boundSphere = mesh->getBoundingSphere();
+				boundSphere.position = m * glm::vec4(boundSphere.position, 1.0f);
+				if (!_frustrum.test(boundSphere))
+					continue;
+			}
+
 			const auto &partMeshs = mesh->getMeshs();
 			const auto indices = std::static_pointer_cast<Graphics::OpenGL::VBO>(mesh->getIndices());
 
