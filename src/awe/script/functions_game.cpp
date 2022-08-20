@@ -31,9 +31,7 @@ void Functions::getRand01(Functions::Context &ctx) {
     std::uniform_real_distribution<float> distribution(0.0, 1.0);
     std::mt19937 generator(std::chrono::system_clock::now().time_since_epoch().count());
 
-    int32_t value;
-    float fValue = distribution(generator);
-    std::memcpy(&value, &fValue, 4);
+    float value = distribution(generator);
     ctx.ret = value;
 }
 
@@ -44,10 +42,7 @@ void Functions::getRand(Functions::Context &ctx) {
     std::uniform_real_distribution<float> distribution(lowerBound, upperBound);
     std::mt19937 generator(std::chrono::system_clock::now().time_since_epoch().count());
 
-    int32_t value;
-    float fValue = distribution(generator);
-    std::memcpy(&value, &fValue, 4);
-
+    float value = distribution(generator);
     ctx.ret = value;
 }
 

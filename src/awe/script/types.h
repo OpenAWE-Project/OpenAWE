@@ -58,8 +58,20 @@ enum Opcode {
 	kEq           = 0x25,
 };
 
+/*!
+ * A simple union type simplifying the handling of numbers which can be integer or float at the same time.
+ */
+union Number {
+	int32_t integer;
+	float floatingPoint;
+
+	Number() : integer(0) {}
+	Number(int32_t value) : integer(value) {}
+	Number(float value) : floatingPoint(value) {}
+};
+
 typedef std::variant<
-        int32_t,
+        Number,
         std::string,
         entt::entity
 > Variable;
@@ -77,10 +89,10 @@ template<> struct fmt::formatter<AWE::Script::Variable> {
 	template<typename FormatContext> auto format(const AWE::Script::Variable &variable, FormatContext& ctx) {
 		switch (variable.index()) {
 			case 0: {
-				int32_t intValue = std::get<int32_t>(variable);
+				int32_t intValue = std::get<AWE::Script::Number>(variable).integer;
 				if (AWE::Script::isFloat(intValue))
 					return fmt::format_to(ctx.out(), "{:f}", AWE::Script::asFloat(intValue));
-				return fmt::format_to(ctx.out(), "{}", std::get<int32_t>(variable));
+				return fmt::format_to(ctx.out(), "{}", intValue);
 			}
 			case 1:
 				return fmt::format_to(ctx.out(), "\"{}\"", std::get<std::string>(variable));

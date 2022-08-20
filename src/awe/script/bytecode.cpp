@@ -171,27 +171,20 @@ void Bytecode::callObject(Context &ctx, byte numArgs, byte retType) {
 }
 
 void Bytecode::mulFloat() {
-	int32_t value1 = std::get<int32_t>(_stack.top());
+	float value1 = std::get<Number>(_stack.top()).floatingPoint;
 	_stack.pop();
-	int32_t value2 = std::get<int32_t>(_stack.top());
+	float value2 = std::get<Number>(_stack.top()).floatingPoint;
 	_stack.pop();
 
-	float fValue1, fValue2, fResultValue;
-	memcpy(&fValue1, &value1, 4);
-	memcpy(&fValue2, &value2, 4);
-
-	fResultValue = fValue1 * fValue2;
-	memcpy(&value1, &fResultValue, 4);
-
-	_stack.push(value1);
+	_stack.push(value1 * value2);
 
 	spdlog::trace("mul_float");
 }
 
 void Bytecode::mulInt() {
-	int32_t value1 = std::get<int32_t>(_stack.top());
+	int32_t value1 = std::get<Number>(_stack.top()).integer;
 	_stack.pop();
-	int32_t value2 = std::get<int32_t>(_stack.top());
+	int32_t value2 = std::get<Number>(_stack.top()).integer;
 	_stack.pop();
 
 	_stack.push(value1 * value2);
@@ -206,12 +199,11 @@ void Bytecode::ret() {
 }
 
 void Bytecode::intToFloat() {
-	int32_t value = std::get<int32_t>(_stack.top());
+	int32_t value = std::get<Number>(_stack.top()).integer;
 	_stack.pop();
 
 	auto fValue = static_cast<float>(value);
-	std::memcpy(&value, &fValue, 4);
-	_stack.push(value);
+	_stack.push(fValue);
 
 	spdlog::trace("int_to_float");
 }
@@ -245,9 +237,9 @@ void Bytecode::getMember(Context &ctx, byte id) {
 }
 
 void Bytecode::cmp() {
-	int32_t value1 = std::get<int32_t>(_stack.top());
+	int32_t value1 = std::get<Number>(_stack.top()).integer;
 	_stack.pop();
-	int32_t value2 = std::get<int32_t>(_stack.top());
+	int32_t value2 = std::get<Number>(_stack.top()).integer;
 	_stack.pop();
 
 	_eq = value1 == value2;
@@ -273,9 +265,9 @@ void Bytecode::jmpIf() {
 }
 
 void Bytecode::logAnd() {
-	bool value1 = std::get<int32_t>(_stack.top()) != 0;
+	bool value1 = std::get<Number>(_stack.top()).integer != 0;
 	_stack.pop();
-	bool value2 = std::get<int32_t>(_stack.top()) != 0;
+	bool value2 = std::get<Number>(_stack.top()).integer != 0;
 	_stack.pop();
 
 	_stack.push((value1 && value2) ? 1 : 0);
@@ -284,9 +276,9 @@ void Bytecode::logAnd() {
 }
 
 void Bytecode::logOr() {
-	bool value1 = std::get<int32_t>(_stack.top()) != 0;
+	bool value1 = std::get<Number>(_stack.top()).integer != 0;
 	_stack.pop();
-	bool value2 = std::get<int32_t>(_stack.top()) != 0;
+	bool value2 = std::get<Number>(_stack.top()).integer != 0;
 	_stack.pop();
 
 	_stack.push((value1 || value2) ? 1 : 0);
@@ -295,7 +287,7 @@ void Bytecode::logOr() {
 }
 
 void Bytecode::logNot() {
-	bool value = std::get<int32_t>(_stack.top()) != 0;
+	bool value = std::get<Number>(_stack.top()).integer != 0;
 	_stack.pop();
 
 	_stack.push(!value ? 1 : 0);
