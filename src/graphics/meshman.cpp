@@ -88,6 +88,10 @@ MeshPtr MeshManager::getMesh(const std::string &path) {
 	}
 }
 
+BINFOLMeshPtr MeshManager::getFoliageMesh(const std::string &path) {
+	return std::static_pointer_cast<BINFOLMesh>(getMesh(path));
+}
+
 MeshPtr MeshManager::getMissingMesh() {
 	return getMesh(_missingMeshPath);
 }
