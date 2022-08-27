@@ -22,6 +22,8 @@
 
 #include <btBulletDynamicsCommon.h>
 
+#include <glm/gtx/quaternion.hpp>
+
 #include "src/common/readstream.h"
 #include "src/common/exception.h"
 
@@ -114,6 +116,30 @@ btCollisionShape *HavokObject::getShape(AWE::HavokFile &havok, const AWE::HavokF
 			}
 
 			shapeObject = compoundShape;
+			break;
+		}
+
+		case AWE::HavokFile::kConvexTransform: {
+			const auto convexTransformShape = std::get<AWE::HavokFile::hkpConvexTransformShape>(shape.shape);
+
+			btTransform transform = btTransform::getIdentity();
+			transform.setOrigin(btVector3(
+				convexTransformShape.translation.x,
+				convexTransformShape.translation.y,
+				convexTransformShape.translation.z
+			));
+
+			glm::quat rotation = glm::toQuat(convexTransformShape.rotation);
+			transform.setRotation(btQuaternion(
+				rotation.x,
+				rotation.y,
+				rotation.z,
+				rotation.w
+			));
+
+			shapeOffset *= transform;
+			shapeObject = getShape(havok, havok.getShape(convexTransformShape.shape), transform);
+
 			break;
 		}
 
