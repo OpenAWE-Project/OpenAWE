@@ -27,9 +27,43 @@
 
 namespace Graphics {
 
+class BINFOLMesh;
+
+typedef std::shared_ptr<BINFOLMesh> BINFOLMeshPtr;
+
 class BINFOLMesh : public BINMSHMesh {
 public:
 	BINFOLMesh(Common::ReadStream *binfol);
+
+	/*!
+	 * Get the color atlas texture file path for this foliage meshs billboard
+	 * \return The path to the color atlas texture
+	 */
+	const std::string &getColorAtlas() const;
+
+	/*!
+	 * Get the size of the billboard as 2d vector
+	 * \return The size of the billboard
+	 */
+	const glm::vec2 &getBillboardSize() const;
+
+	/*!
+	 * Get the size of the part of the billboard texture in the atlas
+	 * \return The textures size in the atlas texture
+	 */
+	const glm::vec2 &getAtlasSize() const;
+
+	/*!
+	 * Get the position of the billboard texture in the atlas
+	 * \return The position of the billboard texture in the atlas texture
+	 */
+	const glm::vec2 &getAtlasPosition() const;
+
+private:
+	std::string _colorAtlas;
+
+	glm::vec2 _billboardSize;
+	glm::vec2 _atlasSize, _atlasPosition;
 };
 
 }

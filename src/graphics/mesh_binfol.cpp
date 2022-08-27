@@ -19,6 +19,7 @@
  */
 
 #include <stdexcept>
+#include <regex>
 
 #include <fmt/format.h>
 
@@ -35,22 +36,41 @@ BINFOLMesh::BINFOLMesh(Common::ReadStream *binfol) {
 	std::unique_ptr<Common::ReadStream> binmshStream(binfol->readStream(meshDataSize));
 	BINMSHMesh::load(binmshStream.get());
 
-	uint32_t billboard1Length = binfol->readUint32LE();
-	std::string billboard1 = binfol->readFixedSizeString(billboard1Length, true);
+	uint32_t colorAtlasNameLength = binfol->readUint32LE();
+	_colorAtlas = binfol->readFixedSizeString(colorAtlasNameLength, true);
 	uint32_t billboard2Length = binfol->readUint32LE();
 	std::string billboard2 = binfol->readFixedSizeString(billboard2Length, true);
 	uint32_t billboard3Length = binfol->readUint32LE();
 	std::string billboard3 = binfol->readFixedSizeString(billboard3Length, true);
 
-	glm::vec2 billboardSize, atlasPosition, atlasSize;
-	billboardSize.x = binfol->readIEEEFloatLE();
-	billboardSize.y = binfol->readIEEEFloatLE();
-	atlasPosition.x = binfol->readIEEEFloatLE();
-	atlasPosition.y = binfol->readIEEEFloatLE();
-	atlasSize.x = binfol->readIEEEFloatLE();
-	atlasSize.y = binfol->readIEEEFloatLE();
+	_colorAtlas = std::regex_replace(_colorAtlas, std::regex("runtimedata\\\\pc"), "d:");
+	_colorAtlas = std::regex_replace(_colorAtlas, std::regex("\\\\"), "/");
+	_colorAtlas = std::regex_replace(_colorAtlas, std::regex("d:/data/"), "");
+
+	_billboardSize.x = binfol->readIEEEFloatLE();
+	_billboardSize.y = binfol->readIEEEFloatLE();
+	_atlasPosition.x = binfol->readIEEEFloatLE();
+	_atlasPosition.y = binfol->readIEEEFloatLE();
+	_atlasSize.x = binfol->readIEEEFloatLE();
+	_atlasSize.y = binfol->readIEEEFloatLE();
 
 	// TODO: Here are way more values
+}
+
+const std::string &BINFOLMesh::getColorAtlas() const {
+	return _colorAtlas;
+}
+
+const glm::vec2 &BINFOLMesh::getBillboardSize() const {
+	return _billboardSize;
+}
+
+const glm::vec2 &BINFOLMesh::getAtlasSize() const {
+	return _atlasSize;
+}
+
+const glm::vec2 &BINFOLMesh::getAtlasPosition() const {
+	return _atlasPosition;
 }
 
 }
