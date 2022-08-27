@@ -44,6 +44,7 @@ public:
 		kBox,
 		kCylinder,
 		kConvexTranslate,
+		kConvexTransform,
 		kList
 	};
 
@@ -116,6 +117,12 @@ public:
 		glm::vec4 translation;
 	};
 
+	struct hkpConvexTransformShape {
+		uint32_t shape;
+		glm::mat3 rotation;
+		glm::vec4 translation;
+	};
+
 	struct hkpListShape {
 		std::vector<uint32_t> shapes;
 	};
@@ -127,6 +134,7 @@ public:
 			hkpBoxShape,
 			hkpCylinderShape,
 			hkpConvexTranslateShape,
+			hkpConvexTransformShape,
 			hkpListShape
 		> shape;
 		ShapeType type;
@@ -193,6 +201,7 @@ private:
 	HavokFile::hkpShape readHkpBoxShape(Common::ReadStream &binhkx);
 	HavokFile::hkpShape readHkpCylinderShape(Common::ReadStream &binhkx);
 	HavokFile::hkpShape readHkpConvexTranslateShape(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpShape readHkpConvexTransformShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpListShape(Common::ReadStream &binhkx, uint32_t section);
 
 	RmdPhysicsSystem readRmdPhysicsSystem(Common::ReadStream &binhkx, uint32_t section);

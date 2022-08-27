@@ -209,6 +209,8 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 			object = readHkpCylinderShape(binhkx);
 		else if (name == "hkpConvexTranslateShape")
 			object = readHkpConvexTranslateShape(binhkx, contentsSectionIndex);
+		else if (name == "hkpConvexTransformShape")
+			object = readHkpConvexTransformShape(binhkx, contentsSectionIndex);
 		else if (name == "hkpListShape")
 			object = readHkpListShape(binhkx, contentsSectionIndex);
 		else
@@ -1010,6 +1012,39 @@ HavokFile::hkpShape HavokFile::readHkpConvexTranslateShape(Common::ReadStream &b
 	convexTranslateShape.translation.w = binhkx.readIEEEFloatLE();
 
 	shape.shape = convexTranslateShape;
+
+	return shape;
+}
+
+
+HavokFile::hkpShape HavokFile::readHkpConvexTransformShape(Common::ReadStream &binhkx, uint32_t section) {
+	hkpShape shape{};
+	hkpConvexTransformShape convexTransformShape{};
+
+	shape.type = kConvexTransform;
+
+	binhkx.skip(8); // hkReferencedObject
+	shape.userData = binhkx.readUint64LE(); // hkpShape
+	shape.radius = binhkx.readIEEEFloatLE(); // hkpConvexShape
+	binhkx.skip(4);
+	convexTransformShape.shape = readFixup(binhkx, section);
+
+	binhkx.skip(4);
+
+	for (int i = 0; i < 3; ++i) {
+		convexTransformShape.rotation[i].x = binhkx.readIEEEFloatLE();
+		convexTransformShape.rotation[i].y = binhkx.readIEEEFloatLE();
+		convexTransformShape.rotation[i].z = binhkx.readIEEEFloatLE();
+
+		binhkx.skip(4);
+	}
+
+	convexTransformShape.translation.x = binhkx.readIEEEFloatLE();
+	convexTransformShape.translation.y = binhkx.readIEEEFloatLE();
+	convexTransformShape.translation.z = binhkx.readIEEEFloatLE();
+	convexTransformShape.translation.w = binhkx.readIEEEFloatLE();
+
+	shape.shape = convexTransformShape;
 
 	return shape;
 }
