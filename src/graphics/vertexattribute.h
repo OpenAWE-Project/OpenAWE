@@ -33,6 +33,7 @@ enum VertexDataType {
 	kVec4S,
 	kVec4BI,
 	kVec4BF,
+	kUByte,
 	kFloat
 };
 

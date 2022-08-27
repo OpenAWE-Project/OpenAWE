@@ -606,6 +606,9 @@ Renderer::createAttributeObject(const std::string &shader, const std::vector<Ver
 	GLuint stride = 0;
 	for (const auto &attribute : vertexAttributes) {
 		switch (attribute.dataType) {
+			case kUByte:
+				stride += 1;
+				break;
 			case kVec4BF:
 			case kVec4BI:
 			case kVec2S:
@@ -663,6 +666,12 @@ Renderer::createAttributeObject(const std::string &shader, const std::vector<Ver
 				type = GL_UNSIGNED_BYTE;
 				size = 4;
 				totalSize = 4;
+				break;
+			case kUByte:
+				type = GL_UNSIGNED_BYTE;
+				size = 1;
+				totalSize = 1;
+				integer = true;
 				break;
 		}
 
