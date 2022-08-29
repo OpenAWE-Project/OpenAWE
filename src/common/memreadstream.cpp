@@ -47,7 +47,7 @@ MemoryReadStream::~MemoryReadStream() {
 size_t MemoryReadStream::read(void *data, size_t length) {
 	size_t sizeToRead = std::clamp<size_t>(length, 0, _size - _position);
 	std::memcpy(data, _data + _position, sizeToRead);
-	_position += length;
+	_position += sizeToRead;
 	return sizeToRead;
 }
 
