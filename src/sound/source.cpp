@@ -88,12 +88,12 @@ unsigned int Source::getBuffersProcessed() {
 	return buffersProcessed;
 }
 
-void Source::queueBuffer(Buffer &buffer) {
-	buffer.queueBuffer(_id);
+void Source::queueBuffer(ALuint buffer) {
+	alSourceQueueBuffers(_id, 1, &buffer);
 }
 
-void Source::unqueueBuffer(Buffer &buffer) {
-	buffer.unqueueBuffer(_id);
+void Source::unqueueBuffer(ALuint buffer) {
+	alSourceUnqueueBuffers(_id, 1, &buffer);
 }
 
 }

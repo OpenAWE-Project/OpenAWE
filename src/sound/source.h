@@ -22,7 +22,6 @@
 #define AWE_SOURCE_H
 
 #include "src/sound/openal.h"
-#include "buffer.h"
 
 namespace Sound {
 
@@ -43,8 +42,8 @@ protected:
 	unsigned int getBuffersQueued();
 	unsigned int getBuffersProcessed();
 
-	void queueBuffer(Buffer &buffer);
-	void unqueueBuffer(Buffer &buffer);
+	void queueBuffer(ALuint buffer);
+	void unqueueBuffer(ALuint buffer);
 
 private:
 	ALuint _id;

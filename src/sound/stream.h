@@ -22,28 +22,39 @@
 #define AWE_STREAM_H
 
 #include <queue>
+#include <memory>
+
+#include "src/codecs/audiostream.h"
 
 #include "src/sound/source.h"
 #include "src/sound/types.h"
-#include "buffer.h"
 
 namespace Sound {
 
 class Stream : public Source {
 public:
-	Stream();
-
-	void queue(Buffer &buffer);
-	void unqueue(Buffer &buffer);
+	explicit Stream(Codecs::AudioStream *stream);
+	~Stream();
 
 	unsigned int getNumBuffersToUnqueue();
 	unsigned int getNumBuffersInQueue();
 
+	void setLoopRange(unsigned int start, unsigned int end);
+
 	void play() override;
 
 private:
+	void update();
+
+	const ALenum _format;
+
+	std::vector<ALuint> _buffers;
+	std::deque<ALuint> _availableBuffers;
+	std::deque<ALuint> _usedBuffers;
+	std::unique_ptr<Codecs::AudioStream> _stream;
+
 	bool _playing;
-	unsigned int _numBuffers, _numBuffersUnqueued;
+	size_t _loopStart, _loopEnd;
 };
 
 }

@@ -18,19 +18,45 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AWE_SOUND_TYPES_H
-#define AWE_SOUND_TYPES_H
+#ifndef SOUND_TYPES_H
+#define SOUND_TYPES_H
+
+#include "src/common/exception.h"
 
 #include "src/sound/openal.h"
 
 namespace Sound {
 
-enum Format {
-	kFormatMono16    = AL_FORMAT_MONO16,
-	kFormatMonoFloat = AL_FORMAT_MONO_FLOAT32,
-	kFormatStereo16  = AL_FORMAT_STEREO16
+enum AudioFormat {
+	kFormatMono8    = AL_FORMAT_MONO8,
+	kFormatMono16   = AL_FORMAT_MONO16,
+	kFormatStereo8  = AL_FORMAT_STEREO8,
+	kFormatStereo16 = AL_FORMAT_STEREO16
 };
 
+inline AudioFormat getAudioFormat(unsigned short numChannels, unsigned short bitsPerSample) {
+	switch (numChannels) {
+		case 1:
+			switch (bitsPerSample) {
+				case 8:  return kFormatMono8;
+				case 16: return kFormatMono16;
+				default: break;
+			}
+			break;
+		case 2:
+			switch (bitsPerSample) {
+				case 8:  return kFormatStereo8;
+				case 16: return kFormatStereo16;
+				default: break;
+			}
+			break;
+		default:
+			break;
+	}
+
+	throw CreateException("Invalid audio format with {} channels and {} bits per sample", numChannels, bitsPerSample);
 }
 
-#endif //AWE_TYPES_H
+} // End of namespace Sound
+
+#endif // SOUND_TYPES_H
