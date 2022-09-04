@@ -35,6 +35,9 @@ namespace Codecs {
  * This class serves as base class for different adpcm schemes implemented for decoding.
  */
 class AdpcmStream : public AudioStream {
+public:
+	bool eos() const override;
+
 protected:
 	AdpcmStream(Common::ReadStream *stream, unsigned int sampleRate, unsigned short channelCount, unsigned int totalSamples);
 
@@ -78,7 +81,11 @@ public:
 		unsigned int numBlockChunks
 	);
 
+	void seek(ptrdiff_t samples, SeekType type) override;
+
 	std::vector<byte> read(size_t numSamples) override;
+
+	size_t pos() const override;
 
 private:
 	const unsigned int _numBlockChunks;

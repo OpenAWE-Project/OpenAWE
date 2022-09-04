@@ -54,6 +54,10 @@ AdpcmStream::AdpcmStream(
 	_adpcm(stream) {
 }
 
+bool AdpcmStream::eos() const {
+	return _adpcm->eos();
+}
+
 ImaAdpcmStream::ImaAdpcmStream(
 	Common::ReadStream *stream,
 	unsigned int sampleRate,
@@ -104,6 +108,52 @@ std::vector<byte> MsImaAdpcmStream::read(size_t numSamples) {
 	}
 
 	return data;
+}
+
+size_t MsImaAdpcmStream::pos() const {
+	const unsigned int bytesPerBlock = (4 + _numBlockChunks * 4) * getChannelCount();
+	const unsigned int samplesPerBlock = _numBlockChunks * 8;
+	return
+		// a full block multplied by the
+		(_adpcm->pos() / bytesPerBlock) * samplesPerBlock +
+		// The sample position in the current block
+		(samplesPerBlock - _remainder) % samplesPerBlock;
+}
+
+void MsImaAdpcmStream::seek(ptrdiff_t samples, AudioStream::SeekType type) {
+	Common::ReadStream::SeekOrigin seekOrigin;
+	switch (type) {
+		case AudioStream::kBegin:
+			seekOrigin = Common::ReadStream::BEGIN;
+			_remainder = 0;
+			break;
+
+		case AudioStream::kEnd:
+			seekOrigin = Common::ReadStream::END;
+			_remainder = 0;
+			break;
+
+		case AudioStream::kCurrent:
+			seekOrigin = Common::ReadStream::CURRENT;
+			break;
+	}
+
+	// Calculate how many bytes to seek pat the full blocks
+	const int bytesPerBlock = (4 + static_cast<int>(_numBlockChunks) * 4) * getChannelCount();
+	const int samplesPerBlock = static_cast<int>(_numBlockChunks) * 8;
+	const int blocksToSkip = ((samplesPerBlock - _remainder) % samplesPerBlock + samples) / samplesPerBlock;
+	const int bytesToSkip = blocksToSkip * bytesPerBlock;
+
+	if (samples < 0)
+		_adpcm->seek(bytesToSkip - bytesPerBlock, seekOrigin);
+	else
+		_adpcm->seek(bytesToSkip, seekOrigin);
+
+	decodeBlock();
+	if (samples < 0)
+		_remainder -= samplesPerBlock - std::abs(samples) % samplesPerBlock;
+	else
+		_remainder -= samples % samplesPerBlock;
 }
 
 void MsImaAdpcmStream::decodeBlock() {

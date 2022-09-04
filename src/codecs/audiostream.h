@@ -36,6 +36,12 @@ namespace Codecs {
  */
 class AudioStream {
 public:
+	enum SeekType {
+		kBegin,
+		kCurrent,
+		kEnd
+	};
+
 	/*!
 	 * Get the sample rate of the audio stream
 	 * \return The sample rate of the audio stream
@@ -65,6 +71,25 @@ public:
 	 * \return If the samples of this audio stream are signed
 	 */
 	bool isSigned() const;
+
+	/*!
+	 * Get if the stream is at its end
+	 * \return If the stream reached its end
+	 */
+	virtual bool eos() const = 0;
+
+	/*!
+	 * Get the current position in the audio stream in samples
+	 * \return The current audio streams position in samples
+	 */
+	virtual size_t pos() const = 0;
+
+	/*!
+	 * Seek a number of samples in a direction in the stream
+	 * \param samples The number of samples to seek
+	 * \param type If the seeking should start from the begin, end or the current position
+	 */
+	virtual void seek(ptrdiff_t samples, SeekType type = kBegin) = 0;
 
 	/*!
 	 * Read a specified number of samples from the audio stream
