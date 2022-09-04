@@ -282,7 +282,7 @@ target_link_libraries(awe_graphics awe_common awe_lib awe_platform)
 
 file(GLOB_RECURSE SOURCE_FILES src/sound/*.cpp src/sound/*.h)
 add_library(awe_sound ${SOURCE_FILES})
-target_link_libraries(awe_sound awe_common awe_lib)
+target_link_libraries(awe_sound awe_common awe_lib awe_codecs)
 
 file(GLOB_RECURSE SOURCE_FILES src/physics/*.cpp src/physics/*.h)
 add_library(awe_physics ${SOURCE_FILES})
