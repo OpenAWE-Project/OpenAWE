@@ -18,33 +18,36 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <assert.h>
-#include "src/sound/soundman.h"
-#include "buffer.h"
+#include "src/common/exception.h"
+
+#include "src/awe/resman.h"
+
+#include "src/sound/audiostreamfactory.h"
+#include "src/sound/fsbfile.h"
 
 namespace Sound {
 
-Buffer::Buffer() {
-	_id = SoundMan.registerBuffer();
-	assert(alIsBuffer(_id) == AL_TRUE);
+AudioStreamFactory::AudioStreamFactory() : _rid(0) {}
+
+AudioStreamFactory::AudioStreamFactory(rid_t rid) : _rid(rid) {
 }
 
-Buffer::~Buffer() {
-	SoundMan.deregisterBuffer(_id);
+Sound::Stream *AudioStreamFactory::createStream() const {
+	Common::ReadStream *fsbStream(ResMan.getResource(_rid));
+	if (!fsbStream)
+		throw CreateException("Cannot find fsb resource {:X}", _rid);
+
+	Sound::FSBFile fsb(fsbStream);
+
+	if (fsb.getNumEntries() == 0)
+		throw CreateException("Empty FMOD sound bank file {:x}", _rid);
+
+	Sound::FSBFile::ExtraData streamData{};
+	Codecs::AudioStream *audioStream = fsb.getStream(0, streamData);
+	auto *stream = new Sound::Stream(audioStream);
+	stream->setLoopRange(streamData.loopStart, streamData.loopEnd);
+
+	return stream;
 }
 
-void Buffer::bufferData(Format format, unsigned int frequency, void *data, size_t size) const {
-	alBufferData(_id, format, data, size, frequency);
-	assert(alGetError() == AL_NO_ERROR);
-}
-
-void Buffer::queueBuffer(ALuint sourceId) {
-	alSourceQueueBuffers(sourceId, 1, &_id);
-	assert(alGetError() == AL_NO_ERROR);
-}
-
-void Buffer::unqueueBuffer(ALuint sourceId) {
-	alSourceUnqueueBuffers(sourceId, 1, &_id);
-}
-
-}
+} // End of namespace Sound

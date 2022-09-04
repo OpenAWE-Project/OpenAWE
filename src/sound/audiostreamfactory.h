@@ -18,30 +18,26 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AWE_BUFFER_H
-#define AWE_BUFFER_H
+#ifndef SOUND_AUDIOSTREAMFACTORY_H
+#define SOUND_AUDIOSTREAMFACTORY_H
 
-#include "src/common/types.h"
+#include "src/awe/types.h"
 
-#include "src/sound/openal.h"
-#include "types.h"
+#include "src/sound/stream.h"
 
 namespace Sound {
 
-class Buffer : Common::Noncopyable {
+class AudioStreamFactory {
 public:
-	Buffer();
-	~Buffer();
+	AudioStreamFactory();
+	AudioStreamFactory(rid_t rid);
 
-	void bufferData(Format format, unsigned int frequency, void *data, size_t size) const;
-
-	void queueBuffer(ALuint sourceId);
-	void unqueueBuffer(ALuint sourceId);
+	Sound::Stream *createStream() const;
 
 private:
-	ALuint _id;
+	rid_t _rid;
 };
 
-}
+} // End of namespace Sound
 
-#endif //AWE_BUFFER_H
+#endif // SOUND_AUDIOSTREAMFACTORY_H
