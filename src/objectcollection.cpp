@@ -36,6 +36,8 @@
 #include "src/physics/havokobject.h"
 #include "src/physics/terraincollision.h"
 
+#include "src/sound/audiostreamfactory.h"
+
 #include "objectcollection.h"
 
 #include "src/transform.h"
