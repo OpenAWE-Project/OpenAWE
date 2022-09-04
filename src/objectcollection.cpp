@@ -386,7 +386,7 @@ void ObjectCollection::loadSound(const AWE::Object &container) {
 
 	auto soundEntity = _registry.create();
 	_registry.emplace<GID>(soundEntity) = sound.gid;
-	// TODO
+	_registry.emplace<Sound::AudioStreamFactory>(soundEntity) = sound.rid;
 
 	spdlog::debug("Loading sound {}", _gid->getString(sound.gid));
 }
