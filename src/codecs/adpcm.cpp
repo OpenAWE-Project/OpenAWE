@@ -97,13 +97,20 @@ std::vector<byte> MsImaAdpcmStream::read(size_t numSamples) {
 	while (remainingSamples > 0) {
 		const auto samplesToRead = std::min<size_t>(_remainder, remainingSamples);
 		const auto bytesToRead = samplesToRead * sizeof(uint16_t) * getChannelCount();
+		const auto bytesRead = (numSamples - remainingSamples) * sizeof(uint16_t) * getChannelCount();
 		std::memcpy(
-			data.data() + (numSamples - remainingSamples) * sizeof(uint16_t) * getChannelCount(),
+			data.data() + bytesRead,
 			_buffer.data() + (_numBlockChunks * 8 - _remainder) * sizeof(uint16_t) * getChannelCount(),
 			bytesToRead
 		);
 		_remainder -= samplesToRead;
 		remainingSamples -= samplesToRead;
+		if (_adpcm->eos()) {
+			std::vector<byte> oldData = data;
+			data.resize((numSamples - remainingSamples) * sizeof(int16_t) * getChannelCount());
+			std::memcpy(data.data(), oldData.data(), (numSamples - remainingSamples) * sizeof(int16_t) * getChannelCount());
+			break;
+		}
 		decodeBlock();
 	}
 
