@@ -39,6 +39,14 @@ namespace Sound {
  */
 class FSBFile {
 public:
+	/*!
+	 * Extra data contained with every audio stream in the fsb file
+	 */
+	struct ExtraData {
+		uint32_t loopStart, loopEnd;
+		float minimumDistance, maximumDistance;
+	};
+
 	FSBFile(Common::ReadStream *fsb);
 
 	/*!
@@ -54,6 +62,19 @@ public:
 	 */
 	Codecs::AudioStream *getStream(size_t index);
 
+	/*!
+	 * Get a specific stream on the given index and its additional stream data
+	 * \param index the stream to get for this index
+	 * \param streamData The stream data which will be filled as a reference
+	 * \return The newly created stream
+	 */
+	Codecs::AudioStream *getStream(size_t index, ExtraData &streamData);
+
+	/*!
+	 * Get the filename of the specific sample of the index
+	 * \param index The index of the file to get the filename for
+	 * \return A valid filename string of the sample
+	 */
 	std::string getFileName(size_t index);
 
 private:
@@ -64,6 +85,7 @@ private:
 		uint16_t numChannels;
 		uint32_t flags;
 		uint32_t offset, size;
+		ExtraData streamData;
 	};
 
 	uint32_t _dataOffset;

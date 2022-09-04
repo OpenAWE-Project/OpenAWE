@@ -31,6 +31,9 @@
 static const uint32_t kFSB4 = MKTAG('F', 'S', 'B', '4');
 
 enum SampleFlags {
+	kFormatMono     = 0x00000020,
+	kFormatStereo   = 0x00000040,
+	kFormatSigned   = 0x00000100,
 	kFormatMP3      = 0x00000200,
 	kFormatImaAdpcm = 0x00400000
 };
@@ -65,16 +68,16 @@ FSBFile::FSBFile(Common::ReadStream *fsb) : _fsb(fsb) {
 		entry.size = _fsb->readUint32LE();
 		entry.offset = localOffset;
 		localOffset += entry.size;
-		uint32_t loopStart = _fsb->readUint32LE();
-		uint32_t loopEnd = _fsb->readUint32LE();
+		entry.streamData.loopStart = _fsb->readUint32LE();
+		entry.streamData.loopEnd = _fsb->readUint32LE();
 		entry.flags = _fsb->readUint32LE();
 		entry.sampleRate = _fsb->readUint32LE();
 		uint16_t volume = _fsb->readUint16LE();
 		uint16_t pan = _fsb->readUint16LE();
 		uint16_t pri = _fsb->readUint16LE();
 		entry.numChannels = _fsb->readUint16LE();
-		uint32_t minimumDistance = _fsb->readUint32LE();
-		uint32_t maximumDistance = _fsb->readUint32LE();
+		entry.streamData.minimumDistance = _fsb->readIEEEFloatLE();
+		entry.streamData.maximumDistance = _fsb->readIEEEFloatLE();
 		uint32_t variableFrequency = _fsb->readUint32LE();
 		uint16_t variableVolume = _fsb->readUint16LE();
 		uint16_t variablePan = _fsb->readUint16LE();
@@ -94,6 +97,25 @@ Codecs::AudioStream *FSBFile::getStream(size_t index) {
 
 	if (!(entry.flags & kFormatImaAdpcm))
 		throw CreateException("Unknown and unimplemented audio codecs found");
+
+	return new Codecs::MsImaAdpcmStream(
+		_fsb->readStream(entry.size),
+		entry.sampleRate,
+		entry.numChannels,
+		entry.totalSamples,
+		8
+	);
+}
+
+Codecs::AudioStream *FSBFile::getStream(size_t index, ExtraData &streamData) {
+	const auto entry = _entries[index];
+
+	_fsb->seek(_dataOffset + entry.offset);
+
+	if (!(entry.flags & kFormatImaAdpcm))
+		throw CreateException("Unknown and unimplemented audio codecs found");
+
+	streamData = entry.streamData;
 
 	return new Codecs::MsImaAdpcmStream(
 		_fsb->readStream(entry.size),
