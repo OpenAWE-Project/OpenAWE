@@ -29,7 +29,7 @@ void Player::addAudioTrack(unsigned int id) {
 	_audio.emplace_back();
 	_audio.back() = std::make_unique<AudioStream>();
 	_audio.back()->id = id;
-	_audio.back()->stream = std::make_unique<Sound::Stream>();
+	//_audio.back()->stream = std::make_unique<Sound::Stream>();
 }
 
 void Player::load(const std::string &videoFile) {
@@ -88,7 +88,7 @@ void Player::preloadLoop() {
 		});*/
 	}
 
-	_audioStreamsMutex.lock();
+	/*_audioStreamsMutex.lock();
 	for (auto &audio : _audio) {
 		for (int j = 0; j < audio->stream->getNumBuffersToUnqueue(); ++j) {
 			audio->stream->unqueue(audio->buffers.front());
@@ -112,7 +112,7 @@ void Player::preloadLoop() {
 	}
 
 	if (_stop && _texturesToProcess.empty())
-		return;
+		return;*/
 
 	Common::ThreadPool::instance().add([this] { preloadLoop(); });
 }

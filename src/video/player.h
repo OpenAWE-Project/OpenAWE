@@ -39,7 +39,7 @@ private:
 	struct AudioStream {
 		unsigned int id;
 		std::unique_ptr<Sound::Stream> stream;
-		std::queue<Sound::Buffer> buffers;
+		//std::queue<Sound::Buffer> buffers;
 	};
 
 	void playLoop();
@@ -66,7 +66,7 @@ private:
 
 	std::vector<std::unique_ptr<AudioStream>> _audio;
 
-	std::queue<Sound::Buffer> _buffers;
+	//std::queue<Sound::Buffer> _buffers;
 
 	/*AVFormatContext *_formatCtx;
 	AVCodecContext *_videoCtx;

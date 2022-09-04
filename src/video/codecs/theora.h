@@ -28,7 +28,7 @@ public:
 
 	Graphics::Surface * getNextFrame() override;
 
-	void getNextAudio(Sound::Buffer &buffer, unsigned int stream) override;
+	//void getNextAudio(Sound::Buffer &buffer, unsigned int stream) override;
 
 private:
 	struct VideoStream {

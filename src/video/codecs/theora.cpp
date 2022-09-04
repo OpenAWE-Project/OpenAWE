@@ -250,7 +250,7 @@ Graphics::Surface * Theora::getNextFrame() {
 	return frame;
 }
 
-void Theora::getNextAudio(Sound::Buffer &buffer, unsigned int stream) {
+/*void Theora::getNextAudio(Sound::Buffer &buffer, unsigned int stream) {
 	AudioStream &audio = _audioStreams[stream];
 
 	ogg_packet packet;
@@ -296,13 +296,13 @@ void Theora::getNextAudio(Sound::Buffer &buffer, unsigned int stream) {
 	Sound::dumpWAV(file, _w->getData(), _w->getLength());
 	file.close();*/
 
-	buffer.bufferData(
+/*	buffer.bufferData(
 			Sound::kFormatMono16,
 			audio.audioDecoder.vi->rate,
 			pcmDecoded.data(),
 			samplesRead * sizeof(int16_t)
 	);
-}
+}*/
 
 void Theora::decodeYUV420(th_img_plane *ycbcr, Graphics::Surface *surface) {
 	// Conversion taken from:

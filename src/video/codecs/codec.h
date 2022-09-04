@@ -7,7 +7,6 @@
 
 #include "src/graphics/images/surface.h"
 
-#include "src/sound/buffer.h"
 #include "src/sound/types.h"
 
 namespace Video {
@@ -22,11 +21,11 @@ public:
 	bool eos() const;
 
 	virtual Graphics::Surface * getNextFrame() = 0;
-	virtual void getNextAudio(Sound::Buffer &buffer, unsigned int stream) = 0;
+	//virtual void getNextAudio(Sound::Buffer &buffer, unsigned int stream) = 0;
 
 protected:
 	struct AudioInfo {
-		Sound::Format channelCount;
+		Sound::AudioFormat channelCount;
 		unsigned int sampleRate;
 	};
 
