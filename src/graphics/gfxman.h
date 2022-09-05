@@ -58,6 +58,8 @@ public:
 	 */
 	TexturePtr createTexture(const ImageDecoder &decoder);
 
+	TexturePtr createEmptyTexture2D(TextureFormat format, unsigned int width, unsigned int height);
+
 	/*!
 	 * Create a buffer in the intialized render system using the given data block and the buffer type.
 	 * \param data A pointer to the data which should be contained in the block

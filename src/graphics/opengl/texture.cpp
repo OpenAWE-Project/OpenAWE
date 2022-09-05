@@ -66,14 +66,124 @@ Texture::~Texture() {
 	    glDeleteTextures(1, &_id);
 }
 
-void Texture::attachToFramebuffer(GLuint attachmentType) {
-	glFramebufferTexture2D(
-			GL_FRAMEBUFFER,
-			attachmentType,
-			_type,
-			_id,
-			0
+void Texture::allocate(TextureFormat textureFormat, unsigned int width, unsigned int height) {
+	if (_type != GL_TEXTURE_2D)
+		throw CreateException("Can only allocate 2d textures");
+
+	bind();
+
+	glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	GLenum format, internalFormat = 0, type = 0;
+	getParameters(textureFormat, format, internalFormat, type);
+
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		internalFormat,
+		width,
+		height,
+		0,
+		format,
+		type,
+		nullptr
 	);
+}
+
+void Texture::load(unsigned int xoffset, unsigned int yoffset, const ImageDecoder &decoder) {
+	bool layered = decoder.getNumLayers() > 1;
+
+	switch (decoder.getType()) {
+		case kTextureCube:
+			_type = GL_TEXTURE_CUBE_MAP;
+			break;
+		case kTexture2D:
+			if (layered)
+				_type = GL_TEXTURE_2D_ARRAY;
+			else
+				_type = GL_TEXTURE_2D;
+			break;
+		case kTexture3D:
+			_type = GL_TEXTURE_3D;
+			break;
+
+		default:
+			throw Common::Exception("Invalid image type", decoder.getType());
+	}
+
+	bind();
+
+	glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	GLenum format, internalFormat = 0, type = 0;
+	getParameters(decoder.getFormat(), format, internalFormat, type);
+
+	if (layered) {
+		unsigned int width = decoder.getMipmaps()[0].width;
+		unsigned int height = decoder.getMipmaps()[0].height;
+		glTexStorage3D(_type, 1, internalFormat, width, height, decoder.getNumLayers());
+	}
+
+	GLuint level = 0;
+	for (int i = 0; i < decoder.getNumLayers(); ++i) {
+		for (const auto &mipmap : decoder.getMipmaps(i)) {
+			assert(mipmap.width != 0 && mipmap.height != 0);
+
+			if (decoder.isCompressed()) {
+				glCompressedTexSubImage2D(
+					_type,
+					level,
+					xoffset,
+					yoffset,
+					mipmap.width,
+					mipmap.height,
+					format,
+					mipmap.dataSize,
+					mipmap.data[0]
+				);
+			} else {
+				if (layered) {
+					glTexSubImage3D(
+						_type,
+						level,
+						xoffset,
+						yoffset,
+						0,
+						mipmap.width,
+						mipmap.height,
+						i,
+						format,
+						type,
+						mipmap.data[0]
+					);
+				} else {
+					glTexSubImage2D(
+						_type,
+						level,
+						xoffset,
+						yoffset,
+						mipmap.width,
+						mipmap.height,
+						format,
+						type,
+						mipmap.data[0]
+					);
+				}
+			}
+
+			level += 1;
+		}
+	}
+
+	assert(glGetError() == GL_NO_ERROR);
 }
 
 void Texture::load(const ImageDecoder &decoder) {
@@ -106,46 +216,7 @@ void Texture::load(const ImageDecoder &decoder) {
 	glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	GLenum format, internalFormat = 0, type = 0;
-	switch (decoder.getFormat()) {
-		case kR8:
-			internalFormat = GL_R8;
-			format = GL_RED;
-			type = GL_UNSIGNED_BYTE;
-			break;
-		case kRG16:
-			internalFormat = GL_RG16;
-			format = GL_RG;
-			type = GL_UNSIGNED_SHORT;
-			break;
-		case kRG8:
-			internalFormat = GL_RG8;
-			format = GL_RG;
-			type = GL_UNSIGNED_BYTE;
-			break;
-		case kRGB8:
-			internalFormat = GL_RGB;
-			format = GL_RGB;
-			type = GL_UNSIGNED_BYTE;
-			break;
-		case kRGBA8:
-			internalFormat = GL_RGBA;
-			format = GL_BGRA;
-			type = GL_UNSIGNED_BYTE;
-			break;
-
-		case kBC1:
-			format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-			break;
-		case kBC2:
-			format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-			break;
-		case kBC3:
-			format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-			break;
-
-		default:
-			throw std::runtime_error("Invalid texture format");
-	}
+	getParameters(decoder.getFormat(), format, internalFormat, type);
 
 	if (layered) {
 		unsigned int width = decoder.getMipmaps()[0].width;
@@ -239,6 +310,59 @@ void Texture::load(const ImageDecoder &decoder) {
 void Texture::bind() {
 	//assert(glIsTexture(_id) == GL_TRUE);
 	glBindTexture(_type, _id);
+}
+
+void Texture::getParameters(
+	TextureFormat textureFormat,
+	GLenum &format,
+	GLenum &internalFormat,
+	GLenum &type
+) const {
+	switch (textureFormat) {
+		case kR8:
+			internalFormat = GL_R8;
+			format = GL_RED;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case kRG16:
+			internalFormat = GL_RG16;
+			format = GL_RG;
+			type = GL_UNSIGNED_SHORT;
+			break;
+		case kRG8:
+			internalFormat = GL_RG8;
+			format = GL_RG;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case kRGB8:
+			internalFormat = GL_RGB;
+			format = GL_RGB;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case kRGB5A1:
+			internalFormat = GL_RGB5_A1;
+			format = GL_RGBA;
+			type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+			break;
+		case kRGBA8:
+			internalFormat = GL_RGBA;
+			format = GL_BGRA;
+			type = GL_UNSIGNED_BYTE;
+			break;
+
+		case kBC1:
+			format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+			break;
+		case kBC2:
+			format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+			break;
+		case kBC3:
+			format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			break;
+
+		default:
+			throw std::runtime_error("Invalid texture format");
+	}
 }
 
 }

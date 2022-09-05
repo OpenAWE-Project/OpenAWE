@@ -34,13 +34,22 @@ public:
 	Texture(unsigned int width, unsigned int height);
 	~Texture();
 
-	void attachToFramebuffer(GLuint attachmentType);
-
 	void bind();
+
+	void allocate(TextureFormat textureFormat, unsigned int width, unsigned int height) override;
+
+	void load(unsigned int xoffset, unsigned int yoffset, const ImageDecoder &decoder) override;
 
 	void load(const ImageDecoder &decoder) override;
 
 private:
+	void getParameters(
+		TextureFormat textureFormat,
+		GLenum &format,
+		GLenum &internalFormat,
+		GLenum &type
+	) const;
+
 	friend class Framebuffer;
 
 	bool _freeTexture;

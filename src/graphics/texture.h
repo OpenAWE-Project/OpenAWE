@@ -35,6 +35,27 @@ typedef std::shared_ptr<Texture> TexturePtr;
 
 class Texture : Common::Noncopyable {
 public:
+	/*!
+	 * Allocate memory for the texture using a format and a size. This removes all previously allocated memory and the
+	 * data contained in it.
+	 * \param textureFormat The texture format of the data to format the texture for
+	 * \param width The width of the new texture to format
+	 * \param height The height of the new texture to format
+	 */
+	virtual void allocate(TextureFormat textureFormat, unsigned int width, unsigned int height) = 0;
+
+	/*!
+	 * Load an image into the texture using a certain offset
+	 * \param xoffset The offset in x direction
+	 * \param yoffset The offset in y direction
+	 * \param decoder The image to copy into the texture
+	 */
+	virtual void load(unsigned int xoffset, unsigned int yoffset, const Graphics::ImageDecoder &decoder) = 0;
+
+	/*!
+	 * Load an image into the texture and reallocate the texture in regards to the images size.
+	 * \param decoder The image to load into the texture
+	 */
 	virtual void load(const Graphics::ImageDecoder &decoder) = 0;
 };
 
