@@ -20,7 +20,7 @@ jobs:
             os: windows-2019
             extra_cmake_args: -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
           - name: MacOS Clang
-            os: macos-10.15
+            os: macos-11
             extra_cmake_args: -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include/AL
 
     name: ${{ matrix.name }}
