@@ -58,7 +58,7 @@ jobs:
           vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl
 
       - name: Install dependencies with brew
-        if: ${{ matrix.os == 'macos-10.15' }}
+        if: ${{ matrix.os == 'macos-11' }}
         run: |
           brew update
           brew install zlib glfw libogg libvorbis theora spdlog glew openal-soft bullet fmt googletest tinyxml2 glm
