@@ -53,8 +53,8 @@ void main() {
 
     FoliageMesh foliageMesh = g_foliageMeshTable[iFoliageMesh];
 
-    vPosition.x += fSideFactor * foliageMesh.vBillboardSize.x / 2;
     vPosition = (g_mLocalToView * vec4(vPosition, 1.0)).xyz;
+    vPosition.x += fSideFactor * foliageMesh.vBillboardSize.x / 2;
     vPosition.y += fUpFactor * foliageMesh.vBillboardSize.y;
 
     vec2 vUV = foliageMesh.vAtlasPosition;
