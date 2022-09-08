@@ -58,6 +58,13 @@ public:
 	 */
 	TexturePtr createTexture(const ImageDecoder &decoder);
 
+	/*!
+	 * Create an empty 2d texture with the specified texture format and the specified size in width and height
+	 * \param format The texture format, the texture should have
+	 * \param width The width of the newly created texture
+	 * \param height The height of the newly created texture
+	 * \return A pointer to the newly created empty texture
+	 */
 	TexturePtr createEmptyTexture2D(TextureFormat format, unsigned int width, unsigned int height);
 
 	/*!
