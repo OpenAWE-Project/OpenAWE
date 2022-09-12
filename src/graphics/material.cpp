@@ -23,18 +23,28 @@
 
 namespace Graphics {
 
-Material::Material(const std::string &shaderName, std::vector<Attribute> attributes, uint32_t properties) :
+Material::Material() {
+}
+
+Material::Material(
+	const std::string &shaderName,
+	std::initializer_list<std::string> stages,
+	std::vector<Attribute> attributes,
+	uint32_t properties) :
 	_shaderName(shaderName),
-	_attributes(attributes),
+	_stages(stages),
 	_blendMode(BlendMode::kNone),
 	_properties(properties) {
-	for (auto &attribute: _attributes) {
-		attribute.index = GfxMan.getUniformIndex(_shaderName, attribute.id);
+	for (const auto &stage: _stages) {
+		_attributes[stage] = attributes;
+		for (auto &attribute: _attributes[stage]) {
+			attribute.index = GfxMan.getUniformIndex(_shaderName, stage, attribute.id);
+		}
 	}
 }
 
-const std::vector<Material::Attribute> &Material::getAttributes() const {
-	return _attributes;
+const std::vector<Material::Attribute> &Material::getAttributes(const std::string &stage) const {
+	return _attributes.at(stage);
 }
 
 const std::string &Material::getShaderName() const {
@@ -55,6 +65,10 @@ BlendMode Material::getBlendMode() const {
 
 void Material::setBlendMode(BlendMode blendMode) {
 	_blendMode = blendMode;
+}
+
+bool Material::hasStage(const std::string &stage) const {
+	return std::find(_stages.begin(), _stages.end(), stage) != _stages.end();
 }
 
 uint32_t Material::getProperties() const {

@@ -178,7 +178,8 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 	}
 	assert(glGetError() == GL_NO_ERROR);
 
-	const std::regex shaderFile("^[a-z]+\\.(vert|frag|tesc|tese)\\.glsl$");
+	const std::regex shaderFile("^[a-z]+-[a-z]+\\.(vert|frag|tesc|tese)\\.glsl$");
+	std::map<std::tuple<std::string, std::string>, ProgramPtr> programs;
 	std::vector<std::unique_ptr<Shader>> shaders;
 	for (const auto &item : std::filesystem::directory_iterator("../shaders")) {
 		std::string filename = item.path().filename().string();
@@ -188,9 +189,10 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 
 		spdlog::info("Loading shader {}", filename);
 
-		std::string name, type;
+		std::string name, stage, type;
 		std::stringstream ss(filename);
-		std::getline(ss, name, '.');
+		std::getline(ss, name, '-');
+		std::getline(ss, stage, '.');
 		std::getline(ss, type, '.');
 
 		std::ifstream in(item.path());
@@ -208,20 +210,37 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 		else
 			throw std::runtime_error("Unknown or unsupported shader");
 
-		shaders.emplace_back(new Shader(shaderType, source));
+		auto &shader = shaders.emplace_back(std::make_unique<Shader>(shaderType, source));
+		shader->compile();
+
+		const auto identifier = std::make_tuple(name, stage);
+		if (programs.find(identifier) == programs.end())
+			programs[identifier] = std::make_shared<Program>();
+
+		programs[identifier]->attach(*shader);
+	}
+
+	for (const auto &program: programs) {
+		const auto &[name, stage] = program.first;
+		spdlog::info("Linking Program {} in stage {}", name, stage);
+
+		program.second->link();
 
 		if (_programs.find(name) == _programs.end())
-			_programs[name] = std::make_unique<Program>();
+			_programs[name] = std::make_unique<ProgramCollection>();
 
-		shaders.back()->compile();
-
-		_programs[name]->attach(*shaders.back());
+		_programs[name]->setProgram(stage, program.second);
 	}
 
 	for (auto &item : _programs) {
-		spdlog::info("Linking Program {}", item.first);
-		item.second->link();
-
+		// If this render pass name already exists, skip it
+		if (std::find_if(
+			_renderPasses.begin(),
+			_renderPasses.end(),
+			[&](const auto &v){ return v.programName == item.first; })
+			!= _renderPasses.end()
+		)
+			continue;
 		_renderPasses.emplace_back(item.first);
 	}
 
@@ -254,17 +273,17 @@ Renderer::~Renderer() {
 void Renderer::drawFrame() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	drawWorld();
+	drawWorld("material");
 	drawGUI();
 
 	_window.swap();
 }
 
-void Renderer::drawWorld() {
+void Renderer::drawWorld(const std::string &stage) {
 	glm::mat4 vp = _projection * _view;
 	glm::mat4 viewToWorldMat = glm::inverse(_view);
 
-	const std::unique_ptr<Program> &defaultShader = _programs["standardmaterial"];
+	const auto &defaultShader = getProgram("standardmaterial", stage);
 	static const glm::mat4 mirrorZ = glm::scale(glm::vec3(1, 1, -1));
 
 	bool wireframe = false;
@@ -274,8 +293,7 @@ void Renderer::drawWorld() {
 		if (pass.renderTasks.empty())
 			continue;
 
-		auto programIter = _programs.find(pass.programName);
-		const std::unique_ptr<Program> &currentShader = (programIter == _programs.end()) ? defaultShader : programIter->second;
+		const ProgramPtr &currentShader = (!hasProgram(pass.programName, stage)) ? defaultShader : getProgram(pass.programName, stage);
 		currentShader->bind();
 
 		std::optional<GLint> localToView = currentShader->getUniformLocation("g_mLocalToView");
@@ -312,12 +330,15 @@ void Renderer::drawWorld() {
 			for (const auto &meshToRender: task.partMeshsToRender) {
 				const auto partmesh = partMeshs[meshToRender];
 
-				std::static_pointer_cast<Graphics::OpenGL::VAO>(partmesh.vertexAttributes)->bind();
+				if (!partmesh.material.hasStage(stage))
+					continue;
+
+				std::static_pointer_cast<Graphics::OpenGL::VAO>(partmesh.vertexAttributes.find(stage)->second)->bind();
 				if (indices)
 					indices->bind();
 
 				GLuint textureSlot = 0;
-				for (const auto &attribute : partmesh.material.getAttributes()) {
+				for (const auto &attribute : partmesh.material.getAttributes(stage)) {
 					switch (attribute.type) {
 						case Material::kVec1: {
 							glm::vec1 value = std::get<glm::vec1>(attribute.data);
@@ -429,7 +450,7 @@ void Renderer::drawWorld() {
 void Renderer::drawGUI() {
 	glm::mat4 vp = glm::ortho(0.0f, 1920.0f, 0.0f, 1080.0f, -1000.0f, 1000.0f);
 
-	std::unique_ptr<Program> &program = _programs["gui"];
+	auto program = getProgram("gui", "material");
 	program->bind();
 
 	const GLint locationTexture = *program->getUniformLocation("g_sTexture");
@@ -467,7 +488,21 @@ void Renderer::drawGUI() {
 	glEnable(GL_DEPTH_TEST);
 }
 
+ProgramPtr Renderer::getProgram(const std::string &name, const std::string &stage) {
+	const auto &programCollection = _programs[name];
+	return programCollection->getProgram(stage);
+}
 
+bool Renderer::hasProgram(const std::string &name, const std::string &stage) {
+	if (_programs.find(name) == _programs.end())
+		return false;
+
+	const auto &programCollection = _programs[name];
+	if (!programCollection->hasStage(stage))
+		return false;
+
+	return true;
+}
 
 GLenum Renderer::getTextureSlot(unsigned int slot) {
 	switch (slot % 32) {
@@ -574,32 +609,33 @@ BufferPtr Renderer::createBuffer(BufferType type, bool modifiable) {
 	return std::make_shared<Graphics::OpenGL::VBO>(bufferType, usage);
 }
 
-int Renderer::getUniformIndex(const std::string &shaderName, const std::string &id) {
-	const auto programIter = _programs.find(shaderName);
-	if (programIter == _programs.end())
+int Renderer::getUniformIndex(const std::string &shaderName, const std::string &stage, const std::string &id) {
+	if (!hasProgram(shaderName, stage))
 		return -1;
 
-	const auto &program = programIter->second;
-	const auto uniformLocation = program->getUniformLocation(id);
+	const auto uniformLocation = getProgram(shaderName, stage)->getUniformLocation(id);
 	if (!uniformLocation)
 		return -1;
 
 	return *uniformLocation;
 }
 
-AttributeObjectPtr
-Renderer::createAttributeObject(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
-								BufferPtr vertexData, unsigned int offset) {
+AttributeObjectPtr Renderer::createAttributeObject(
+	const std::string &shader,
+	const std::string &stage,
+	const std::vector<VertexAttribute> &vertexAttributes,
+	BufferPtr vertexData,
+	unsigned int offset
+) {
 	auto vao = std::make_unique<VAO>();
 	vao->bind();
 	std::static_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
 
-	auto programIter = _programs.find(shader);
 	std::string shaderName = shader;
-	if (programIter == _programs.end())
+	if (!hasProgram(shaderName, stage))
 		shaderName = "standardmaterial";
 
-	std::unique_ptr<Program> &program = _programs[shaderName];
+	ProgramPtr program = getProgram(shaderName, stage);
 	program->bind();
 
 	// Calculate the size of the vertex element.

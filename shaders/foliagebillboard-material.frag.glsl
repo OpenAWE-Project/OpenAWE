@@ -18,15 +18,15 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#version 330 core
+#version 330
 
 uniform sampler2D g_sColorMap;
-uniform vec4 g_vColorMultiplier = vec4(1.0);
 
-in vec2 pass_UV;
+in vec2 pass_AtlasUV;
 
 out vec4 out_Color;
 
 void main() {
-    out_Color = texture(g_sColorMap, pass_UV) * g_vColorMultiplier;
+    out_Color.rgb = texture(g_sColorMap, pass_AtlasUV).rgb;
+    out_Color.a = 1.0;
 }

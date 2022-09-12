@@ -49,7 +49,7 @@ public:
 
 	struct PartMesh {
 		BufferPtr vertexData;
-		AttributeObjectPtr vertexAttributes;
+		std::map<std::string, AttributeObjectPtr> vertexAttributes;
 		RenderType renderType;
 		Material material;
 		std::vector<std::string> boneMap;

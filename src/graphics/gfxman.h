@@ -90,6 +90,7 @@ public:
 	 * Create an attribute object in the initialized render system using the given shader, vertex attributes and the
 	 * vertex data buffer
 	 * \param shader The shader for the attribute object
+	 * \param stage The stage of the shader for the attribute object
 	 * \param vertexAttributes The attributes to create the attribute object
 	 * \param vertexData The vertex data to bind the attribute object to
 	 * \param offset The global offset inside the vertex data from which to start
@@ -97,17 +98,24 @@ public:
 	 */
 	AttributeObjectPtr createAttributeObject(
 		const std::string &shader,
+		const std::string &stage,
 		const std::vector<VertexAttribute> &vertexAttributes,
 		BufferPtr vertexData,
-		unsigned int offset = 0);
+		unsigned int offset = 0
+	);
 
 	/*!
 	 * Get the index of a specific uniform from a specific shader
 	 * \param shaderName The name of the shader from which to get the uniform variable
+	 * \param stage The stage of the uniform index to get
 	 * \param id The id of the uniform variable in the given shader
 	 * \return The index of the uniform variable or -1 if the uniform variable is not found or not yet implemented
 	 */
-	int getUniformIndex(const std::string &shaderName, const std::string &id);
+	int getUniformIndex(
+		const std::string &shaderName,
+		const std::string &stage,
+		const std::string &id
+	);
 
 	void setCurrentVideoFrame(Common::UUID &id);
 

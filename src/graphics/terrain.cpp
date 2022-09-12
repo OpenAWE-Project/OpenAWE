@@ -111,13 +111,15 @@ Terrain::Terrain(Common::ReadStream *terrainDataFile) {
 			Material::Attribute("g_vTexCoordScale2",glm::vec4(16.0))
 		};
 
-		partMesh.vertexAttributes = GfxMan.createAttributeObject(
-			"terrain",
-			attributes,
-			partMesh.vertexData
-		);
+		for (const auto &stage: {"material"}) {
+			partMesh.vertexAttributes[stage] = GfxMan.createAttributeObject(
+				"terrain", stage,
+				attributes,
+				partMesh.vertexData
+			);
+		}
 		partMesh.renderType = Mesh::kTriangleFan;
-		partMesh.material = Material("terrain", materialAttributes);
+		partMesh.material = Material("terrain", {"material"}, materialAttributes);
 		partMesh.material.setCullMode(Material::kNone);
 		partMesh.offset = 0;
 		partMesh.length = polygon.indices.size();

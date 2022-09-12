@@ -18,14 +18,29 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#version 330
+#include "src/common/exception.h"
 
-uniform sampler2D g_sColorMap;
+#include "src/graphics/opengl/programcollection.h"
 
-in vec2 pass_AtlasUV;
+namespace Graphics::OpenGL {
 
-out vec4 out_Color;
-
-void main() {
-    out_Color = texture(g_sColorMap, pass_AtlasUV);
+ProgramCollection::ProgramCollection() {
 }
+
+bool ProgramCollection::hasStage(const std::string &stage) {
+	return _programs.find(stage) != _programs.end();
+}
+
+void ProgramCollection::setProgram(const std::string &stage, ProgramPtr program) {
+	_programs[stage] = program;
+}
+
+ProgramPtr ProgramCollection::getProgram(const std::string &stage) const {
+	const auto programIter = _programs.find(stage);
+	if (programIter == _programs.cend())
+		throw CreateException("Couldn't find program for stage {}", stage);
+
+	return programIter->second;
+}
+
+} // End of namespace Graphics::OpenGL

@@ -33,6 +33,7 @@
 #include "src/graphics/opengl/vao.h"
 #include "src/graphics/opengl/texture.h"
 #include "src/graphics/opengl/framebuffer.h"
+#include "src/graphics/opengl/programcollection.h"
 
 namespace Graphics::OpenGL {
 
@@ -47,15 +48,18 @@ public:
 	BufferPtr createBuffer(BufferType type, bool modifiable) override;
 
 	AttributeObjectPtr
-	createAttributeObject(const std::string &shader, const std::vector<VertexAttribute> &vertexAttributes,
-						  BufferPtr vertexData, unsigned int offset) override;
+	createAttributeObject(const std::string &shader, const std::string &stage,
+						  const std::vector<VertexAttribute> &vertexAttributes, BufferPtr vertexData,
+						  unsigned int offset) override;
 
-	int getUniformIndex(const std::string &shaderName, const std::string &id) override;
+	int getUniformIndex(const std::string &shaderName, const std::string &stage, const std::string &id) override;
 
 private:
-	void drawWorld();
+	void drawWorld(const std::string &stage);
 	void drawGUI();
 
+	ProgramPtr getProgram(const std::string &name, const std::string &stage);
+	bool hasProgram(const std::string &name, const std::string &stage);
 	GLenum getTextureSlot(unsigned int slot);
 
 	static void debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, void *userParam);
@@ -66,7 +70,7 @@ private:
 	std::unique_ptr<Texture> _normalTexture;
 	std::unique_ptr<Framebuffer> _deferredBuffer;
 
-	std::map<std::string, std::unique_ptr<Program>> _programs;
+	std::map<std::string, std::unique_ptr<ProgramCollection>> _programs;
 };
 
 }

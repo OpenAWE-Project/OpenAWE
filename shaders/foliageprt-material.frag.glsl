@@ -20,34 +20,15 @@
 
 #version 330 core
 
-// Atmosphere
-uniform struct {
-    vec3 vSunDir;
-    vec3 vSunE;
-    vec3 vExtinction;
-    vec3 vRayleigh;
-    vec3 vMie;
-    vec3 vHGConstants;
-    vec2 vFog;
-} g_atmosphere;
+uniform sampler2D g_sColorMap;
+uniform vec4 g_vColorMultiplier = vec4(1.0);
 
-// Fog
-uniform float g_fFogGroundDensity;
-uniform float g_fFogGroundDensityAtViewer;
-uniform vec3 g_vFogColor;
-uniform vec3 g_vFogColorOpposite;
+in vec2 pass_UV;
 
-uniform mat4 g_mLocalToView;
-uniform mat4 g_mViewToWorld;
-uniform mat4 g_mViewToClip;
-
-in vec3 in_Position;
-in vec2 in_UV0;
-
-out vec2 pass_UV;
+out vec4 out_Color;
 
 void main() {
-    // Pass UV coordinates to fragment shader
-    pass_UV = in_UV0 * (1.0/4096.0);
-    gl_Position = g_mViewToClip * g_mLocalToView * vec4(in_Position, 1.0f);
+    vec4 vColor = texture(g_sColorMap, pass_UV);
+    out_Color.rgb = vColor.rgb * g_vColorMultiplier.rgb;
+    out_Color.a = 1.0;
 }

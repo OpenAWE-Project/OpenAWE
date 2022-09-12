@@ -33,6 +33,10 @@
 
 namespace Graphics::OpenGL {
 
+class Program;
+
+typedef std::shared_ptr<Program> ProgramPtr;
+
 class Program : Common::Noncopyable {
 public:
 	Program();

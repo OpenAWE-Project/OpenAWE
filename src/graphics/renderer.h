@@ -55,12 +55,13 @@ public:
 	virtual BufferPtr createBuffer(BufferType type, bool modifiable) = 0;
 	virtual AttributeObjectPtr createAttributeObject(
 		const std::string &shader,
+		const std::string &stage,
 		const std::vector<VertexAttribute> &vertexAttributes,
 		BufferPtr vertexData,
 		unsigned int offset
 	) = 0;
 
-	virtual int getUniformIndex(const std::string &shaderName, const std::string &id) = 0;
+	virtual int getUniformIndex(const std::string &shaderName, const std::string &stage, const std::string &id) = 0;
 
 	void setCurrentVideoFrame(const Common::UUID &id);
 

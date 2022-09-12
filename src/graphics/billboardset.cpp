@@ -109,13 +109,20 @@ BillboardSet::BillboardSet(
 		kVertexBuffer
 	);
 
-	partMesh.vertexAttributes = GfxMan.createAttributeObject(
-		"foliagebillboard",
-		attributes,
-		partMesh.vertexData
-	);
+	for (const auto &stage: {"material", "depth"}) {
+		partMesh.vertexAttributes[stage] = GfxMan.createAttributeObject(
+			"foliagebillboard",
+			stage,
+			attributes,
+			partMesh.vertexData
+		);
+	}
+
 	partMesh.renderType = Mesh::kTriangles;
-	partMesh.material = Material("foliagebillboard", materialAttributes);
+	partMesh.material = Material(
+		"foliagebillboard",
+		{"material"},
+		materialAttributes);
 	partMesh.material.setCullMode(Material::kNone);
 	partMesh.offset = 0;
 	partMesh.length = index * 6;

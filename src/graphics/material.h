@@ -65,10 +65,15 @@ public:
 		Attribute(const std::string &id, TexturePtr value) : id(id), data(value), type(kTexture), index(-1) {}
 	};
 
-	Material() = default;
-	Material(const std::string &shaderName, std::vector<Attribute> attributes, uint32_t properties = 0);
+	Material();
+	Material(
+		const std::string &shaderName,
+		std::initializer_list<std::string> stages,
+		std::vector<Attribute> attributes,
+		uint32_t properties = 0
+	);
 
-	const std::vector<Attribute> &getAttributes() const;
+	const std::vector<Attribute> &getAttributes(const std::string &stage) const;
 	const std::string &getShaderName() const;
 
 	void setCullMode(CullMode cullMode);
@@ -78,6 +83,7 @@ public:
 
 	void setBlendMode(BlendMode blendMode);
 
+	bool hasStage(const std::string &stage) const;
 	uint32_t getProperties() const;
 
 private:
@@ -85,7 +91,8 @@ private:
 	BlendMode _blendMode;
 	bool _refractive, _specular, _castShadow;
 	uint32_t _properties;
-	std::vector<Attribute> _attributes;
+	std::map<std::string, std::vector<Attribute>> _attributes;
+	std::vector<std::string> _stages;
 	std::string _shaderName;
 };
 
