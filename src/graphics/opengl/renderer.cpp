@@ -171,7 +171,7 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 				p->addSamplerMappings(vertexConverter.getSamplerMappings());
 				p->addSamplerMappings(pixelConverter.getSamplerMappings());
 
-				_programs[obj.getName()] = std::move(p);
+				_programs[obj.getName()]->setProgram("material", std::move(p));
 			}
 		}
 
