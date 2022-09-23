@@ -339,9 +339,9 @@ void Texture::getParameters(
 			format = GL_RGB;
 			type = GL_UNSIGNED_BYTE;
 			break;
-		case kRGB5A1:
+		case kA1RGB5:
 			internalFormat = GL_RGB5_A1;
-			format = GL_RGBA;
+			format = GL_BGRA;
 			type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
 			break;
 		case kRGBA8:
