@@ -328,7 +328,7 @@ void Renderer::drawWorld(const std::string &stage) {
 				currentShader->setUniformMatrix4f(*viewToWorld, vm);
 
 			for (const auto &meshToRender: task.partMeshsToRender) {
-				const auto partmesh = partMeshs[meshToRender];
+				const auto &partmesh = partMeshs[meshToRender];
 
 				if (!partmesh.material.hasStage(stage))
 					continue;
