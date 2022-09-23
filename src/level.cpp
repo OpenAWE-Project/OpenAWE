@@ -72,7 +72,10 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 		//DPFile dphd(persistent.getResource("dp_hdcell.bin"));
 		load(hdCell.getResource("cid_staticobject.bin"), kStaticObject);
 		load(ldCell.getResource("cid_staticobject.bin"), kStaticObject);
-		loadTerrainData(ldCell.getResource("cid_terraindata.bin"));
+		loadTerrainData(
+			ldCell.getResource("cid_terraindata.bin"),
+			hdCell.getResource("cid_terraindata.bin")
+		);
 
 		std::unique_ptr<Common::ReadStream> terrainCollisions(ResMan.getResource(fmt::format("{}/{}.collisions", levelFolder, hdName)));
 		assert(terrainCollisions);
@@ -83,9 +86,13 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 	}
 }
 
-void Level::loadTerrainData(Common::ReadStream *terrainData) {
-	std::unique_ptr<Common::ReadStream> terrainDataStream(terrainData);
-	_terrains.emplace_back(std::make_unique<Graphics::Terrain>(terrainDataStream.get()));
+void Level::loadTerrainData(Common::ReadStream *terrainDataLD, Common::ReadStream *terrainDataHD) {
+	std::unique_ptr<Common::ReadStream> terrainDataStreamLD(terrainDataLD);
+	std::unique_ptr<Common::ReadStream> terrainDataStreamHD(terrainDataHD);
+	auto &terrain = _terrains.emplace_back(std::make_unique<Graphics::Terrain>());
+	terrain->loadTerrainData(terrainDataStreamLD.get());
+	terrain->loadTerrainData(terrainDataStreamHD.get());
+	terrain->show();
 }
 
 std::vector<glm::u32vec2> Level::loadCellInfo(Common::ReadStream *cid) const {

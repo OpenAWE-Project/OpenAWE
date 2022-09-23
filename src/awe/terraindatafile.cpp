@@ -22,22 +22,24 @@
 #include <vector>
 #include <regex>
 
+#include <spdlog/spdlog.h>
 #include <fmt/format.h>
+#include <glm/gtx/string_cast.hpp>
 
 #include "terraindatafile.h"
 
 namespace AWE {
 
 TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
-	uint32_t version = terrainData.readUint32LE();
+	const uint32_t version = terrainData.readUint32LE();
 	if (version != 25)
 		throw std::runtime_error(fmt::format("Invalid version for terraindata. {} given, only 25 supported", version));
 
-	bool highDetail = terrainData.readByte() != 0;
+	_hd = terrainData.readByte() != 0;
 
-	if (!highDetail) {
+	if (!_hd) {
 		// Read tile names
-		uint32_t numTiles = terrainData.readUint32LE();
+		const uint32_t numTiles = terrainData.readUint32LE();
 		_textures.resize(numTiles);
 		for (auto &texture : _textures) {
 			uint32_t fileNameLength = terrainData.readUint32LE();
@@ -50,7 +52,7 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 		}
 
 		// Read tilesets
-		uint32_t numTilesets = terrainData.readUint32LE();
+		const uint32_t numTilesets = terrainData.readUint32LE();
 		_tilesets.resize(numTilesets);
 		for (auto &tileset : _tilesets) {
 			tileset.colorTiles[0] = terrainData.readUint16LE();
@@ -62,7 +64,7 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 		}
 
 		// Read vertices
-		uint32_t numVertices = terrainData.readUint32LE();
+		const uint32_t numVertices = terrainData.readUint32LE();
 		_vertices.resize(numVertices);
 		for (auto &vertex : _vertices) {
 			vertex.position.x = terrainData.readIEEEFloatLE();
@@ -77,16 +79,16 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 		}
 
 		// Read Polygons
-		uint32_t numPolygons = terrainData.readUint32LE();
+		const uint32_t numPolygons = terrainData.readUint32LE();
 		_polygons.resize(numPolygons);
 		for (auto &polygon : _polygons) {
 			for (int i = 0; i < 4; ++i) {
-				uint32_t index = terrainData.readUint32LE();
+				const uint32_t index = terrainData.readUint32LE();
 				if (index != 0xFFFFFFFF)
 					polygon.indices.emplace_back(index);
 			}
 
-			uint8_t numVertexReferences = terrainData.readByte();
+			const uint8_t numVertexReferences = terrainData.readByte();
 			assert(polygon.indices.size() == numVertexReferences);
 
 			glm::u8vec3 binormalSign;
@@ -133,17 +135,18 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 			polygon.boundSphere.position.z = terrainData.readIEEEFloatLE();
 			polygon.boundSphere.radius = terrainData.readIEEEFloatLE();
 
-			glm::u16vec4 polygonReferences;
-			polygonReferences.x = terrainData.readUint16LE();
-			polygonReferences.y = terrainData.readUint16LE();
-			polygonReferences.z = terrainData.readUint16LE();
-			polygonReferences.w = terrainData.readUint16LE();
+			glm::i16vec4 polygonReferences;
+			polygonReferences.x = terrainData.readSint16LE();
+			polygonReferences.y = terrainData.readSint16LE();
+			polygonReferences.z = terrainData.readSint16LE();
+			polygonReferences.w = terrainData.readSint16LE();
 
-			glm::u8vec4 grassMap;
-			grassMap.x = terrainData.readByte();
-			grassMap.y = terrainData.readByte();
-			grassMap.z = terrainData.readByte();
-			grassMap.w = terrainData.readByte();
+			assert(polygonReferences.x < static_cast<int>(numPolygons));
+			assert(polygonReferences.y < static_cast<int>(numPolygons));
+			assert(polygonReferences.z < static_cast<int>(numPolygons));
+			assert(polygonReferences.w < static_cast<int>(numPolygons));
+
+			terrainData.skip(1 + 1 + 1 + 1);
 
 			polygon.tilesetId = terrainData.readUint16LE();
 
@@ -152,13 +155,14 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 			// 0x10 -> ?
 			polygon.flags = terrainData.readUint16LE();
 
-			terrainData.skip(4);
-			terrainData.skip(2 + 2);
+			//terrainData.skip(4);
+			const auto val = terrainData.readUint32LE();
+			terrainData.skip(1 + 1 + 1 + 1);
 		}
 	} else {
-		uint32_t numPolygons = terrainData.readUint32LE();
+		const uint32_t numPolygons = terrainData.readUint32LE();
 		for (int i = 0; i < numPolygons; ++i) {
-			uint32_t val1 = terrainData.readUint32LE();
+			const uint32_t id = terrainData.readUint32LE();
 
 			// Displacement map!
 			terrainData.skip(512);
@@ -168,52 +172,74 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 			vec1.y = terrainData.readUint32LE();
 			vec1.z = terrainData.readUint32LE();
 		}
+
+		const uint32_t numUnk = terrainData.readUint32LE();
+		for (int i = 0; i < numUnk; ++i) {
+			const uint32_t id = terrainData.readUint32LE();
+
+			terrainData.skip(64);
+			terrainData.skip(6);
+			terrainData.skip(6);
+		}
 	}
 
-	uint32_t numBlends = terrainData.readUint32LE();
-	for (int i = 0; i < numBlends; i++) {
+	// Geonormal maps
+	const uint32_t numGeoNormalMaps = terrainData.readUint32LE();
+	for (int i = 0; i < numGeoNormalMaps; i++) {
 		Blend blend;
-		uint32_t polygonId = terrainData.readUint32LE();
+		blend.id = terrainData.readUint32LE();
 		blend.size = terrainData.readUint32LE();
 
-		uint32_t dataSize = std::pow<uint32_t>(blend.size, 2);
+		const uint32_t dataSize = std::pow<uint32_t>(blend.size, 2);
 
 		blend.data.resize(dataSize);
 		terrainData.read(blend.data.data(), dataSize * 2);
 
-		_polygons[polygonId].blend1 = blend;
+		_geonormalMaps.emplace_back(blend);
 	}
 
 	// Blend maps
-	uint32_t numBlendMaps = terrainData.readUint32LE();
+	const uint32_t numBlendMaps = terrainData.readUint32LE();
 	for (int i = 0; i < numBlendMaps; i++) {
 		Blend blend;
-		uint32_t polygonId = terrainData.readUint32LE();
+		blend.id = terrainData.readUint32LE();
 		blend.size = terrainData.readUint32LE();
 
-		uint32_t dataSize = std::pow<uint32_t>(blend.size, 2);
+		const uint32_t dataSize = std::pow<uint32_t>(blend.size, 2);
 
 		blend.data.resize(dataSize);
 		terrainData.read(blend.data.data(), dataSize * 2);
 
-		_polygons[polygonId].blendMap = blend;
+		_blendMaps.emplace_back(blend);
 	}
 }
 
-const std::vector<TerrainDataFile::Tileset> &TerrainDataFile::getTilesets() {
+bool TerrainDataFile::isHighDetail() const {
+	return _hd;
+}
+
+const std::vector<TerrainDataFile::Tileset> &TerrainDataFile::getTilesets() const {
 	return _tilesets;
 }
 
-const std::vector<TerrainDataFile::Vertex> &TerrainDataFile::getVertices() {
+const std::vector<TerrainDataFile::Vertex> &TerrainDataFile::getVertices() const {
 	return _vertices;
 }
 
-const std::vector<TerrainDataFile::Polygon> &TerrainDataFile::getPolygons() {
+const std::vector<TerrainDataFile::Polygon> &TerrainDataFile::getPolygons() const {
 	return _polygons;
 }
 
-const std::vector<std::string> &TerrainDataFile::getTextures() {
+const std::vector<std::string> &TerrainDataFile::getTextures() const {
 	return _textures;
+}
+
+const std::vector<TerrainDataFile::Blend> &TerrainDataFile::getGeonormalMaps() const {
+	return _geonormalMaps;
+}
+
+const std::vector<TerrainDataFile::Blend> &TerrainDataFile::getBlendMaps() const {
+	return _blendMaps;
 }
 
 }
