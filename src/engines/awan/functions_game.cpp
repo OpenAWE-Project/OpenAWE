@@ -22,6 +22,9 @@
 
 #include "src/engines/awan/functions.h"
 
+#include "src/sound/soundman.h"
+#include "src/sound/audiostreamfactory.h"
+
 #include "src/task.h"
 
 namespace Engines::AlanWakesAmericanNightmare {
@@ -39,6 +42,11 @@ void Functions::activateTask(Functions::Context &ctx) {
 
 void Functions::playMusic(Functions::Context &ctx) {
 	const entt::entity sound = ctx.getEntity(0);
+
+	const auto audioStreamFactory = _registry.get<Sound::AudioStreamFactory>(sound);
+
+	SoundMan.setMusic(audioStreamFactory.createStream());
+	SoundMan.getMusic().play();
 }
 
 void Functions::getStoryModeRound(Context &ctx) {
