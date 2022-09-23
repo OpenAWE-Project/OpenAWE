@@ -19,6 +19,10 @@
  */
 
 #include <assert.h>
+
+#include "src/codecs/audiostream.h"
+
+#include "src/sound/stream.h"
 #include "soundman.h"
 
 namespace Sound {
@@ -35,6 +39,14 @@ SoundManager::~SoundManager() {
 	alcMakeContextCurrent(nullptr);
 	alcDestroyContext(_context);
 	alcCloseDevice(_device);
+}
+
+void SoundManager::setMusic(Sound::Source *stream) {
+	_music.reset(stream);
+}
+
+Source & SoundManager::getMusic() {
+	return *_music;
 }
 
 void SoundManager::init() {

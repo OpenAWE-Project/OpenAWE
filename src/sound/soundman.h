@@ -25,7 +25,10 @@
 
 #include "src/common/singleton.h"
 
+#include "src/codecs/audiostream.h"
+
 #include "src/sound/openal.h"
+#include "src/sound/stream.h"
 
 namespace Sound {
 
@@ -33,6 +36,9 @@ class SoundManager : public Common::Singleton<SoundManager> {
 public:
 	SoundManager();
 	~SoundManager();
+
+	void setMusic(Sound::Source *stream);
+	Source & getMusic();
 
 	void init();
 
@@ -45,6 +51,8 @@ public:
 	void deregisterBuffer(ALuint id);
 
 private:
+	std::unique_ptr<Source> _music;
+
 	std::vector<ALuint> _sourcePool;
 	std::vector<ALuint> _bufferPool;
 
