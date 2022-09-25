@@ -27,6 +27,11 @@ in vec2 pass_AtlasUV;
 out vec4 out_Color;
 
 void main() {
-    out_Color.rgb = texture(g_sColorMap, pass_AtlasUV).rgb;
+    vec4 vColor = texture(g_sColorMap, pass_AtlasUV);
+
+    if (vColor.a < 0.5)
+        discard;
+
+    out_Color.rgb = vColor.rgb;
     out_Color.a = 1.0;
 }

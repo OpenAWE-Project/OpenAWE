@@ -29,6 +29,10 @@ out vec4 out_Color;
 
 void main() {
     vec4 vColor = texture(g_sColorMap, pass_UV);
+
+    if (vColor.a < 0.5)
+        discard;
+
     out_Color.rgb = vColor.rgb * g_vColorMultiplier.rgb;
     out_Color.a = 1.0;
 }
