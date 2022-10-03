@@ -30,7 +30,7 @@ find_path(
         theora/theora.h
 )
 
-set(THEORA_LIBRARIES ${THEORA_DECODING_LIBRARY})
+set(THEORA_LIBRARIES ${THEORA_LIBRARY})
 set(THEORA_INCLUDE_DIRS ${THEORA_INCLUDE_DIR})
 
 find_package_handle_standard_args(
