@@ -21,12 +21,8 @@ include(FindPackageHandleStandardArgs)
 
 find_library(
         THEORA_LIBRARY
+        theoradec # Since we are only decoding theora prefer the decoding library over the full library
         theora
-)
-
-find_library(
-        THEORA_DECODING_LIBRARY
-        theoradec
 )
 
 find_path(
@@ -34,7 +30,7 @@ find_path(
         theora/theora.h
 )
 
-set(THEORA_LIBRARIES ${THEORA_LIBRARY} ${THEORA_DECODING_LIBRARY})
+set(THEORA_LIBRARIES ${THEORA_DECODING_LIBRARY})
 set(THEORA_INCLUDE_DIRS ${THEORA_INCLUDE_DIR})
 
 find_package_handle_standard_args(
