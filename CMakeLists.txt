@@ -225,7 +225,6 @@ link_libraries(
         CLI11::CLI11
         GLEW::GLEW
         OpenGL::GL
-        OpenGL::OpenGL
 
         ${ZLIB_LIBRARIES}
         ${OPENAL_LIBRARY}
