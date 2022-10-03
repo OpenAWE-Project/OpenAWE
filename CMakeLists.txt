@@ -160,7 +160,7 @@ find_package(ZLIB REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(glm REQUIRED)
-find_package(OpenGL REQUIRED)
+find_package(OpenGL REQUIRED COMPONENTS OpenGL)
 find_package(OpenAL REQUIRED)
 find_package(Bullet REQUIRED)
 find_package(fmt REQUIRED)
@@ -224,9 +224,10 @@ link_libraries(
         fmt::fmt
         CLI11::CLI11
         GLEW::GLEW
+        OpenGL::GL
+        OpenGL::OpenGL
 
         ${ZLIB_LIBRARIES}
-        ${OPENGL_LIBRARIES}
         ${OPENAL_LIBRARY}
         ${THEORA_LIBRARIES}
         ${VORBIS_LIBRARIES}
