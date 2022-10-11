@@ -49,4 +49,9 @@ out float out_Depth;
 
 void main() {
     out_Color = texture(g_sColorMap, pass_UV) * g_vColorMultiplier;
+
+    if (out_Color.a < 0.5)
+        discard;
+
+    out_Color.a = 1.0;
 }
