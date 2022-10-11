@@ -48,14 +48,6 @@ Stream::~Stream() {
 	alDeleteBuffers(32, _buffers.data());
 }
 
-unsigned int Stream::getNumBuffersToUnqueue() {
-	return getBuffersProcessed();
-}
-
-unsigned int Stream::getNumBuffersInQueue() {
-	return getBuffersQueued();
-}
-
 void Stream::setLoopRange(unsigned int start, unsigned int end) {
 	_loopStart = start;
 	_loopEnd = end;

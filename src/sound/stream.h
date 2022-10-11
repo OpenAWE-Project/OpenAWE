@@ -36,9 +36,6 @@ public:
 	explicit Stream(Codecs::AudioStream *stream);
 	~Stream();
 
-	unsigned int getNumBuffersToUnqueue();
-	unsigned int getNumBuffersInQueue();
-
 	void setLoopRange(unsigned int start, unsigned int end);
 
 	void play() override;
