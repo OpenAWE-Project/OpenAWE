@@ -55,6 +55,10 @@ TexturePtr GraphicsManager::createTexture(const ImageDecoder &decoder) {
 	return texture;
 }
 
+ProxyTexturePtr GraphicsManager::createProxyTexture() {
+	return _renderer->createProxyTexture();
+}
+
 TexturePtr GraphicsManager::createEmptyTexture2D(TextureFormat format, unsigned int width, unsigned int height) {
 	TexturePtr texture = _renderer->createTexture(kTexture2D);
 	texture->allocate(format, width, height);

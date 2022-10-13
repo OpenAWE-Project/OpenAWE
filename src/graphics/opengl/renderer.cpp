@@ -563,6 +563,10 @@ void Renderer::debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenu
 	}
 }
 
+ProxyTexturePtr Renderer::createProxyTexture() {
+	return std::make_shared<Graphics::OpenGL::ProxyTexture>();
+}
+
 TexturePtr Renderer::createTexture(TextureType type) {
 	GLenum texType;
 	switch (type) {

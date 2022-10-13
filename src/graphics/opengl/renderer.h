@@ -45,6 +45,9 @@ public:
 	void drawFrame() override;
 
 	TexturePtr createTexture(TextureType type) override;
+
+	ProxyTexturePtr createProxyTexture() override;
+
 	BufferPtr createBuffer(BufferType type, bool modifiable) override;
 
 	AttributeObjectPtr
