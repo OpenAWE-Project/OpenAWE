@@ -42,6 +42,8 @@ namespace AWE {
  */
 class RessourceManager : public Common::Singleton<RessourceManager> {
 public:
+	void setRootPath(const std::string &rootPath);
+
 	void indexPackmeta(const std::string &packmetaFile);
 
 	void indexStreamedResource(const std::string &resourcedbFile);
@@ -58,6 +60,7 @@ public:
 	Common::ReadStream *getResource(rid_t rid);
 
 private:
+	std::string _rootPath;
 	std::vector<std::unique_ptr<RIDProvider>> _meta;
 	std::vector<std::unique_ptr<Archive>> _archives;
 };

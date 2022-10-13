@@ -88,8 +88,8 @@ std::vector<std::string> RessourceManager::getDirectoryResources(const std::stri
 }
 
 Common::ReadStream *RessourceManager::getResource(const std::string &path) {
-	if (std::filesystem::is_regular_file(path))
-		return new Common::ReadFile(path);
+	if (std::filesystem::is_regular_file(_rootPath + "/" + path))
+		return new Common::ReadFile(_rootPath + "/" + path);
 
 	for (auto &archive : _archives) {
 		Common::ReadStream *stream = archive->getResource(path);
@@ -110,6 +110,10 @@ Common::ReadStream *RessourceManager::getResource(rid_t rid) {
 		return getResource(path);
 	}
 	return nullptr;
+}
+
+void RessourceManager::setRootPath(const std::string &rootPath) {
+	_rootPath = rootPath;
 }
 
 } // End of namespace AWE

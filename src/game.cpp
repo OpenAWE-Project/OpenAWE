@@ -82,6 +82,8 @@ void Game::init() {
 
 	std::vector<std::string> identifiers;
 
+	ResMan.setRootPath(_path);
+
 	// Index rmdp archives
 	for (const auto &path : std::filesystem::directory_iterator(_path)) {
 		if (!path.is_regular_file())
