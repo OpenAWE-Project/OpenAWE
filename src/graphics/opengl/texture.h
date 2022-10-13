@@ -27,14 +27,14 @@
 
 namespace Graphics::OpenGL {
 
-class Texture : public Graphics::Texture {
+class Texture : public Graphics::Texture, public GLTexture {
 public:
 	Texture(GLenum type);
 	Texture(const ImageDecoder &decoder, GLuint id);
 	Texture(unsigned int width, unsigned int height);
 	~Texture();
 
-	void bind();
+	void bind() override;
 
 	void allocate(TextureFormat textureFormat, unsigned int width, unsigned int height) override;
 

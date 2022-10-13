@@ -30,8 +30,10 @@
 namespace Graphics {
 
 class Texture;
+class ProxyTexture;
 
 typedef std::shared_ptr<Texture> TexturePtr;
+typedef std::shared_ptr<ProxyTexture> ProxyTexturePtr;
 
 class Texture : Common::Noncopyable {
 public:
@@ -57,6 +59,21 @@ public:
 	 * \param decoder The image to load into the texture
 	 */
 	virtual void load(const Graphics::ImageDecoder &decoder) = 0;
+};
+
+/*!
+ * \brief Texture for proxying another texture
+ *
+ * This class proxies another texture through. This is intended for video ülayback to allow another class modifying the
+ * texture in a fast way.
+ */
+class ProxyTexture : public Texture {
+public:
+	/*!
+	 * Asssign a texture to this proxy texture
+	 * @param texture The texture
+	 */
+	virtual void assign(TexturePtr texture) = 0;
 };
 
 }
