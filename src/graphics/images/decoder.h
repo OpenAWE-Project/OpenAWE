@@ -39,8 +39,8 @@ public:
 	ImageDecoder();
 	virtual ~ImageDecoder();
 
-	size_t getNumLayers() const;
-	[[nodiscard]] const std::vector<ImageDecoder::Mipmap> &getMipmaps(unsigned int layer = 0) const;
+	size_t getNumMipMaps() const;
+	[[nodiscard]] const Mipmap & getMipMap(unsigned int layer = 0) const;
 	[[nodiscard]] bool isCompressed() const;
 	TextureFormat getFormat() const;
 	TextureType getType() const;
@@ -48,7 +48,7 @@ public:
 protected:
 	size_t getImageSize(unsigned int width, unsigned int height);
 
-	std::vector<std::vector<Mipmap>> _layers;
+	std::vector<Mipmap> _layers;
 	TextureFormat _format;
 	TextureType _type;
 	bool _compressed;

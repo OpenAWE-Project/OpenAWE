@@ -81,10 +81,8 @@ DDS::DDS(Common::ReadStream *dds) {
 
 	dds->skip(20);
 
-	_layers.resize(1);
-	for (int i = 0; i < mipMapCount; ++i) {
-		Mipmap mipMap;
-
+	_layers.resize(mipMapCount);
+	for (auto &mipMap: _layers) {
 		mipMap.width = width;
 		mipMap.height = height;
 
@@ -94,8 +92,6 @@ DDS::DDS(Common::ReadStream *dds) {
 		mipMap.data.resize(1);
 		mipMap.data[0] = new byte[dataSize];
 		dds->read(mipMap.data[0], dataSize);
-
-		_layers[0].push_back(mipMap);
 
 		width /= 2;
 		height /= 2;

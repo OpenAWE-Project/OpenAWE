@@ -95,7 +95,7 @@ void Texture::allocate(TextureFormat textureFormat, unsigned int width, unsigned
 }
 
 void Texture::load(unsigned int xoffset, unsigned int yoffset, const ImageDecoder &decoder) {
-	bool layered = decoder.getNumLayers() > 1;
+	bool layered = decoder.getNumMipMaps() > 1;
 
 	switch (decoder.getType()) {
 		case kTextureCube:
@@ -126,60 +126,50 @@ void Texture::load(unsigned int xoffset, unsigned int yoffset, const ImageDecode
 	GLenum format, internalFormat = 0, type = 0;
 	getParameters(decoder.getFormat(), format, internalFormat, type);
 
-	if (layered) {
-		unsigned int width = decoder.getMipmaps()[0].width;
-		unsigned int height = decoder.getMipmaps()[0].height;
-		glTexStorage3D(_type, 1, internalFormat, width, height, decoder.getNumLayers());
-	}
+	for (int i = 0; i < decoder.getNumMipMaps(); ++i) {
+		const auto &mipmap = decoder.getMipMap(i);
+		assert(mipmap.width != 0 && mipmap.height != 0);
 
-	GLuint level = 0;
-	for (int i = 0; i < decoder.getNumLayers(); ++i) {
-		for (const auto &mipmap : decoder.getMipmaps(i)) {
-			assert(mipmap.width != 0 && mipmap.height != 0);
-
-			if (decoder.isCompressed()) {
-				glCompressedTexSubImage2D(
+		if (decoder.isCompressed()) {
+			glCompressedTexSubImage2D(
+				_type,
+				i,
+				xoffset,
+				yoffset,
+				mipmap.width,
+				mipmap.height,
+				format,
+				mipmap.dataSize,
+				mipmap.data[0]
+			);
+		} else {
+			if (layered) {
+				glTexSubImage3D(
 					_type,
-					level,
+					i,
+					xoffset,
+					yoffset,
+					0,
+					mipmap.width,
+					mipmap.height,
+					i,
+					format,
+					type,
+					mipmap.data[0]
+				);
+			} else {
+				glTexSubImage2D(
+					_type,
+					i,
 					xoffset,
 					yoffset,
 					mipmap.width,
 					mipmap.height,
 					format,
-					mipmap.dataSize,
+					type,
 					mipmap.data[0]
 				);
-			} else {
-				if (layered) {
-					glTexSubImage3D(
-						_type,
-						level,
-						xoffset,
-						yoffset,
-						0,
-						mipmap.width,
-						mipmap.height,
-						i,
-						format,
-						type,
-						mipmap.data[0]
-					);
-				} else {
-					glTexSubImage2D(
-						_type,
-						level,
-						xoffset,
-						yoffset,
-						mipmap.width,
-						mipmap.height,
-						format,
-						type,
-						mipmap.data[0]
-					);
-				}
 			}
-
-			level += 1;
 		}
 	}
 
@@ -187,7 +177,7 @@ void Texture::load(unsigned int xoffset, unsigned int yoffset, const ImageDecode
 }
 
 void Texture::load(const ImageDecoder &decoder) {
-	bool layered = decoder.getNumLayers() > 1;
+	bool layered = decoder.getMipMap().data.size() > 1;
 
 	switch (decoder.getType()) {
 		case kTextureCube:
@@ -218,15 +208,9 @@ void Texture::load(const ImageDecoder &decoder) {
 	GLenum format, internalFormat = 0, type = 0;
 	getParameters(decoder.getFormat(), format, internalFormat, type);
 
-	if (layered) {
-		unsigned int width = decoder.getMipmaps()[0].width;
-		unsigned int height = decoder.getMipmaps()[0].height;
-		glTexStorage3D(_type, 1, internalFormat, width, height, decoder.getNumLayers());
-	}
-
 	GLuint level = 0;
-	for (int i = 0; i < decoder.getNumLayers(); ++i) {
-		for (const auto &mipmap : decoder.getMipmaps(i)) {
+	for (int i = 0; i < decoder.getNumMipMaps(); ++i) {
+		const auto &mipmap = decoder.getMipMap(i);
 			assert(mipmap.width != 0 && mipmap.height != 0);
 
 			if (decoder.getType() == kTextureCube) {
@@ -301,7 +285,6 @@ void Texture::load(const ImageDecoder &decoder) {
 			}
 
 			level += 1;
-		}
 	}
 
 	assert(glGetError() == GL_NO_ERROR);

@@ -19,11 +19,12 @@
  */
 
 #include "src/graphics/images/dumptga.h"
+#include "src/common/memreadstream.h"
 
 namespace Graphics {
 
 void dumpTGA(Common::WriteStream &tga, ImageDecoder &imageDecoder) {
-	ImageDecoder::Mipmap mipmap = imageDecoder.getMipmaps(0)[0];
+	ImageDecoder::Mipmap mipmap = imageDecoder.getMipMap(0);
 
 	tga.writeByte(0); // Image ID Length
 	tga.writeByte(0); // Color Map Type
@@ -43,7 +44,16 @@ void dumpTGA(Common::WriteStream &tga, ImageDecoder &imageDecoder) {
 	tga.writeByte(0); // Image Descriptor
 
 	// Image data
-	tga.write(mipmap.data[0], mipmap.dataSize);
+	Common::MemoryReadStream imageDataStream(mipmap.data[0], mipmap.dataSize, false);
+	for (int i = 0; i < mipmap.width * mipmap.height; ++i) {
+		const byte r = imageDataStream.readByte();
+		const byte g = imageDataStream.readByte();
+		const byte b = imageDataStream.readByte();
+
+		tga.writeByte(b);
+		tga.writeByte(g);
+		tga.writeByte(r);
+	}
 }
 
 }

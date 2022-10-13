@@ -29,7 +29,7 @@ Surface::Surface(unsigned int width, unsigned int height, TextureFormat format) 
 	_format = format;
 
 	_layers.resize(1);
-	auto &mipmaps = _layers[0];
+	auto &mipmaps = _layers;
 	mipmaps.resize(1);
 
 	Mipmap &mipmap = mipmaps[0];
@@ -43,25 +43,8 @@ Surface::Surface(unsigned int width, unsigned int height, TextureFormat format) 
 	std::memset(mipmap.data[0], 0, mipmap.dataSize);
 }
 
-Surface::Surface(unsigned int width, unsigned int height, unsigned int numLayers, TextureFormat format) {
-	_format = format;
-
-	_layers.resize(numLayers);
-	for (auto & layer : _layers) {
-		layer.resize(1);
-		auto &mipmap = layer[0];
-
-		mipmap.width = width;
-		mipmap.height = height;
-		mipmap.dataSize = getImageSize(width, height);
-		mipmap.data[0] = new byte [mipmap.dataSize];
-
-		std::memset(mipmap.data[0], 0, mipmap.dataSize);
-	}
-}
-
 void *Surface::getData(unsigned int layer) {
-	return _layers[layer][0].data[0];
+	return _layers[layer].data[0];
 }
 
 }

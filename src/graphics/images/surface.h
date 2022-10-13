@@ -28,7 +28,6 @@ namespace Graphics {
 class Surface : public ImageDecoder {
 public:
 	Surface(unsigned int width, unsigned int height, TextureFormat format);
-	Surface(unsigned int width, unsigned int height, unsigned int numLayers, TextureFormat format);
 
 	void *getData(unsigned int layer = 0);
 };

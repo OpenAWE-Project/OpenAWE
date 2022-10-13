@@ -28,20 +28,18 @@ ImageDecoder::ImageDecoder() : _format(kRGBA8), _compressed(false), _type(kTextu
 }
 
 ImageDecoder::~ImageDecoder() {
-	for (const auto &layer : _layers) {
-		for (const auto &mipmap : layer) {
-			for (const auto &data : mipmap.data) {
-				delete[] data;
-			}
+	for (const auto &mipMap : _layers) {
+		for (const auto &data : mipMap.data) {
+			delete[] data;
 		}
 	}
 }
 
-size_t ImageDecoder::getNumLayers() const {
+size_t ImageDecoder::getNumMipMaps() const {
 	return _layers.size();
 }
 
-const std::vector<ImageDecoder::Mipmap> &ImageDecoder::getMipmaps(unsigned int layer) const {
+const ImageDecoder::Mipmap & ImageDecoder::getMipMap(unsigned int layer) const {
 	return _layers[layer];
 }
 
