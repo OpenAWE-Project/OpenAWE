@@ -46,6 +46,7 @@
 #include "src/graphics/opengl/opengl.h"
 #include "src/graphics/opengl/vbo.h"
 #include "src/graphics/opengl/convertedprogram.h"
+#include "src/graphics/opengl/proxytexture.h"
 
 namespace Graphics::OpenGL {
 
