@@ -24,6 +24,7 @@
 #include "src/graphics/texture.h"
 #include "src/graphics/images/decoder.h"
 #include "src/graphics/opengl/opengl.h"
+#include "src/graphics/opengl/gltexture.h"
 
 namespace Graphics::OpenGL {
 
