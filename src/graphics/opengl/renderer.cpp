@@ -367,7 +367,7 @@ void Renderer::drawWorld(const std::string &stage) {
 
 						case Material::kTexture:
 							glActiveTexture(getTextureSlot(textureSlot));
-							std::static_pointer_cast<Graphics::OpenGL::Texture>(std::get<TexturePtr>(attribute.data))->bind();
+							std::dynamic_pointer_cast<Graphics::OpenGL::GLTexture>(std::get<TexturePtr>(attribute.data))->bind();
 							currentShader->setUniformSampler(attribute.index, textureSlot);
 							textureSlot += 1;
 							break;
@@ -472,7 +472,7 @@ void Renderer::drawGUI() {
 			std::static_pointer_cast<Graphics::OpenGL::VBO>(part.indices)->bind();
 
 			glActiveTexture(getTextureSlot(0));
-			std::static_pointer_cast<Graphics::OpenGL::Texture>(part.texture)->bind();
+			std::dynamic_pointer_cast<Graphics::OpenGL::GLTexture>(part.texture)->bind();
 			program->setUniformSampler(locationTexture, 0);
 			program->setUniformMatrix4f(locationMVP, vp * m2);
 
