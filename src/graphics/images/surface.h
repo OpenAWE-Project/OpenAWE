@@ -25,6 +25,10 @@
 
 namespace Graphics {
 
+class Surface;
+
+typedef std::shared_ptr<Surface> SurfacePtr;
+
 class Surface : public ImageDecoder {
 public:
 	Surface(unsigned int width, unsigned int height, TextureFormat format);
