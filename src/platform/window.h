@@ -46,6 +46,7 @@ public:
 	};
 
 	Window(ContextType type);
+	~Window();
 
 	void makeCurrent() override;
 	void swap() override;

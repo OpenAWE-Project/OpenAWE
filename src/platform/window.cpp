@@ -69,6 +69,10 @@ Window::Window(ContextType type) {
 	glfwSetFramebufferSizeCallback(_window, &Window::callbackFramebufferSize);
 }
 
+Window::~Window() {
+	glfwDestroyWindow(_window);
+}
+
 void Window::makeCurrent() {
 	glfwMakeContextCurrent(_window);
 }
