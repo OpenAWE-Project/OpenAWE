@@ -1,120 +1,182 @@
-//
-// Created by patrick on 19.04.20.
-//
+/* OpenAWE - A reimplementation of Remedys Alan Wake Engine
+ *
+ * OpenAWE is the legal property of its developers, whose names
+ * can be found in the AUTHORS file distributed with this source
+ * distribution.
+ *
+ * OpenAWE is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * OpenAWE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <iostream>
-#include <src/common/threadpool.h>
-#include <src/awe/resman.h>
 #include <assert.h>
-#include <fmt/format.h>
 #include <memory>
-#include <src/video/codecs/theora.h>
 
-#include "src/graphics/images/surface.h"
+#include <fmt/format.h>
+#include <spdlog/spdlog.h>
+
+#include "src/common/threadpool.h"
+
+#include "src/awe/resman.h"
+
+#include "src/codecs/theora.h"
+#include "src/codecs/yuv2rgb.h"
+
 #include "src/graphics/gfxman.h"
+#include "src/graphics/images/surface.h"
 
 #include "src/video/player.h"
 
 namespace Video {
 
-Player::Player(unsigned int bufferSize) :
-	_bufferSize(bufferSize),
-	_currentFrame(Common::UUID::generateNil()),
-	_stop(false) {
+Player::Player() : _playing(false), _proxyTexture(GfxMan.createProxyTexture()) {
+
 }
 
 void Player::addAudioTrack(unsigned int id) {
-	std::lock_guard<std::mutex> g(_audioStreamsMutex);
+	if (!_container)
+		throw CreateException("Trying t add audio track to not loaded container");
 
-	_audio.emplace_back();
-	_audio.back() = std::make_unique<AudioStream>();
-	_audio.back()->id = id;
-	//_audio.back()->stream = std::make_unique<Sound::Stream>();
+	if (_container->getNumAudioStreams() <= id)
+		throw CreateException(
+			"Invalid audio stream id {} for video with {} audio streams",
+			id,
+			_container->getNumAudioStreams()
+		);
+
+	_streams.emplace_back(std::make_unique<Sound::Stream>(_container->createAudioStream(id)));
+}
+
+Graphics::TexturePtr Player::getTexture() {
+	return _proxyTexture;
 }
 
 void Player::load(const std::string &videoFile) {
-	_codec = std::make_unique<Theora>(ResMan.getResource(videoFile));
+	_container = std::make_unique<Codecs::OggContainer>(ResMan.getResource(videoFile));
 
-	_frameDuration = std::chrono::milliseconds(static_cast<int>(1000.0f / _codec->getFps()));
+	if (!_container->hasVideoStream())
+		throw CreateException("Trying to load container file without a video stream");
+
+	_video.reset(_container->createVideoStream());
+
+	// Generate new textures for the specific video
+	_availableTextures.clear();
+	for (int i = 0; i < 64; ++i) {
+		_availableTextures.emplace_back(GfxMan.createEmptyTexture2D(
+			kRGB8,
+			_video->getWidth(),
+			_video->getHeight()
+		));
+	}
+
+	_availableSurfaces.clear();
+	for (int i = 0; i < 64; ++i) {
+		_availableSurfaces.push_back(std::make_shared<Graphics::Surface>(
+			_video->getWidth(),
+			_video->getHeight(),
+			kRGB8
+		));
+	}
+
+	_frameDuration = std::chrono::milliseconds(static_cast<long>(1000 / _video->getFps()));
 
 	preloadLoop();
+	update();
+
+	// Set first frame
+	_currentFrame = _preparedTextures.front();
+	_preparedTextures.pop_front();
+	_proxyTexture->assign(_currentFrame);
 }
 
 void Player::play() {
+	if (!_container)
+		throw CreateException("Tried to play a video, which is not loaded");
+
+	_playing = true;
 	_lastFrame = std::chrono::system_clock::now();
 
-	Common::ThreadPool::instance().add([this] { playLoop(); });
-
-	for (auto &audio : _audio) {
-		audio->stream->play();
+	for (auto &stream: _streams) {
+		stream->play();
 	}
+
+	Threads.add([this](){ preloadLoop(); });
 }
 
-void Player::playLoop() {
-	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-	if (!_texturesToDisplay.empty() && now - _lastFrame >= _frameDuration) {
-		Common::UUID lastFrame = _currentFrame;
-		_currentFrame = _texturesToDisplay.front();
-		GfxMan.setCurrentVideoFrame(_currentFrame);
-		// TODO
-		/*if (!lastFrame.isNil())
-			GfxMan.deregisterTextureAsync(lastFrame);*/
-		_texturesToDisplay.pop();
-		_lastFrame = now;
-	} else if (_stop && _texturesToProcess.empty() && _texturesToDisplay.empty()) {
-		Common::UUID lastFrame = _currentFrame;
-		_currentFrame = Common::UUID::generateNil();
-		GfxMan.setCurrentVideoFrame(_currentFrame);
-		// TODO
-		/*if (!lastFrame.isNil())
-			GfxMan.deregisterTextureAsync(lastFrame);*/
-		return;
+bool Player::isPlaying() const {
+	return _playing;
+}
+
+void Player::update() {
+	while (!_availableTextures.empty() && !_preparedSurfaces.empty()) {
+		auto frameTexture = _availableTextures.front();
+		_availableTextures.pop_front();
+		std::shared_ptr<Graphics::Surface> frameSurface = _preparedSurfaces.front();
+		_preparedSurfaces.pop_front();
+
+		frameTexture->load(*frameSurface);
+		_preparedTextures.push_back(frameTexture);
+		_availableSurfaces.push_back(frameSurface);
 	}
 
-	Common::ThreadPool::instance().add([this] { playLoop(); });
+	if (!_playing)
+		return;
+
+	const auto now = std::chrono::system_clock::now();
+	const auto currentDuration = std::chrono::duration_cast<std::chrono::milliseconds>(now - _lastFrame);
+	if (currentDuration >= _frameDuration) {
+		const unsigned int framesProgressed = currentDuration.count() / _frameDuration.count();
+		for (unsigned int i = 0; i < std::min<unsigned int>(framesProgressed - 1, _preparedTextures.size()); ++i) {
+			_preparedTextures.pop_front();
+		}
+
+		if (_preparedTextures.empty()) {
+			spdlog::warn("Video decoding too slow, dropping frame");
+			return;
+		}
+
+		if (_currentFrame)
+			_availableTextures.push_back(_currentFrame);
+
+		_lastFrame = now;
+		_currentFrame = _preparedTextures.front();
+		_proxyTexture->assign(_currentFrame);
+		_preparedTextures.pop_front();
+	}
+
+	if (_preparedTextures.empty() && _video->eos())
+		_playing = false;
 }
 
 void Player::preloadLoop() {
-	while (_texturesToProcess.size() < _bufferSize && !_stop) {
-		if (_codec->eos())
-			_stop = true;
+	Codecs::YCbCrBuffer ycbcr;
 
-		auto *frame = _codec->getNextFrame();
+	while (!_availableSurfaces.empty() && !_video->eos()) {
+		_video->readNextFrame(ycbcr);
+		auto surface = _availableSurfaces.front();
+		_availableSurfaces.pop_front();
+		Codecs::convertYUV2RGB(
+			ycbcr,
+			reinterpret_cast<byte *>(surface->getData()),
+			_video->getWidth(),
+			_video->getHeight()
+		);
 
-		/*_texturesToProcess.push({
-
-			//GfxMan.registerTextureAsync(*frame),
-			std::unique_ptr<Graphics::Surface>(frame)
-		});*/
+		_preparedSurfaces.push_back(surface);
 	}
 
-	/*_audioStreamsMutex.lock();
-	for (auto &audio : _audio) {
-		for (int j = 0; j < audio->stream->getNumBuffersToUnqueue(); ++j) {
-			audio->stream->unqueue(audio->buffers.front());
-			audio->buffers.pop();
-		}
-
-		if (audio->stream->getNumBuffersInQueue() >= 128)
-			continue;
-
-		for (int i = 0; i < 32; ++i) {
-			audio->buffers.emplace();
-			_codec->getNextAudio(audio->buffers.back(), audio->id);
-			audio->stream->queue(audio->buffers.back());
-		}
-	}
-	_audioStreamsMutex.unlock();
-
-	while (!_texturesToProcess.empty() && _texturesToDisplay.size() < _bufferSize && _texturesToProcess.front().textureFuture.wait_for(std::chrono::milliseconds(10)) == std::future_status::ready) {
-		_texturesToDisplay.push(_texturesToProcess.front().textureFuture.get());
-		_texturesToProcess.pop();
-	}
-
-	if (_stop && _texturesToProcess.empty())
-		return;*/
-
-	Common::ThreadPool::instance().add([this] { preloadLoop(); });
+	if (_playing)
+		Threads.add([this](){ preloadLoop(); });
 }
 
 }
