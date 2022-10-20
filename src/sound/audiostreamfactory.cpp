@@ -32,7 +32,7 @@ AudioStreamFactory::AudioStreamFactory() : _rid(0) {}
 AudioStreamFactory::AudioStreamFactory(rid_t rid) : _rid(rid) {
 }
 
-Sound::Stream *AudioStreamFactory::createStream() const {
+LoopableStream * AudioStreamFactory::createStream() const {
 	Common::ReadStream *fsbStream(ResMan.getResource(_rid));
 	if (!fsbStream)
 		throw CreateException("Cannot find fsb resource {:X}", _rid);
@@ -43,8 +43,8 @@ Sound::Stream *AudioStreamFactory::createStream() const {
 		throw CreateException("Empty FMOD sound bank file {:x}", _rid);
 
 	Sound::FSBFile::ExtraData streamData{};
-	Codecs::AudioStream *audioStream = fsb.getStream(0, streamData);
-	auto *stream = new Sound::Stream(audioStream);
+	Codecs::SeekableAudioStream *audioStream = fsb.getStream(0, streamData);
+	auto *stream = new Sound::LoopableStream(audioStream);
 	stream->setLoopRange(streamData.loopStart, streamData.loopEnd);
 
 	return stream;

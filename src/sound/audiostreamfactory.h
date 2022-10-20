@@ -32,7 +32,7 @@ public:
 	AudioStreamFactory();
 	AudioStreamFactory(rid_t rid);
 
-	Sound::Stream *createStream() const;
+	LoopableStream * createStream() const;
 
 private:
 	rid_t _rid;

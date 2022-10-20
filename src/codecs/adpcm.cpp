@@ -50,7 +50,7 @@ AdpcmStream::AdpcmStream(
 	unsigned short channelCount,
 	unsigned int totalSamples
 ) :
-	AudioStream(sampleRate, 16, totalSamples, channelCount, true),
+	SeekableAudioStream(sampleRate, 16, totalSamples, channelCount, true),
 	_adpcm(stream) {
 }
 
@@ -127,20 +127,20 @@ size_t MsImaAdpcmStream::pos() const {
 		(samplesPerBlock - _remainder) % samplesPerBlock;
 }
 
-void MsImaAdpcmStream::seek(ptrdiff_t samples, AudioStream::SeekType type) {
+void MsImaAdpcmStream::seek(ptrdiff_t samples, SeekableAudioStream::SeekType type) {
 	Common::ReadStream::SeekOrigin seekOrigin;
 	switch (type) {
-		case AudioStream::kBegin:
+		case SeekableAudioStream::kBegin:
 			seekOrigin = Common::ReadStream::BEGIN;
 			_remainder = 0;
 			break;
 
-		case AudioStream::kEnd:
+		case SeekableAudioStream::kEnd:
 			seekOrigin = Common::ReadStream::END;
 			_remainder = 0;
 			break;
 
-		case AudioStream::kCurrent:
+		case SeekableAudioStream::kCurrent:
 			seekOrigin = Common::ReadStream::CURRENT;
 			break;
 	}

@@ -60,7 +60,7 @@ public:
 	 * \param index the stream to get for this index
 	 * \return The newly created stream
 	 */
-	Codecs::AudioStream *getStream(size_t index);
+	Codecs::SeekableAudioStream *getStream(size_t index);
 
 	/*!
 	 * Get a specific stream on the given index and its additional stream data
@@ -68,7 +68,7 @@ public:
 	 * \param streamData The stream data which will be filled as a reference
 	 * \return The newly created stream
 	 */
-	Codecs::AudioStream *getStream(size_t index, ExtraData &streamData);
+	Codecs::SeekableAudioStream *getStream(size_t index, ExtraData &streamData);
 
 	/*!
 	 * Get the filename of the specific sample of the index

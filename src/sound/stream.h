@@ -34,14 +34,12 @@ namespace Sound {
 class Stream : public Source {
 public:
 	explicit Stream(Codecs::AudioStream *stream);
-	~Stream();
-
-	void setLoopRange(unsigned int start, unsigned int end);
+	virtual ~Stream();
 
 	void play() override;
 
-private:
-	void update();
+protected:
+	virtual void update();
 
 	const ALenum _format;
 
@@ -51,6 +49,18 @@ private:
 	std::unique_ptr<Codecs::AudioStream> _stream;
 
 	bool _playing;
+};
+
+class LoopableStream : public Stream {
+public:
+	explicit LoopableStream(Codecs::SeekableAudioStream *stream);
+
+	void setLoopRange(unsigned int start, unsigned int end);
+
+protected:
+	void update() override;
+
+	Codecs::SeekableAudioStream *_seekableStream;
 	size_t _loopStart, _loopEnd;
 };
 

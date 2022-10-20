@@ -34,7 +34,7 @@ namespace Codecs {
  *
  * This class serves as base class for different adpcm schemes implemented for decoding.
  */
-class AdpcmStream : public AudioStream {
+class AdpcmStream : public SeekableAudioStream {
 public:
 	bool eos() const override;
 

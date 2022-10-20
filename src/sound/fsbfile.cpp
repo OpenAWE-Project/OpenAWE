@@ -90,7 +90,7 @@ size_t FSBFile::getNumEntries() {
 	return _entries.size();
 }
 
-Codecs::AudioStream *FSBFile::getStream(size_t index) {
+Codecs::SeekableAudioStream *FSBFile::getStream(size_t index) {
 	const auto entry = _entries[index];
 
 	_fsb->seek(_dataOffset + entry.offset);
@@ -107,7 +107,7 @@ Codecs::AudioStream *FSBFile::getStream(size_t index) {
 	);
 }
 
-Codecs::AudioStream *FSBFile::getStream(size_t index, ExtraData &streamData) {
+Codecs::SeekableAudioStream *FSBFile::getStream(size_t index, ExtraData &streamData) {
 	const auto entry = _entries[index];
 
 	_fsb->seek(_dataOffset + entry.offset);

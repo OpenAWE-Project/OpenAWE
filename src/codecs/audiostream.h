@@ -36,12 +36,6 @@ namespace Codecs {
  */
 class AudioStream {
 public:
-	enum SeekType {
-		kBegin,
-		kCurrent,
-		kEnd
-	};
-
 	/*!
 	 * Get the sample rate of the audio stream
 	 * \return The sample rate of the audio stream
@@ -53,12 +47,6 @@ public:
 	 * \return The number ob bits per sample of the audio stream
 	 */
 	unsigned int getBitsPerSample() const;
-
-	/*!
-	 * Get the total number of samples in this audio stream
-	 * \return The total number of samples in this audio stream
-	 */
-	unsigned int getTotalSamples() const;
 
 	/*!
 	 * Get the number of channels for this audio stream
@@ -85,24 +73,11 @@ public:
 	virtual size_t pos() const = 0;
 
 	/*!
-	 * Seek a number of samples in a direction in the stream
-	 * \param samples The number of samples to seek
-	 * \param type If the seeking should start from the begin, end or the current position
-	 */
-	virtual void seek(ptrdiff_t samples, SeekType type = kBegin) = 0;
-
-	/*!
 	 * Read a specified number of samples from the audio stream
 	 * \param numSamples The number of samples to be read
 	 * \return A buffer of byte containing the samples
 	 */
 	virtual std::vector<byte> read(size_t numSamples) = 0;
-
-	/*!
-	 * Read the complete audio stream into a buffer
-	 * \return A buffer of bytes containing the complete samples of the stream
-	 */
-	std::vector<byte> readAll();
 
 protected:
 	/*!
@@ -112,14 +87,61 @@ protected:
 	 * \param channelCount The number of channels for the audio stream
 	 * \param isSigned If the audio stream is signed
 	 */
-	AudioStream(unsigned int sampleRate, unsigned int bitsPerSample, unsigned int totalSamples, unsigned short channelCount, bool isSigned);
+	AudioStream(unsigned int sampleRate, unsigned int bitsPerSample, unsigned short channelCount, bool isSigned);
 
 private:
 	const unsigned int _sampleRate;
 	const unsigned int _bitsPerSample;
-	const unsigned int _totalSamples;
 	const unsigned short _channelCount;
 	const bool _signed;
+};
+
+class SeekableAudioStream : public AudioStream {
+public:
+	enum SeekType {
+		kBegin,
+		kCurrent,
+		kEnd
+	};
+
+	/*!
+	 * Get the total number of samples in this audio stream
+	 * \return The total number of samples in this audio stream
+	 */
+	unsigned int getTotalSamples() const;
+
+	/*!
+	 * Seek a number of samples in a direction in the stream
+	 * \param samples The number of samples to seek
+	 * \param type If the seeking should start from the begin, end or the current position
+	 */
+	virtual void seek(ptrdiff_t samples, SeekType type = kBegin) = 0;
+
+	/*!
+	 * Read the complete audio stream into a buffer with the total number of samples
+	 * \return A buffer of bytes containing the complete samples of the stream
+	 */
+	std::vector<byte> readAll();
+
+protected:
+	/*!
+	 * Create a new seekable audio stream by giving the general parameters of it
+	 * \param sampleRate The sample rate of the audio stream
+	 * \param bitsPerSample The bits per sample for the audio stream
+	 * \param totalSamples The total number of samples in this file
+	 * \param channelCount The number of channels for the audio stream
+	 * \param isSigned If the audio stream is signed
+	 */
+	SeekableAudioStream(
+		unsigned int sampleRate,
+		unsigned int bitsPerSample,
+		unsigned int totalSamples,
+		unsigned short channelCount,
+		bool isSigned
+	);
+
+private:
+	const unsigned int _totalSamples;
 };
 
 } // End of namespace Codecs

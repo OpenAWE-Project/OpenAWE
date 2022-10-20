@@ -30,10 +30,6 @@ unsigned int AudioStream::getBitsPerSample() const {
 	return _bitsPerSample;
 }
 
-unsigned int AudioStream::getTotalSamples() const {
-	return _totalSamples;
-}
-
 unsigned short AudioStream::getChannelCount() const {
 	return _channelCount;
 }
@@ -42,21 +38,34 @@ bool AudioStream::isSigned() const {
 	return _signed;
 }
 
-std::vector<byte> AudioStream::readAll() {
-	return read(_totalSamples);
-}
-
 AudioStream::AudioStream(
 	unsigned int sampleRate,
 	unsigned int bitsPerSample,
-	unsigned int totalSamples,
 	unsigned short channelCount,
 	bool isSigned) :
 	_sampleRate(sampleRate),
 	_bitsPerSample(bitsPerSample),
-	_totalSamples(totalSamples),
 	_channelCount(channelCount),
 	_signed(isSigned) {
+}
+
+unsigned int SeekableAudioStream::getTotalSamples() const {
+	return _totalSamples;
+}
+
+std::vector<byte> SeekableAudioStream::readAll() {
+	return read(getTotalSamples());
+}
+
+SeekableAudioStream::SeekableAudioStream(
+	unsigned int sampleRate,
+	unsigned int bitsPerSample,
+	unsigned int totalSamples,
+	unsigned short channelCount,
+	bool isSigned
+	) :
+	AudioStream(sampleRate, bitsPerSample, channelCount, isSigned),
+	_totalSamples(totalSamples) {
 }
 
 } // End of namespace Codecs
