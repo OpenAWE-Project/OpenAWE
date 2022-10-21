@@ -181,9 +181,6 @@ void OggStream::readNextPacket(ogg_packet &packet) {
 	if (ogg_stream_eos(&_stream))
 		return;
 
-	if (ogg_stream_check(&_stream))
-		return;
-
 	while (ogg_stream_packetout(&_stream, &packet) != 1) {
 		_container.readNextPage();
 	}
