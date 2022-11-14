@@ -30,6 +30,7 @@ VorbisStream::VorbisStream(vorbis_info info, ogg_stream_state &stream, OggContai
 VorbisStream::~VorbisStream() {
 	vorbis_block_clear(&_block);
 	vorbis_dsp_clear(&_dsp);
+	vorbis_info_clear(&_info);
 }
 
 bool VorbisStream::eos() const {
