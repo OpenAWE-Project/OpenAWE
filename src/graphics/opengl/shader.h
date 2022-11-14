@@ -22,6 +22,7 @@
 #define AWE_SHADER_H
 
 #include <string>
+#include <vector>
 
 #include "src/common/types.h"
 
@@ -29,14 +30,22 @@
 
 namespace Graphics::OpenGL {
 
+class Shader;
+
+typedef std::shared_ptr<Shader> ShaderPtr;
+
 class Shader : Common::Noncopyable {
 public:
-	Shader(GLuint type, const std::string& source);
+	static ShaderPtr fromSPIRV(GLuint type, const std::vector<byte> &bytecode);
+	static ShaderPtr fromGLSL(GLuint type, const std::string &source);
+
 	~Shader();
 
 	void compile() const;
 
 private:
+	Shader(GLuint type);
+
 	friend class Program;
 
 	GLuint _id;

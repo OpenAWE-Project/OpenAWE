@@ -157,15 +157,13 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 
 			Graphics::ShaderConverter vertexConverter(*program.shaders.front().vertexShader);
 			Graphics::ShaderConverter pixelConverter(*program.shaders.front().pixelShader);
-			Shader vertexShader(GL_VERTEX_SHADER, vertexConverter.convertToGLSL());
-			Shader fragmentShader(GL_FRAGMENT_SHADER, pixelConverter.convertToGLSL());
+			ShaderPtr vertexShader   = Shader::fromGLSL(GL_VERTEX_SHADER, vertexConverter.convertToGLSL());
+			ShaderPtr fragmentShader = Shader::fromGLSL(GL_FRAGMENT_SHADER, pixelConverter.convertToGLSL());
 
 			if (program.name == "albedo_only") {
-				vertexShader.compile();
-				fragmentShader.compile();
 				auto p = std::make_unique<ConvertedProgram>();
-				p->attach(vertexShader);
-				p->attach(fragmentShader);
+				p->attach(*vertexShader);
+				p->attach(*fragmentShader);
 				p->link();
 				p->setSymbols(vertexConverter.getSymbols());
 				p->setAttributeMappings(vertexConverter.getAttributeMappings());
@@ -181,7 +179,7 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 
 	const std::regex shaderFile("^[a-z]+-[a-z]+\\.(vert|frag|tesc|tese)\\.glsl$");
 	std::map<std::tuple<std::string, std::string>, ProgramPtr> programs;
-	std::vector<std::unique_ptr<Shader>> shaders;
+	std::vector<ShaderPtr> shaders;
 	for (const auto &item : std::filesystem::directory_iterator("../shaders")) {
 		std::string filename = item.path().filename().string();
 
@@ -211,8 +209,7 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 		else
 			throw std::runtime_error("Unknown or unsupported shader");
 
-		auto &shader = shaders.emplace_back(std::make_unique<Shader>(shaderType, source));
-		shader->compile();
+		auto &shader = shaders.emplace_back(Shader::fromGLSL(shaderType, source));
 
 		const auto identifier = std::make_tuple(name, stage);
 		if (programs.find(identifier) == programs.end())

@@ -22,21 +22,68 @@
 
 #include <fmt/format.h>
 
-#include "shader.h"
+#include "src/common/exception.h"
+
+#include "src/graphics/opengl/shader.h"
 
 namespace Graphics::OpenGL {
 
-Shader::Shader(GLuint type, const std::string& source) {
-	_id = glCreateShader(type);
+ShaderPtr Shader::fromSPIRV(GLuint type, const std::vector<byte> &bytecode) {
+	ShaderPtr shader(new Shader(type));
 
-	char const *shaderSource = source.c_str();
+	if (!GLEW_ARB_gl_spirv || !GLEW_ARB_spirv_extensions)
+		throw CreateException("Cannot create spirv shader without spirv extension");
 
+	glShaderBinary(
+			1,
+			&shader->_id,
+			GL_SPIR_V_BINARY_ARB,
+			bytecode.data(),
+			bytecode.size()
+	);
+
+	glSpecializeShader(shader->_id, "main", 0, nullptr, nullptr);
+
+	GLint status;
+	glGetShaderiv(shader->_id, GL_COMPILE_STATUS, &status);
+	if (!status)
+		throw CreateException("Failed to compile spirv shader with {}", status);
+
+	return shader;
+}
+
+ShaderPtr Shader::fromGLSL(GLuint type, const std::string &source) {
+	ShaderPtr shader(new Shader(type));
+
+	const char *shaderSource = source.c_str();
 	glShaderSource(
-			_id,
+			shader->_id,
 			1,
 			&shaderSource,
 			nullptr
 	);
+
+	glCompileShader(shader->_id);
+
+	GLint result, infoLogLength;
+
+	glGetShaderiv(shader->_id, GL_COMPILE_STATUS, &result);
+	glGetShaderiv(shader->_id, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+	if (result != GL_TRUE) {
+		std::string log;
+		log.resize(infoLogLength);
+
+		glGetShaderInfoLog(shader->_id, infoLogLength, nullptr, log.data());
+
+		throw std::runtime_error(fmt::format("Error while compiling shader:\n{}", log));
+	}
+
+	return shader;
+}
+
+Shader::Shader(GLuint type) {
+	_id = glCreateShader(type);
 }
 
 Shader::~Shader() {
