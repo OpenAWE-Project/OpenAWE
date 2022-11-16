@@ -82,30 +82,11 @@ ShaderPtr Shader::fromGLSL(GLuint type, const std::string &source) {
 	return shader;
 }
 
-Shader::Shader(GLuint type) {
-	_id = glCreateShader(type);
+Shader::Shader(GLuint type) : _id(glCreateShader(type)) {
 }
 
 Shader::~Shader() {
 	glDeleteShader(_id);
-}
-
-void Shader::compile() const {
-	glCompileShader(_id);
-
-	GLint result, infoLogLength;
-
-	glGetShaderiv(_id, GL_COMPILE_STATUS, &result);
-	glGetShaderiv(_id, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-	if (result != GL_TRUE) {
-		std::string log;
-		log.resize(infoLogLength);
-
-		glGetShaderInfoLog(_id, infoLogLength, nullptr, log.data());
-
-		throw std::runtime_error(fmt::format("Error while compiling shader:\n{}", log));
-	}
 }
 
 }

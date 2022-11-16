@@ -41,14 +41,12 @@ public:
 
 	~Shader();
 
-	void compile() const;
-
 private:
 	Shader(GLuint type);
 
 	friend class Program;
 
-	GLuint _id;
+	const GLuint _id;
 };
 
 }
