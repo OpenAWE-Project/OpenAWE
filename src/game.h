@@ -52,7 +52,7 @@ private:
 
 	entt::registry _registry;
 
-	Video::Player _player;
+	std::unique_ptr<Video::Player> _player;
 
 	Platform::Platform _platform;
 	std::unique_ptr<Platform::Window> _window;

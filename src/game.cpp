@@ -169,6 +169,9 @@ void Game::init() {
 	spdlog::info("Loading font fixedsys");
 	FontMan.load("fonts/fixedsys.binfnt", "fixedsys");
 
+	// Initialize video system
+	_player = std::make_unique<Video::Player>();
+
 	_global = std::make_unique<Global>(_registry);
 
 	switch (engine) {
