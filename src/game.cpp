@@ -228,5 +228,6 @@ void Game::start() {
 
 	_engine->getConfiguration().write();
 
+	_window.reset();
 	_platform.terminate();
 }
