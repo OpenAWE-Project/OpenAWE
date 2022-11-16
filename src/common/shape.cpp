@@ -64,9 +64,9 @@ Shape loopSubdivision(const Shape &shape) {
 		const auto v3 = shape.positions[index3];
 
 		// Generate new vertices
-		const auto nv1 = v1 / 2.0f + v2 / 2.0f;
-		const auto nv2 = v2 / 2.0f + v3 / 2.0f;
-		const auto nv3 = v3 / 2.0f + v1 / 2.0f;
+		const auto nv1 = glm::mix(v1, v2, 0.5f);
+		const auto nv2 = glm::mix(v2, v3, 0.5f);
+		const auto nv3 = glm::mix(v3, v1, 0.5f);
 
 		// Make identification tuples for the vertex on a specific edge
 		const auto nv1t = std::make_tuple(std::min(index1, index2), std::max(index1, index2));
