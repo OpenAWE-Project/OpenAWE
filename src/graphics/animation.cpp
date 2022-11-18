@@ -114,8 +114,6 @@ bool Animation::hasTrackForBone(const std::string &boneName) const {
 glm::mat4 Animation::calculateTransformation(const std::string &name, float time) const {
 	auto transform = glm::identity<glm::mat4>();
 
-	const float factor = std::clamp(time, 0.0f, _duration) / _duration;
-
 	if (_keyframes.find(name) == _keyframes.end())
 		return transform;
 
@@ -124,13 +122,17 @@ glm::mat4 Animation::calculateTransformation(const std::string &name, float time
 		const Keyframe staticKeyframe = keyframes[0];
 		transform *= glm::translate(staticKeyframe.position);
 		transform *= glm::toMat4(staticKeyframe.rotation);
+		return transform;
 	}
 
-	Keyframe lastKeyframe;
+	Keyframe lastKeyframe = keyframes[0];
 	for (const auto &keyframe : keyframes) {
 		if (time < keyframe.time) {
+			const float factor = (time - lastKeyframe.time) / (keyframe.time - lastKeyframe.time);
+			assert(0.0 <= factor <= 1.0f);
+
+			transform = glm::identity<glm::mat4>();
 			transform *= glm::translate(
-				glm::identity<glm::mat4>(),
 				glm::mix(
 					lastKeyframe.position,
 					keyframe.position,
@@ -138,11 +140,11 @@ glm::mat4 Animation::calculateTransformation(const std::string &name, float time
 				)
 			);
 
-			transform *= glm::toMat4(glm::slerp(
+			transform *= glm::toMat4(glm::normalize(glm::slerp(
 				lastKeyframe.rotation,
 				keyframe.rotation,
 				factor
-			));
+			)));
 			break;
 		}
 
