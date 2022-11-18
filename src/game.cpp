@@ -50,6 +50,7 @@
 #include "src/controlledfreecamera.h"
 #include "src/task.h"
 #include "src/timerprocess.h"
+#include "src/transform.h"
 
 bool Game::parseArguments(int argc, char **argv) {
 	CLI::App app("Reimplmentation of the Alan Wake Engine", "awe");
@@ -204,6 +205,11 @@ void Game::start() {
 		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
 	});
 
+	entt::observer transformModelObserver{
+		_registry,
+		entt::collector.update<Transform>().where<Graphics::ModelPtr>()
+	};
+
 	double lastTime = _platform.getTime();
 	bool exit = false;
 	std::chrono::system_clock::time_point last, now;
@@ -211,6 +217,13 @@ void Game::start() {
 		double time = _platform.getTime();
 
 		_engine->getScheduler().update(time);
+
+		for (const auto &transformEntity : transformModelObserver) {
+			const Transform &transform = _registry.get<Transform>(transformEntity);
+			Graphics::ModelPtr model = _registry.get<Graphics::ModelPtr>(transformEntity);
+
+			model->setTransform(transform.getTransformation());
+		}
 
 		freeCamera.update(time - lastTime);
 
