@@ -51,12 +51,11 @@ void KeyFramer::update(float time) {
 	_transformation = glm::identity<glm::mat4>();
 
 	if (_currentAnimation->animation) {
-		// TODO: Complex animations are not currently working
-		/*const auto havokAnimation = _currentAnimation->animation;
+		const auto havokAnimation = _currentAnimation->animation;
 
 		_transformation *= havokAnimation->calculateTransformation(
 			"Bone00",
-			std::min(time - _start, havokAnimation->getDuration())
+			std::min<float>(time - _start, havokAnimation->getDuration())
 		);
 
 		if (time - _start > havokAnimation->getDuration()) {
@@ -68,7 +67,7 @@ void KeyFramer::update(float time) {
 			} else {
 				_currentAnimation.reset();
 			}
-		}*/
+		}
 	} else {
 		const float duration  = _currentAnimation->duration;
 		const auto startFrame = _keyFrames[_currentAnimation->start];
