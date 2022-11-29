@@ -57,18 +57,27 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # ------------------------------------
 # Compiler warnings
-function(check_and_set_compiler_flag flag)
+macro(check_and_set_compiler_flag_c flag)
     check_c_compiler_flag(${flag} hasC${flag})
-    check_cxx_compiler_flag(${flag} hasCXX${flag})
     if (hasC${flag})
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}" PARENT_SCOPE)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}")
     endif ()
+endmacro()
+
+macro(check_and_set_compiler_flag_cxx flag)
+    check_cxx_compiler_flag(${flag} hasCXX${flag})
     if (hasCXX${flag})
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}" PARENT_SCOPE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
     endif ()
-endfunction()
+endmacro()
+
+macro(check_and_set_compiler_flag flag)
+    check_and_set_compiler_flag_c(${flag})
+    check_and_set_compiler_flag_cxx(${flag})
+endmacro()
 
 check_and_set_compiler_flag("-Werror=vla")
+check_and_set_compiler_flag("-Wswitch")
 
 # ------------------------------------
 # C++ checks

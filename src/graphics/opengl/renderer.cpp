@@ -662,6 +662,8 @@ AttributeObjectPtr Renderer::createAttributeObject(
 			case kVec4F:
 				stride += 16;
 				break;
+			default:
+				throw CreateException("Invalid vertex attribute type");
 		}
 	}
 
@@ -711,6 +713,8 @@ AttributeObjectPtr Renderer::createAttributeObject(
 				totalSize = 1;
 				integer = true;
 				break;
+			default:
+				throw CreateException("Invalid vertex attribute type");
 		}
 
 		const auto index = program->getAttributeLocation(vertexAttribute.component);

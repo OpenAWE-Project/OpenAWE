@@ -29,6 +29,7 @@
 #include <spdlog/spdlog.h>
 
 #include "src/common/types.h"
+#include "src/common/exception.h"
 #include "src/common/memwritestream.h"
 
 #include "src/graphics/shaderconverter.h"
@@ -173,6 +174,8 @@ std::string ShaderConverter::convertToGLSL() {
 			case MOJOSHADER_TYPE_PIXEL:
 				shaderTypeName = "pixel";
 				break;
+			default:
+				throw CreateException("Unexpected Shader type {} found for conversion", parseData->shader_type);
 		}
 
 		spdlog::debug("Converted {} shader to glsl:\n{}", shaderTypeName, shader);

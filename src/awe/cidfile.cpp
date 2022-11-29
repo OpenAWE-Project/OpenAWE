@@ -23,6 +23,7 @@
 #include <zlib.h>
 
 #include "src/common/strutil.h"
+#include "src/common/exception.h"
 
 #include "src/awe/cidfile.h"
 #include "src/awe/objectbinaryreadstreamv1.h"
@@ -45,6 +46,9 @@ CIDFile::CIDFile(Common::ReadStream &cid, ObjectType type, std::shared_ptr<DPFil
 	switch (_format) {
 		case kSimple: _objectStream = std::make_unique<AWE::ObjectBinaryReadStreamV1>(cid, dp); break;
 		case kStructured: _objectStream = std::make_unique<AWE::ObjectBinaryReadStreamV2>(cid, dp); break;
+		case kStructuredV2:
+			throw CreateException("Structured CID files in version 2, as used by Quantum Break and succeeding games "
+								  "are currently not supported");
 	}
 
 	_containers.resize(numElements);

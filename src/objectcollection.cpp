@@ -135,6 +135,8 @@ void ObjectCollection::load(const AWE::Object &container, ObjectType type) {
 		case kKeyframeAnimation: loadKeyFrameAnimation(container); break;
 		case kKeyframe:	loadKeyFrame(container); break;
 		case kAmbientLight:	loadAmbientLightInstance(container); break;
+		default:
+			break; // If the object is currently not addable to the collection, skip it.
 	}
 }
 
