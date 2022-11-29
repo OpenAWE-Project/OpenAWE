@@ -9,18 +9,18 @@
 namespace Codecs {
 
 VorbisStream::VorbisStream(vorbis_info info, ogg_stream_state &stream, OggContainer &container) :
-	OggStream(
-		stream,
-		container
-	),
 	AudioStream(
 		info.rate,
 		16,
 		info.channels,
 		true
 	),
-	_pos(0),
-	_info(info) {
+	OggStream(
+		stream,
+		container
+	),
+	_info(info),
+	_pos(0) {
 	if (vorbis_synthesis_init(&_dsp, &_info) != 0)
 		throw CreateException("Failed to create synthesis object");
 	if (vorbis_block_init(&_dsp, &_block) != 0)

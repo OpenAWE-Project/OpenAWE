@@ -49,13 +49,13 @@ public:
 	glm::mat3 getRotation() const;
 
 private:
-	bool _absoluteKeyFramer;
-	glm::mat4 _keyFramerTransform;
-	glm::mat4 _localToParent, _parentToLocal;
-
 	glm::vec3 _translation;
 	glm::vec3 _scale;
 	glm::mat3 _rotation;
+
+	bool _absoluteKeyFramer;
+	glm::mat4 _keyFramerTransform;
+	glm::mat4 _localToParent, _parentToLocal;
 };
 
 

@@ -23,9 +23,9 @@
 namespace Codecs {
 
 VideoStream::VideoStream(unsigned int width, unsigned int height, float fps) :
+	_fps(fps),
 	_width(width),
-	_height(height),
-	_fps(fps) {
+	_height(height) {
 }
 
 float VideoStream::getFps() const {

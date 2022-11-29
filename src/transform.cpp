@@ -23,7 +23,11 @@
 
 #include "transform.h"
 
-Transform::Transform(glm::vec3 translation, glm::mat3 rotation) : _translation(translation), _rotation(rotation), _keyFramerTransform(glm::identity<glm::mat4>()), _absoluteKeyFramer(false) {
+Transform::Transform(glm::vec3 translation, glm::mat3 rotation) :
+	_translation(translation),
+	_rotation(rotation),
+	_absoluteKeyFramer(false),
+	_keyFramerTransform(glm::identity<glm::mat4>()) {
 }
 
 void Transform::setKeyFrameOffset(glm::vec3 position, glm::mat3 rotation) {

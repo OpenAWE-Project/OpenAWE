@@ -27,7 +27,7 @@
 
 namespace Graphics::OpenGL {
 
-VBO::VBO(GLenum type, GLenum usage) : _type(type), _usage(usage), _id(0) {
+VBO::VBO(GLenum type, GLenum usage) : _id(0), _type(type), _usage(usage) {
 	glGenBuffers(1, &_id);
 }
 
