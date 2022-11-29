@@ -67,22 +67,22 @@ Animation::Animation(rid_t rid) {
 	const float durationBlock = animation.blockDuration;
 	float blockOffset = 0.0f;
 	for (const auto &trackBlock : animation.tracks) {
-		for (int i = 0; i < trackBlock.size(); ++i) {
+		for (unsigned int i = 0; i < trackBlock.size(); ++i) {
 			const auto track = trackBlock[i];
 			const size_t numFrames = std::max(track.positions.size(), track.rotations.size());
 			std::vector<Keyframe> keyframes(numFrames);
 
 			if (!track.positions.empty())
-				for (int j = 0; j < numFrames; ++j) {
+				for (unsigned int j = 0; j < numFrames; ++j) {
 					keyframes[j].position = track.positions[j % track.positions.size()];
 				}
 
 			if (!track.rotations.empty())
-				for (int j = 0; j < numFrames; ++j) {
+				for (unsigned int j = 0; j < numFrames; ++j) {
 					keyframes[j].rotation = track.rotations[j % track.rotations.size()];
 				}
 
-			for (int j = 0; j < numFrames; ++j) {
+			for (unsigned int j = 0; j < numFrames; ++j) {
 				keyframes[j].time =	animation.frameDuration	* static_cast<float>(j)	+ blockOffset;
 			}
 

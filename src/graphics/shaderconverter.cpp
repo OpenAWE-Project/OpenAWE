@@ -151,12 +151,15 @@ std::string ShaderConverter::convertToGLSL() {
 				for (int j = 0; j < parseData->sampler_count; ++j) {
 					const auto sampler = parseData->samplers[j];
 					if (symbol.register_count <= 1) {
-						if (sampler.index == symbol.register_index) {
+						if (static_cast<unsigned int>(sampler.index) == symbol.register_index) {
 							_samplers[symbol.name] = sampler.name;
 						}
 					} else {
-						if (sampler.index >= symbol.register_index && sampler.index < symbol.register_index + symbol.register_count) {
-							_samplers[fmt::format("{}[{}]", symbol.name, sampler.index - symbol.register_index)] = sampler.name;
+						if (
+							static_cast<unsigned int>(sampler.index) >= symbol.register_index &&
+							static_cast<unsigned int>(sampler.index) < symbol.register_index + symbol.register_count
+						) {
+							_samplers[fmt::format("{}[{}]", symbol.name, static_cast<unsigned int>(sampler.index) - symbol.register_index)] = sampler.name;
 						}
 					}
 				}

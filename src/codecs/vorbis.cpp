@@ -51,7 +51,7 @@ std::vector<byte> VorbisStream::read(size_t numSamples) {
 		vorbis_synthesis(&_block, &packet);
 		vorbis_synthesis_blockin(&_dsp, &_block);
 		size_t readSamples = vorbis_synthesis_pcmout(&_dsp, &pcm);
-		for (int i = 0; i < std::min(readSamples, remainingSamples); ++i) {
+		for (size_t i = 0; i < std::min(readSamples, remainingSamples); ++i) {
 			for (int j = 0; j < getChannelCount(); ++j) {
 				pcmData.emplace_back(pcm[j][i] * std::numeric_limits<int16_t>::max());
 			}

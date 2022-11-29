@@ -31,7 +31,7 @@ namespace Common {
 Shape loopSubdivision(const Shape &shape) {
 	// Get all triangles from the shape
 	std::vector<glm::u16vec3> triangles;
-	for (int i = 0; i < shape.indices.size()/3; i++) {
+	for (unsigned int i = 0; i < shape.indices.size()/3; i++) {
 		triangles.emplace_back(
 			shape.indices[i * 3],
 			shape.indices[i * 3 + 1],
@@ -162,7 +162,7 @@ Shape generateIcoSphere(float radius, unsigned int numSubdivisions) {
 	};
 
 	// Loop over subdivisions
-	for (int i = 0; i < numSubdivisions; ++i) {
+	for (unsigned int i = 0; i < numSubdivisions; ++i) {
 		icoSphere = loopSubdivision(icoSphere);
 	}
 
@@ -183,7 +183,7 @@ Shape generateCone(float radius, float height, unsigned int resolution) {
 	Shape coneShape;
 
 	// Generate base vertices
-	for (int i = 0; i < resolution; ++i) {
+	for (unsigned int i = 0; i < resolution; ++i) {
 		const float ratio = static_cast<float>(i) / static_cast<float>(resolution);
 		const float r = ratio * (M_PI * 2.0f);
 		const float x = std::cos(r) * radius;
@@ -192,7 +192,7 @@ Shape generateCone(float radius, float height, unsigned int resolution) {
 	}
 
 	// Generate base indices
-	for (int i = 1; i < resolution - 1; ++i) {
+	for (unsigned int i = 1; i < resolution - 1; ++i) {
 		coneShape.indices.emplace_back(0);
 		coneShape.indices.emplace_back(i);
 		coneShape.indices.emplace_back(i + 1);
@@ -203,7 +203,7 @@ Shape generateCone(float radius, float height, unsigned int resolution) {
 	
 	// Generate base to top indices
 	const uint16_t topIndex = coneShape.positions.size() - 1;
-	for (int i = 0; i < resolution; ++i) {
+	for (unsigned int i = 0; i < resolution; ++i) {
 		coneShape.indices.emplace_back((i + 1) % resolution);
 		coneShape.indices.emplace_back(i);
 		coneShape.indices.emplace_back(topIndex);

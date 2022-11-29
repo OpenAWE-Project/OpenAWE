@@ -179,13 +179,13 @@ void MsImaAdpcmStream::decodeBlock() {
 
 	_remainder = 0;
 	// Decode a number of block chunks
-	for (int k = 0; k < _numBlockChunks; ++k) {
+	for (unsigned int k = 0; k < _numBlockChunks; ++k) {
 		if (_adpcm->eos())
 			break;
 
 		// Decode one 4 byte left and 4 byte chunk for the block
-		for (int i = 0; i < channelCount; ++i) {
-			for (int j = 0; j < 4; ++j) {
+		for (unsigned int i = 0; i < channelCount; ++i) {
+			for (unsigned int j = 0; j < 4; ++j) {
 				byte date = _adpcm->readByte();
 				last[i] = _buffer[k * 16 + (j * channelCount + 0) * 2 + i] = decodeSample(date & 0x0f, stepIndex[i], last[i]);
 				last[i] = _buffer[k * 16 + (j * channelCount + 1) * 2 + i] = decodeSample((date >> 4) & 0x0f, stepIndex[i], last[i]);

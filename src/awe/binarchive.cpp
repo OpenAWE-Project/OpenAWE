@@ -126,7 +126,7 @@ std::vector<size_t> BINArchive::getDirectoryResources(const std::string &directo
 		return {};
 
 	std::vector<size_t> indices;
-	for (int i = 0; i < getNumResources(); ++i) {
+	for (size_t i = 0; i < getNumResources(); ++i) {
 		indices.emplace_back(i);
 	}
 

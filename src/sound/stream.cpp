@@ -29,8 +29,8 @@
 namespace Sound {
 
 Stream::Stream(Codecs::AudioStream *stream) :
-	_stream(stream),
 	_format(getAudioFormat(stream->getChannelCount(), stream->getBitsPerSample())),
+	_stream(stream),
 	_playing(false) {
 	setRelative(true);
 	_buffers.resize(32);
@@ -75,7 +75,7 @@ void Stream::update() {
 	}
 
 	// And unqueue buffers already played
-	for (int i = 0; i < getBuffersProcessed(); ++i) {
+	for (unsigned int i = 0; i < getBuffersProcessed(); ++i) {
 		ALuint nextBuffer = _usedBuffers.front();
 		_usedBuffers.pop_front();
 		unqueueBuffer(nextBuffer);
@@ -130,7 +130,7 @@ void LoopableStream::update() {
 	}
 
 	// And unqueue buffers already played
-	for (int i = 0; i < getBuffersProcessed(); ++i) {
+	for (unsigned int i = 0; i < getBuffersProcessed(); ++i) {
 		ALuint nextBuffer = _usedBuffers.front();
 		_usedBuffers.pop_front();
 		unqueueBuffer(nextBuffer);

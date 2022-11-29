@@ -85,7 +85,7 @@ BillboardSet::BillboardSet(
 	};
 
 	std::vector<Material::Attribute> materialAttributes;
-	for (int i = 0; i < types.size(); ++i) {
+	for (unsigned int i = 0; i < types.size(); ++i) {
 		materialAttributes.emplace_back(Material::Attribute(
 			fmt::format("g_foliageMeshTable[{}].vAtlasPosition", i),
 			types[i].atlasPosition

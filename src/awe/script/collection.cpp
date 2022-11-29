@@ -64,7 +64,7 @@ void Collection::createScript(
 	}
 
 	std::vector<Variable> variables(variableValues.size());
-	for (int i = 0; i < variableValues.size(); ++i) {
+	for (size_t i = 0; i < variableValues.size(); ++i) {
 		const int32_t variableValue = variableValues[i];
 		variables[i] = variableValue;
 	}

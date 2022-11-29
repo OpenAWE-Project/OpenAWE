@@ -47,7 +47,7 @@ StreamedResourceFile::StreamedResourceFile(Common::ReadStream &streamedResource)
 	std::vector<uint32_t> pathOffsets;
 	rids.resize(numResources);
 	pathOffsets.resize(numResources);
-	for (int i = 0; i < numResources; ++i) {
+	for (unsigned int i = 0; i < numResources; ++i) {
 		std::vector<AWE::Object> objects;
 		rid_t rid = streamedResource.readUint32BE();
 		uint32_t pathOffset = streamedResource.readUint32LE();
@@ -72,7 +72,7 @@ StreamedResourceFile::StreamedResourceFile(Common::ReadStream &streamedResource)
 	}
 
 	uint32_t nameSize = streamedResource.readUint32LE();
-	for (int i = 0; i < rids.size(); ++i) {
+	for (size_t i = 0; i < rids.size(); ++i) {
 		uint32_t pathOffset = pathOffsets[i];
 
 		streamedResource.seek(

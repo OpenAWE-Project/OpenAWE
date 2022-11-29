@@ -73,7 +73,7 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile) {
 		float maxBlendS = std::numeric_limits<float>::min();
 		float maxBlendT = std::numeric_limits<float>::min();
 
-		for (int i = 0; i < polygon.indices.size(); ++i) {
+		for (unsigned int i = 0; i < polygon.indices.size(); ++i) {
 			const auto index = polygon.indices[i];
 			const auto vertex = vertices[index];
 

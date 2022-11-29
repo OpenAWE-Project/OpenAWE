@@ -25,7 +25,7 @@ namespace AWE {
 StringTableFile::StringTableFile(Common::ReadStream &stringTable) {
 	uint32_t numElements = stringTable.readUint32LE();
 
-	for (int i = 0; i < numElements; ++i) {
+	for (unsigned int i = 0; i < numElements; ++i) {
 		uint32_t idLength = stringTable.readUint32LE();
 		std::string id = stringTable.readFixedSizeString(idLength);
 

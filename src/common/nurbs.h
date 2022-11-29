@@ -46,7 +46,7 @@ public:
 
 		T value;
 		std::memset(&value, 0, sizeof(T));
-		for (int i = 0; i <= _degree; ++i) {
+		for (unsigned int i = 0; i <= _degree; ++i) {
 			value += _controlPoints[span - i] * basis[i];
 		}
 
@@ -65,7 +65,7 @@ private:
 
 		N[0] = 1.0f;
 
-		for (int i = 0; i < _degree; ++i) {
+		for (unsigned int i = 0; i < _degree; ++i) {
 			for (int j = i; j >= 0; --j) {
 				float a = (t - _knots[span - j]) / (_knots[span + i + 1 - j] - _knots[span - j]);
 				float tmp = N[j] * a;

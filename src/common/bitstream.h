@@ -47,7 +47,7 @@ public:
 
 	uint32_t read(size_t n) {
 		uint32_t newValue = 0;
-		for (int i = 0; i < n; ++i) {
+		for (size_t i = 0; i < n; ++i) {
 			newValue <<= 1;
 			newValue |= (read() ? 1 : 0);
 		}
@@ -55,7 +55,7 @@ public:
 	}
 
 	void skip(size_t n) {
-		for (int i = 0; i < n; ++i) {
+		for (size_t i = 0; i < n; ++i) {
 			read();
 		}
 	}
@@ -108,6 +108,11 @@ typedef BitStream<uint32_t, true, true>   BitStream32LEMSB;
 typedef BitStream<uint32_t, true, false>  BitStream32LELSB;
 typedef BitStream<uint32_t, false, true>  BitStream32BEMSB;
 typedef BitStream<uint32_t, false, false> BitStream32BELSB;
+
+typedef BitStream<uint64_t, true, true>   BitStream64LEMSB;
+typedef BitStream<uint64_t, true, false>  BitStream64LELSB;
+typedef BitStream<uint64_t, false, true>  BitStream64BEMSB;
+typedef BitStream<uint64_t, false, false> BitStream64BELSB;
 
 } // End of namespace Common
 

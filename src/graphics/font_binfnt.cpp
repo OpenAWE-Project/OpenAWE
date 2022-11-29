@@ -52,9 +52,9 @@ BINFNTFont::BINFNTFont(Common::ReadStream &binfnt) {
 	delete [] data;
 	delete [] indicesData;
 
-	uint32_t numGlyphs = binfnt.readUint32LE();
+	const uint32_t numGlyphs = binfnt.readUint32LE();
 	std::queue<Glyph> glyphs;
-	for (int i = 0; i < numGlyphs; ++i) {
+	for (unsigned int i = 0; i < numGlyphs; ++i) {
 		Glyph glyph;
 		glyph.vertexOffset = binfnt.readUint16LE();
 		glyph.vertexCount = binfnt.readUint16LE();

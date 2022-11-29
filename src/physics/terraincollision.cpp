@@ -43,7 +43,7 @@ TerrainCollision::TerrainCollision(AWE::COLLISIONSFile &collisionsFile) {
 	}
 
 	_mesh = std::make_unique<btTriangleMesh>();
-	for (int i = 0; i < indices.size() / 3; ++i) {
+	for (size_t i = 0; i < indices.size() / 3; ++i) {
 		const uint16_t i1 = indices[i*3], i2 = indices[i*3 + 1], i3 = indices[i*3 + 2];
 
 		_mesh->addTriangle(

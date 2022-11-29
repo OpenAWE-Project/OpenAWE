@@ -161,7 +161,7 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 		}
 	} else {
 		const uint32_t numPolygons = terrainData.readUint32LE();
-		for (int i = 0; i < numPolygons; ++i) {
+		for (unsigned int i = 0; i < numPolygons; ++i) {
 			const uint32_t id = terrainData.readUint32LE();
 
 			// Displacement map!
@@ -174,7 +174,7 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 		}
 
 		const uint32_t numUnk = terrainData.readUint32LE();
-		for (int i = 0; i < numUnk; ++i) {
+		for (unsigned int i = 0; i < numUnk; ++i) {
 			const uint32_t id = terrainData.readUint32LE();
 
 			terrainData.skip(64);
@@ -185,7 +185,7 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 
 	// Geonormal maps
 	const uint32_t numGeoNormalMaps = terrainData.readUint32LE();
-	for (int i = 0; i < numGeoNormalMaps; i++) {
+	for (unsigned int i = 0; i < numGeoNormalMaps; i++) {
 		Blend blend;
 		blend.id = terrainData.readUint32LE();
 		blend.size = terrainData.readUint32LE();
@@ -200,7 +200,7 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 
 	// Blend maps
 	const uint32_t numBlendMaps = terrainData.readUint32LE();
-	for (int i = 0; i < numBlendMaps; i++) {
+	for (unsigned int i = 0; i < numBlendMaps; i++) {
 		Blend blend;
 		blend.id = terrainData.readUint32LE();
 		blend.size = terrainData.readUint32LE();

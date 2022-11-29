@@ -86,7 +86,7 @@ Skeleton &Skeleton::operator=(const Skeleton &skeleton) {
 void Skeleton::update(const Animation &animation, float time) {
 	std::vector<glm::mat4> animationTransforms(_bones.size());
 
-	for (int i = 0; i < _bones.size(); ++i) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		const auto &bone = _bones[i];
 		if (animation.hasTrackForBone(bone.name))
 			// If the animation defines a track for the bone, calculate the transformation
@@ -98,7 +98,7 @@ void Skeleton::update(const Animation &animation, float time) {
 				glm::toMat4(bone.rotation);
 	}
 
-	for (int i = 0; i < _bones.size(); ++i) {
+	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		const auto &bone = _bones[i];
 		auto transformation = glm::identity<glm::mat4>();
 
@@ -132,11 +132,11 @@ const std::string &Skeleton::getName() const {
 
 std::vector<glm::mat4x3> Skeleton::getSkinningMatrices(std::vector<std::string> indices) const {
 	std::vector<glm::mat4x3> transformation(indices.size());
-	for (int i = 0; i < indices.size(); ++i) {
+	for (unsigned int i = 0; i < indices.size(); ++i) {
 		transformation[i] = _transformations.at(indices[i]);
 	}
 
-	for (int i = 0; i < 64 - transformation.size(); ++i) {
+	for (unsigned int i = 0; i < 64 - transformation.size(); ++i) {
 		transformation.emplace_back(glm::identity<glm::mat3x4>());
 	}
 	

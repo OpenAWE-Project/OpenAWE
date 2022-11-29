@@ -129,7 +129,7 @@ void ObjectXMLWriteStream::variable(const std::string &name, std::vector<bool> &
 	newVariableNode.properties["name"] = name;
 
 	assert(value.size() == fixedSize);
-	for (int i = 0; i < fixedSize; ++i) {
+	for (size_t i = 0; i < fixedSize; ++i) {
 		auto &itemNode = newVariableNode.addNewNode("item");
 		itemNode.content = std::to_string(value[i]);
 	}

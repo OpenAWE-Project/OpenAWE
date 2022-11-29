@@ -99,7 +99,7 @@ void ConvertedProgram::setUniformMatrix4f(GLint id, const glm::mat4 &value) cons
 	const glm::mat4 transposedValue = glm::transpose(value);
 	const unsigned int length = _symbolLength.at(id);
 
-	for (int i = 0; i < std::min(length, 4u); ++i) {
+	for (unsigned int i = 0; i < std::min(length, 4u); ++i) {
 		Program::setUniform4f(id + i, transposedValue[i]);
 	}
 }

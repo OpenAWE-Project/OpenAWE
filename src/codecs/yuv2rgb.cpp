@@ -24,8 +24,8 @@
 namespace Codecs {
 
 void convertYUV2RGB(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height) {
-	for (int y = 0; y < height; ++y) {
-		for (int x = 0; x < width; ++x) {
+	for (unsigned int y = 0; y < height; ++y) {
+		for (unsigned int x = 0; x < width; ++x) {
 			const float y1 = ycbcr.y[y * width + x];
 			const float cb = ycbcr.cb[(y / 2) * (width / 2) + x / 2];
 			const float cr = ycbcr.cr[(y / 2) * (width / 2) + x / 2];

@@ -43,10 +43,10 @@ protected:
 
 	const ALenum _format;
 
+	std::unique_ptr<Codecs::AudioStream> _stream;
 	std::vector<ALuint> _buffers;
 	std::deque<ALuint> _availableBuffers;
 	std::deque<ALuint> _usedBuffers;
-	std::unique_ptr<Codecs::AudioStream> _stream;
 
 	bool _playing;
 };

@@ -69,7 +69,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 
 	uint32_t boneCount = binmsh->readUint32LE();
 	std::vector<std::string> boneNames(boneCount);
-	for (int i = 0; i < boneCount; ++i) {
+	for (unsigned int i = 0; i < boneCount; ++i) {
 		uint32_t boneNameLength = binmsh->readUint32LE();
 		std::string boneName = binmsh->readFixedSizeString(boneNameLength, true);
 		boneNames[i] = boneName;
@@ -146,7 +146,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 
 		const uint32_t numAttributes = binmsh->readUint32LE();
 		std::vector<Material::Attribute> attributes;
-		for (int j = 0; j < numAttributes; ++j) {
+		for (unsigned int j = 0; j < numAttributes; ++j) {
 			uint32_t attributeNameLength = binmsh->readUint32LE();
 			std::string attributeName = binmsh->readFixedSizeString(attributeNameLength, true);
 
@@ -224,7 +224,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 	}
 
 	uint32_t meshCount = binmsh->readUint32LE();
-	for (int i = 0; i < meshCount; ++i) {
+	for (unsigned int i = 0; i < meshCount; ++i) {
 		Mesh mesh;
 
 		const uint32_t meshLayer    = binmsh->readUint32LE();
@@ -320,7 +320,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 
 		_meshs[i].renderType = kTriangles;
 		_meshs[i].vertexData = buffer;
-		for (const auto &stage: {"material"}) {
+		for (const auto &stage: {"depth", "material"}) {
 			_meshs[i].vertexAttributes[stage] = GfxMan.createAttributeObject(
 				materials[i].getShaderName(),
 				stage,

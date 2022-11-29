@@ -85,7 +85,7 @@ void WriteStream::writeUint64BE(uint64_t value) {
 }
 
 void WriteStream::writeValues(byte value, size_t count) {
-	for (int i = 0; i < count; ++i) {
+	for (size_t i = 0; i < count; ++i) {
 		write(&value, sizeof(byte));
 	}
 }

@@ -155,7 +155,7 @@ void ObjectBinaryReadStream::variable(const std::string &name, std::vector<GID> 
 void ObjectBinaryReadStream::variable(const std::string &name, std::vector<std::string> &value) {
 	uint32_t count = _stream.readUint32LE();
 	value.resize(count);
-	for (int i = 0; i < count; ++i) {
+	for (unsigned int i = 0; i < count; ++i) {
 		uint32_t offset = _stream.readUint32LE();
 		value[i] = _dp->getString(offset);
 	}
@@ -163,7 +163,7 @@ void ObjectBinaryReadStream::variable(const std::string &name, std::vector<std::
 
 void ObjectBinaryReadStream::variable(const std::string &name, std::vector<std::string> &value, size_t fixedSize) {
 	value.resize(fixedSize);
-	for (int i = 0; i < fixedSize; ++i) {
+	for (size_t i = 0; i < fixedSize; ++i) {
 		uint32_t offset = _stream.readUint32LE();
 		value[i] = _dp->getString(offset);
 	}

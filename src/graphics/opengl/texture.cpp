@@ -29,7 +29,7 @@
 
 namespace Graphics::OpenGL {
 
-Texture::Texture(GLenum type) : _type(type), _freeTexture(true) {
+Texture::Texture(GLenum type) : _type(type) {
 	glCreateTextures(_type, 1, &_id);
 }
 
@@ -126,7 +126,7 @@ void Texture::load(unsigned int xoffset, unsigned int yoffset, const ImageDecode
 	GLenum format, internalFormat = 0, type = 0;
 	getParameters(decoder.getFormat(), format, internalFormat, type);
 
-	for (int i = 0; i < decoder.getNumMipMaps(); ++i) {
+	for (unsigned int i = 0; i < decoder.getNumMipMaps(); ++i) {
 		const auto &mipmap = decoder.getMipMap(i);
 		assert(mipmap.width != 0 && mipmap.height != 0);
 
@@ -209,7 +209,7 @@ void Texture::load(const ImageDecoder &decoder) {
 	getParameters(decoder.getFormat(), format, internalFormat, type);
 
 	GLuint level = 0;
-	for (int i = 0; i < decoder.getNumMipMaps(); ++i) {
+	for (unsigned int i = 0; i < decoder.getNumMipMaps(); ++i) {
 		const auto &mipmap = decoder.getMipMap(i);
 			assert(mipmap.width != 0 && mipmap.height != 0);
 

@@ -38,7 +38,7 @@ void Graphics::Renderer::addModel(Graphics::Model *model) {
 
 	// Collect all render tasks
 	const auto &partMeshs = model->getMesh()->getMeshs();
-	for (int i = 0; i < partMeshs.size(); ++i) {
+	for (unsigned int i = 0; i < partMeshs.size(); ++i) {
 		const auto &partMesh = partMeshs[i];
 
 		const auto shaderName = partMesh.material.getShaderName();

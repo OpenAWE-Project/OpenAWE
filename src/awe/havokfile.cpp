@@ -343,7 +343,7 @@ glm::quat HavokFile::read40BitQuaternion(Common::ReadStream &binhkx) {
 	if (invertSign)
 		tmp2.w = -tmp2.w;
 
-	for (int i = 0; i < 3 - resultShift; ++i) {
+	for (unsigned int i = 0; i < 3 - resultShift; ++i) {
 		std::swap(tmp2[3 - i], tmp2[2 - i]);
 	}
 
@@ -434,7 +434,7 @@ std::any HavokFile::readHkaSkeleton(Common::ReadStream &binhkx, uint32_t section
 			}
 
 			binhkx.seek(boneArray.offset);
-			for (int i = 0; i < boneArray.count; ++i) {
+			for (unsigned int i = 0; i < boneArray.count; ++i) {
 				uint32_t boneNameOffset = readFixup(binhkx, section);
 				bool translationLocked = binhkx.readUint32LE() == 1;
 
@@ -453,7 +453,7 @@ std::any HavokFile::readHkaSkeleton(Common::ReadStream &binhkx, uint32_t section
 			if (transformArray.offset == 0xFFFFFFFF)
 				return s;
 			binhkx.seek(transformArray.offset);
-			for (int i = 0; i < transformArray.count; ++i) {
+			for (unsigned int i = 0; i < transformArray.count; ++i) {
 				glm::vec3 position;
 				position.x = binhkx.readIEEEFloatLE();
 				position.y = binhkx.readIEEEFloatLE();
@@ -511,12 +511,12 @@ std::any HavokFile::readHkaSkeleton(Common::ReadStream &binhkx, uint32_t section
 				bone.name = binhkx.readNullTerminatedString();
 			}
 
-			for (int i = 0; i < parentIndices.size(); ++i) {
+			for (unsigned int i = 0; i < parentIndices.size(); ++i) {
 				s.bones[i].parentIndex = parentIndices[i];
 			}
 
 			binhkx.seek(transformOffset);
-			for (int i = 0; i < numTransforms; ++i) {
+			for (unsigned int i = 0; i < numTransforms; ++i) {
 				auto &bone = s.bones[i];
 
 				bone.position.x = binhkx.readIEEEFloatLE();
@@ -712,7 +712,7 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 				}
 
 				Common::NURBS<glm::vec3> nurbs(positionControlPoints, knots, degree);
-				for (int i = 0; i < numBlockFrames; ++i) {
+				for (unsigned int i = 0; i < numBlockFrames; ++i) {
 					track.positions.emplace_back(nurbs.interpolate(i));
 				}
 
@@ -755,7 +755,7 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 				}
 
 				Common::NURBS<glm::quat> nurbs(rotationControlPoints, knots, degree);
-				for (int i = 0; i < numBlockFrames; ++i) {
+				for (unsigned int i = 0; i < numBlockFrames; ++i) {
 					track.rotations.emplace_back(nurbs.interpolate(i));
 				}
 			} else if (rotationTypeStatic) {
@@ -792,7 +792,7 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 	}
 
 	binhkx.seek(annotationTracks.offset);
-	for (int i = 0; i < annotationTracks.count; ++i) {
+	for (unsigned int i = 0; i < annotationTracks.count; ++i) {
 		uint32_t nameOffset = readFixup(binhkx, section);
         uint32_t unknown1 = binhkx.readUint32LE();
         //uint32_t offset1 = readFixup(binhkx, section);

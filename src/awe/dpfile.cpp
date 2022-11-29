@@ -160,7 +160,6 @@ std::vector<GID> DPFile::getGIDs(uint32_t offset, unsigned int count) {
 
 	_dp->seek(-static_cast<int>(_dataSize) + static_cast<int>(relativeOffset), Common::ReadStream::END);
 	for (auto &gid: gids) {
-		size_t pos = _dp->pos();
 		gid.type = _dp->readUint32LE();
 		gid.id = _dp->readUint32BE();
 		_dp->skip(8); // Always 0? Maybe aligning?
@@ -244,7 +243,7 @@ void DPFile::readTaskData1(uint32_t offset, unsigned int count) {
 	_dp->seek(-static_cast<int>(_dataSize) + relativeOffset, Common::ReadStream::END);
 
 	TaskData1 taskData1;
-	for (int i = 0; i < count; ++i) {
+	for (unsigned int i = 0; i < count; ++i) {
 		taskData1.count = _dp->readUint32LE();
 		taskData1.hash = _dp->readUint32LE();
 		_dp->skip(8); // Always zero?
