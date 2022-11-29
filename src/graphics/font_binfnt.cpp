@@ -68,8 +68,6 @@ BINFNTFont::BINFNTFont(Common::ReadStream &binfnt) {
 		glyphs.push(glyph);
 	}
 
-
-	size_t s = binfnt.pos();
 	for (int i = 0; i < USHRT_MAX + 1; ++i) {
 		char16_t code = binfnt.readUint16LE() + 0x20;
 		if (_glyphs.find(code) != _glyphs.end())
@@ -78,9 +76,6 @@ BINFNTFont::BINFNTFont(Common::ReadStream &binfnt) {
 		_glyphs[code] = glyphs.front();
 		glyphs.pop();
 	}
-	size_t e = binfnt.pos();
-
-	assert(e - s == 0x20000);
 
 	uint32_t textureSize = binfnt.readUint32LE();
 	std::unique_ptr<Common::ReadStream> textureStream = std::unique_ptr<Common::ReadStream>(binfnt.readStream(textureSize));
