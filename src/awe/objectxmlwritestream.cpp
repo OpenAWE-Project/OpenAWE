@@ -28,7 +28,7 @@
 
 namespace AWE {
 
-ObjectXMLWriteStream::ObjectXMLWriteStream(Common::XML::Node &rootNode) : _rootNode(rootNode), _index(0) {
+ObjectXMLWriteStream::ObjectXMLWriteStream(Common::XML::Node &rootNode) : _index(0), _rootNode(rootNode) {
 	_objectNode.emplace(_rootNode);
 }
 

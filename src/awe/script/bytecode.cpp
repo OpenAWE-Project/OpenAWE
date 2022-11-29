@@ -30,8 +30,8 @@ namespace AWE::Script {
 
 Bytecode::Bytecode(Common::ReadStream *bytecode, const EntryPoints &entryPoints, std::shared_ptr<DPFile> parameters) :
 	_bytecode(bytecode),
-	_entryPoints(entryPoints),
-	_parameters(parameters) {
+	_parameters(parameters),
+	_entryPoints(entryPoints) {
 }
 
 bool Bytecode::hasEntryPoint(const std::string &entryPoint) {

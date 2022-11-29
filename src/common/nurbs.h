@@ -35,9 +35,9 @@ template<typename T>
 class NURBS {
 public:
 	NURBS(std::vector<T> controlPoints, std::vector<uint8_t> knots, unsigned int degree) :
+		_degree(degree),
 		_controlPoints(controlPoints),
-		_knots(knots),
-		_degree(degree) {
+		_knots(knots) {
 	}
 
 	T interpolate(unsigned int t) const {

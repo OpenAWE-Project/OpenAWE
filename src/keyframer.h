@@ -105,7 +105,7 @@ public:
 
 private:
 	float _start;
-	unsigned int _initialKeyframe;
+	const unsigned int _initialKeyframe;
 	KeyFramerPtr _parentKeyFramer;
 	std::optional<KeyFrameAnimation> _currentAnimation;
 	std::vector<entt::entity> _affectedEntities;

@@ -43,7 +43,7 @@ namespace Common {
 template<typename T, bool le, bool msb>
 class BitStream {
 public:
-	explicit BitStream(Common::ReadStream &bits) : _remainingBits(0), _curValue(0), _bits(bits) {}
+	explicit BitStream(Common::ReadStream &bits) : _curValue(0), _remainingBits(0), _bits(bits) {}
 
 	uint32_t read(size_t n) {
 		uint32_t newValue = 0;

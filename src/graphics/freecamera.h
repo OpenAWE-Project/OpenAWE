@@ -37,8 +37,8 @@ public:
 
 protected:
 	float _movementFactor;
-	glm::vec3 _movementRotation;
 	glm::vec3 _movementDirection;
+	glm::vec3 _movementRotation;
 };
 
 } // End of namespace Graphics

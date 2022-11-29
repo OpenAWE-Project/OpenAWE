@@ -67,8 +67,8 @@ protected:
 	bool eos() const;
 
 private:
-	OggContainer &_container;
 	ogg_stream_state &_stream;
+	OggContainer &_container;
 };
 
 } // End of namespace Codecs

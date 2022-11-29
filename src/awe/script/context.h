@@ -41,8 +41,8 @@ public:
 	Functions &getFunctions();
 
 private:
-	Functions &_functions;
 	entt::registry &_registry;
+	Functions &_functions;
 	std::map<std::string, Functions> _globalObjects;
 };
 

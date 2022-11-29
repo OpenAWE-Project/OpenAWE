@@ -30,12 +30,11 @@ namespace Graphics {
 Model::Model() : _mesh(new Mesh), _transform(glm::identity<glm::mat4>()) {
 }
 
-Model::Model(rid_t rid) : _transform(glm::identity<glm::mat4>()),
-_mesh(MeshMan.getMesh(rid)) {
+Model::Model(rid_t rid) : _mesh(MeshMan.getMesh(rid)), _transform(glm::identity<glm::mat4>()) {
 	show();
 }
 
-Model::Model(const std::string &path)  : _transform(glm::identity<glm::mat4>()), _mesh(MeshMan.getMesh(path)) {
+Model::Model(const std::string &path) :  _mesh(MeshMan.getMesh(path)), _transform(glm::identity<glm::mat4>()) {
 	show();
 }
 

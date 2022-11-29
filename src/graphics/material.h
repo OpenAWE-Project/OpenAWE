@@ -54,8 +54,8 @@ public:
 
 	struct Attribute {
 		std::string id;
-		AttributeType type;
 		AttributeData data;
+		AttributeType type;
 		int index;
 
 		Attribute(const std::string &id, glm::vec1 value) : id(id), data(value), type(kVec1), index(-1) {}

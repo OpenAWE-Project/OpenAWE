@@ -23,7 +23,7 @@
 
 namespace Graphics {
 
-ImageDecoder::ImageDecoder() : _format(kRGBA8), _compressed(false), _type(kTexture2D) {
+ImageDecoder::ImageDecoder() : _format(kRGBA8), _type(kTexture2D), _compressed(false) {
 
 }
 

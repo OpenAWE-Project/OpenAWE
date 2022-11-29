@@ -31,10 +31,10 @@ Material::Material(
 	std::initializer_list<std::string> stages,
 	std::vector<Attribute> attributes,
 	uint32_t properties) :
-	_shaderName(shaderName),
-	_stages(stages),
 	_blendMode(BlendMode::kNone),
-	_properties(properties) {
+	_properties(properties),
+	_stages(stages),
+	_shaderName(shaderName) {
 	for (const auto &stage: _stages) {
 		_attributes[stage] = attributes;
 		for (auto &attribute: _attributes[stage]) {

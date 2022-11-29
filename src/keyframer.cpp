@@ -28,10 +28,10 @@
 #include "src/keyframer.h"
 
 KeyFramer::KeyFramer(std::vector<KeyFrame> keyFrames,  std::map<GID, KeyFrameAnimation> keyframeAnimations, unsigned int initialKeyframe) :
+	_start(0.0f),
+	_initialKeyframe(initialKeyframe),
 	_keyFrames(keyFrames),
 	_keyframeAnimations(keyframeAnimations),
-	_initialKeyframe(initialKeyframe),
-	_start(0.0f),
 	_transformation(glm::identity<glm::mat4>()) {
 }
 

@@ -26,16 +26,16 @@
 
 namespace Common {
 
-MemoryReadStream::MemoryReadStream(byte *data, size_t length, bool dispose) : _data(data), _size(length), _dispose(dispose), _position(0) {
+MemoryReadStream::MemoryReadStream(byte *data, size_t length, bool dispose) : _dispose(dispose), _data(data), _size(length), _position(0) {
 }
 
-MemoryReadStream::MemoryReadStream(const byte *data, size_t length) : _data(data), _size(length), _dispose(false), _position(0) {
+MemoryReadStream::MemoryReadStream(const byte *data, size_t length) : _dispose(false), _data(data), _size(length), _position(0) {
 }
 
 MemoryReadStream::MemoryReadStream(const char *data, size_t length) :
+	_dispose(false),
 	_data(reinterpret_cast<const byte*>(data)),
 	_size(length),
-	_dispose(false),
 	_position(0) {
 }
 

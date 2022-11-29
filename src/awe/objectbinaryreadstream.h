@@ -31,8 +31,8 @@ public:
 	ObjectBinaryReadStream(Common::ReadStream &stream, std::shared_ptr<DPFile> dp);
 
 protected:
-	std::shared_ptr<DPFile> _dp;
 	Common::ReadStream &_stream;
+	std::shared_ptr<DPFile> _dp;
 
 	void skip(size_t s) override;
 

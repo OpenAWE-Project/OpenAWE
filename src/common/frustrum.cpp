@@ -29,11 +29,11 @@
 
 namespace Common {
 
-Frustrum::Frustrum() : _projection(glm::identity<glm::mat4>()), _view(glm::identity<glm::mat4>()) {
+Frustrum::Frustrum() : _view(glm::identity<glm::mat4>()), _projection(glm::identity<glm::mat4>()) {
 	generatePlanes();
 }
 
-Frustrum::Frustrum(glm::mat4 view, glm::mat4 projection) : _projection(projection), _view(view) {
+Frustrum::Frustrum(glm::mat4 view, glm::mat4 projection) : _view(view), _projection(projection) {
 	generatePlanes();
 }
 
