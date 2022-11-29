@@ -33,11 +33,7 @@ Texture::Texture(GLenum type) : _type(type) {
 	glCreateTextures(_type, 1, &_id);
 }
 
-Texture::Texture(const ImageDecoder &decoder, GLuint id) : _id(id), _freeTexture(false) {
-	load(decoder);
-}
-
-Texture::Texture(unsigned int width, unsigned int height) : _type(GL_TEXTURE_2D), _freeTexture(true) {
+Texture::Texture(unsigned int width, unsigned int height) : _type(GL_TEXTURE_2D) {
 	glCreateTextures(GL_TEXTURE_2D, 1, &_id);
 
 	bind();
@@ -62,8 +58,7 @@ Texture::Texture(unsigned int width, unsigned int height) : _type(GL_TEXTURE_2D)
 }
 
 Texture::~Texture() {
-    if (_freeTexture)
-	    glDeleteTextures(1, &_id);
+	glDeleteTextures(1, &_id);
 }
 
 void Texture::allocate(TextureFormat textureFormat, unsigned int width, unsigned int height) {
@@ -291,7 +286,6 @@ void Texture::load(const ImageDecoder &decoder) {
 }
 
 void Texture::bind() {
-	//assert(glIsTexture(_id) == GL_TRUE);
 	glBindTexture(_type, _id);
 }
 

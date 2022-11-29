@@ -31,7 +31,6 @@ namespace Graphics::OpenGL {
 class Texture : public Graphics::Texture, public GLTexture {
 public:
 	Texture(GLenum type);
-	Texture(const ImageDecoder &decoder, GLuint id);
 	Texture(unsigned int width, unsigned int height);
 	~Texture();
 
@@ -52,8 +51,6 @@ private:
 	) const;
 
 	friend class Framebuffer;
-
-	bool _freeTexture;
 
 	GLuint _id;
 	GLenum _type;
