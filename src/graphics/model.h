@@ -54,6 +54,7 @@ public:
 
 	void setTransform(const glm::mat4 &transform);
 	glm::mat4 getTransform() const;
+	glm::mat4 getInverseTransform() const;
 
 	MeshPtr getMesh() const;
 	void setSkeleton(const Skeleton &skeleton);
@@ -67,6 +68,7 @@ protected:
 	std::unique_ptr<Skeleton> _skeleton;
 
 	glm::mat4 _transform;
+	glm::mat4 _invTransform;
 };
 
 }

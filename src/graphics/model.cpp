@@ -56,10 +56,15 @@ void Model::hide() {
 
 void Model::setTransform(const glm::mat4 &transform) {
 	_transform = transform;
+	_invTransform = glm::inverse(transform);
 }
 
 glm::mat4 Model::getTransform() const {
 	return _transform;
+}
+
+glm::mat4 Model::getInverseTransform() const {
+	return _invTransform;
 }
 
 MeshPtr Model::getMesh() const {

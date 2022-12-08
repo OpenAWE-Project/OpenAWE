@@ -302,7 +302,7 @@ void Renderer::drawWorld(const std::string &stage) {
 		for (const auto &task: pass.renderTasks) {
 			glm::mat4 m = mirrorZ * task.model->getTransform();
 			glm::mat4 mv = _view * m;
-			glm::mat4 vm = glm::inverse(mv);
+			glm::mat4 vm = task.model->getInverseTransform() * viewToWorldMat;
 			glm::mat4 mvp = vp * m;
 
 			const MeshPtr mesh = task.model->getMesh();
