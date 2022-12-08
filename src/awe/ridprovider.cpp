@@ -18,12 +18,27 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
+
 #include "ridprovider.h"
 
 namespace AWE {
 
 std::string RIDProvider::getNameByRid(rid_t rid) {
 	return _resources[rid];
+}
+
+std::vector<rid_t> RIDProvider::getRIDs() {
+	std::vector<rid_t> rids;
+
+	std::transform(
+		_resources.begin(),
+		_resources.end(),
+		std::back_inserter(rids),
+		[](const auto &v) { return v.first; }
+	);
+
+	return rids;
 }
 
 } // End of namespace AWE

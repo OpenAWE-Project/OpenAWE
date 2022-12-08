@@ -48,6 +48,12 @@ public:
 	 */
 	std::string getNameByRid(rid_t rid);
 
+	/*!
+	 * Return a list of all resource ids found in this provider
+	 * \return A vector with all available resource ids in this provider
+	 */
+	std::vector<rid_t> getRIDs();
+
 protected:
 	std::map<rid_t, std::string> _resources;
 	std::map<rid_t, std::vector<AWE::Object>> _metadata;
