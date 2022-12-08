@@ -19,6 +19,7 @@
  */
 
 #include <algorithm>
+#include <iterator>
 
 #include "ridprovider.h"
 
