@@ -26,6 +26,8 @@
 
 static const uint32_t kBadFoood = 0xBADF000D;
 
+namespace AWE {
+
 StreamedResourceFile::StreamedResourceFile(Common::ReadStream &streamedResource) {
 	const uint32_t magicId = streamedResource.readUint32LE();
 	if (magicId != kBadFoood) {
@@ -89,3 +91,5 @@ StreamedResourceFile::StreamedResourceFile(Common::ReadStream &streamedResource)
 		_resources.insert(std::make_pair(rids[i], fileName));
 	}
 }
+
+} // End of namespace AWE

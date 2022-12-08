@@ -20,6 +20,10 @@
 
 #include "ridprovider.h"
 
+namespace AWE {
+
 std::string RIDProvider::getNameByRid(rid_t rid) {
 	return _resources[rid];
 }
+
+} // End of namespace AWE

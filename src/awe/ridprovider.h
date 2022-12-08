@@ -27,6 +27,8 @@
 #include "cidfile.h"
 #include "types.h"
 
+namespace AWE {
+
 /*!
  * \brief Base class for providing rid to name associations
  *
@@ -51,5 +53,6 @@ protected:
 	std::map<rid_t, std::vector<AWE::Object>> _metadata;
 };
 
+} // End of namespace AWE
 
 #endif //AWE_RIDPROVIDER_H

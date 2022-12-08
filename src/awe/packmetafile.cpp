@@ -34,6 +34,8 @@ struct RIDEntry {
 	rid_t rid;
 };
 
+namespace AWE {
+
 PACKMETAFile::PACKMETAFile(Common::ReadStream &packmeta) {
 	uint32_t numElements = packmeta.readUint32LE();
 	packmeta.skip(8);
@@ -42,13 +44,13 @@ PACKMETAFile::PACKMETAFile(Common::ReadStream &packmeta) {
 	std::vector<FileEntry> fileEntries;
 	fileEntries.resize(numElements);
 
-	for (auto &item : fileEntries) {
+	for (auto &item: fileEntries) {
 		item.name = packmeta.readNullTerminatedString();
-		item.name = std::regex_replace(item.name,std::regex("\\\\"), "/");
+		item.name = std::regex_replace(item.name, std::regex("\\\\"), "/");
 		item.name = std::regex_replace(item.name, std::regex("d:/data/"), "");
 	}
 
-	for (auto &item : fileEntries) {
+	for (auto &item: fileEntries) {
 		item.offset = packmeta.readUint32LE();
 	}
 
@@ -57,16 +59,16 @@ PACKMETAFile::PACKMETAFile(Common::ReadStream &packmeta) {
 	std::vector<RIDEntry> ridEntries;
 	ridEntries.resize(ridCount);
 
-	for (auto &entry : ridEntries) {
+	for (auto &entry: ridEntries) {
 		entry.rid = packmeta.readUint32BE();
 	}
 
-	for (auto &entry : ridEntries) {
+	for (auto &entry: ridEntries) {
 		entry.offset = packmeta.readUint32LE();
 	}
 
-	for (const auto &entry : fileEntries) {
-		for (const auto &ridEntry : ridEntries) {
+	for (const auto &entry: fileEntries) {
+		for (const auto &ridEntry: ridEntries) {
 			if (entry.offset == ridEntry.offset)
 				_resources[ridEntry.rid] = entry.name;
 		}
@@ -79,3 +81,5 @@ PACKMETAFile::PACKMETAFile(Common::ReadStream &packmeta) {
 	// TODO: Read additional CID Information appended to the file
 	//AWE::CIDFile cidFile(packmeta, ridCount);
 }
+
+} // End of namespace AWE

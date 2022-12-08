@@ -25,10 +25,13 @@
 
 #include "ridprovider.h"
 
+namespace AWE {
+
 class StreamedResourceFile : public RIDProvider {
 public:
 	StreamedResourceFile(Common::ReadStream &streamedResource);
 };
 
+} // End of namespace AWE
 
 #endif //AWE_STREAMEDRESOURCEFILE_H

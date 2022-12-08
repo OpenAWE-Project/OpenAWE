@@ -28,6 +28,8 @@
 #include "ridprovider.h"
 #include "types.h"
 
+namespace AWE {
+
 /*!
  * \brief class for reading packmeta files
  *
@@ -39,5 +41,6 @@ public:
 	PACKMETAFile(Common::ReadStream &packmeta);
 };
 
+} // End of namespace AWE
 
 #endif //AWE_PACKMETAFILE_H
