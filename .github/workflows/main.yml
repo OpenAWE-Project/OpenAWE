@@ -83,7 +83,7 @@ jobs:
         run: cpack
 
       - name: Publish Artifacts
-        uses: actions/upload-artifacts@v3
+        uses: actions/upload-artifact@v3
         with:
           name: build
           path: $GITHUB_WORKSPACE/build/*.zip
