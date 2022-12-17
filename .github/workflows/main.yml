@@ -87,13 +87,3 @@ jobs:
         with:
           name: build
           path: ${{github.workspace}}/build/*.zip
-
-  publish:
-    name: Store Artifacts
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Artifacts
-        uses: actions/download-artifacts@v3
-        with:
-          name: build
