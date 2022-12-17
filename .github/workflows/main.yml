@@ -77,3 +77,14 @@ jobs:
         shell: bash
         run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
 
+      - name: Pack Artifacts
+        working-directory: ${{github.workspace}}/build
+        shell: bash
+          run: cpack
+
+      - name: Publish Artifacts
+        uses: actions/upload-artifacts@v3
+        with:
+          name: build
+          path: $GITHUB_WORKSPACE/build/*.zip
+
