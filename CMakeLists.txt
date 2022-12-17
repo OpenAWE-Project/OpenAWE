@@ -229,21 +229,11 @@ endif ()
 link_libraries(
         ${CMAKE_THREAD_LIBS_INIT}
 
-        glfw
         glm::glm
         fmt::fmt
         CLI11::CLI11
-        GLEW::GLEW
-        OpenGL::GL
 
-        ${ZLIB_LIBRARIES}
-        ${OPENAL_LIBRARY}
-        ${THEORA_LIBRARIES}
-        ${VORBIS_LIBRARIES}
-        ${OGG_LIBRARIES}
-        ${BULLET_LIBRARIES}
         ${spdlog_LIBRARIES}
-        ${MOJOSHADER_LIBRARIES}
 )
 
 include_directories(
@@ -266,9 +256,23 @@ add_definitions(-DSPDLOG_FMT_EXTERNAL)
 # Libraries for awe
 file(GLOB_RECURSE SOURCE_FILES src/common/*.cpp src/common/*.h)
 add_library(awe_common ${SOURCE_FILES})
+target_link_libraries(
+        awe_common
+
+        ${ZLIB_LIBRARIES}
+)
 
 file(GLOB_RECURSE SOURCE_FILES src/codecs/*.cpp src/codecs/*.h)
 add_library(awe_codecs ${SOURCE_FILES})
+target_link_libraries(
+        awe_codecs
+
+        awe_common
+
+        ${THEORA_LIBRARIES}
+        ${VORBIS_LIBRARIES}
+        ${OGG_LIBRARIES}
+)
 
 file(GLOB_RECURSE SOURCE_FILES src/awe/*.cpp src/awe/*.h)
 add_library(awe_lib ${SOURCE_FILES})
@@ -280,7 +284,13 @@ endif ()
 
 file(GLOB_RECURSE SOURCE_FILES src/platform/*.cpp src/platform/*.h)
 add_library(awe_platform ${SOURCE_FILES})
-target_link_libraries(awe_platform awe_common)
+target_link_libraries(
+        awe_platform
+
+        awe_common
+
+        glfw
+)
 
 file(GLOB_RECURSE SOURCE_FILES src/events/*.cpp src/events/*.h)
 add_library(awe_events ${SOURCE_FILES})
@@ -288,15 +298,39 @@ target_link_libraries(awe_events awe_common)
 
 file(GLOB_RECURSE SOURCE_FILES src/graphics/*.cpp src/graphics/*.h)
 add_library(awe_graphics ${SOURCE_FILES})
-target_link_libraries(awe_graphics awe_common awe_lib awe_platform)
+target_link_libraries(
+        awe_graphics
+
+        awe_common
+        awe_lib
+        awe_platform
+
+        GLEW::GLEW
+        OpenGL::GL
+        ${MOJOSHADER_LIBRARIES}
+)
 
 file(GLOB_RECURSE SOURCE_FILES src/sound/*.cpp src/sound/*.h)
 add_library(awe_sound ${SOURCE_FILES})
-target_link_libraries(awe_sound awe_common awe_lib awe_codecs)
+target_link_libraries(
+        awe_sound
+
+        awe_common
+        awe_lib
+        awe_codecs
+
+        ${OPENAL_LIBRARY}
+)
 
 file(GLOB_RECURSE SOURCE_FILES src/physics/*.cpp src/physics/*.h)
 add_library(awe_physics ${SOURCE_FILES})
-target_link_libraries(awe_physics awe_common)
+target_link_libraries(
+        awe_physics
+
+        awe_common
+
+        ${BULLET_LIBRARIES}
+)
 
 file(GLOB_RECURSE SOURCE_FILES src/video/*.cpp src/video/*.h)
 add_library(awe_video ${SOURCE_FILES})
