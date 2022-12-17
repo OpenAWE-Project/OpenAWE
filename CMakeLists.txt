@@ -350,3 +350,8 @@ if (GTEST_FOUND)
     target_link_libraries(awe_test ${GTEST_BOTH_LIBRARIES} awe_common awe_lib)
     gtest_add_tests(TARGET awe_test)
 endif ()
+
+# ------------------------------------
+# Packaging
+set(CPACK_GENERATOR "ZIP")
+include(CPack)
