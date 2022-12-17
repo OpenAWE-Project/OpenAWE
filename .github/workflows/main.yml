@@ -85,5 +85,5 @@ jobs:
       - name: Publish Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: build
+          name: ${{ matrix.name }}
           path: ${{github.workspace}}/build/*.zip
