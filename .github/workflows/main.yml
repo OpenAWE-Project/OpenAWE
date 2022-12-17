@@ -80,7 +80,7 @@ jobs:
       - name: Pack Artifacts
         working-directory: ${{github.workspace}}/build
         shell: bash
-          run: cpack
+        run: cpack
 
       - name: Publish Artifacts
         uses: actions/upload-artifacts@v3
