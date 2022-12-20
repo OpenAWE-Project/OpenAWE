@@ -162,11 +162,11 @@ void Player::preloadLoop() {
 	Codecs::YCbCrBuffer ycbcr;
 
 	while (!_availableSurfaces.empty() && !_video->eos()) {
-		_video->readNextFrame(ycbcr);
+		_video->readNextFrame(_ycbcr);
 		auto surface = _availableSurfaces.front();
 		_availableSurfaces.pop_front();
 		Codecs::convertYUV2RGB(
-			ycbcr,
+			_ycbcr,
 			reinterpret_cast<byte *>(surface->getData()),
 			_video->getWidth(),
 			_video->getHeight()

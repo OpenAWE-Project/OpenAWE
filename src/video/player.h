@@ -59,6 +59,9 @@ private:
 	std::chrono::time_point<std::chrono::system_clock> _lastFrame;
 
 	std::atomic_bool _playing;
+
+	Codecs::YCbCrBuffer _ycbcr;
+
 	Graphics::ProxyTexturePtr _proxyTexture;
 	Graphics::TexturePtr _currentFrame;
 	std::deque<Graphics::SurfacePtr> _availableSurfaces;
