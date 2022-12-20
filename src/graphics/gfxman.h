@@ -51,6 +51,12 @@ public:
 	void addGUIElement(GUIElement *gui);
 
 	/*!
+	 * Removes gui element by pointer from the scene
+	 * \param gui The gui element to remove
+	 */
+	void removeGUIElement(GUIElement *gui);
+
+	/*!
 	 * Create a texture in the initialized rendering system using given image data from a decoder as base. The decoder
 	 * also defines metadata, like how the dimensions of the texture are and the format of the texture.
 	 * \param decoder The decoder defining the image data

@@ -93,6 +93,11 @@ void Graphics::Renderer::addGUIElement(Graphics::GUIElement *gui) {
 	_guiElements.emplace_back(gui);
 }
 
+void Graphics::Renderer::removeGUIElement(Graphics::GUIElement *gui) {
+	const auto iter = std::remove(_guiElements.begin(), _guiElements.end(), gui);
+	_guiElements.erase(iter);
+}
+
 void Graphics::Renderer::setCamera(Graphics::Camera &camera) {
 	_camera = camera;
 }
