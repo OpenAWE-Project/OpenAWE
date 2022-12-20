@@ -42,7 +42,7 @@ class Player {
 public:
 	Player();
 
-	void addAudioTrack(unsigned int id);
+	void setAudioTracks(std::initializer_list<unsigned int> ids);
 
 	Graphics::TexturePtr getTexture();
 

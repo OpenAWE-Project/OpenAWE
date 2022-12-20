@@ -43,18 +43,20 @@ Player::Player() : _playing(false), _proxyTexture(GfxMan.createProxyTexture()) {
 
 }
 
-void Player::addAudioTrack(unsigned int id) {
-	if (!_container)
-		throw CreateException("Trying t add audio track to not loaded container");
+void Player::setAudioTracks(std::initializer_list<unsigned int> ids) {
+	for (const auto &id: ids) {
+		if (!_container)
+			throw CreateException("Trying t add audio track to not loaded container");
 
-	if (_container->getNumAudioStreams() <= id)
-		throw CreateException(
-			"Invalid audio stream id {} for video with {} audio streams",
-			id,
-			_container->getNumAudioStreams()
-		);
+		if (_container->getNumAudioStreams() <= id)
+			throw CreateException(
+				"Invalid audio stream id {} for video with {} audio streams",
+				id,
+				_container->getNumAudioStreams()
+			);
 
-	_streams.emplace_back(std::make_unique<Sound::Stream>(_container->createAudioStream(id)));
+		_streams.emplace_back(std::make_unique<Sound::Stream>(_container->createAudioStream(id)));
+	}
 }
 
 Graphics::TexturePtr Player::getTexture() {
