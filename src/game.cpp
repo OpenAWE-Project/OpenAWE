@@ -141,17 +141,6 @@ void Game::init() {
 		engine = kAlanWake;
 	}
 
-	switch (engine) {
-		case kAlanWake:
-			_engine = std::make_unique<Engines::AlanWake::Engine>(_registry);
-			break;
-		case kAlanWakesAmericanNightmare:
-			_engine = std::make_unique<Engines::AlanWakesAmericanNightmare::Engine>(_registry);
-			break;
-		default:
-			throw Common::Exception("Game engine not recognized");
-	}
-
 	_platform.init();
 
 	_window = std::make_unique<Platform::Window>(Platform::Window::kOpenGL);
