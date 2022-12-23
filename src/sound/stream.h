@@ -23,6 +23,7 @@
 
 #include <queue>
 #include <memory>
+#include <mutex>
 
 #include "src/codecs/audiostream.h"
 
@@ -37,12 +38,14 @@ public:
 	virtual ~Stream();
 
 	void play() override;
+	void stop() override;
 
 protected:
 	virtual void update();
 
 	const ALenum _format;
 
+	std::mutex _stopped;
 	std::unique_ptr<Codecs::AudioStream> _stream;
 	std::vector<ALuint> _buffers;
 	std::deque<ALuint> _availableBuffers;

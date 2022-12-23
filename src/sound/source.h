@@ -32,7 +32,7 @@ public:
 
 	virtual void play();
 	void pause();
-	void stop();
+	virtual void stop();
 
 	bool isPlaying();
 

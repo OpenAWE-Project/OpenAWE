@@ -52,9 +52,19 @@ void Stream::play() {
 	Source::play();
 }
 
+void Stream::stop() {
+	_stopped.lock();
+	_playing = false;
+	Source::stop();
+	_stopped.lock();
+	_stopped.unlock();
+}
+
 void Stream::update() {
-	if (!_playing)
+	if (!_playing) {
+		_stopped.unlock();
 		return;
+	}
 
 	// Try to fill as many buffers as possible
 	while (!_availableBuffers.empty() && !_stream->eos()) {
@@ -104,8 +114,10 @@ void LoopableStream::setLoopRange(unsigned int start, unsigned int end) {
 }
 
 void LoopableStream::update() {
-	if (!_playing)
+	if (!_playing) {
+		_stopped.unlock();
 		return;
+	}
 
 	// Try to fill as many buffers as possible
 	while (!_availableBuffers.empty()) {
