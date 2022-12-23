@@ -202,8 +202,10 @@ void Player::prepareSurfaces() {
 }
 
 void Player::preloadLoop() {
-	if (!_playing)
+	if (!_playing) {
+		_stopped.unlock();
 		return;
+	}
 
 	prepareSurfaces();
 
