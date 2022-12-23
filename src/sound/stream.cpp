@@ -92,6 +92,12 @@ void Stream::update() {
 		_availableBuffers.push_back(nextBuffer);
 	}
 
+	// If there are no more used buffers and the stream is at its end, stop the whole thing
+	if (_usedBuffers.empty() && _stream->eos()) {
+		_playing = false;
+		return;
+	}
+
 	Threads.add([this]{ update(); });
 }
 
