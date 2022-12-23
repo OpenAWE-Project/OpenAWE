@@ -30,6 +30,7 @@
 
 #include "src/common/uuid.h"
 
+#include "src/graphics/texture.h"
 #include "src/graphics/images/surface.h"
 
 #include "src/sound/stream.h"
