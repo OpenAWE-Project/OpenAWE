@@ -19,6 +19,7 @@
  */
 
 #include <algorithm>
+
 #include "src/codecs/yuv2rgb.h"
 
 namespace Codecs {
@@ -26,17 +27,17 @@ namespace Codecs {
 void convertYUV2RGB(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height) {
 	for (unsigned int y = 0; y < height; ++y) {
 		for (unsigned int x = 0; x < width; ++x) {
-			const short y1 = ycbcr.y[y * width + x];
-			const short cb = ycbcr.cb[(y / 2) * (width / 2) + x / 2];
-			const short cr = ycbcr.cr[(y / 2) * (width / 2) + x / 2];
+			const int y1 = ycbcr.y[y * width + x];
+			const int cb = ycbcr.cb[(y / 2) * (width / 2) + x / 2];
+			const int cr = ycbcr.cr[(y / 2) * (width / 2) + x / 2];
 
-			const short r = y1 + 1.4075 * (cr - 128);
-			const short g = y1 - 0.3455 * (cb - 128) - 0.7169 * (cr - 128);
-			const short b = y1 + 1.7790 * (cb - 128);
+			const int r = y1 + 1.4075 * (cr - 128);
+			const int g = y1 - 0.3455 * (cb - 128) - 0.7169 * (cr - 128);
+			const int b = y1 + 1.7790 * (cb - 128);
 
-			rgb[(y * width + x) * 3]     = std::clamp<byte>(r, 0, 255);
-			rgb[(y * width + x) * 3 + 1] = std::clamp<byte>(g, 0, 255);
-			rgb[(y * width + x) * 3 + 2] = std::clamp<byte>(b, 0, 255);
+			rgb[(y * width + x) * 3]     = std::clamp(r, 0, 255);
+			rgb[(y * width + x) * 3 + 1] = std::clamp(g, 0, 255);
+			rgb[(y * width + x) * 3 + 2] = std::clamp(b, 0, 255);
 		}
 	}
 }
