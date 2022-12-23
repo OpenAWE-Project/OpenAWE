@@ -23,8 +23,7 @@
 
 namespace Graphics {
 
-GUIElement::GUIElement() {
-	_position = glm::vec2 (10,10);
+GUIElement::GUIElement() : _relativePosition(0.0, 0.0), _absolutePosition(0.0, 0.0) {
 }
 
 GUIElement::~GUIElement() {
@@ -38,12 +37,28 @@ const std::vector<GUIElement::GUIElementPart> &GUIElement::getParts() const {
 	return _parts;
 }
 
-glm::vec2 GUIElement::getPosition() {
-	return _position;
+const glm::vec2 & GUIElement::getRelativePosition() const {
+	return _relativePosition;
+}
+
+const glm::vec2 & GUIElement::getAbsolutePosition() const {
+	return _absolutePosition;
+}
+
+void GUIElement::setRelativePosition(const glm::vec2 &relativePosition) {
+	_relativePosition = relativePosition;
+}
+
+void GUIElement::setAbsolutePosition(const glm::vec2 &absolutePosition) {
+	_absolutePosition = absolutePosition;
 }
 
 void GUIElement::show() {
 	GfxMan.addGUIElement(this);
+}
+
+void GUIElement::hide() {
+	GfxMan.removeGUIElement(this);
 }
 
 }

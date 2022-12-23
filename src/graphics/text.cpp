@@ -26,7 +26,7 @@
 
 namespace Graphics {
 
-Text::Text() : _font(FontMan.get("fixedsys")) {
+Text::Text() : _font(FontMan.get("fixedsys")), _text(u"") {
 	_vao = _font.getVAO();
 	rebuildText();
 }
@@ -55,7 +55,8 @@ void Text::rebuildText() {
 		part.position.y = 0;
 		offset += 1.0f;
 
-		part.scale = glm::vec2(16, 16);
+		part.relativeSize = glm::vec2(0.0, 0.0);
+		part.absoluteSize = glm::vec2(16, 16);
 
 		_parts.emplace_back(part);
 	}

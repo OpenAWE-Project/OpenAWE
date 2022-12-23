@@ -458,13 +458,17 @@ void Renderer::drawGUI() {
 	glDisable(GL_DEPTH_TEST);
 
 	for (const auto &element : _guiElements) {
-		glm::mat4 m = glm::translate(glm::vec3(element->getPosition(), 0.0f));
+		glm::mat4 m = glm::translate(glm::vec3(
+			element->getAbsolutePosition() +
+			element->getRelativePosition() * glm::vec2(1920.0, 1080.0),
+			0.0f
+		));
 		std::static_pointer_cast<Graphics::OpenGL::VAO>(element->getVertexAttributes())->bind();
 
 		for (const auto &part : element->getParts()) {
 			glm::mat4 m2 = m *
-					glm::scale(glm::vec3(part.scale, 1.0f)) *
-					glm::translate(glm::vec3(part.position, 1.0f))
+				glm::scale(glm::vec3(part.absoluteSize + part.relativeSize * glm::vec2(1920, 1080), 1.0f)) *
+				glm::translate(glm::vec3(part.position, 1.0f))
 			;
 			std::static_pointer_cast<Graphics::OpenGL::VBO>(part.indices)->bind();
 

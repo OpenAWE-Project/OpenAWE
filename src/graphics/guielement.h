@@ -33,11 +33,20 @@
 
 namespace Graphics {
 
+/*!
+ * \brief Base class for user interface elements
+ *
+ * This class is the base for all elements of the user interface. It can contain multiple parts, which are defined by
+ * their vertices, indices, a texture, and an absolute and relative Size.
+ *
+ * The element is placed by a relative and an absolute position. The resulting position of both is calculated as
+ * relativePosition * screenResolution + absolutePosition.
+ */
 class GUIElement {
 public:
 	struct GUIElementPart {
-		glm::vec2 position, scale;
-		unsigned short indicesCount, indicesOffset, verticesOffset;
+		glm::vec2 position{0}, absoluteSize{0}, relativeSize{0};
+		unsigned short indicesCount{0}, indicesOffset{0}, verticesOffset{0};
 		BufferPtr vertices, indices;
 		TexturePtr texture;
 	};
@@ -50,8 +59,31 @@ public:
 	[[nodiscard]] const std::vector<GUIElementPart> &getParts() const;
 
 	void show();
+	void hide();
 
-	glm::vec2 getPosition();
+	/*!
+	 * Return the relative position of this gui element in a range of [0, 1]
+	 * \return The relative position of this gui element
+	 */
+	const glm::vec2 & getRelativePosition() const;
+
+	/*!
+	 * Return the absolute offset from the position in pixels
+	 * \return The absolute pixel offset of this gui element
+	 */
+	const glm::vec2 & getAbsolutePosition() const;
+
+	/*!
+	 * Set the relative positioning of the gui element
+	 * \param relativePosition The new relative position to set
+	 */
+	void setRelativePosition(const glm::vec2 &relativePosition);
+
+	/*!
+	 * Set the absolute pixel offset of the gui element
+	 * @param absolutePosition The new absolute pixel offset to set
+	 */
+	void setAbsolutePosition(const glm::vec2 &absolutePosition);
 
 protected:
 	AttributeObjectPtr _vao;
@@ -59,7 +91,8 @@ protected:
 	std::vector<GUIElementPart> _parts;
 
 private:
-	glm::vec2 _position;
+	glm::vec2 _relativePosition;
+	glm::vec2 _absolutePosition;
 };
 
 }
