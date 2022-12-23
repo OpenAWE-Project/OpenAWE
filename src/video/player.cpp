@@ -92,8 +92,8 @@ void Player::load(const std::string &videoFile) {
 
 	_frameDuration = std::chrono::milliseconds(static_cast<long>(1000 / _video->getFps()));
 
-	preloadLoop();
-	update();
+	prepareSurfaces();
+	prepareTextures();
 
 	// Set first frame
 	_currentFrame = _preparedTextures.front();
@@ -120,17 +120,6 @@ bool Player::isPlaying() const {
 }
 
 void Player::update() {
-	while (!_availableTextures.empty() && !_preparedSurfaces.empty()) {
-		auto frameTexture = _availableTextures.front();
-		_availableTextures.pop_front();
-		std::shared_ptr<Graphics::Surface> frameSurface = _preparedSurfaces.front();
-		_preparedSurfaces.pop_front();
-
-		frameTexture->load(*frameSurface);
-		_preparedTextures.push_back(frameTexture);
-		_availableSurfaces.push_back(frameSurface);
-	}
-
 	if (!_playing)
 		return;
 
@@ -138,9 +127,16 @@ void Player::update() {
 	const auto currentDuration = std::chrono::duration_cast<std::chrono::milliseconds>(now - _lastFrame);
 	if (currentDuration >= _frameDuration) {
 		const unsigned int framesProgressed = currentDuration.count() / _frameDuration.count();
-		for (unsigned int i = 0; i < std::min<unsigned int>(framesProgressed - 1, _preparedTextures.size()); ++i) {
-			_preparedTextures.pop_front();
-		}
+
+		unsigned int framesDeleted = 0;
+		do {
+			prepareTextures();
+
+			for (unsigned int i = 0; i < std::min<unsigned int>(std::max(framesProgressed - 1 - framesDeleted, 0u), _preparedTextures.size()); ++i) {
+				_preparedTextures.pop_front();
+				framesDeleted++;
+			}
+		} while (_preparedTextures.empty());
 
 		if (_preparedTextures.empty()) {
 			spdlog::warn("Video decoding too slow, dropping frame");
@@ -160,9 +156,20 @@ void Player::update() {
 		_playing = false;
 }
 
-void Player::preloadLoop() {
-	Codecs::YCbCrBuffer ycbcr;
+void Player::prepareTextures() {
+	while (!_availableTextures.empty() && !_preparedSurfaces.empty() && _preparedTextures.size() < 32) {
+		auto frameTexture = _availableTextures.front();
+		_availableTextures.pop_front();
+		std::shared_ptr<Graphics::Surface> frameSurface = _preparedSurfaces.front();
+		_preparedSurfaces.pop_front();
 
+		frameTexture->load(*frameSurface);
+		_preparedTextures.push_back(frameTexture);
+		_availableSurfaces.push_back(frameSurface);
+	}
+}
+
+void Player::prepareSurfaces() {
 	while (!_availableSurfaces.empty() && !_video->eos()) {
 		_video->readNextFrame(_ycbcr);
 		auto surface = _availableSurfaces.front();
@@ -176,9 +183,15 @@ void Player::preloadLoop() {
 
 		_preparedSurfaces.push_back(surface);
 	}
+}
 
-	if (_playing)
-		Threads.add([this](){ preloadLoop(); });
+void Player::preloadLoop() {
+	if (!_playing)
+		return;
+
+	prepareSurfaces();
+
+	Threads.add([this](){ preloadLoop(); });
 }
 
 }

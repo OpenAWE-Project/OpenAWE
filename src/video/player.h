@@ -53,6 +53,9 @@ public:
 	void update();
 
 private:
+	void prepareTextures();
+	void prepareSurfaces();
+
 	void preloadLoop();
 
 	std::chrono::milliseconds _frameDuration;
