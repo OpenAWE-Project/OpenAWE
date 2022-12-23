@@ -41,6 +41,7 @@ namespace Video {
 class Player {
 public:
 	Player();
+	~Player();
 
 	void setAudioTracks(std::initializer_list<unsigned int> ids);
 
@@ -48,6 +49,7 @@ public:
 
 	void load(const std::string &videoFile);
 	void play();
+	void stop();
 	bool isPlaying() const;
 
 	void update();
@@ -62,6 +64,9 @@ private:
 	std::chrono::time_point<std::chrono::system_clock> _lastFrame;
 
 	std::atomic_bool _playing;
+
+	/** Variable to wait until the preloading step is successfully stopped */
+	std::mutex _stopped;
 
 	Codecs::YCbCrBuffer _ycbcr;
 

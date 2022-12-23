@@ -43,6 +43,11 @@ Player::Player() : _playing(false), _proxyTexture(GfxMan.createProxyTexture()) {
 
 }
 
+Player::~Player() {
+	if (_playing)
+		stop();
+}
+
 void Player::setAudioTracks(std::initializer_list<unsigned int> ids) {
 	for (const auto &id: ids) {
 		if (!_container)
@@ -113,6 +118,17 @@ void Player::play() {
 	}
 
 	Threads.add([this](){ preloadLoop(); });
+}
+
+void Player::stop() {
+	_stopped.lock();
+	_playing = false;
+	for (auto &stream: _streams) {
+		stream->stop();
+	}
+
+	_stopped.lock();
+	_stopped.unlock();
 }
 
 bool Player::isPlaying() const {
