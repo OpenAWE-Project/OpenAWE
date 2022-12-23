@@ -57,11 +57,3 @@ TEST(StringUtil, split) {
 	EXPECT_STREQ(split[1].c_str(), "words");
 	EXPECT_STREQ(split[2].c_str(), "splitted");
 }
-
-TEST(StringUtil, crc32) {
-	const std::string testString1 = "This is a cool and awesome sentence.";
-	const std::string testString2 = "This is another cool and awesome sentence.";
-
-	EXPECT_EQ(Common::crc32(testString1), 2513066006);
-	EXPECT_EQ(Common::crc32(testString2), 740559520);
-}
