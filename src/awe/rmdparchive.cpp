@@ -26,6 +26,7 @@
 #include "src/common/strutil.h"
 #include "src/common/memreadstream.h"
 #include "src/common/exception.h"
+#include "src/common/crc32.h"
 
 #include "rmdparchive.h"
 

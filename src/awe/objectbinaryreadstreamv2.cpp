@@ -20,6 +20,7 @@
 
 #include "src/common/exception.h"
 #include "src/common/strutil.h"
+#include "src/common/crc32.h"
 
 #include "src/awe/objectbinaryreadstreamv2.h"
 

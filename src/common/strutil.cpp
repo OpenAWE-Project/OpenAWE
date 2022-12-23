@@ -63,12 +63,4 @@ std::vector<std::string> split(const std::string &str, const std::regex &split) 
 	return result;
 }
 
-uint32_t crc32(const std::string &str) {
-	return ::crc32(
-			0,
-			reinterpret_cast<const Bytef *>(str.c_str()),
-			str.size()
-	);
-}
-
 }

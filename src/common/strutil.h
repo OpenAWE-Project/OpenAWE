@@ -57,13 +57,6 @@ bool contains(const std::string &str, const std::string &s);
  */
 std::vector<std::string> split(const std::string &str, const std::regex &split);
 
-/*!
- * Calculate the crc32 hash for the given string
- * \param str the string to calculate the crc32 for
- * \return the calculated crc32
- */
-uint32_t crc32(const std::string &str);
-
 }
 
 #endif //AWE_STRUTIL_H
