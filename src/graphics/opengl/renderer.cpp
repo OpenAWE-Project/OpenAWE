@@ -130,9 +130,9 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
-	if (GL_KHR_debug) {
+	if (GLEW_ARB_debug_output) {
 		glEnable(GL_DEBUG_OUTPUT);
-		glDebugMessageCallback(reinterpret_cast<GLDEBUGPROC>(&Renderer::debugMessageCallback), nullptr);
+		glDebugMessageCallbackARB(reinterpret_cast<GLDEBUGPROC>(&Renderer::debugMessageCallback), nullptr);
 	}
 
 	// Read and initialize shaders
