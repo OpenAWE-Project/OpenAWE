@@ -86,6 +86,18 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 	spdlog::info("OpenGL Max Vertex Uniform Components: {}", maxVertexUniformComponents);
 	spdlog::info("OpenGL Max Fragment Uniform Components: {}", maxFragmentUniformComponents);
 
+	if (GLEW_ARB_uniform_buffer_object) {
+		GLint maxUniformBufferBindings, maxUniformBlockSize, maxVertexUniformBlocks, maxFragmentUniformBlocks;
+		glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxUniformBufferBindings);
+		glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUniformBlockSize);
+		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_BLOCKS, &maxVertexUniformBlocks);
+		glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_BLOCKS, &maxFragmentUniformBlocks);
+		spdlog::info("OpenGL Max Uniform Buffer Bindings: {}", maxUniformBufferBindings);
+		spdlog::info("OpenGL Max Uniform Block Size: {}", maxUniformBlockSize);
+		spdlog::info("OpenGL Max Vertex Uniform Blocks: {}", maxVertexUniformBlocks);
+		spdlog::info("OpenGL Max Fragment Uniform Blocks: {}", maxFragmentUniformBlocks);
+	}
+
 	if (GLEW_ARB_tessellation_shader) {
 		GLint maxPatchVertices;
 		glGetIntegerv(GL_MAX_PATCH_VERTICES, &maxPatchVertices);
