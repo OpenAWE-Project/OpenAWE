@@ -25,6 +25,7 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
+#include "src/common/exception.h"
 #include "src/common/writefile.h"
 #include "src/common/memwritestream.h"
 
@@ -47,31 +48,66 @@ Terrain::Terrain(unsigned int maxPolygons, unsigned int maxMaps) {
 		++e;
 	}
 
-	const auto potTextureSize = static_cast<unsigned int>(std::exp2(e));
-	_blendScale = static_cast<float>(potTextureSize) / static_cast<float>(alignedTextureSize);
+	_potTextureSize = static_cast<float>(std::exp2(e));
+	_blendScale = static_cast<float>(_potTextureSize) / static_cast<float>(alignedTextureSize);
+	_bigMapSize = 16.0f / (static_cast<float>(_potTextureSize));
+
+	_bigMapCoords.resize(maxPolygons);
+	unsigned int bigMapsHeight = 0;
+	const unsigned int slotsInRow = alignedTextureSize / 16;
+	for (unsigned int i = 0; i < _bigMapCoords.size(); ++i) {
+		_bigMapCoords[i].x = static_cast<float>(i % slotsInRow) * _bigMapSize;
+		_bigMapCoords[i].y = static_cast<float>(i / slotsInRow) * _bigMapSize;
+	}
+
+	std::reverse(_bigMapCoords.begin(), _bigMapCoords.end());
 
 	_blendMap = GfxMan.createEmptyTexture2D(kA1RGB5, alignedTextureSize, alignedTextureSize);
 	_geoNormalMap = GfxMan.createEmptyTexture2D(kA1RGB5, alignedTextureSize, alignedTextureSize);
 }
 
-void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile) {
+void Terrain::loadTerrainData(Common::ReadStream &ld) {
+	std::vector<glm::vec2> mapCoords;
+	loadTerrainData(&ld, mapCoords);
+}
+
+void Terrain::loadTerrainData(Common::ReadStream &ld, Common::ReadStream &hd) {
+	std::vector<glm::vec2> mapCoords;
+	loadTerrainData(&ld, mapCoords);
+	loadTerrainData(&hd, mapCoords);
+}
+
+void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<glm::vec2> &mapCoords) {
 	AWE::TerrainDataFile terrainData(*terrainDataFile);
 	std::vector<uint16_t> indices;
 	const auto &vertices = terrainData.getVertices();
 	const auto &tilesets = terrainData.getTilesets();
 	const auto &blendMaps = terrainData.getBlendMaps();
 
+	std::vector<TexturePtr> localTextures;
 	for (const auto &texture : terrainData.getTextures()) {
+		localTextures.emplace_back(TextureMan.getTexture(texture));
 		_textures.emplace_back(TextureMan.getTexture(texture));
 	}
 
-	for (const auto &polygon : terrainData.getPolygons()) {
-		Common::DynamicMemoryWriteStream vertexData(true);
+	std::map<unsigned int, std::vector<uint16_t>> tilesetIndices;
+	Common::DynamicMemoryWriteStream vertexData(true);
 
-		float minBlendS = FLT_MAX;
-		float minBlendT = FLT_MAX;
-		float maxBlendS = std::numeric_limits<float>::min();
-		float maxBlendT = std::numeric_limits<float>::min();
+	unsigned int currentIndex = 0;
+	for (const auto &polygon : terrainData.getPolygons()) {
+		if (_bigMapCoords.empty())
+			throw CreateException("Exceeded maximum number of big terrain maps");
+
+		const auto atlasPosition = _bigMapCoords.back();
+		_bigMapCoords.pop_back();
+
+		const float halfPixel = 1.0f / (2.0f * _potTextureSize);
+		const std::vector<glm::vec2> atlasPositions = {
+			atlasPosition + glm::vec2(halfPixel),
+			atlasPosition + glm::vec2(_bigMapSize - halfPixel, halfPixel),
+			atlasPosition + glm::vec2(_bigMapSize - halfPixel),
+			atlasPosition + glm::vec2(halfPixel, _bigMapSize - halfPixel),
+		};
 
 		for (unsigned int i = 0; i < polygon.indices.size(); ++i) {
 			const auto index = polygon.indices[i];
@@ -85,78 +121,119 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile) {
 			vertexData.writeIEEEFloatLE(vertex.normal.y);
 			vertexData.writeIEEEFloatLE(vertex.normal.z);
 
-			for (int j = 0; j < 4; ++j) {
+			for (int j = 0; j < 3; ++j) {
 				const auto uv = polygon.texCoords[j][i];
 
 				vertexData.writeIEEEFloatLE(uv.s);
 				vertexData.writeIEEEFloatLE(uv.t);
-
-				//spdlog::info("{} {} {} {}", j, i, uv.s, uv.t);
-
-				if (j == 3) {
-					minBlendS = std::min(uv.s, minBlendS);
-					minBlendT = std::min(uv.t, minBlendT);
-					maxBlendS = std::max(uv.s, maxBlendS);
-					maxBlendT = std::max(uv.t, maxBlendT);
-				}
 			}
+
+			vertexData.writeIEEEFloatLE(atlasPositions[i].s);
+			vertexData.writeIEEEFloatLE(atlasPositions[i].t);
 		}
 
-		Mesh::PartMesh partMesh;
-		partMesh.vertexData = GfxMan.createBuffer(
-			vertexData.getData(),
-			vertexData.getLength(),
-			kVertexBuffer
-		);
+		tilesetIndices[polygon.tilesetId].emplace_back(currentIndex);
+		tilesetIndices[polygon.tilesetId].emplace_back(currentIndex + 1);
+		tilesetIndices[polygon.tilesetId].emplace_back(currentIndex + 2);
+		if (polygon.indices.size() == 4) {
+			tilesetIndices[polygon.tilesetId].emplace_back(currentIndex);
+			tilesetIndices[polygon.tilesetId].emplace_back(currentIndex + 2);
+			tilesetIndices[polygon.tilesetId].emplace_back(currentIndex + 3);
+		}
 
-		const std::vector<VertexAttribute> attributes = {
-			{kPosition,       kVec3F},
-			{kNormal,         kVec3F},
-			{kTexCoord0,      kVec4F},
-			{kTexCoord1,      kVec4F},
-		};
+		currentIndex += polygon.indices.size();
 
-		_mapCoords.emplace_back(minBlendS, minBlendT);
+		mapCoords.emplace_back(atlasPosition);
+	}
 
-		const auto tileset = tilesets[polygon.tilesetId];
+	const auto vertexBuffer = GfxMan.createBuffer(
+		vertexData.getData(),
+		vertexData.getLength(),
+		kVertexBuffer
+	);
+	
+	currentIndex = _indices.size();
+	for (const auto &tilesetId: tilesetIndices) {
+		const auto tileset = tilesets[tilesetId.first];
+		const auto indices = tilesetId.second;
+
+		for (const auto &index: indices) {
+			_indices.emplace_back(index);
+		}
+
 		const std::vector<Material::Attribute> materialAttributes = {
-			Material::Attribute("g_sColorMaps[0]",  _textures[tileset.colorTiles[0]]),
-			Material::Attribute("g_sColorMaps[1]",  _textures[tileset.colorTiles[1]]),
-			Material::Attribute("g_sColorMaps[2]",  _textures[tileset.colorTiles[2]]),
-			Material::Attribute("g_sNormalMaps[0]", _textures[tileset.normalTiles[0]]),
-			Material::Attribute("g_sNormalMaps[1]", _textures[tileset.normalTiles[1]]),
-			Material::Attribute("g_sNormalMaps[2]", _textures[tileset.normalTiles[2]]),
+			Material::Attribute("g_sColorMaps[0]",  localTextures[tileset.colorTiles[0]]),
+			Material::Attribute("g_sColorMaps[1]",  localTextures[tileset.colorTiles[1]]),
+			Material::Attribute("g_sColorMaps[2]",  localTextures[tileset.colorTiles[2]]),
+			Material::Attribute("g_sNormalMaps[0]", localTextures[tileset.normalTiles[0]]),
+			Material::Attribute("g_sNormalMaps[1]", localTextures[tileset.normalTiles[1]]),
+			Material::Attribute("g_sNormalMaps[2]", localTextures[tileset.normalTiles[2]]),
 			Material::Attribute("g_sBlendMap",      _blendMap),
 			Material::Attribute("g_vTexCoordScale1",glm::vec4(16.0)),
 			Material::Attribute("g_vTexCoordScale2",glm::vec4(glm::vec2(16.0), glm::vec2(_blendScale)))
 		};
 
+		const std::vector<VertexAttribute> attributes = {
+			{kPosition,  kVec3F},
+			{kNormal,    kVec3F},
+			{kTexCoord0, kVec4F},
+			{kTexCoord1, kVec4F},
+		};
+
+		Mesh::PartMesh partMesh;
+
 		for (const auto &stage: {"material"}) {
 			partMesh.vertexAttributes[stage] = GfxMan.createAttributeObject(
 				"terrain", stage,
 				attributes,
-				partMesh.vertexData
+				vertexBuffer
 			);
 		}
-		partMesh.renderType = Mesh::kTriangleFan;
+		partMesh.renderType = Mesh::kTriangles;
+		partMesh.vertexData = vertexBuffer;
 		partMesh.material = Material("terrain", {"material"}, materialAttributes);
 		partMesh.material.setCullMode(Material::kBack);
-		partMesh.offset = 0;
-		partMesh.length = polygon.indices.size();
+		partMesh.offset = currentIndex * 2;
+		partMesh.length = indices.size();
+
+		currentIndex += indices.size();
 
 		_mesh->addPartMesh(partMesh);
 	}
 
 	for (const auto &blendMap : terrainData.getBlendMaps()) {
-		const auto mapCoord = _mapCoords[blendMap.id];
+		const auto mapCoord = mapCoords[blendMap.id];
 
-		const auto xoffset = static_cast<unsigned int>(mapCoord.s * 4096.0);
-		const auto yoffset = static_cast<unsigned int>(mapCoord.t * 4096.0);
+		const auto xoffset = static_cast<unsigned int>(mapCoord.s * _potTextureSize);
+		const auto yoffset = static_cast<unsigned int>(mapCoord.t * _potTextureSize);
+
+		assert(xoffset % blendMap.size == 0 && yoffset % blendMap.size == 0);
 
 		Surface blendSurface(blendMap.size, blendMap.size, kA1RGB5);
-		std::memcpy(blendSurface.getData(), blendMap.data.data(), blendMap.data.size() * sizeof(uint16_t));
+		std::memcpy(
+			blendSurface.getData(),
+			blendMap.data.data(),
+			blendMap.data.size() * sizeof(uint16_t)
+		);
 		_blendMap->load(xoffset, yoffset, blendSurface);
 	}
+}
+
+void Terrain::finalize() {
+	Common::DynamicMemoryWriteStream indexData(true);
+	
+	for (const auto &index: _indices) {
+		indexData.writeUint16LE(index);
+	}
+	
+	const auto indexBuffer = GfxMan.createBuffer(
+		indexData.getData(),
+		indexData.getLength(),
+		kIndexBuffer
+	);
+
+	_mesh->setIndices(indexBuffer);
+	_indices.clear();
 }
 
 }

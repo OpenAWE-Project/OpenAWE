@@ -27,7 +27,11 @@
 
 #include "src/level.h"
 
-Level::Level(entt::registry &registry, const std::string &id, const std::string &world) : ObjectCollection(registry), _id(id), _world(world) {
+Level::Level(entt::registry &registry, const std::string &id, const std::string &world) :
+	ObjectCollection(registry),
+	_terrain(std::make_unique<Graphics::Terrain>()),
+	_id(id),
+	_world(world) {
 	spdlog::info("Loading level {}", id);
 	std::string levelFolder = fmt::format("worlds/{}/levels/{}", world, id);
 
@@ -84,15 +88,19 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 		loadFoliageData(hdCell.getResource("cid_foliagedata.bin"));
 		loadFoliageData(ldCell.getResource("cid_foliagedata.bin"));
 	}
+
+	_terrain->finalize();
+	_terrain->show();
 }
 
 void Level::loadTerrainData(Common::ReadStream *terrainDataLD, Common::ReadStream *terrainDataHD) {
 	std::unique_ptr<Common::ReadStream> terrainDataStreamLD(terrainDataLD);
 	std::unique_ptr<Common::ReadStream> terrainDataStreamHD(terrainDataHD);
-	auto &terrain = _terrains.emplace_back(std::make_unique<Graphics::Terrain>());
-	terrain->loadTerrainData(terrainDataStreamLD.get());
-	terrain->loadTerrainData(terrainDataStreamHD.get());
-	terrain->show();
+
+	assert(terrainDataLD);
+	assert(terrainDataHD);
+
+	_terrain->loadTerrainData(*terrainDataStreamLD, *terrainDataStreamHD);
 }
 
 std::vector<glm::u32vec2> Level::loadCellInfo(Common::ReadStream *cid) const {

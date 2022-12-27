@@ -40,7 +40,7 @@ private:
 		Common::ReadStream *terrainDataHD
 	);
 
-	std::vector<std::unique_ptr<Graphics::Terrain>> _terrains;
+	std::unique_ptr<Graphics::Terrain> _terrain;
 	const std::string _id, _world;
 };
 

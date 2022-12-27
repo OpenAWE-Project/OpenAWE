@@ -42,19 +42,28 @@ public:
 		unsigned int maxMaps = 8500
 	);
 
+	void loadTerrainData(Common::ReadStream &ld);
+	void loadTerrainData(Common::ReadStream &ld, Common::ReadStream &hd);
+
 	/*!
 	 * Load a new terrain data file into the terrain. It will be combined with existing data
-	 * @param terrainDataFile The terrain data file to load
+	 * \param terrainDataFile The terrain data file to load
 	 */
-	void loadTerrainData(Common::ReadStream *terrainDataFile);
+	void loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<glm::vec2> &mapCoords);
+
+	void finalize();
 
 private:
 	float _blendScale;
+	float _potTextureSize;
 	std::vector<TexturePtr> _textures;
 	TexturePtr _blendMap;
 	TexturePtr _geoNormalMap;
-	std::vector<Common::UUID> _blendMaps;
 	std::vector<glm::vec2> _mapCoords;
+	std::vector<uint16_t> _indices;
+	float _bigMapSize;
+	std::vector<glm::vec2> _bigMapCoords;
+	std::vector<glm::u16vec2> _smallMapCoords;
 };
 
 }
