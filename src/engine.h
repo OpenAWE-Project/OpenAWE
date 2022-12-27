@@ -25,6 +25,10 @@
 
 #include "src/awe/script/functions.h"
 
+#include "src/graphics/fullscreenplane.h"
+
+#include "src/video/player.h"
+
 #include "src/configuration.h"
 #include "src/world.h"
 
@@ -39,6 +43,10 @@ public:
 	AWE::Script::Context &getScriptContext();
 	entt::scheduler<double> & getScheduler();
 
+	void loadVideo(const std::string &videoFile);
+	void playVideo();
+	void stopVideo();
+
 	Configuration &getConfiguration();
 
 	virtual void loadEpisode(const std::string &data);
@@ -52,6 +60,8 @@ protected:
 private:
 	std::unique_ptr<World> _world;
 	std::unique_ptr<AWE::Script::Context> _context;
+	std::unique_ptr<Video::Player> _player;
+	std::unique_ptr<Graphics::FullScreenPlane> _videoPlane;
 };
 
 

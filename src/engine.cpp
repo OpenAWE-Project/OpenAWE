@@ -22,11 +22,16 @@
 
 #include "src/common/strutil.h"
 
+#include "src/video/playerprocess.h"
+
 #include "src/engine.h"
 #include "src/task.h"
 
 Engine::Engine(entt::registry &registry, AWE::Script::Functions *functions) : _registry(registry), _functions(functions) {
 	_context = std::make_unique<AWE::Script::Context>(_registry, *_functions);
+	_player = std::make_unique<Video::Player>();
+	_videoPlane = std::make_unique<Graphics::FullScreenPlane>();
+	_videoPlane->setTexture(_player->getTexture());
 }
 
 Engine::~Engine() {
@@ -38,6 +43,22 @@ AWE::Script::Functions &Engine::getFunctions() {
 
 AWE::Script::Context &Engine::getScriptContext() {
 	return *_context;
+}
+
+void Engine::loadVideo(const std::string &videoFile) {
+	_player->load(videoFile);
+	_player->setAudioTracks({0});
+}
+
+void Engine::playVideo() {
+	_videoPlane->show();
+	_player->play();
+	_scheduler
+		.attach<Video::PlayerProcess>(*_player)
+		.then([&](auto delta, void *, auto succeed, auto fail){
+			_videoPlane->hide();
+			succeed();
+		});
 }
 
 Configuration &Engine::getConfiguration() {
