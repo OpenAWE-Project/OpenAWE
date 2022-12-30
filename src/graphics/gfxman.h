@@ -88,7 +88,7 @@ public:
 	 * \param modifiable If the buffer should be modifiable
 	 * \return A render system specific buffer object
 	 */
-	BufferPtr createBuffer(byte* data, size_t length, BufferType type, bool modifiable = false);
+	BufferPtr createBuffer(const byte* data, size_t length, BufferType type, bool modifiable = false);
 
 	/*!
 	 * Create an empty buffer with the size of zero and no contents contained. It is assumed, that this buffer is used

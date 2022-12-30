@@ -49,7 +49,7 @@ public:
 	unsigned int getBufferSize() const;
 
 	void read(byte *data, size_t length) override;
-	void write(byte *data, size_t length) override;
+	void write(const byte *data, size_t length) override;
 
 private:
 	GLuint _id;

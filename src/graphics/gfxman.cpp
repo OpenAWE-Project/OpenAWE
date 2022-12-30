@@ -69,7 +69,7 @@ TexturePtr GraphicsManager::createEmptyTexture2D(TextureFormat format, unsigned 
 	return texture;
 }
 
-BufferPtr GraphicsManager::createBuffer(byte *data, size_t length, BufferType type, bool modifiable) {
+BufferPtr GraphicsManager::createBuffer(const byte *data, size_t length, BufferType type, bool modifiable) {
 	BufferPtr buffer = _renderer->createBuffer(type, modifiable);
 	buffer->write(data, length);
 	return buffer;

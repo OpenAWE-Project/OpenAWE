@@ -68,7 +68,7 @@ void VBO::read(byte *data, size_t length) {
 	glUnmapBuffer(_type);
 }
 
-void VBO::write(byte *data, size_t length) {
+void VBO::write(const byte *data, size_t length) {
 	bind();
 	if (length != getBufferSize())
 		glBufferData(_type, length, data, _usage);

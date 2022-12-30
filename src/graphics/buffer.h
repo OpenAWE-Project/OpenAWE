@@ -34,7 +34,7 @@ typedef std::shared_ptr<Buffer> BufferPtr;
 class Buffer : Common::Noncopyable {
 public:
 	virtual void read(byte *data, size_t length) = 0;
-	virtual void write(byte *data, size_t length) = 0;
+	virtual void write(const byte *data, size_t length) = 0;
 };
 
 } // End of namespace Graphics
