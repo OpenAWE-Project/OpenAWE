@@ -24,6 +24,8 @@
 #include "src/game.h"
 
 int main(int argc, char** argv) {
+	std::setlocale(LC_ALL, "");
+
 	Game game;
 
 	if (!game.parseArguments(argc, argv))

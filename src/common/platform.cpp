@@ -18,15 +18,71 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <locale>
+#include <regex>
+
 #include "src/common/platform.h"
 #include "src/common/types.h"
+#include "src/common/crc32.h"
+#include "src/common/strutil.h"
 
 #if OS_LINUX
 #   include <pwd.h>
 #   include <unistd.h>
 #endif
 
+static constexpr uint32_t kEN = Common::crc32("en");
+static constexpr uint32_t kJA = Common::crc32("ja");
+static constexpr uint32_t kDE = Common::crc32("de");
+static constexpr uint32_t kFR = Common::crc32("fr");
+static constexpr uint32_t kES = Common::crc32("es");
+static constexpr uint32_t kIT = Common::crc32("it");
+static constexpr uint32_t kKO = Common::crc32("ko");
+static constexpr uint32_t kPL = Common::crc32("pl");
+static constexpr uint32_t kZH = Common::crc32("zh");
+static constexpr uint32_t kRU = Common::crc32("ru");
+static constexpr uint32_t kCZ = Common::crc32("cz");
+
 namespace Common {
+
+Language iso639ToLang(const std::string code) {
+	switch (Common::crc32(code)) {
+		case kEN: return kEnglish;
+		case kJA: return kJapanese;
+		case kDE: return kGerman;
+		case kFR: return kFrench;
+		case kES: return kSpanish;
+		case kIT: return kItalian;
+		case kKO: return kKorean;
+		case kPL: return kPolish;
+		case kZH: return kChinese;
+		case kRU: return kRussian;
+		case kCZ: return kCzech;
+		default: return kUnrecognized;
+	}
+}
+
+Language getSystemLanguage() {
+#if OS_LINUX || OS_MACOS
+	std::string lang = Common::toLower(std::locale("").name());
+
+	// Check if the locale is a [language]_[locale].[encoding] triplet
+	if (std::regex_match(lang, std::regex("[a-z]+(\\_[a-z]+)?(\\.[a-z0-9]+)?"))) {
+		const auto split = Common::split(lang, std::regex("\\_|\\."));
+
+		const auto langCode = split[0];
+		const auto localeCode = split[1];
+
+		const auto language = iso639ToLang(lang);
+
+		if (language != kUnrecognized)
+			return language;
+	}
+#endif
+
+	// If no language is found or the language is not supported, always return english
+	return kEnglish;
+}
 
 std::string getHomeDirectory() {
 	std::string home = "";
@@ -41,6 +97,7 @@ std::string getHomeDirectory() {
 		else
 			home = ".";
 	}
+#elif OS_MACOS
 #elif OS_WINDOWS
     home = std::getenv("USERPROFILE");
 #endif

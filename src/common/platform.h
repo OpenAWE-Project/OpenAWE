@@ -26,6 +26,33 @@
 namespace Common {
 
 /*!
+ * An enumeration of all possible languages
+ */
+enum Language {
+	kEnglish,
+	kJapanese,
+	kGerman,
+	kFrench,
+	kSpanish,
+	kItalian,
+	kKorean,
+	kPolish,
+	kChinese,
+	kRussian,
+	kCzech,
+
+	kUnrecognized
+};
+
+/*!
+ * Get the currently configured system language. If it is not supported or unrecognized, return
+ * english as standard
+ *
+ * \return The currently configured system language
+ */
+Language getSystemLanguage();
+
+/*!
  * Get the home directory of the current user depending on the operating system
  *
  * \return The current users home directory
