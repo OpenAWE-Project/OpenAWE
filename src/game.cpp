@@ -29,6 +29,7 @@
 #include "src/common/threadpool.h"
 #include "src/common/strutil.h"
 #include "src/common/exception.h"
+#include "src/common/platform.h"
 
 #include "src/platform/keyconversion.h"
 
@@ -63,6 +64,22 @@ bool Game::parseArguments(int argc, char **argv) {
 	app.add_option("-d,--debug", debugLevel, "The debug level to use")
 		->check(CLI::Range(0,6))
 		->default_val(4);
+	app.add_option("-l,--language", _language, "The language used to play the game")
+		->transform(CLI::CheckedTransformer(std::map<std::string, Common::Language>{
+			{"en", Common::kEnglish},
+			{"ja", Common::kJapanese},
+			{"de", Common::kGerman},
+			{"fr", Common::kFrench},
+			{"es", Common::kSpanish},
+			{"it", Common::kItalian},
+			{"ko", Common::kKorean},
+			{"pl", Common::kPolish},
+			{"zh", Common::kChinese},
+			{"ru", Common::kRussian},
+			{"cz", Common::kCzech},
+			{"hu", Common::kHungarian}
+		}, CLI::ignore_case))
+		->default_val(Common::getSystemLanguage());
 	_physicsDebugDraw = false;
 	app.add_flag("--debug-physics", _physicsDebugDraw, "Draw physics bodies for debugging");
 
