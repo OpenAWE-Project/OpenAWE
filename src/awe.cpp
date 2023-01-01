@@ -24,7 +24,9 @@
 #include "src/game.h"
 
 int main(int argc, char** argv) {
+#if OS_LINUX
 	std::setlocale(LC_ALL, "");
+#endif
 
 	Game game;
 
