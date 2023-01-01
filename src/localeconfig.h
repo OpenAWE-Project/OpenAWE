@@ -22,21 +22,40 @@
 #define AWE_LOCALECONFIG_H
 
 #include <string>
+#include <map>
 
+#include "src/common/platform.h"
 #include "src/common/readstream.h"
 #include "src/common/xml.h"
 
+/*!
+ * \brief Class for reading locale config files
+ *
+ * This class reads the locale config files from all games in the xml format and offers the configuration Data of every
+ * language
+ */
 class LocaleConfig {
 public:
-	struct Entry {
+	struct Config {
 		std::string folder;
-		unsigned int languageId;
 		unsigned int voiceoverChannel;
 		bool subtitlesDefault;
 		bool useOnlyOneFont;
 	};
 
-	LocaleConfig(Common::ReadStream *locale);
+	LocaleConfig(Common::ReadStream &locale);
+
+	/*!
+	 * Get the entry data for a specific language. If the language is not available, this method returns the english
+	 * configuration as default
+	 *
+	 * \param l The language to get the config for
+	 * \return The config data for the requested language
+	 */
+	const Config &getLanguageConfig(Common::Language l) const;
+
+private:
+	std::map<Common::Language, Config> _entries;
 };
 
 
