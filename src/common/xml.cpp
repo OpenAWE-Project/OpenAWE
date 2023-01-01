@@ -88,7 +88,8 @@ void XML::write(WriteStream &xml, bool header) {
 	doc.Print(&printer);
 
 	// And write it to the write stream
-	xml.write(printer.CStr(), printer.CStrSize());
+	const std::string result(printer.CStr());
+	xml.write(result.c_str(), result.size());
 }
 
 void XML::writeNode(tinyxml2::XMLElement *element, const XML::Node &node) {
