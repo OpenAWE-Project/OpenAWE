@@ -53,12 +53,14 @@ void Player::setAudioTracks(std::initializer_list<unsigned int> ids) {
 		if (!_container)
 			throw CreateException("Trying t add audio track to not loaded container");
 
-		if (_container->getNumAudioStreams() <= id)
-			throw CreateException(
+		if (_container->getNumAudioStreams() <= id) {
+			spdlog::warn(
 				"Invalid audio stream id {} for video with {} audio streams",
 				id,
 				_container->getNumAudioStreams()
 			);
+			continue;
+		}
 
 		_streams.emplace_back(std::make_unique<Sound::Stream>(_container->createAudioStream(id)));
 	}
