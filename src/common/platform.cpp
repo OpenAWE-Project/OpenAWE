@@ -69,13 +69,13 @@ Language getSystemLanguage() {
 	std::string lang = Common::toLower(std::locale("").name());
 
 	// Check if the locale is a [language]_[locale].[encoding] triplet
-	if (std::regex_match(lang, std::regex("[a-z]+(\\_[a-z]+)?(\\.[a-z0-9]+)?"))) {
+	if (std::regex_match(lang, std::regex("[a-z]+(\\_[a-z]+)?(\\.[a-z0-9\\-]+)?"))) {
 		const auto split = Common::split(lang, std::regex("\\_|\\."));
 
 		const auto langCode = split[0];
 		const auto localeCode = split[1];
 
-		const auto language = iso639ToLang(lang);
+		const auto language = iso639ToLang(langCode);
 
 		if (language != kUnrecognized)
 			return language;
