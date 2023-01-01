@@ -65,8 +65,6 @@ public:
 
 	virtual int getUniformIndex(const std::string &shaderName, const std::string &stage, const std::string &id) = 0;
 
-	void setCurrentVideoFrame(const Common::UUID &id);
-
 	void update();
 	virtual void drawFrame() = 0;
 
@@ -89,8 +87,6 @@ protected:
 
 	std::optional<std::reference_wrapper<Camera>> _camera;
 	AmbianceState _ambiance;
-
-	Common::UUID _currentVideoFrame;
 
 	Common::Frustrum _frustrum;
 

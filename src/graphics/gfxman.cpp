@@ -97,10 +97,6 @@ int GraphicsManager::getUniformIndex(const std::string &shaderName, const std::s
 	return _renderer->getUniformIndex(shaderName, stage, id);
 }
 
-void GraphicsManager::setCurrentVideoFrame(Common::UUID &id) {
-	_renderer->setCurrentVideoFrame(id);
-}
-
 void GraphicsManager::drawFrame() {
 	_renderer->update();
 	_renderer->drawFrame();

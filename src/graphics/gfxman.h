@@ -130,8 +130,6 @@ public:
 		const std::string &id
 	);
 
-	void setCurrentVideoFrame(Common::UUID &id);
-
 	void drawFrame();
 
 private:

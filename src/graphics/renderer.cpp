@@ -22,7 +22,7 @@
 
 #include "renderer.h"
 
-Graphics::Renderer::Renderer() : _currentVideoFrame(Common::UUID::generateNil()) {
+Graphics::Renderer::Renderer() {
 	// Setup initial projection matrix
 	_projection = glm::perspectiveFov(45.0f, 1920.0f, 1080.0f, 1.0f, 10000.0f);
 
@@ -98,16 +98,16 @@ void Graphics::Renderer::removeGUIElement(Graphics::GUIElement *gui) {
 	_guiElements.erase(iter);
 }
 
+void Graphics::Renderer::addLight(Graphics::Light *light) {
+	_lights.emplace_back(light);
+}
+
 void Graphics::Renderer::setCamera(Graphics::Camera &camera) {
 	_camera = camera;
 }
 
 void Graphics::Renderer::setAmbianceState(const Graphics::AmbianceState ambiance) {
 	_ambiance = ambiance;
-}
-
-void Graphics::Renderer::setCurrentVideoFrame(const Common::UUID &id) {
-	_currentVideoFrame = id;
 }
 
 void Graphics::Renderer::update() {
