@@ -176,17 +176,24 @@ void Game::init() {
 	spdlog::info("Loading font fixedsys");
 	FontMan.load("fonts/fixedsys.binfnt", "fixedsys");
 
-	// Initialize video system
-	_player = std::make_unique<Video::Player>();
+	// Initialize locale config
+	std::unique_ptr<Common::ReadStream> localeConfigStream(ResMan.getResource("config/locale_config.xml"));
+	LocaleConfig localeConfig(*localeConfigStream);
 
 	_global = std::make_unique<Global>(_registry);
 
 	switch (engine) {
 		case kAlanWake:
-			_engine = std::make_unique<Engines::AlanWake::Engine>(_registry);
+			_engine = std::make_unique<Engines::AlanWake::Engine>(
+				_registry,
+				localeConfig.getLanguageConfig(_language)
+			);
 			break;
 		case kAlanWakesAmericanNightmare:
-			_engine = std::make_unique<Engines::AlanWakesAmericanNightmare::Engine>(_registry);
+			_engine = std::make_unique<Engines::AlanWakesAmericanNightmare::Engine>(
+				_registry,
+				localeConfig.getLanguageConfig(_language)
+			);
 			break;
 		default:
 			throw Common::Exception("Game engine not recognized");

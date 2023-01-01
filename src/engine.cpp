@@ -27,7 +27,10 @@
 #include "src/engine.h"
 #include "src/task.h"
 
-Engine::Engine(entt::registry &registry, AWE::Script::Functions *functions) : _registry(registry), _functions(functions) {
+Engine::Engine(entt::registry &registry,  const LocaleConfig::Config &config, AWE::Script::Functions *functions) :
+	_registry(registry),
+	_functions(functions),
+	_localeConfig(config) {
 	_context = std::make_unique<AWE::Script::Context>(_registry, *_functions);
 	_player = std::make_unique<Video::Player>();
 	_videoPlane = std::make_unique<Graphics::FullScreenPlane>();
@@ -47,7 +50,10 @@ AWE::Script::Context &Engine::getScriptContext() {
 
 void Engine::loadVideo(const std::string &videoFile) {
 	_player->load(videoFile);
-	_player->setAudioTracks({0});
+	_player->setAudioTracks({
+		0,
+		_localeConfig.voiceoverChannel
+	});
 }
 
 void Engine::playVideo() {

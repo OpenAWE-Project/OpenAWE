@@ -23,7 +23,8 @@
 
 namespace Engines::AlanWake {
 
-Engine::Engine(entt::registry &registry) : ::Engine(registry, new Functions(registry, *this)) {
+Engine::Engine(entt::registry &registry, const LocaleConfig::Config &config) :
+	::Engine(registry, config, new Functions(registry, *this)) {
 }
 
 void Engine::init() {

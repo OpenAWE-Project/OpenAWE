@@ -33,7 +33,8 @@
 
 namespace Engines::AlanWakesAmericanNightmare {
 
-Engine::Engine(entt::registry &registry) : ::Engine(registry, new Functions(registry, *this)) {
+Engine::Engine(entt::registry &registry, const LocaleConfig::Config &config) :
+	::Engine(registry, config, new Functions(registry, *this)) {
 	_storyModeRound = 1;
 	_configuration.reset(new AlanWakesAmericanNightmare::Configuration());
 }

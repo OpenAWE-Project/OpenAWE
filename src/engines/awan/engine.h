@@ -28,7 +28,7 @@ namespace Engines::AlanWakesAmericanNightmare {
 
 class Engine : public ::Engine {
 public:
-	Engine(entt::registry &registry);
+	Engine(entt::registry &registry, const LocaleConfig::Config &config);
 
 	unsigned int getStoryModeRound() const;
 

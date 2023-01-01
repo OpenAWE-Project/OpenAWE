@@ -30,11 +30,12 @@
 #include "src/video/player.h"
 
 #include "src/configuration.h"
+#include "src/localeconfig.h"
 #include "src/world.h"
 
 class Engine {
 public:
-	Engine(entt::registry &registry, AWE::Script::Functions *);
+	Engine(entt::registry &registry, const LocaleConfig::Config &, AWE::Script::Functions *);
 	virtual ~Engine();
 
 	virtual void init() = 0;
@@ -62,6 +63,7 @@ private:
 	std::unique_ptr<AWE::Script::Context> _context;
 	std::unique_ptr<Video::Player> _player;
 	std::unique_ptr<Graphics::FullScreenPlane> _videoPlane;
+	LocaleConfig::Config _localeConfig;
 };
 
 
