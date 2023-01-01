@@ -40,6 +40,7 @@ enum Language {
 	kChinese,
 	kRussian,
 	kCzech,
+	kHungarian,
 
 	kUnrecognized
 };

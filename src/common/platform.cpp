@@ -42,6 +42,7 @@ static constexpr uint32_t kPL = Common::crc32("pl");
 static constexpr uint32_t kZH = Common::crc32("zh");
 static constexpr uint32_t kRU = Common::crc32("ru");
 static constexpr uint32_t kCZ = Common::crc32("cz");
+static constexpr uint32_t kHU = Common::crc32("hu");
 
 namespace Common {
 
@@ -58,6 +59,7 @@ Language iso639ToLang(const std::string code) {
 		case kZH: return kChinese;
 		case kRU: return kRussian;
 		case kCZ: return kCzech;
+		case kHU: return kHungarian;
 		default: return kUnrecognized;
 	}
 }
