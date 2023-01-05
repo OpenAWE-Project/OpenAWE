@@ -48,7 +48,7 @@ std::string toUpper(std::string str) {
 }
 
 bool contains(const std::string &str, const std::string &s) {
-	return std::regex_match(str, std::regex(".*" + s + ".*"));
+	return str.find(s) != std::string::npos;
 }
 
 std::vector<std::string> split(const std::string &str, const std::regex &split) {

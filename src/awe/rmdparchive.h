@@ -21,8 +21,10 @@
 #ifndef AWE_RMDPARCHIVE_H
 #define AWE_RMDPARCHIVE_H
 
+#include <sstream>
 #include <vector>
 #include <memory>
+#include <optional>
 
 #include "archive.h"
 
@@ -129,6 +131,20 @@ private:
 	void loadHeaderV8(Common::ReadStream *bin);
 
 	/*!
+	 * An utility function to read a file/folder name from an offset
+	 * with known name size.
+	 */
+	std::string readEntryName(Common::ReadStream *bin, uint32_t offset, uint32_t nameSize);
+	
+	/*!
+	 * An utility function that normalizes file path by:
+	 * - replacing \ with /
+	 * - adding prefix when needed
+	 * - lowercasing the path
+	 */
+	std::stringstream getNormalizedPath(const std::string &path) const;
+	
+	/*!
 	 * Structure describing a folder entry of the loaded bin/rmdp archive
 	 * structure. Has name hash for faster comparison and indices to the next
 	 * lower folder, the next neighbour folder and the next folder inside.
@@ -164,7 +180,42 @@ private:
 	std::vector<FolderEntry> _folderEntries;
 	std::vector<FileEntry> _fileEntries;
 
+	/*!
+	 * A helper function that navigates through _folderEntries under
+	 * given path.
+	 *
+	 * \return folder entry, if it exists under giver path
+	 */
+	std::optional<FolderEntry> findDirectory(std::stringstream &path) const;
+	/*!
+	 * A helper function that fills in known FolderEntry fields.
+	 * 
+	 * \param readUint32 A ReadStream member function to read
+	 * 32-bit unsigned integers with appropriate endianness
+	 * \param nameSize Max name size in bytes, obtained from
+	 * earlier file headers.
+	 */
+	FolderEntry readFolder(Common::ReadStream *bin, uint32_t (Common::ReadStream::*readUint32) (), uint32_t nameSize);
+	/*!
+	 * A helper function that fills in known FileEntry fields.
+	 * 
+	 * \param readUint32 A ReadStream member function to read
+	 * 32-bit unsigned integers with appropriate endianness
+	 * \param readUint64 A ReadStream member function to read
+	 * 64-bit unsigned integers with appropriate endianness
+	 * \param nameSize Max name size in bytes, obtained from
+	 * earlier file headers.
+	 */
+	FileEntry readFile(Common::ReadStream *bin, uint32_t (Common::ReadStream::*readUint32) (), uint64_t (Common::ReadStream::*readUint64) (), uint32_t nameSize);
+	/*!
+	 * A helper functon that find a file in a given folder by
+	 * its name hash value.
+	 */
+	std::optional<FileEntry> findFile(const FolderEntry &folder, const uint32_t nameHash) const;
+
 	std::unique_ptr<Common::ReadStream> _rmdp;
+
+	static const uint32_t NO_ENTRY = 0xFFFFFFFF;
 };
 
 } // End of namespace AWE
