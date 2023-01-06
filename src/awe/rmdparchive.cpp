@@ -96,13 +96,6 @@ std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::string &
 	return folder;
 }
 
-std::string RMDPArchive::getNormalizedPath(const std::string &path) const{
-	std::string lower = Common::toLower(path);
-	uint64_t pos = std::string::npos;
-	while ((pos = lower.find("\\")) != std::string::npos) lower.replace(pos, 1, "/", 1);
-	return (_pathPrefix ? "d:/data/" : "") + lower;
-}
-
 std::optional<RMDPArchive::FileEntry> RMDPArchive::findFile(const FolderEntry &folder, const uint32_t nameHash) const {
 	if (folder.nextFile == kNoEntry)
 		return {};
@@ -117,7 +110,7 @@ std::optional<RMDPArchive::FileEntry> RMDPArchive::findFile(const FolderEntry &f
 }
 
 std::vector<size_t> RMDPArchive::getDirectoryResources(const std::string &directory) {
-	std::string path = this->getNormalizedPath(directory);
+	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(directory);
 	auto maybeFolder = this->findDirectory(path);
 	if (!maybeFolder) return {};
 	FolderEntry folder = *maybeFolder;
@@ -171,7 +164,7 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 }
 
 Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
-	std::string path = this->getNormalizedPath(rid);
+	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(rid);
 	// Extract and separate file name from the rest of the path
 	uint64_t lastSlashPos = path.rfind("/");
 	std::string filename = path.substr(lastSlashPos + 1);
@@ -199,7 +192,7 @@ Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 }
 
 bool RMDPArchive::hasResource(const std::string &rid) const {
-	std::string path = this->getNormalizedPath(rid);
+	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(rid);
 	// Extract and separate file name from the rest of the path
 	uint64_t lastSlashPos = path.rfind("/");
 	std::string filename = path.substr(lastSlashPos + 1);
@@ -215,7 +208,7 @@ bool RMDPArchive::hasResource(const std::string &rid) const {
 }
 
 bool RMDPArchive::hasDirectory(const std::string &directory) const {
-	std::string path = this->getNormalizedPath(directory);
+	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(directory);
 	auto maybeFolder = this->findDirectory(path);
 	return maybeFolder.has_value();
 }

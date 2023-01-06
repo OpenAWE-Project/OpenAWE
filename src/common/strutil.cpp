@@ -63,4 +63,11 @@ std::vector<std::string> split(const std::string &str, const std::regex &split) 
 	return result;
 }
 
+std::string getNormalizedPath(const std::string &path) {
+	std::string lower = Common::toLower(path);
+	uint64_t pos = std::string::npos;
+	while ((pos = lower.find("\\")) != std::string::npos) lower.replace(pos, 1, "/", 1);
+	return lower;
+}
+
 }

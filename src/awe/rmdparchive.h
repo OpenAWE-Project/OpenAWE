@@ -137,14 +137,6 @@ private:
 	std::string readEntryName(Common::ReadStream *bin, uint32_t offset, uint32_t nameSize);
 	
 	/*!
-	 * An utility function that normalizes file path by:
-	 * - replacing \ with /
-	 * - adding prefix when needed
-	 * - lowercasing the path
-	 */
-	std::string getNormalizedPath(const std::string &path) const;
-	
-	/*!
 	 * Structure describing a folder entry of the loaded bin/rmdp archive
 	 * structure. Has name hash for faster comparison and indices to the next
 	 * lower folder, the next neighbour folder and the next folder inside.
