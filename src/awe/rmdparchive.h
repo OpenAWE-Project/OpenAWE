@@ -142,7 +142,7 @@ private:
 	 * - adding prefix when needed
 	 * - lowercasing the path
 	 */
-	std::stringstream getNormalizedPath(const std::string &path) const;
+	std::string getNormalizedPath(const std::string &path) const;
 	
 	/*!
 	 * Structure describing a folder entry of the loaded bin/rmdp archive
@@ -186,7 +186,8 @@ private:
 	 *
 	 * \return folder entry, if it exists under giver path
 	 */
-	std::optional<FolderEntry> findDirectory(std::stringstream &path) const;
+	std::optional<FolderEntry> findDirectory(std::string &path) const;
+
 	/*!
 	 * A helper function that fills in known FolderEntry fields.
 	 * 
@@ -196,6 +197,7 @@ private:
 	 * earlier file headers.
 	 */
 	FolderEntry readFolder(Common::ReadStream *bin, uint32_t (Common::ReadStream::*readUint32) (), uint32_t nameSize);
+
 	/*!
 	 * A helper function that fills in known FileEntry fields.
 	 * 
@@ -207,6 +209,7 @@ private:
 	 * earlier file headers.
 	 */
 	FileEntry readFile(Common::ReadStream *bin, uint32_t (Common::ReadStream::*readUint32) (), uint64_t (Common::ReadStream::*readUint64) (), uint32_t nameSize);
+
 	/*!
 	 * A helper functon that find a file in a given folder by
 	 * its name hash value.
@@ -214,8 +217,6 @@ private:
 	std::optional<FileEntry> findFile(const FolderEntry &folder, const uint32_t nameHash) const;
 
 	std::unique_ptr<Common::ReadStream> _rmdp;
-
-	static const uint32_t NO_ENTRY = 0xFFFFFFFF;
 };
 
 } // End of namespace AWE
