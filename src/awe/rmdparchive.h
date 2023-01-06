@@ -27,6 +27,7 @@
 #include <optional>
 
 #include "archive.h"
+#include "src/common/endianreadstream.h"
 
 namespace AWE {
 
@@ -114,21 +115,21 @@ private:
 	 *
 	 * \param bin the stream from which to load the header
 	 */
-	void loadHeaderV2(Common::ReadStream *bin);
+	void loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream end);
 
 	/*!
 	 * Load header version 7 used by Alan Wakes American Nightmare
 	 *
 	 * \param bin the stream from which to load the header
 	 */
-	void loadHeaderV7(Common::ReadStream *bin);
+	void loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream end);
 
 	/*!
 	 * Load header version 8 used by Quantum Break
 	 *
 	 * \param bin the stream from which to load the header
 	 */
-	void loadHeaderV8(Common::ReadStream *bin);
+	void loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream end);
 
 	/*!
 	 * An utility function to read a file/folder name from an offset
@@ -188,7 +189,7 @@ private:
 	 * \param nameSize Max name size in bytes, obtained from
 	 * earlier file headers.
 	 */
-	FolderEntry readFolder(Common::ReadStream *bin, uint32_t (Common::ReadStream::*readUint32) (), uint32_t nameSize);
+	FolderEntry readFolder(Common::ReadStream *bin, Common::EndianReadStream end, uint32_t nameSize);
 
 	/*!
 	 * A helper function that fills in known FileEntry fields.
@@ -200,7 +201,7 @@ private:
 	 * \param nameSize Max name size in bytes, obtained from
 	 * earlier file headers.
 	 */
-	FileEntry readFile(Common::ReadStream *bin, uint32_t (Common::ReadStream::*readUint32) (), uint64_t (Common::ReadStream::*readUint64) (), uint32_t nameSize);
+	FileEntry readFile(Common::ReadStream *bin, Common::EndianReadStream end, uint32_t nameSize);
 
 	/*!
 	 * A helper functon that find a file in a given folder by
