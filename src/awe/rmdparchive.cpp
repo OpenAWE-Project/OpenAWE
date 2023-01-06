@@ -27,6 +27,7 @@
 #include <zlib.h>
 #include <assert.h>
 
+#include "src/common/endianreadstream.h"
 #include "src/common/strutil.h"
 #include "src/common/memreadstream.h"
 #include "src/common/exception.h"
@@ -40,22 +41,19 @@ namespace AWE {
 
 RMDPArchive::RMDPArchive(Common::ReadStream *bin, Common::ReadStream *rmdp) : _rmdp(rmdp) {
 	_littleEndian = bin->readByte() == 0;
+	Common::EndianReadStream end = Common::EndianReadStream(bin, !_littleEndian);
 
-	uint32_t version;
-	if (_littleEndian)
-		version = bin->readUint32LE();
-	else
-		version = bin->readUint32BE();
+	uint32_t version = end.readUint32();
 
 	switch (version) {
 		case 2: // Alan Wake
-			loadHeaderV2(bin);
+			loadHeaderV2(bin, end);
 			break;
 		case 7: // Alan Wakes American Nightmare
-			loadHeaderV7(bin);
+			loadHeaderV7(bin, end);
 			break;
 		case 8: // Quantum Break
-			loadHeaderV8(bin);
+			loadHeaderV8(bin, end);
 			break;
 		default:
 			throw Common::Exception("Unknown RMDP Archive version {}", version);
@@ -226,31 +224,31 @@ std::string RMDPArchive::readEntryName(Common::ReadStream *bin, uint32_t offset,
 	return result;
 }
 
-RMDPArchive::FolderEntry RMDPArchive::readFolder(Common::ReadStream *bin, uint32_t (Common::ReadStream::*readUint32) (), uint32_t nameSize) {
+RMDPArchive::FolderEntry RMDPArchive::readFolder(Common::ReadStream *bin, Common::EndianReadStream end, uint32_t nameSize) {
 	// Since folder struct remains the same through v2/7/8 headers
 	FolderEntry entry;
-	entry.nameHash = (bin->*readUint32)();
-	entry.nextNeighbourFolder = (bin->*readUint32)();
-	entry.prevFolder = (bin->*readUint32)();
+	entry.nameHash = end.readUint32();
+	entry.nextNeighbourFolder = end.readUint32();
+	entry.prevFolder = end.readUint32();
 
 	bin->skip(4); // Unknown value
 
-	uint32_t nameOffset = (bin->*readUint32)();
+	uint32_t nameOffset = end.readUint32();
 	entry.name = this->readEntryName(bin, nameOffset, nameSize);
 
-	entry.nextLowerFolder = (bin->*readUint32)();
-	entry.nextFile = (bin->*readUint32)();
+	entry.nextLowerFolder = end.readUint32();
+	entry.nextFile = end.readUint32();
 	return entry;
 }
 
-RMDPArchive::FileEntry RMDPArchive::readFile(Common::ReadStream *bin, uint32_t (Common::ReadStream::*readUint32) (), uint64_t (Common::ReadStream::*readUint64) (), uint32_t nameSize) {
+RMDPArchive::FileEntry RMDPArchive::readFile(Common::ReadStream *bin, Common::EndianReadStream end, uint32_t nameSize) {
 	FileEntry entry;
-	entry.nameHash = (bin->*readUint32)();
-	entry.nextFile = (bin->*readUint32)();
-	entry.prevFolder = (bin->*readUint32)();
-	entry.flags = (bin->*readUint32)();
+	entry.nameHash = end.readUint32();
+	entry.nextFile = end.readUint32();
+	entry.prevFolder = end.readUint32();
+	entry.flags = end.readUint32();
 
-	uint32_t nameOffset = (bin->*readUint32)();
+	uint32_t nameOffset = end.readUint32();
 	entry.name = this->readEntryName(bin, nameOffset, nameSize);
 
 	uint32_t testHash = Common::crc32(Common::toLower(entry.name));
@@ -259,24 +257,21 @@ RMDPArchive::FileEntry RMDPArchive::readFile(Common::ReadStream *bin, uint32_t (
 								entry.nameHash,
 								testHash);
 
-	entry.offset = (bin->*readUint64)();
-	entry.size = (bin->*readUint64)();
+	entry.offset = end.readUint64();
+	entry.size = end.readUint64();
 
-	entry.fileDataHash = (bin->*readUint32)();
+	entry.fileDataHash = end.readUint32();
 	return entry;
 }
 
-void RMDPArchive::loadHeaderV2(Common::ReadStream *bin) {
+void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream end) {
 	// Load header version 2, used by Alan Wake
 	_pathPrefix = false;
-	// Define endianness once to avoid typos
-	uint32_t (Common::ReadStream::*readUint32) () = &Common::ReadStream::readUint32BE;
-	uint64_t (Common::ReadStream::*readUint64) () = &Common::ReadStream::readUint64BE;
 
-	uint32_t numFolders = (bin->*readUint32)();
-	uint32_t numFiles = (bin->*readUint32)();
+	uint32_t numFolders = end.readUint32();
+	uint32_t numFiles = end.readUint32();
 
-	uint32_t nameSize = (bin->*readUint32)();
+	uint32_t nameSize = end.readUint32();
 
 	std::string pathPrefix = bin->readNullTerminatedString();
 
@@ -286,25 +281,22 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin) {
 	_fileEntries.resize(numFiles);
 
 	for (auto &entry : _folderEntries)
-		entry = this->readFolder(bin, readUint32, nameSize);
+		entry = this->readFolder(bin, end, nameSize);
 
 	for (auto &entry : _fileEntries) 
-		entry = this->readFile(bin, readUint32, readUint64, nameSize);
+		entry = this->readFile(bin, end, nameSize);
 }
 
-void RMDPArchive::loadHeaderV7(Common::ReadStream *bin) {
+void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream end) {
 	// Load header version 7, used by Nightmare
 	_pathPrefix = true;
-	// Define endianness once to avoid typos
-	uint32_t (Common::ReadStream::*readUint32) () = &Common::ReadStream::readUint32LE;
-	uint64_t (Common::ReadStream::*readUint64) () = &Common::ReadStream::readUint64LE;
 
-	uint32_t numFolders = (bin->*readUint32)();
-	uint32_t numFiles = (bin->*readUint32)();
+	uint32_t numFolders = end.readUint32();
+	uint32_t numFiles = end.readUint32();
 
 	bin->skip(8); // Always 64 bit 1?
 
-	uint32_t nameSize = (bin->*readUint32)();
+	uint32_t nameSize = end.readUint32();
 
 	bin->skip(128);
 
@@ -312,27 +304,24 @@ void RMDPArchive::loadHeaderV7(Common::ReadStream *bin) {
 	_fileEntries.resize(numFiles);
 
 	for (auto &entry : _folderEntries) 
-		entry = this->readFolder(bin, readUint32, nameSize);
+		entry = this->readFolder(bin, end, nameSize);
 
 	for (auto &entry : _fileEntries) {
-		entry = this->readFile(bin, readUint32, readUint64, nameSize);
+		entry = this->readFile(bin, end, nameSize);
 		bin->skip(8); // Write Time
 	}
 }
 
-void RMDPArchive::loadHeaderV8(Common::ReadStream *bin) {
+void RMDPArchive::loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream end) {
 	// Load header version 8, used by Quantum Break
 	_pathPrefix = true;
-	// Define endianness once to avoid typos
-	uint32_t (Common::ReadStream::*readUint32) () = &Common::ReadStream::readUint32LE;
-	uint64_t (Common::ReadStream::*readUint64) () = &Common::ReadStream::readUint64LE;
 
-	uint32_t numFolders = (bin->*readUint32)();
-	uint32_t numFiles = (bin->*readUint32)();
+	uint32_t numFolders = end.readUint32();
+	uint32_t numFiles = end.readUint32();
 
 	bin->skip(8);
 
-	uint32_t nameSize = (bin->*readUint32)();
+	uint32_t nameSize = end.readUint32();
 
 	std::string pathPrefix = bin->readNullTerminatedString();
 
@@ -340,7 +329,7 @@ void RMDPArchive::loadHeaderV8(Common::ReadStream *bin) {
 	_fileEntries.resize(numFiles);
 
 	for (auto &entry : _folderEntries)
-		entry = this->readFolder(bin, readUint32, nameSize);
+		entry = this->readFolder(bin, end, nameSize);
 	
 	// TO-DO: Fill in _fileEntries array
 }
