@@ -204,16 +204,6 @@ private:
 	FolderEntry readFolder(Common::ReadStream *bin, Common::EndianReadStream &end, uint32_t nameSize);
 
 	/*!
-	 * A helper function that fills in known FileEntry fields.
-	 * 
-	 * \param bin the stream from which to load the fields
-	 * \param end stream wrapper with fixed endianness
-	 * \param nameSize Max name size in bytes, obtained from
-	 * earlier file headers.
-	 */
-	FileEntry readFile(Common::ReadStream *bin, Common::EndianReadStream &end, uint32_t nameSize);
-
-	/*!
 	 * A helper functon that find a file in a given folder by
 	 * its name hash value.
 	 */

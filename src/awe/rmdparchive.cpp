@@ -265,29 +265,6 @@ RMDPArchive::FolderEntry RMDPArchive::readFolder(Common::ReadStream *bin, Common
 	return entry;
 }
 
-RMDPArchive::FileEntry RMDPArchive::readFile(Common::ReadStream *bin, Common::EndianReadStream &end, uint32_t nameSize) {
-	FileEntry entry;
-	entry.nameHash = end.readUint32();
-	entry.nextFile = end.readUint32();
-	entry.prevFolder = end.readUint32();
-	entry.flags = end.readUint32();
-
-	uint32_t nameOffset = end.readUint32();
-	entry.name = this->readEntryName(bin, nameOffset, nameSize);
-
-	uint32_t testHash = Common::crc32(Common::toLower(entry.name));
-	if (entry.nameHash != testHash)
-		throw CreateException("Invalid name hash: expected {}, but found {}",
-								entry.nameHash,
-								testHash);
-
-	entry.offset = end.readUint64();
-	entry.size = end.readUint64();
-
-	entry.fileDataHash = end.readUint32();
-	return entry;
-}
-
 void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream &end) {
 	// Load header version 2, used by Alan Wake
 	_pathPrefix = false;
@@ -307,8 +284,26 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 	for (auto &entry : _folderEntries)
 		entry = this->readFolder(bin, end, nameSize);
 
-	for (auto &entry : _fileEntries) 
-		entry = this->readFile(bin, end, nameSize);
+	for (auto &entry : _fileEntries) {
+		entry.nameHash = end.readUint32();
+		entry.nextFile = end.readUint32();
+		entry.prevFolder = end.readUint32();
+		entry.flags = end.readUint32();
+
+		uint32_t nameOffset = end.readUint32();
+		entry.name = this->readEntryName(bin, nameOffset, nameSize);
+
+		uint32_t testHash = Common::crc32(Common::toLower(entry.name));
+		if (entry.nameHash != testHash)
+			throw CreateException("Invalid name hash: expected {}, but found {}",
+									entry.nameHash,
+									testHash);
+
+		entry.offset = end.readUint64();
+		entry.size = end.readUint64();
+
+		entry.fileDataHash = end.readUint32();
+	}
 }
 
 void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream &end) {
@@ -331,7 +326,24 @@ void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream
 		entry = this->readFolder(bin, end, nameSize);
 
 	for (auto &entry : _fileEntries) {
-		entry = this->readFile(bin, end, nameSize);
+		entry.nameHash = end.readUint32();
+		entry.nextFile = end.readUint32();
+		entry.prevFolder = end.readUint32();
+		entry.flags = end.readUint32();
+
+		uint32_t nameOffset = end.readUint32();
+		entry.name = this->readEntryName(bin, nameOffset, nameSize);
+
+		uint32_t testHash = Common::crc32(Common::toLower(entry.name));
+		if (entry.nameHash != testHash)
+			throw CreateException("Invalid name hash: expected {}, but found {}",
+									entry.nameHash,
+									testHash);
+
+		entry.offset = end.readUint64();
+		entry.size = end.readUint64();
+
+		entry.fileDataHash = end.readUint32();
 		bin->skip(8); // Write Time
 	}
 }
