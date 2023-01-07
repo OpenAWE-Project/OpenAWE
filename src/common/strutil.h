@@ -58,11 +58,11 @@ bool contains(const std::string &str, const std::string &s);
 std::vector<std::string> split(const std::string &str, const std::regex &split);
 
 /*!
-	 * An utility function that normalizes file path by:
-	 * - replacing \ with /
-	 * - lowercasing the path
-	 */
-	std::string getNormalizedPath(const std::string &path);
+ * An utility function that normalizes file path by:
+ * - replacing \ with /
+ * - lowercasing the path
+ */
+std::string getNormalizedPath(const std::string &path);
 }
 
 #endif //AWE_STRUTIL_H

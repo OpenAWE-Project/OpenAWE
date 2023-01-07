@@ -27,33 +27,38 @@
 namespace Common {
 
 class EndianReadStream {
-private:
-	bool _bigEndian;
-	ReadStream *_parentStream;
-
 public:
+	/*
+	 * Create a ReadStream wrapper that has a predefined
+	 * endianness.
+	 */
 	EndianReadStream(ReadStream *parentStream, bool bigEndian);
 
 	virtual ~EndianReadStream();
 
-    /*!
+	/*!
 	 * Read a 16 bit unsigned int
 	 * \return the 16bit value
 	 */
 	uint16_t readUint16();
 
-    /*!
+	/*!
 	 * Read a 32 bit unsigned int
 	 * \return the 32bit value
 	 */
 	uint32_t readUint32();
 
-    /*!
+	/*!
 	 * Read a 64 bit unsigned int
 	 * \return the 64bit value
 	 */
 	uint64_t readUint64();
+
+private:
+	bool _bigEndian;
+	ReadStream *_parentStream;
 };
+
 } // End of namespace Common
 
 #endif //SRC_COMMON_ENDIANREADSTREAMS_H

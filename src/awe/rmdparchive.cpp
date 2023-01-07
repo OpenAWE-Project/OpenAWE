@@ -19,13 +19,13 @@
  */
 
 #include <cstdint>
-#include <libintl.h>
+#include <cassert>
 #include <optional>
-#include <fmt/format.h>
 #include <regex>
 #include <vector>
+
+#include <fmt/format.h>
 #include <zlib.h>
-#include <assert.h>
 
 #include "src/common/endianreadstream.h"
 #include "src/common/strutil.h"

@@ -18,10 +18,11 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "endianreadstream.h"
+#include "src/common/endianreadstream.h"
 #include "src/common/readstream.h"
 
 namespace Common {
+
 EndianReadStream::EndianReadStream(ReadStream *parentStream, bool bigEndian) {
     _bigEndian = bigEndian;
     _parentStream = parentStream;

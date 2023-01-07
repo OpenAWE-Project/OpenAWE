@@ -21,7 +21,6 @@
 #ifndef AWE_RMDPARCHIVE_H
 #define AWE_RMDPARCHIVE_H
 
-#include <sstream>
 #include <vector>
 #include <memory>
 #include <optional>
@@ -114,6 +113,7 @@ private:
 	 * Load header version 2 used by Alan Wake
 	 *
 	 * \param bin the stream from which to load the header
+	 * \param end stream wrapper with fixed endianness
 	 */
 	void loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream end);
 
@@ -121,6 +121,7 @@ private:
 	 * Load header version 7 used by Alan Wakes American Nightmare
 	 *
 	 * \param bin the stream from which to load the header
+	 * \param end stream wrapper with fixed endianness
 	 */
 	void loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream end);
 
@@ -128,12 +129,15 @@ private:
 	 * Load header version 8 used by Quantum Break
 	 *
 	 * \param bin the stream from which to load the header
+	 * \param end stream wrapper with fixed endianness
 	 */
 	void loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream end);
 
 	/*!
 	 * An utility function to read a file/folder name from an offset
 	 * with known name size.
+	 *
+	 * \param bin the stream from which to load the name
 	 */
 	std::string readEntryName(Common::ReadStream *bin, uint32_t offset, uint32_t nameSize);
 	
@@ -167,12 +171,6 @@ private:
 		uint64_t offset, size;
 	};
 
-	bool _pathPrefix;
-	bool _littleEndian;
-
-	std::vector<FolderEntry> _folderEntries;
-	std::vector<FileEntry> _fileEntries;
-
 	/*!
 	 * A helper function that navigates through _folderEntries under
 	 * given path.
@@ -184,8 +182,8 @@ private:
 	/*!
 	 * A helper function that fills in known FolderEntry fields.
 	 * 
-	 * \param readUint32 A ReadStream member function to read
-	 * 32-bit unsigned integers with appropriate endianness
+	 * \param bin the stream from which to load the fields
+	 * \param end stream wrapper with fixed endianness
 	 * \param nameSize Max name size in bytes, obtained from
 	 * earlier file headers.
 	 */
@@ -194,10 +192,8 @@ private:
 	/*!
 	 * A helper function that fills in known FileEntry fields.
 	 * 
-	 * \param readUint32 A ReadStream member function to read
-	 * 32-bit unsigned integers with appropriate endianness
-	 * \param readUint64 A ReadStream member function to read
-	 * 64-bit unsigned integers with appropriate endianness
+	 * \param bin the stream from which to load the fields
+	 * \param end stream wrapper with fixed endianness
 	 * \param nameSize Max name size in bytes, obtained from
 	 * earlier file headers.
 	 */
@@ -208,6 +204,12 @@ private:
 	 * its name hash value.
 	 */
 	std::optional<FileEntry> findFile(const FolderEntry &folder, const uint32_t nameHash) const;
+
+	bool _pathPrefix;
+	bool _littleEndian;
+
+	std::vector<FolderEntry> _folderEntries;
+	std::vector<FileEntry> _fileEntries;
 
 	std::unique_ptr<Common::ReadStream> _rmdp;
 };
