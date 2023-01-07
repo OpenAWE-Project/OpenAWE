@@ -1,6 +1,9 @@
 # CLion Files
 .idea
 cmake-build-*
+# VS Code files
+.vscode
+.clangd
 
 # Engine files
 *.bin
