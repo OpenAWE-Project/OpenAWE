@@ -43,7 +43,7 @@ RMDPArchive::RMDPArchive(Common::ReadStream *bin, Common::ReadStream *rmdp) : _r
 	_littleEndian = bin->readByte() == 0;
 	Common::EndianReadStream end = Common::EndianReadStream(bin, !_littleEndian);
 
-	uint32_t version = end.readUint32();
+	const uint32_t version = end.readUint32();
 
 	switch (version) {
 		case 2: // Alan Wake
@@ -56,7 +56,7 @@ RMDPArchive::RMDPArchive(Common::ReadStream *bin, Common::ReadStream *rmdp) : _r
 			loadHeaderV8(bin, end);
 			break;
 		default:
-			throw Common::Exception("Unknown RMDP Archive version {}", version);
+			throw CreateException("Unknown RMDP Archive version {}", version);
 	}
 
 	delete bin;
@@ -66,19 +66,44 @@ size_t RMDPArchive::getNumResources() const {
 	return _fileEntries.size();
 }
 
-std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::string &path) const{
-	std::string item;
+std::vector<uint32_t> RMDPArchive::getPathHashes(std::string &path) const{
+	std::vector<std::string> pathNames = Common::split(path, std::regex("/"));
+	std::vector<uint32_t> pathHashes;
+	pathHashes.resize(pathNames.size());
 
+	for (uint64_t i = 0; i < pathNames.size(); ++i)
+		pathHashes[i] = Common::crc32(pathNames[i]);
+
+	return pathHashes;
+}
+
+std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::string &path) const{
 	FolderEntry folder = _folderEntries.front();
 	if (path.empty()) return folder;
 
-	std::vector<std::string> pathFolders = Common::split(path, std::regex("/"));
+	auto pathHashes = this->getPathHashes(path);
 
-	uint32_t nameHash = 0;
+	for (uint32_t nameHash : pathHashes) {
+		if (folder.nextLowerFolder == kNoEntry)
+			return {};
 
-	for (uint64_t i = 0; i < pathFolders.size(); ++i) {
-		nameHash = Common::crc32(Common::toLower(pathFolders[i]));
+		folder = _folderEntries[folder.nextLowerFolder];
 
+		while (nameHash != folder.nameHash) {
+			if (folder.nextNeighbourFolder == kNoEntry)
+				return {};
+			folder = _folderEntries[folder.nextNeighbourFolder];
+		}
+	}
+
+	return folder;
+}
+
+std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::vector<uint32_t> &pathHashes) const{
+	FolderEntry folder = _folderEntries.front();
+	if (pathHashes.empty()) return folder;
+
+	for (uint32_t nameHash : pathHashes) {
 		if (folder.nextLowerFolder == kNoEntry)
 			return {};
 
@@ -131,7 +156,7 @@ std::vector<size_t> RMDPArchive::getDirectoryResources(const std::string &direct
 std::string RMDPArchive::getResourcePath(size_t index) const {
 	// Check if the index is less than the number of resources
 	if (index >= getNumResources())
-		throw Common::Exception(
+		throw CreateException(
 				"Index {} exceeds number of file entries {}",
 				index,
 				getNumResources()
@@ -156,6 +181,7 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 			path = folderEntry.name + "/" + path;
 	}
 
+	// Remove "d:/data/" prefix if present
 	if (path.find("d:/data/") == 0) path.replace(0, 8, "");
 
 	return path;
@@ -164,12 +190,11 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(rid);
 	// Extract and separate file name from the rest of the path
-	uint64_t lastSlashPos = path.rfind("/");
-	std::string filename = path.substr(lastSlashPos + 1);
-	path.resize(lastSlashPos == std::string::npos ? 0 : lastSlashPos);
-	uint32_t fileHash = Common::crc32(Common::toLower(filename));
+	auto pathHashes = this->getPathHashes(path);
+	uint32_t fileHash = pathHashes.back();
+	pathHashes.pop_back();
 
-	auto maybeFolder = this->findDirectory(path);
+	auto maybeFolder = this->findDirectory(pathHashes);
 	if (!maybeFolder) return nullptr;
 	FolderEntry folder = *maybeFolder;
 
@@ -192,12 +217,11 @@ Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 bool RMDPArchive::hasResource(const std::string &rid) const {
 	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(rid);
 	// Extract and separate file name from the rest of the path
-	uint64_t lastSlashPos = path.rfind("/");
-	std::string filename = path.substr(lastSlashPos + 1);
-	path.resize(lastSlashPos == std::string::npos ? 0 : lastSlashPos);
-	uint32_t fileHash = Common::crc32(Common::toLower(filename));
+	auto pathHashes = this->getPathHashes(path);
+	uint32_t fileHash = pathHashes.back();
+	pathHashes.pop_back();
 
-	auto maybeFolder = this->findDirectory(path);
+	auto maybeFolder = this->findDirectory(pathHashes);
 	if (!maybeFolder) return false;
 	FolderEntry folder = *maybeFolder;
 
@@ -224,7 +248,7 @@ std::string RMDPArchive::readEntryName(Common::ReadStream *bin, uint32_t offset,
 	return result;
 }
 
-RMDPArchive::FolderEntry RMDPArchive::readFolder(Common::ReadStream *bin, Common::EndianReadStream end, uint32_t nameSize) {
+RMDPArchive::FolderEntry RMDPArchive::readFolder(Common::ReadStream *bin, Common::EndianReadStream &end, uint32_t nameSize) {
 	// Since folder struct remains the same through v2/7/8 headers
 	FolderEntry entry;
 	entry.nameHash = end.readUint32();
@@ -241,7 +265,7 @@ RMDPArchive::FolderEntry RMDPArchive::readFolder(Common::ReadStream *bin, Common
 	return entry;
 }
 
-RMDPArchive::FileEntry RMDPArchive::readFile(Common::ReadStream *bin, Common::EndianReadStream end, uint32_t nameSize) {
+RMDPArchive::FileEntry RMDPArchive::readFile(Common::ReadStream *bin, Common::EndianReadStream &end, uint32_t nameSize) {
 	FileEntry entry;
 	entry.nameHash = end.readUint32();
 	entry.nextFile = end.readUint32();
@@ -253,7 +277,7 @@ RMDPArchive::FileEntry RMDPArchive::readFile(Common::ReadStream *bin, Common::En
 
 	uint32_t testHash = Common::crc32(Common::toLower(entry.name));
 	if (entry.nameHash != testHash)
-		throw Common::Exception("Invalid name hash: expected {}, but found {}",
+		throw CreateException("Invalid name hash: expected {}, but found {}",
 								entry.nameHash,
 								testHash);
 
@@ -264,7 +288,7 @@ RMDPArchive::FileEntry RMDPArchive::readFile(Common::ReadStream *bin, Common::En
 	return entry;
 }
 
-void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream end) {
+void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream &end) {
 	// Load header version 2, used by Alan Wake
 	_pathPrefix = false;
 
@@ -287,7 +311,7 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 		entry = this->readFile(bin, end, nameSize);
 }
 
-void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream end) {
+void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream &end) {
 	// Load header version 7, used by Nightmare
 	_pathPrefix = true;
 
@@ -312,7 +336,7 @@ void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream
 	}
 }
 
-void RMDPArchive::loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream end) {
+void RMDPArchive::loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream &end) {
 	// Load header version 8, used by Quantum Break
 	_pathPrefix = true;
 

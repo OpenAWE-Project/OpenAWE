@@ -115,7 +115,7 @@ private:
 	 * \param bin the stream from which to load the header
 	 * \param end stream wrapper with fixed endianness
 	 */
-	void loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream end);
+	void loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream &end);
 
 	/*!
 	 * Load header version 7 used by Alan Wakes American Nightmare
@@ -123,7 +123,7 @@ private:
 	 * \param bin the stream from which to load the header
 	 * \param end stream wrapper with fixed endianness
 	 */
-	void loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream end);
+	void loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream &end);
 
 	/*!
 	 * Load header version 8 used by Quantum Break
@@ -131,7 +131,7 @@ private:
 	 * \param bin the stream from which to load the header
 	 * \param end stream wrapper with fixed endianness
 	 */
-	void loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream end);
+	void loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream &end);
 
 	/*!
 	 * An utility function to read a file/folder name from an offset
@@ -140,6 +140,12 @@ private:
 	 * \param bin the stream from which to load the name
 	 */
 	std::string readEntryName(Common::ReadStream *bin, uint32_t offset, uint32_t nameSize);
+
+	/*!
+	 * Break down a given path into an array of CRC32 hashes
+	 * for later processing.
+	 */
+	std::vector<uint32_t> getPathHashes(std::string &path) const;
 	
 	/*!
 	 * Structure describing a folder entry of the loaded bin/rmdp archive
@@ -173,11 +179,19 @@ private:
 
 	/*!
 	 * A helper function that navigates through _folderEntries under
-	 * given path.
+	 * path gives as a string.
 	 *
 	 * \return folder entry, if it exists under giver path
 	 */
 	std::optional<FolderEntry> findDirectory(std::string &path) const;
+
+	/*!
+	 * A helper function that navigates through _folderEntries under
+	 * path given as an array of hashes.
+	 *
+	 * \return folder entry, if it exists under giver path
+	 */
+	std::optional<FolderEntry> findDirectory(std::vector<uint32_t> &pathHashes) const;
 
 	/*!
 	 * A helper function that fills in known FolderEntry fields.
@@ -187,7 +201,7 @@ private:
 	 * \param nameSize Max name size in bytes, obtained from
 	 * earlier file headers.
 	 */
-	FolderEntry readFolder(Common::ReadStream *bin, Common::EndianReadStream end, uint32_t nameSize);
+	FolderEntry readFolder(Common::ReadStream *bin, Common::EndianReadStream &end, uint32_t nameSize);
 
 	/*!
 	 * A helper function that fills in known FileEntry fields.
@@ -197,7 +211,7 @@ private:
 	 * \param nameSize Max name size in bytes, obtained from
 	 * earlier file headers.
 	 */
-	FileEntry readFile(Common::ReadStream *bin, Common::EndianReadStream end, uint32_t nameSize);
+	FileEntry readFile(Common::ReadStream *bin, Common::EndianReadStream &end, uint32_t nameSize);
 
 	/*!
 	 * A helper functon that find a file in a given folder by
