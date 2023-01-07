@@ -82,7 +82,7 @@ std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::string &
 	FolderEntry folder = _folderEntries.front();
 	if (path.empty()) return folder;
 
-	auto pathHashes = this->getPathHashes(path);
+	auto pathHashes = getPathHashes(path);
 
 	for (uint32_t nameHash : pathHashes) {
 		if (folder.nextLowerFolder == kNoEntry)
@@ -135,7 +135,7 @@ std::optional<RMDPArchive::FileEntry> RMDPArchive::findFile(const FolderEntry &f
 
 std::vector<size_t> RMDPArchive::getDirectoryResources(const std::string &directory) {
 	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(directory);
-	auto maybeFolder = this->findDirectory(path);
+	auto maybeFolder = findDirectory(path);
 	if (!maybeFolder) return {};
 	FolderEntry folder = *maybeFolder;
 
@@ -191,18 +191,18 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(rid);
 	// Extract and separate file name from the rest of the path
-	auto pathHashes = this->getPathHashes(path);
+	auto pathHashes = getPathHashes(path);
 	uint32_t fileHash = pathHashes.back();
 	pathHashes.pop_back();
 
-	auto maybeFolder = this->findDirectory(pathHashes);
+	auto maybeFolder = findDirectory(pathHashes);
 	if (!maybeFolder) return nullptr;
 	FolderEntry folder = *maybeFolder;
 
 	if (folder.nextFile == kNoEntry)
 		return nullptr;
 
-	auto maybeFile = this->findFile(folder, fileHash);
+	auto maybeFile = findFile(folder, fileHash);
 	if (!maybeFile) return nullptr;
 	FileEntry file = *maybeFile;
 
@@ -218,21 +218,21 @@ Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 bool RMDPArchive::hasResource(const std::string &rid) const {
 	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(rid);
 	// Extract and separate file name from the rest of the path
-	auto pathHashes = this->getPathHashes(path);
+	auto pathHashes = getPathHashes(path);
 	uint32_t fileHash = pathHashes.back();
 	pathHashes.pop_back();
 
-	auto maybeFolder = this->findDirectory(pathHashes);
+	auto maybeFolder = findDirectory(pathHashes);
 	if (!maybeFolder) return false;
 	FolderEntry folder = *maybeFolder;
 
-	auto maybeFile = this->findFile(folder, fileHash);
+	auto maybeFile = findFile(folder, fileHash);
 	return maybeFile.has_value();
 }
 
 bool RMDPArchive::hasDirectory(const std::string &directory) const {
 	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(directory);
-	auto maybeFolder = this->findDirectory(path);
+	auto maybeFolder = findDirectory(path);
 	return maybeFolder.has_value();
 }
 
@@ -259,7 +259,7 @@ RMDPArchive::FolderEntry RMDPArchive::readFolder(Common::ReadStream *bin, Common
 	bin->skip(4); // Unknown value
 
 	uint32_t nameOffset = end.readUint32();
-	entry.name = this->readEntryName(bin, nameOffset, nameSize);
+	entry.name = readEntryName(bin, nameOffset, nameSize);
 
 	entry.nextLowerFolder = end.readUint32();
 	entry.nextFile = end.readUint32();
@@ -283,7 +283,7 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 	_fileEntries.resize(numFiles);
 
 	for (auto &entry : _folderEntries)
-		entry = this->readFolder(bin, end, nameSize);
+		entry = readFolder(bin, end, nameSize);
 
 	for (auto &entry : _fileEntries) {
 		entry.nameHash = end.readUint32();
@@ -292,7 +292,7 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 		entry.flags = end.readUint32();
 
 		uint32_t nameOffset = end.readUint32();
-		entry.name = this->readEntryName(bin, nameOffset, nameSize);
+		entry.name = readEntryName(bin, nameOffset, nameSize);
 
 		uint32_t testHash = Common::crc32(Common::toLower(entry.name));
 		if (entry.nameHash != testHash)
@@ -324,7 +324,7 @@ void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream
 	_fileEntries.resize(numFiles);
 
 	for (auto &entry : _folderEntries) 
-		entry = this->readFolder(bin, end, nameSize);
+		entry = readFolder(bin, end, nameSize);
 
 	for (auto &entry : _fileEntries) {
 		entry.nameHash = end.readUint32();
@@ -333,7 +333,7 @@ void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream
 		entry.flags = end.readUint32();
 
 		uint32_t nameOffset = end.readUint32();
-		entry.name = this->readEntryName(bin, nameOffset, nameSize);
+		entry.name = readEntryName(bin, nameOffset, nameSize);
 
 		uint32_t testHash = Common::crc32(Common::toLower(entry.name));
 		if (entry.nameHash != testHash)
@@ -366,7 +366,7 @@ void RMDPArchive::loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream
 	_fileEntries.resize(numFiles);
 
 	for (auto &entry : _folderEntries)
-		entry = this->readFolder(bin, end, nameSize);
+		entry = readFolder(bin, end, nameSize);
 	
 	// TO-DO: Fill in _fileEntries array
 }
