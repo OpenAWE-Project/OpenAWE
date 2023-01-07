@@ -28,7 +28,7 @@ namespace Common {
 
 class EndianReadStream {
 public:
-	/*
+	/*!
 	 * Create a ReadStream wrapper that has a predefined
 	 * endianness.
 	 */
