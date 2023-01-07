@@ -18,49 +18,27 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sstream>
-#include <iostream>
+#ifndef AWE_PATH_H
+#define AWE_PATH_H
 
-#include <zlib.h>
+#include <string>
 
-#include "strutil.h"
+#include "src/common/strutil.h"
 
-namespace Common {
+namespace AWE {
 
-std::string toLower(std::string str) {
-	std::stringstream ss;
-
-	for (const auto &c : str) {
-		ss << static_cast<char>(std::tolower(c));
-	}
-
-	return ss.str();
+/*!
+ * An utility function that normalizes file path by:
+ * - replacing \ with /
+ * - lowercasing the path
+ */
+inline std::string getNormalizedPath(const std::string &path) {
+	std::string lower = Common::toLower(path);
+	uint64_t pos = std::string::npos;
+	while ((pos = lower.find("\\")) != std::string::npos) lower.replace(pos, 1, "/", 1);
+	return lower;
 }
 
-std::string toUpper(std::string str) {
-	std::stringstream ss;
+};
 
-	for (const auto &c : str) {
-		ss << static_cast<char>(std::toupper(c));
-	}
-
-	return ss.str();
-}
-
-bool contains(const std::string &str, const std::string &s) {
-	return str.find(s) != std::string::npos;
-}
-
-std::vector<std::string> split(const std::string &str, const std::regex &split) {
-	std::vector<std::string> result;
-
-	std::copy(
-			std::sregex_token_iterator(str.begin(), str.end(), split, -1),
-			std::sregex_token_iterator(),
-			std::back_inserter(result)
-	);
-
-	return result;
-}
-
-}
+#endif // AWE_PATH_H
