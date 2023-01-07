@@ -27,6 +27,7 @@
 #include <fmt/format.h>
 #include <zlib.h>
 
+#include "src/awe/path.h"
 #include "src/common/endianreadstream.h"
 #include "src/common/strutil.h"
 #include "src/common/memreadstream.h"
@@ -133,7 +134,7 @@ std::optional<RMDPArchive::FileEntry> RMDPArchive::findFile(const FolderEntry &f
 }
 
 std::vector<size_t> RMDPArchive::getDirectoryResources(const std::string &directory) {
-	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(directory);
+	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(directory);
 	auto maybeFolder = this->findDirectory(path);
 	if (!maybeFolder) return {};
 	FolderEntry folder = *maybeFolder;
@@ -188,7 +189,7 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 }
 
 Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
-	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(rid);
+	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(rid);
 	// Extract and separate file name from the rest of the path
 	auto pathHashes = this->getPathHashes(path);
 	uint32_t fileHash = pathHashes.back();
@@ -215,7 +216,7 @@ Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 }
 
 bool RMDPArchive::hasResource(const std::string &rid) const {
-	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(rid);
+	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(rid);
 	// Extract and separate file name from the rest of the path
 	auto pathHashes = this->getPathHashes(path);
 	uint32_t fileHash = pathHashes.back();
@@ -230,7 +231,7 @@ bool RMDPArchive::hasResource(const std::string &rid) const {
 }
 
 bool RMDPArchive::hasDirectory(const std::string &directory) const {
-	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(directory);
+	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(directory);
 	auto maybeFolder = this->findDirectory(path);
 	return maybeFolder.has_value();
 }
