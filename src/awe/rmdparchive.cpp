@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <cassert>
+#include <algorithm>
 #include <optional>
 #include <regex>
 #include <vector>
@@ -36,7 +37,16 @@
 
 #include "rmdparchive.h"
 
-static const uint32_t kNoEntry = 0xFFFFFFFF;
+static const uint32_t kNoEntry32 = 0xFFFFFFFF;
+static const uint64_t kNoEntry64 = 0xFFFFFFFFFFFFFFFF;
+
+enum ArchiveVersion {
+	AlanWake = 2,
+	Nightmare = 7,
+	QuantumBreak = 8
+};
+
+const unsigned int got64bitFolderPointers[] = { QuantumBreak };
 
 namespace AWE {
 
@@ -44,20 +54,20 @@ RMDPArchive::RMDPArchive(Common::ReadStream *bin, Common::ReadStream *rmdp) : _r
 	_littleEndian = bin->readByte() == 0;
 	Common::EndianReadStream end = Common::EndianReadStream(bin, !_littleEndian);
 
-	const uint32_t version = end.readUint32();
+	_version = end.readUint32();
 
-	switch (version) {
-		case 2: // Alan Wake
+	switch (_version) {
+		case AlanWake:
 			loadHeaderV2(bin, end);
 			break;
-		case 7: // Alan Wakes American Nightmare
+		case Nightmare:
 			loadHeaderV7(bin, end);
 			break;
-		case 8: // Quantum Break
+		case QuantumBreak:
 			loadHeaderV8(bin, end);
 			break;
 		default:
-			throw CreateException("Unknown RMDP Archive version {}", version);
+			throw CreateException("Unknown RMDP Archive version {}", _version);
 	}
 
 	delete bin;
@@ -65,6 +75,26 @@ RMDPArchive::RMDPArchive(Common::ReadStream *bin, Common::ReadStream *rmdp) : _r
 
 size_t RMDPArchive::getNumResources() const {
 	return _fileEntries.size();
+}
+
+bool RMDPArchive::hasNextFolder(RMDPArchive::FolderEntry &folder) const{
+	std::vector<unsigned int> with64bit(std::begin(got64bitFolderPointers), std::end(got64bitFolderPointers));
+	std::vector<unsigned int>::iterator containsVersion = std::find(with64bit.begin(), with64bit.end(), _version);
+	if (containsVersion != with64bit.end()) {
+		return folder.nextNeighbourFolder != kNoEntry64;
+	} else {
+		return folder.nextNeighbourFolder != kNoEntry32;
+	}
+}
+
+bool RMDPArchive::hasPrevFolder(RMDPArchive::FolderEntry &folder) const{
+	std::vector<unsigned int> with64bit(std::begin(got64bitFolderPointers), std::end(got64bitFolderPointers));
+	std::vector<unsigned int>::iterator containsVersion = std::find(with64bit.begin(), with64bit.end(), _version);
+	if (containsVersion != with64bit.end()) {
+		return folder.prevFolder != kNoEntry64;
+	} else {
+		return folder.prevFolder != kNoEntry32;
+	}
 }
 
 std::vector<uint32_t> RMDPArchive::getPathHashes(std::string &path) const{
@@ -85,13 +115,13 @@ std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::string &
 	auto pathHashes = getPathHashes(path);
 
 	for (uint32_t nameHash : pathHashes) {
-		if (folder.nextLowerFolder == kNoEntry)
+		if (folder.nextLowerFolder == kNoEntry32)
 			return {};
 
 		folder = _folderEntries[folder.nextLowerFolder];
 
 		while (nameHash != folder.nameHash) {
-			if (folder.nextNeighbourFolder == kNoEntry)
+			if (!hasNextFolder(folder))
 				return {};
 			folder = _folderEntries[folder.nextNeighbourFolder];
 		}
@@ -105,13 +135,13 @@ std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::vector<u
 	if (pathHashes.empty()) return folder;
 
 	for (uint32_t nameHash : pathHashes) {
-		if (folder.nextLowerFolder == kNoEntry)
+		if (folder.nextLowerFolder == kNoEntry32)
 			return {};
 
 		folder = _folderEntries[folder.nextLowerFolder];
 
 		while (nameHash != folder.nameHash) {
-			if (folder.nextNeighbourFolder == kNoEntry)
+			if (!hasNextFolder(folder))
 				return {};
 			folder = _folderEntries[folder.nextNeighbourFolder];
 		}
@@ -121,12 +151,12 @@ std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::vector<u
 }
 
 std::optional<RMDPArchive::FileEntry> RMDPArchive::findFile(const FolderEntry &folder, const uint32_t nameHash) const {
-	if (folder.nextFile == kNoEntry)
+	if (folder.nextFile == kNoEntry32)
 		return {};
 	FileEntry file = _fileEntries[folder.nextFile];
 
 	while (file.nameHash != nameHash) {
-		if (file.nextFile == kNoEntry)
+		if (file.nextFile == kNoEntry32)
 			return {};
 		file = _fileEntries[file.nextFile];
 	}
@@ -139,14 +169,14 @@ std::vector<size_t> RMDPArchive::getDirectoryResources(const std::string &direct
 	if (!maybeFolder) return {};
 	FolderEntry folder = *maybeFolder;
 
-	if (folder.nextFile == kNoEntry)
+	if (folder.nextFile == kNoEntry32)
 		return {};
 
 	std::vector<size_t> indices;
 	FileEntry file = _fileEntries[folder.nextFile];
 	indices.emplace_back(folder.nextFile);
 
-	while (file.nextFile != kNoEntry) {
+	while (file.nextFile != kNoEntry32) {
 		indices.emplace_back(file.nextFile);
 		file = _fileEntries[file.nextFile];
 	}
@@ -168,7 +198,9 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 	std::string path = fileEntry.name;
 
 	// Check if the file is in the root directory
-	if (fileEntry.prevFolder == kNoEntry)
+	// Note: it may require better checking in future,
+	// since for folders pointer size here varies
+	if (fileEntry.prevFolder == kNoEntry32)
 		return path;
 
 	// Get the first folder entry
@@ -176,7 +208,7 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 	path = folderEntry.name + "/" + path;
 
 	// Iterate over all preceeding folder entries
-	while (folderEntry.prevFolder != kNoEntry) {
+	while (hasPrevFolder(folderEntry)) {
 		folderEntry = _folderEntries[folderEntry.prevFolder];
 		if (!folderEntry.name.empty())
 			path = folderEntry.name + "/" + path;
@@ -199,7 +231,7 @@ Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 	if (!maybeFolder) return nullptr;
 	FolderEntry folder = *maybeFolder;
 
-	if (folder.nextFile == kNoEntry)
+	if (folder.nextFile == kNoEntry32)
 		return nullptr;
 
 	auto maybeFile = findFile(folder, fileHash);
@@ -238,7 +270,7 @@ bool RMDPArchive::hasDirectory(const std::string &directory) const {
 
 std::string RMDPArchive::readEntryName(Common::ReadStream *bin, uint32_t offset, uint32_t nameSize) {
 	std::string result;
-	if (offset != kNoEntry) {
+	if (offset != kNoEntry32) {
 		size_t lastPos = bin->pos();
 		bin->seek(-static_cast<int>(nameSize) + static_cast<int>(offset), Common::ReadStream::END);
 		result = bin->readNullTerminatedString();
@@ -247,23 +279,6 @@ std::string RMDPArchive::readEntryName(Common::ReadStream *bin, uint32_t offset,
 		result = "";
 	}
 	return result;
-}
-
-RMDPArchive::FolderEntry RMDPArchive::readFolder(Common::ReadStream *bin, Common::EndianReadStream &end, uint32_t nameSize) {
-	// Since folder struct remains the same through v2/7/8 headers
-	FolderEntry entry;
-	entry.nameHash = end.readUint32();
-	entry.nextNeighbourFolder = end.readUint32();
-	entry.prevFolder = end.readUint32();
-
-	bin->skip(4); // Unknown value
-
-	uint32_t nameOffset = end.readUint32();
-	entry.name = readEntryName(bin, nameOffset, nameSize);
-
-	entry.nextLowerFolder = end.readUint32();
-	entry.nextFile = end.readUint32();
-	return entry;
 }
 
 void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream &end) {
@@ -282,8 +297,19 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 	_folderEntries.resize(numFolders);
 	_fileEntries.resize(numFiles);
 
-	for (auto &entry : _folderEntries)
-		entry = readFolder(bin, end, nameSize);
+	for (auto &entry : _folderEntries) {
+		entry.nameHash = end.readUint32();
+		entry.nextNeighbourFolder = end.readUint32();
+		entry.prevFolder = end.readUint32();
+
+		bin->skip(4); // Unknown value
+
+		uint32_t nameOffset = end.readUint32();
+		entry.name = readEntryName(bin, nameOffset, nameSize);
+
+		entry.nextLowerFolder = end.readUint32();
+		entry.nextFile = end.readUint32();
+	}
 
 	for (auto &entry : _fileEntries) {
 		entry.nameHash = end.readUint32();
@@ -323,8 +349,19 @@ void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream
 	_folderEntries.resize(numFolders);
 	_fileEntries.resize(numFiles);
 
-	for (auto &entry : _folderEntries) 
-		entry = readFolder(bin, end, nameSize);
+	for (auto &entry : _folderEntries) {
+		entry.nameHash = end.readUint32();
+		entry.nextNeighbourFolder = end.readUint32();
+		entry.prevFolder = end.readUint32();
+
+		bin->skip(4); // Unknown value
+
+		uint32_t nameOffset = end.readUint32();
+		entry.name = readEntryName(bin, nameOffset, nameSize);
+
+		entry.nextLowerFolder = end.readUint32();
+		entry.nextFile = end.readUint32();
+	}
 
 	for (auto &entry : _fileEntries) {
 		entry.nameHash = end.readUint32();
@@ -365,8 +402,19 @@ void RMDPArchive::loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream
 	_folderEntries.resize(numFolders);
 	_fileEntries.resize(numFiles);
 
-	for (auto &entry : _folderEntries)
-		entry = readFolder(bin, end, nameSize);
+	for (auto &entry : _folderEntries) {
+		entry.nameHash = end.readUint32();
+		entry.nextNeighbourFolder = end.readUint64();
+		entry.prevFolder = end.readUint64();
+
+		bin->skip(4); // Unknown value
+
+		uint32_t nameOffset = end.readUint32();
+		entry.name = readEntryName(bin, nameOffset, nameSize);
+
+		entry.nextLowerFolder = end.readUint32();
+		entry.nextFile = end.readUint32();
+	}
 	
 	// TO-DO: Fill in _fileEntries array
 }

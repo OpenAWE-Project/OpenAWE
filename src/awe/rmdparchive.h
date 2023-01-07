@@ -156,9 +156,9 @@ private:
 		std::string name;
 		uint32_t nameHash;
 		uint32_t nextLowerFolder;
-		uint32_t nextNeighbourFolder;
+		uint64_t nextNeighbourFolder = 0;
 		uint32_t nextFile;
-		uint32_t prevFolder;
+		uint64_t prevFolder = 0;
 	};
 
 	/*!
@@ -178,6 +178,22 @@ private:
 	};
 
 	/*!
+	 * An utility function that checks whether given folder's
+	 * nextNeighbourFolder field is pointing to an actual address 
+	 * or not. Depending on a header version, this check might
+	 * slightly vary. 
+	 */
+	bool hasNextFolder(FolderEntry &folder) const;
+
+	/*!
+	 * An utility function that checks whether given folder's
+	 * prevFolder field is pointing to an actual address 
+	 * or not. Depending on a header version, this check might
+	 * slightly vary. 
+	 */
+	bool hasPrevFolder(FolderEntry &folder) const;
+
+	/*!
 	 * A helper function that navigates through _folderEntries under
 	 * path gives as a string.
 	 *
@@ -194,16 +210,6 @@ private:
 	std::optional<FolderEntry> findDirectory(std::vector<uint32_t> &pathHashes) const;
 
 	/*!
-	 * A helper function that fills in known FolderEntry fields.
-	 * 
-	 * \param bin the stream from which to load the fields
-	 * \param end stream wrapper with fixed endianness
-	 * \param nameSize Max name size in bytes, obtained from
-	 * earlier file headers.
-	 */
-	FolderEntry readFolder(Common::ReadStream *bin, Common::EndianReadStream &end, uint32_t nameSize);
-
-	/*!
 	 * A helper functon that find a file in a given folder by
 	 * its name hash value.
 	 */
@@ -211,6 +217,7 @@ private:
 
 	bool _pathPrefix;
 	bool _littleEndian;
+	uint32_t _version;
 
 	std::vector<FolderEntry> _folderEntries;
 	std::vector<FileEntry> _fileEntries;
