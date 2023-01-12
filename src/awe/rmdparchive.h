@@ -178,30 +178,6 @@ private:
 	};
 
 	/*!
-	 * An utility function that checks whether given folder's
-	 * nextNeighbourFolder field is pointing to an actual address 
-	 * or not. Depending on a header version, this check might
-	 * slightly vary. 
-	 */
-	bool hasNextFolder(FolderEntry &folder) const;
-
-	/*!
-	 * An utility function that checks whether given folder's
-	 * prevFolder field is pointing to an actual address 
-	 * or not. Depending on a header version, this check might
-	 * slightly vary. 
-	 */
-	bool hasPrevFolder(FolderEntry &folder) const;
-
-	/*!
-	 * A helper function that navigates through _folderEntries under
-	 * path gives as a string.
-	 *
-	 * \return folder entry, if it exists under giver path
-	 */
-	std::optional<FolderEntry> findDirectory(std::string &path) const;
-
-	/*!
 	 * A helper function that navigates through _folderEntries under
 	 * path given as an array of hashes.
 	 *
