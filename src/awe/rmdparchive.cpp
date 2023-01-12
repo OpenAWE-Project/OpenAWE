@@ -98,7 +98,7 @@ std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(const std::ve
 		folder = _folderEntries[folder.nextLowerFolder];
 
 		while (nameHash != folder.nameHash) {
-			if (EXTEND_INT(folder.nextNeighbourFolder) == kNoEntry64)
+			if (folder.nextNeighbourFolder == kNoEntry64)
 				return {};
 			folder = _folderEntries[folder.nextNeighbourFolder];
 		}
@@ -167,7 +167,7 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 	path = folderEntry.name + "/" + path;
 
 	// Iterate over all preceeding folder entries
-	while (EXTEND_INT(folderEntry.prevFolder) != kNoEntry64) {
+	while (folderEntry.prevFolder != kNoEntry64) {
 		folderEntry = _folderEntries[folderEntry.prevFolder];
 		if (!folderEntry.name.empty())
 			path = folderEntry.name + "/" + path;
@@ -260,7 +260,9 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 	for (auto &entry : _folderEntries) {
 		entry.nameHash = end.readUint32();
 		entry.nextNeighbourFolder = end.readUint32();
+		entry.nextNeighbourFolder = EXTEND_INT(entry.nextNeighbourFolder);
 		entry.prevFolder = end.readUint32();
+		entry.prevFolder = EXTEND_INT(entry.prevFolder);
 
 		bin->skip(4); // Unknown value
 
@@ -312,7 +314,9 @@ void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream
 	for (auto &entry : _folderEntries) {
 		entry.nameHash = end.readUint32();
 		entry.nextNeighbourFolder = end.readUint32();
+		entry.nextNeighbourFolder = EXTEND_INT(entry.nextNeighbourFolder);
 		entry.prevFolder = end.readUint32();
+		entry.prevFolder = EXTEND_INT(entry.prevFolder);
 
 		bin->skip(4); // Unknown value
 
