@@ -28,25 +28,24 @@
 #include <fmt/format.h>
 #include <zlib.h>
 
-#include "src/awe/path.h"
 #include "src/common/endianreadstream.h"
 #include "src/common/strutil.h"
 #include "src/common/memreadstream.h"
 #include "src/common/exception.h"
 #include "src/common/crc32.h"
+#include "src/awe/path.h"
 
 #include "rmdparchive.h"
 
 static const uint32_t kNoEntry32 = 0xFFFFFFFF;
 static const uint64_t kNoEntry64 = 0xFFFFFFFFFFFFFFFF;
+#define EXTEND_INT(value) ((value == kNoEntry32) ? kNoEntry64 : value)
 
-enum ArchiveVersion {
-	AlanWake = 2,
-	Nightmare = 7,
-	QuantumBreak = 8
+enum kArchiveVersion {
+	kVersionAlanWake = 2,
+	kVersionNightmare = 7,
+	kVersionQuantumBreak = 8
 };
-
-const unsigned int got64bitFolderPointers[] = { QuantumBreak };
 
 namespace AWE {
 
@@ -57,13 +56,13 @@ RMDPArchive::RMDPArchive(Common::ReadStream *bin, Common::ReadStream *rmdp) : _r
 	_version = end.readUint32();
 
 	switch (_version) {
-		case AlanWake:
+		case kVersionAlanWake:
 			loadHeaderV2(bin, end);
 			break;
-		case Nightmare:
+		case kVersionNightmare:
 			loadHeaderV7(bin, end);
 			break;
-		case QuantumBreak:
+		case kVersionQuantumBreak:
 			loadHeaderV8(bin, end);
 			break;
 		default:
@@ -77,27 +76,7 @@ size_t RMDPArchive::getNumResources() const {
 	return _fileEntries.size();
 }
 
-bool RMDPArchive::hasNextFolder(RMDPArchive::FolderEntry &folder) const{
-	std::vector<unsigned int> with64bit(std::begin(got64bitFolderPointers), std::end(got64bitFolderPointers));
-	std::vector<unsigned int>::iterator containsVersion = std::find(with64bit.begin(), with64bit.end(), _version);
-	if (containsVersion != with64bit.end()) {
-		return folder.nextNeighbourFolder != kNoEntry64;
-	} else {
-		return folder.nextNeighbourFolder != kNoEntry32;
-	}
-}
-
-bool RMDPArchive::hasPrevFolder(RMDPArchive::FolderEntry &folder) const{
-	std::vector<unsigned int> with64bit(std::begin(got64bitFolderPointers), std::end(got64bitFolderPointers));
-	std::vector<unsigned int>::iterator containsVersion = std::find(with64bit.begin(), with64bit.end(), _version);
-	if (containsVersion != with64bit.end()) {
-		return folder.prevFolder != kNoEntry64;
-	} else {
-		return folder.prevFolder != kNoEntry32;
-	}
-}
-
-std::vector<uint32_t> RMDPArchive::getPathHashes(std::string &path) const{
+std::vector<uint32_t> RMDPArchive::getPathHashes(std::string &path) const {
 	std::vector<std::string> pathNames = Common::split(path, std::regex("/"));
 	std::vector<uint32_t> pathHashes;
 	pathHashes.resize(pathNames.size());
@@ -108,29 +87,7 @@ std::vector<uint32_t> RMDPArchive::getPathHashes(std::string &path) const{
 	return pathHashes;
 }
 
-std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::string &path) const{
-	FolderEntry folder = _folderEntries.front();
-	if (path.empty()) return folder;
-
-	auto pathHashes = getPathHashes(path);
-
-	for (uint32_t nameHash : pathHashes) {
-		if (folder.nextLowerFolder == kNoEntry32)
-			return {};
-
-		folder = _folderEntries[folder.nextLowerFolder];
-
-		while (nameHash != folder.nameHash) {
-			if (!hasNextFolder(folder))
-				return {};
-			folder = _folderEntries[folder.nextNeighbourFolder];
-		}
-	}
-
-	return folder;
-}
-
-std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::vector<uint32_t> &pathHashes) const{
+std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::vector<uint32_t> &pathHashes) const {
 	FolderEntry folder = _folderEntries.front();
 	if (pathHashes.empty()) return folder;
 
@@ -141,7 +98,7 @@ std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::vector<u
 		folder = _folderEntries[folder.nextLowerFolder];
 
 		while (nameHash != folder.nameHash) {
-			if (!hasNextFolder(folder))
+			if (EXTEND_INT(folder.nextNeighbourFolder) == kNoEntry64)
 				return {};
 			folder = _folderEntries[folder.nextNeighbourFolder];
 		}
@@ -165,7 +122,9 @@ std::optional<RMDPArchive::FileEntry> RMDPArchive::findFile(const FolderEntry &f
 
 std::vector<size_t> RMDPArchive::getDirectoryResources(const std::string &directory) {
 	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(directory);
-	auto maybeFolder = findDirectory(path);
+	auto pathHashes = getPathHashes(path);
+
+	auto maybeFolder = findDirectory(pathHashes);
 	if (!maybeFolder) return {};
 	FolderEntry folder = *maybeFolder;
 
@@ -208,7 +167,7 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 	path = folderEntry.name + "/" + path;
 
 	// Iterate over all preceeding folder entries
-	while (hasPrevFolder(folderEntry)) {
+	while (EXTEND_INT(folderEntry.prevFolder) != kNoEntry64) {
 		folderEntry = _folderEntries[folderEntry.prevFolder];
 		if (!folderEntry.name.empty())
 			path = folderEntry.name + "/" + path;
@@ -264,7 +223,8 @@ bool RMDPArchive::hasResource(const std::string &rid) const {
 
 bool RMDPArchive::hasDirectory(const std::string &directory) const {
 	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(directory);
-	auto maybeFolder = findDirectory(path);
+	auto pathHashes = getPathHashes(path);
+	auto maybeFolder = findDirectory(pathHashes);
 	return maybeFolder.has_value();
 }
 
