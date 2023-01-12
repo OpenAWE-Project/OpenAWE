@@ -183,7 +183,7 @@ private:
 	 *
 	 * \return folder entry, if it exists under giver path
 	 */
-	std::optional<FolderEntry> findDirectory(std::vector<uint32_t> &pathHashes) const;
+	std::optional<FolderEntry> findDirectory(const std::vector<uint32_t> &pathHashes) const;
 
 	/*!
 	 * A helper functon that find a file in a given folder by
