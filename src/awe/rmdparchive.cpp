@@ -87,7 +87,7 @@ std::vector<uint32_t> RMDPArchive::getPathHashes(std::string &path) const {
 	return pathHashes;
 }
 
-std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(std::vector<uint32_t> &pathHashes) const {
+std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(const std::vector<uint32_t> &pathHashes) const {
 	FolderEntry folder = _folderEntries.front();
 	if (pathHashes.empty()) return folder;
 
