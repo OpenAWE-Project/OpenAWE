@@ -59,10 +59,16 @@ public:
 	uint64_t readUint64BE();
 
 	/*!
-	 * Read a 32 bit little endian signed int.
-	 * \return the 32 bit value
+	 * Read a 64 bit little endian signed int
+	 * \return the 64bit value
 	 */
-	int32_t readSint32LE();
+	int64_t readSint64LE();
+
+	/*!
+	 * Read a 64 bit big endian signed int
+	 * \return the 64bit value
+	 */
+	int64_t readSint64BE();
 
 	/*!
 	 * Read a 32 bit little endian unsigned int.
@@ -75,6 +81,18 @@ public:
 	 * \return the 32 bit value
 	 */
 	uint32_t readUint32BE();
+
+	/*!
+	 * Read a 32 bit little endian signed int.
+	 * \return the 32 bit value
+	 */
+	int32_t readSint32LE();
+
+	/*!
+	 * Read a 32 bit big endian signed int.
+	 * \return the 32 bit value
+	 */
+	uint32_t readSint32BE();
 
 	/*!
 	 * Read the next 16 bit unsigned integer as little
@@ -96,6 +114,13 @@ public:
 	 * \return the 16 bit value
 	 */
 	int16_t readSint16LE();
+
+	/*!
+	 * Read the next 16 bit signed integer as big
+	 * endian value
+	 * \return the 16 bit value
+	 */
+	int16_t readSint16BE();
 
 	/*!
 	 * Read a 32 bit little endian floating point value

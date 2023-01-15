@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
+
 #include <iostream>
 #include <regex>
 
@@ -25,6 +27,7 @@
 #include "src/common/readstream.h"
 #include "src/common/memreadstream.h"
 #include "src/common/memwritestream.h"
+#include "bit_cast.h"
 
 namespace Common {
 
@@ -54,13 +57,12 @@ uint64_t ReadStream::readUint64BE() {
 	return value;
 }
 
-int32_t ReadStream::readSint32LE() {
-	int32_t value;
-	read(&value, sizeof(int32_t));
-#ifdef BIG_ENDIAN_SYSTEM
-	value = swapBytes(value);
-#endif // BIG_ENDIAN
-	return value;
+int64_t ReadStream::readSint64LE() {
+	return Common::bit_cast<int64_t>(readUint64LE());
+}
+
+int64_t ReadStream::readSint64BE() {
+	return Common::bit_cast<int64_t>(readUint64BE());
 }
 
 uint32_t ReadStream::readUint32LE() {
@@ -79,6 +81,14 @@ uint32_t ReadStream::readUint32BE() {
 	value = swapBytes(value);
 #endif // LITTLE_ENDIAN
 	return value;
+}
+
+int32_t ReadStream::readSint32LE() {
+	return Common::bit_cast<int32_t>(readUint32LE());
+}
+
+uint32_t ReadStream::readSint32BE() {
+	return Common::bit_cast<int32_t>(readUint32BE());
 }
 
 uint16_t ReadStream::readUint16LE() {
@@ -100,12 +110,11 @@ uint16_t ReadStream::readUint16BE() {
 }
 
 int16_t ReadStream::readSint16LE() {
-	int16_t value;
-	read(&value, sizeof(int16_t));
-#ifdef BIG_ENDIAN_SYSTEM
-	value = swapBytes(value);
-#endif // BIG_ENDIAN
-	return value;
+	return Common::bit_cast<int16_t>(readUint16LE());
+}
+
+int16_t ReadStream::readSint16BE() {
+	return Common::bit_cast<int16_t>(readUint16BE());
 }
 
 float ReadStream::readIEEEFloatLE() {
