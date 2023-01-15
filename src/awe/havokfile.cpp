@@ -29,6 +29,7 @@
 
 #include "src/common/exception.h"
 #include "src/common/nurbs.h"
+#include "src/common/bitstream.h"
 
 #include "src/awe/havokfile.h"
 
@@ -321,17 +322,16 @@ glm::quat HavokFile::read40BitQuaternion(Common::ReadStream &binhkx) {
 
 	glm::quat result(0.0f, 0.0f, 0.0f, 0.0f);
 
-	const uint64_t value = binhkx.readUint64LE();
-	binhkx.skip(-3);
+	Common::BitStream8LSB bit(binhkx);
 
 	glm::i16vec4 tmp;
-	tmp.x = value & 0x0000000000000FFFu;
-	tmp.y = (value >> 12u) & 0x0000000000000FFFu;
-	tmp.z = (value >> 24u) & 0x0000000000000FFFu;
-	tmp.w = 0;
+	tmp.x = bit.read(12);
+	tmp.y = bit.read(12);
+	tmp.z = bit.read(12);
+	//binhkx.skip(-3);
 
-	const unsigned int resultShift = (value >> 36u) & 3u;
-	const bool invertSign = (value >> 38u) & 1;
+	const uint8_t shift = bit.read(2);
+	const bool invert = bit.read();
 
 	tmp -= 0x0000000000000801;
 
@@ -340,10 +340,10 @@ glm::quat HavokFile::read40BitQuaternion(Common::ReadStream &binhkx) {
 		0.0f
 	);
 	tmp2.w = std::sqrt(1.0f - glm::dot(tmp2, tmp2));
-	if (invertSign)
+	if (invert)
 		tmp2.w = -tmp2.w;
 
-	for (unsigned int i = 0; i < 3 - resultShift; ++i) {
+	for (unsigned int i = 0; i < 3 - shift; ++i) {
 		std::swap(tmp2[3 - i], tmp2[2 - i]);
 	}
 
@@ -917,29 +917,46 @@ HavokFile::hkpRigidBody HavokFile::readHkpRigidBody(Common::ReadStream &binhkx, 
 	hkpRigidBody rigidBody{};
 
 	binhkx.skip(16);
-	rigidBody.shape = readFixup(binhkx, section);
-	binhkx.skip(100);
-	uint32_t nameFixup = readFixup(binhkx, section);
-	binhkx.skip(24);
-	float friction = binhkx.readIEEEFloatLE();
-	float restitution = binhkx.readIEEEFloatLE();
 
-	binhkx.skip(132);
+	switch (_version) {
+		case kHavok550_r1: {
+			rigidBody.shape = readFixup(binhkx, section);
+			binhkx.skip(92);
+			uint32_t nameFixup = readFixup(binhkx, section);
 
-	rigidBody.position.x = binhkx.readIEEEFloatLE();
-	rigidBody.position.y = binhkx.readIEEEFloatLE();
-	rigidBody.position.z = binhkx.readIEEEFloatLE();
-	rigidBody.position.w = binhkx.readIEEEFloatLE();
+			binhkx.seek(nameFixup);
+			const std::string name = binhkx.readNullTerminatedString();
 
-	binhkx.skip(4*4*2);
+			break;
+		}
 
-	rigidBody.rotation.x = binhkx.readIEEEFloatLE();
-	rigidBody.rotation.y = binhkx.readIEEEFloatLE();
-	rigidBody.rotation.z = binhkx.readIEEEFloatLE();
-	rigidBody.rotation.w = binhkx.readIEEEFloatLE();
+		case kHavok2010_2_0_r1: {
+			rigidBody.shape = readFixup(binhkx, section);
+			binhkx.skip(100);
+			uint32_t nameFixup = readFixup(binhkx, section);
+			binhkx.skip(24);
+			float friction = binhkx.readIEEEFloatLE();
+			float restitution = binhkx.readIEEEFloatLE();
 
-	binhkx.seek(nameFixup);
-	std::string name = binhkx.readNullTerminatedString();
+			binhkx.skip(132);
+
+			rigidBody.position.x = binhkx.readIEEEFloatLE();
+			rigidBody.position.y = binhkx.readIEEEFloatLE();
+			rigidBody.position.z = binhkx.readIEEEFloatLE();
+			rigidBody.position.w = binhkx.readIEEEFloatLE();
+
+			binhkx.skip(4 * 4 * 2);
+
+			rigidBody.rotation.x = binhkx.readIEEEFloatLE();
+			rigidBody.rotation.y = binhkx.readIEEEFloatLE();
+			rigidBody.rotation.z = binhkx.readIEEEFloatLE();
+			rigidBody.rotation.w = binhkx.readIEEEFloatLE();
+
+			binhkx.seek(nameFixup);
+			std::string name = binhkx.readNullTerminatedString();
+			break;
+		}
+	}
 
 	return rigidBody;
 }
