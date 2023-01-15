@@ -34,14 +34,6 @@ namespace AWE::Script {
  */
 bool isFloat(int32_t value);
 
-/*!
- * Convert the value to a float value by reinterpreting it
- *
- * \param value The value to conver
- * \return The converted float value
- */
-float asFloat(int32_t value);
-
 } // End of namespace AWE::Script
 
 #endif //OPENAWE_FLOAT_H

@@ -33,10 +33,4 @@ bool isFloat(int32_t value) {
 	return std::abs(value) > 1000000000;
 }
 
-float asFloat(int32_t value) {
-	float floatValue;
-	std::memcpy(&floatValue, &value, sizeof(float));
-	return floatValue;
-}
-
 } // End of namespace AWE::Script
