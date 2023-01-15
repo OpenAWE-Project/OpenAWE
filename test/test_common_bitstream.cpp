@@ -72,11 +72,11 @@ TEST(BitStream, readBits_8LSB) {
 	Common::MemoryReadStream testDataStream(kTestData, sizeof(kTestData));
 	Common::BitStream8LSB bits(testDataStream);
 
-	EXPECT_EQ(bits.read(4), 8);
+	EXPECT_EQ(bits.read(4), 1);
 	EXPECT_EQ(bits.read(3), 0);
-	EXPECT_EQ(bits.read(3), 3);
+	EXPECT_EQ(bits.read(3), 6);
 	bits.skip(2);
-	EXPECT_EQ(bits.read(2), 1);
+	EXPECT_EQ(bits.read(2), 2);
 }
 
 TEST(BitStream, readBit_16BEMSB) {
@@ -138,7 +138,7 @@ TEST(BitStream, readBits_16BELSB) {
 	Common::MemoryReadStream testDataStream(kTestData, sizeof(kTestData));
 	Common::BitStream16BELSB bits(testDataStream);
 
-	EXPECT_EQ(bits.read(4), 12);
+	EXPECT_EQ(bits.read(4), 3);
 	EXPECT_EQ(bits.read(3), 2);
 	EXPECT_EQ(bits.read(3), 2);
 	bits.skip(2);
@@ -160,11 +160,11 @@ TEST(BitStream, readBits_16LELSB) {
 	Common::MemoryReadStream testDataStream(kTestData, sizeof(kTestData));
 	Common::BitStream16LELSB bits(testDataStream);
 
-	EXPECT_EQ(bits.read(4), 8);
+	EXPECT_EQ(bits.read(4), 1);
 	EXPECT_EQ(bits.read(3), 0);
-	EXPECT_EQ(bits.read(3), 3);
+	EXPECT_EQ(bits.read(3), 6);
 	bits.skip(2);
-	EXPECT_EQ(bits.read(2), 1);
+	EXPECT_EQ(bits.read(2), 2);
 }
 
 TEST(BitStream, readBit_32BEMSB) {
@@ -226,8 +226,8 @@ TEST(BitStream, readBits_32BELSB) {
 	Common::MemoryReadStream testDataStream(kTestData, sizeof(kTestData));
 	Common::BitStream32BELSB bits(testDataStream);
 
-	EXPECT_EQ(bits.read(4), 14);
-	EXPECT_EQ(bits.read(3), 3);
+	EXPECT_EQ(bits.read(4), 7);
+	EXPECT_EQ(bits.read(3), 6);
 	EXPECT_EQ(bits.read(3), 2);
 	bits.skip(2);
 	EXPECT_EQ(bits.read(2), 0);
@@ -248,10 +248,10 @@ TEST(BitStream, readBits_32LELSB) {
 	Common::MemoryReadStream testDataStream(kTestData, sizeof(kTestData));
 	Common::BitStream32LELSB bits(testDataStream);
 
-	EXPECT_EQ(bits.read(4), 8);
+	EXPECT_EQ(bits.read(4), 1);
 	EXPECT_EQ(bits.read(3), 0);
-	EXPECT_EQ(bits.read(3), 3);
+	EXPECT_EQ(bits.read(3), 6);
 	bits.skip(2);
-	EXPECT_EQ(bits.read(2), 1);
+	EXPECT_EQ(bits.read(2), 2);
 }
 

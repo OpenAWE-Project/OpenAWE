@@ -47,10 +47,15 @@ public:
 
 	uint32_t read(size_t n) {
 		uint32_t newValue = 0;
-		for (size_t i = 0; i < n; ++i) {
-			newValue <<= 1;
-			newValue |= (read() ? 1 : 0);
-		}
+		if constexpr (msb)
+			for (size_t i = 0; i < n; ++i) {
+				newValue = (read() ? 1 : 0) | (newValue << 1);
+			}
+		else
+			for (size_t i = 0; i < n; ++i) {
+				newValue |= (read() ? 1 : 0) << i;
+			}
+
 		return newValue;
 	}
 
