@@ -230,7 +230,8 @@ endif ()
 link_libraries(
         ${CMAKE_THREAD_LIBS_INIT}
 
-        glm::glm
+	$<TARGET_NAME_IF_EXISTS:glm::glm>
+	$<TARGET_NAME_IF_EXISTS:glm>
         fmt::fmt
         CLI11::CLI11
 
