@@ -201,7 +201,7 @@ Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 	_rmdp->seek(file.offset);
 	_rmdp->read(data, file.size);
 
-	assert(crc32(0L, data, file.size) == file.fileDataHash);
+	assert(Common::crc32(data, file.size) == file.fileDataHash);
 
 	return new Common::MemoryReadStream(data, file.size, true);
 }
