@@ -58,6 +58,9 @@ void RessourceManager::indexArchive(const std::string &binFile, const std::strin
 }
 
 bool RessourceManager::hasResource(const std::string &path) {
+	if (std::filesystem::is_regular_file(_rootPath + "/" + path))
+		return true;
+
 	for (const auto &archive : _archives) {
 		if (archive->hasResource(path))
 			return true;
@@ -67,6 +70,9 @@ bool RessourceManager::hasResource(const std::string &path) {
 }
 
 bool RessourceManager::hasDirectory(const std::string &path) {
+	if (std::filesystem::is_directory(_rootPath + "/" + path))
+		return true;
+
 	for (const auto &archive : _archives) {
 		if (archive->hasDirectory(path))
 			return true;
