@@ -54,6 +54,24 @@ public:
 	 */
 	uint64_t readUint64();
 
+	/*!
+	 * Read a 16 bit signed int
+	 * \return the 16bit value
+	 */
+	int16_t readSint16();
+
+	/*!
+	 * Read a 32 bit signed int
+	 * \return the 32bit value
+	 */
+	int32_t readSint32();
+
+	/*!
+	 * Read a 64 bit signed int
+	 * \return the 64bit value
+	 */
+	int64_t readSint64();
+
 private:
 	bool _bigEndian;
 	ReadStream *_parentStream;

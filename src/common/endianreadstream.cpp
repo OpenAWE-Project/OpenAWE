@@ -41,4 +41,17 @@ uint32_t EndianReadStream::readUint32() {
 uint64_t EndianReadStream::readUint64() {
     return _bigEndian ? _parentStream->readUint64BE() : _parentStream->readUint64LE();
 }
+
+int16_t EndianReadStream::readSint16() {
+	return _bigEndian ? _parentStream->readSint16BE() : _parentStream->readSint16LE();
+}
+
+int32_t EndianReadStream::readSint32() {
+	return _bigEndian ? _parentStream->readSint32BE() : _parentStream->readSint32LE();
+}
+
+int64_t EndianReadStream::readSint64() {
+	return _bigEndian ? _parentStream->readSint64BE() : _parentStream->readSint64LE();
+}
+
 }; // End of namespace Common
