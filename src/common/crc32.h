@@ -94,6 +94,22 @@ constexpr uint32_t crc32(const std::string_view &data) {
 	return hash ^ 0xFFFFFFFF;
 }
 
+/*!
+ * Calculate the crc32 hash from a raw data block
+ * \param data The data pointer to calculate the crc32 for
+ * \param length The length of the data block
+ * \return The hash caculated from the given string
+ */
+constexpr uint32_t crc32(const byte *data, size_t length) {
+	uint32_t hash = 0xFFFFFFFF;
+
+	for (size_t i = 0; i < length; i++) {
+		hash = kCRC32Table[(hash ^ data[i]) & 0xFF] ^ (hash >> 8);
+	}
+
+	return hash ^ 0xFFFFFFFF;
+}
+
 }
 
 #endif //OPENAWE_CRC32_H
