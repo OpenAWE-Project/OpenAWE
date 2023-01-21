@@ -92,7 +92,7 @@ public:
 	 * Read a 32 bit big endian signed int.
 	 * \return the 32 bit value
 	 */
-	uint32_t readSint32BE();
+	int32_t readSint32BE();
 
 	/*!
 	 * Read the next 16 bit unsigned integer as little

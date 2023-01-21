@@ -87,7 +87,7 @@ int32_t ReadStream::readSint32LE() {
 	return Common::bit_cast<int32_t>(readUint32LE());
 }
 
-uint32_t ReadStream::readSint32BE() {
+int32_t ReadStream::readSint32BE() {
 	return Common::bit_cast<int32_t>(readUint32BE());
 }
 
