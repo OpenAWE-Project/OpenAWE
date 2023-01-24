@@ -109,7 +109,7 @@ std::optional<RMDPArchive::FileEntry> RMDPArchive::findFile(const FolderEntry &f
 	FileEntry file = _fileEntries[folder.nextFile];
 
 	while (file.nameHash != nameHash) {
-		if (file.nextFile == -1)
+		if (file.nextFile == -1l)
 			return {};
 		file = _fileEntries[file.nextFile];
 	}
@@ -224,7 +224,7 @@ bool RMDPArchive::hasDirectory(const std::string &directory) const {
 	return maybeFolder.has_value();
 }
 
-std::string RMDPArchive::readEntryName(Common::ReadStream *bin, int64_t offset, uint32_t nameSize) {
+std::string RMDPArchive::readEntryName(Common::ReadStream *bin, int64_t offset, const int32_t nameSize) {
 	std::string result;
 	if (offset != -1) {
 		size_t lastPos = bin->pos();
@@ -238,7 +238,7 @@ std::string RMDPArchive::readEntryName(Common::ReadStream *bin, int64_t offset, 
 }
 
 void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream &end) {
-	// Load header version 2, used by Alan Wake
+	// Load header version 2, used by both Alan Wake and Alan Wake Remastered
 	_pathPrefix = false;
 
 	const uint32_t numFolders = end.readUint32();
@@ -253,41 +253,102 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 	_folderEntries.resize(numFolders);
 	_fileEntries.resize(numFiles);
 
-	for (auto &entry : _folderEntries) {
-		entry.nameHash = end.readUint32();
-		entry.nextNeighbourFolder = end.readSint32();
-		entry.prevFolder = end.readSint32();
+	// Now let's figure out whether we're looking at a remaster or not
+	const byte AWFileSizeBytes = 40;
+	const byte AWRFileSizeBytes = 64;
+	const byte AWFolderSizeBytes = 28;
+	const byte AWRFolderSizeBytes = 56;
+	const size_t AWStructsSize = AWFileSizeBytes * numFiles + AWFolderSizeBytes * numFolders;
+	const size_t AWRStructsSize = AWRFileSizeBytes * numFiles + AWRFolderSizeBytes * numFolders;
 
-		bin->skip(4); // Unknown value
+	// Move to the start of name space to find file + folder size
+	const size_t structStartAddress = bin->pos();
+	bin->seek(-static_cast<int>(nameSize), Common::ReadStream::END);
+	const size_t fileAndFolderSize = bin->pos() - structStartAddress;
 
-		const int32_t nameOffset = end.readSint32();
-		entry.name = readEntryName(bin, nameOffset, nameSize);
+	const bool isAlanWake = AWStructsSize == fileAndFolderSize;
+	const bool isAlanWakeRemastered = AWRStructsSize == fileAndFolderSize;
 
-		entry.nextLowerFolder = end.readSint32();
-		entry.nextFile = end.readSint32();
-	}
+	bin->seek(structStartAddress);
 
-	for (auto &entry : _fileEntries) {
-		entry.nameHash = end.readUint32();
-		entry.nextFile = end.readSint32();
-		entry.prevFolder = end.readSint32();
-		entry.flags = end.readUint32();
+	if (isAlanWake) {
+		for (auto &entry : _folderEntries) {
+			entry.nameHash = end.readUint32();
+			entry.nextNeighbourFolder = end.readSint32();
+			entry.prevFolder = end.readSint32();
 
-		const int32_t nameOffset = end.readSint32();
-		entry.name = readEntryName(bin, nameOffset, nameSize);
+			bin->skip(4); // Unknown value
 
-		const uint32_t testHash = Common::crc32(Common::toLower(entry.name));
-		if (entry.nameHash != testHash)
-			throw CreateException("Invalid name hash: expected {}, but found {}",
-									entry.nameHash,
-									testHash);
+			const int32_t nameOffset = end.readSint32();
+			entry.name = readEntryName(bin, nameOffset, nameSize);
 
-		entry.offset = end.readUint64();
-		entry.size = end.readUint64();
+			const uint32_t testHash = Common::crc32(Common::toLower(entry.name));
+			if (entry.nameHash != testHash)
+				throw CreateException("Invalid name hash: expected {}, but found {}",
+										entry.nameHash,
+										testHash);
 
-		// For some reason, Alan Wakes file data hashes are saved as little endian
-		entry.fileDataHash = bin->readUint32LE();
-	}
+			entry.nextLowerFolder = end.readSint32();
+			entry.nextFile = end.readSint32();
+		}
+
+		for (auto &entry : _fileEntries) {
+			entry.nameHash = end.readUint32();
+			entry.nextFile = end.readSint32();
+			entry.prevFolder = end.readSint32();
+			entry.flags = end.readUint32();
+
+			const int32_t nameOffset = end.readSint32();
+			entry.name = readEntryName(bin, nameOffset, nameSize);
+
+			const uint32_t testHash = Common::crc32(Common::toLower(entry.name));
+			if (entry.nameHash != testHash)
+				throw CreateException("Invalid name hash: expected {}, but found {}",
+										entry.nameHash,
+										testHash);
+
+			entry.offset = end.readUint64();
+			entry.size = end.readUint64();
+
+			entry.fileDataHash = bin->readUint32LE();
+		}
+	} else if (isAlanWakeRemastered) {
+		for (auto &entry : _folderEntries) {
+			entry.nameHash = end.readUint64();
+			entry.nextNeighbourFolder = end.readSint64();
+			entry.prevFolder = end.readSint64();
+
+			bin->skip(8); // Unknown value
+
+			const int32_t nameOffset = end.readSint64();
+			entry.name = readEntryName(bin, nameOffset, nameSize);
+
+			entry.nextLowerFolder = end.readSint64();
+			entry.nextFile = end.readSint64();
+		}
+
+		for (auto &entry : _fileEntries) {
+			entry.nameHash = end.readUint64();
+			entry.nextFile = end.readSint64();
+			entry.prevFolder = end.readSint64();
+			entry.flags = end.readUint64();
+
+			const int32_t nameOffset = end.readSint64();
+			entry.name = readEntryName(bin, nameOffset, nameSize);
+
+			const uint32_t testHash = Common::crc32(Common::toLower(entry.name));
+			if (entry.nameHash != testHash)
+				throw CreateException("Invalid name hash: expected {}, but found {}",
+										entry.nameHash,
+										testHash);
+
+			entry.offset = end.readUint64();
+			entry.size = end.readUint64();
+
+			entry.fileDataHash = bin->readUint64LE();
+		}
+	} else CreateException("Abnormal v2 header: found structures with size {}, while expected either {} or {}",
+						   fileAndFolderSize, AWStructsSize, AWRStructsSize);
 }
 
 void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream &end) {
