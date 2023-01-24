@@ -34,6 +34,7 @@ int main(int argc, char** argv) {
 	CLI::App app("Unpack bin/rmdp archive structure", "unrmdp");
 
 	std::string binFile, rmdpFile;
+	bool onlyListFiles = false;
 
 	app.add_option("binfile", binFile, "The bin file containing the archives metadata")
 			->check(CLI::ExistingFile)
@@ -42,28 +43,34 @@ int main(int argc, char** argv) {
 	app.add_option("rmdpfile", rmdpFile, "The rmdp file containing the archives raw data")
 			->check(CLI::ExistingFile)
 			->required();
+	
+	app.add_flag("-l, --list", onlyListFiles, "List files in an archive without actually extracting them");
 
 	CLI11_PARSE(app, argc, argv);
+
+	const bool extractFiles = !onlyListFiles;
 
 	AWE::RMDPArchive rmdp(
 		new Common::ReadFile(binFile),
 		new Common::ReadFile(rmdpFile)
 	);
 
-	for (int i = 0; i < rmdp.getNumResources(); ++i) {
+	for (size_t i = 0; i < rmdp.getNumResources(); ++i) {
 		const std::string path = rmdp.getResourcePath(i);
 
 		fmt::print("{}/{} {}\n", i + 1, rmdp.getNumResources(), path);
 
-		const auto resourceStream = std::unique_ptr<Common::ReadStream>(rmdp.getResource(path));
+		if (extractFiles) {
+			const auto resourceStream = std::unique_ptr<Common::ReadStream>(rmdp.getResource(path));
 
-		std::filesystem::path p(path);
-		if (!p.parent_path().empty())
-			std::filesystem::create_directories(p.parent_path());
+			std::filesystem::path p(path);
+			if (!p.parent_path().empty())
+				std::filesystem::create_directories(p.parent_path());
 
-		Common::WriteFile writeFile(p.string());
-		writeFile.writeStream(resourceStream.get());
-		writeFile.close();
+			Common::WriteFile writeFile(p.string());
+			writeFile.writeStream(resourceStream.get());
+			writeFile.close();
+		}
 	}
 
 	return EXIT_SUCCESS;
