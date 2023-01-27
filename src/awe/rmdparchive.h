@@ -139,13 +139,13 @@ private:
 	 *
 	 * \param bin the stream from which to load the name
 	 */
-	std::string readEntryName(Common::ReadStream *bin, uint32_t offset, uint32_t nameSize);
+	std::string readEntryName(Common::ReadStream *bin, int64_t offset, uint32_t nameSize);
 
 	/*!
 	 * Break down a given path into an array of CRC32 hashes
 	 * for later processing.
 	 */
-	std::vector<uint32_t> getPathHashes(std::string &path) const;
+	std::vector<uint32_t> getPathHashes(const std::string &path) const;
 	
 	/*!
 	 * Structure describing a folder entry of the loaded bin/rmdp archive
@@ -155,10 +155,10 @@ private:
 	struct FolderEntry {
 		std::string name;
 		uint32_t nameHash;
-		uint32_t nextLowerFolder;
-		uint64_t nextNeighbourFolder = 0;
-		uint32_t nextFile;
-		uint64_t prevFolder = 0;
+		int64_t nextLowerFolder;
+		int64_t nextNeighbourFolder;
+		int64_t nextFile;
+		int64_t prevFolder;
 	};
 
 	/*!
@@ -171,8 +171,8 @@ private:
 		std::string name;
 		uint32_t nameHash;
 		uint32_t fileDataHash;
-		uint32_t nextFile;
-		uint32_t prevFolder;
+		int64_t nextFile;
+		int64_t prevFolder;
 		uint32_t flags;
 		uint64_t offset, size;
 	};

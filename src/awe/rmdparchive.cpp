@@ -33,13 +33,9 @@
 #include "src/common/memreadstream.h"
 #include "src/common/exception.h"
 #include "src/common/crc32.h"
+
 #include "src/awe/path.h"
-
-#include "rmdparchive.h"
-
-static const uint32_t kNoEntry32 = 0xFFFFFFFF;
-static const uint64_t kNoEntry64 = 0xFFFFFFFFFFFFFFFF;
-#define EXTEND_INT(value) ((value == kNoEntry32) ? kNoEntry64 : value)
+#include "src/awe/rmdparchive.h"
 
 enum kArchiveVersion {
 	kVersionAlanWake = 2,
@@ -76,7 +72,7 @@ size_t RMDPArchive::getNumResources() const {
 	return _fileEntries.size();
 }
 
-std::vector<uint32_t> RMDPArchive::getPathHashes(std::string &path) const {
+std::vector<uint32_t> RMDPArchive::getPathHashes(const std::string &path) const {
 	std::vector<std::string> pathNames = Common::split(path, std::regex("/"));
 	std::vector<uint32_t> pathHashes;
 	pathHashes.resize(pathNames.size());
@@ -92,13 +88,13 @@ std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(const std::ve
 	if (pathHashes.empty()) return folder;
 
 	for (uint32_t nameHash : pathHashes) {
-		if (folder.nextLowerFolder == kNoEntry32)
+		if (folder.nextLowerFolder == -1)
 			return {};
 
 		folder = _folderEntries[folder.nextLowerFolder];
 
 		while (nameHash != folder.nameHash) {
-			if (folder.nextNeighbourFolder == kNoEntry64)
+			if (folder.nextNeighbourFolder == -1)
 				return {};
 			folder = _folderEntries[folder.nextNeighbourFolder];
 		}
@@ -108,12 +104,12 @@ std::optional<RMDPArchive::FolderEntry> RMDPArchive::findDirectory(const std::ve
 }
 
 std::optional<RMDPArchive::FileEntry> RMDPArchive::findFile(const FolderEntry &folder, const uint32_t nameHash) const {
-	if (folder.nextFile == kNoEntry32)
+	if (folder.nextFile == -1)
 		return {};
 	FileEntry file = _fileEntries[folder.nextFile];
 
 	while (file.nameHash != nameHash) {
-		if (file.nextFile == kNoEntry32)
+		if (file.nextFile == -1)
 			return {};
 		file = _fileEntries[file.nextFile];
 	}
@@ -128,14 +124,14 @@ std::vector<size_t> RMDPArchive::getDirectoryResources(const std::string &direct
 	if (!maybeFolder) return {};
 	FolderEntry folder = *maybeFolder;
 
-	if (folder.nextFile == kNoEntry32)
+	if (folder.nextFile == -1)
 		return {};
 
 	std::vector<size_t> indices;
 	FileEntry file = _fileEntries[folder.nextFile];
 	indices.emplace_back(folder.nextFile);
 
-	while (file.nextFile != kNoEntry32) {
+	while (file.nextFile != -1) {
 		indices.emplace_back(file.nextFile);
 		file = _fileEntries[file.nextFile];
 	}
@@ -159,7 +155,7 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 	// Check if the file is in the root directory
 	// Note: it may require better checking in future,
 	// since for folders pointer size here varies
-	if (fileEntry.prevFolder == kNoEntry32)
+	if (fileEntry.prevFolder == -1)
 		return path;
 
 	// Get the first folder entry
@@ -167,7 +163,7 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 	path = folderEntry.name + "/" + path;
 
 	// Iterate over all preceeding folder entries
-	while (folderEntry.prevFolder != kNoEntry64) {
+	while (folderEntry.prevFolder != -1) {
 		folderEntry = _folderEntries[folderEntry.prevFolder];
 		if (!folderEntry.name.empty())
 			path = folderEntry.name + "/" + path;
@@ -186,16 +182,16 @@ Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 	uint32_t fileHash = pathHashes.back();
 	pathHashes.pop_back();
 
-	auto maybeFolder = findDirectory(pathHashes);
+	const auto maybeFolder = findDirectory(pathHashes);
 	if (!maybeFolder) return nullptr;
 	FolderEntry folder = *maybeFolder;
 
-	if (folder.nextFile == kNoEntry32)
+	if (folder.nextFile == -1)
 		return nullptr;
 
-	auto maybeFile = findFile(folder, fileHash);
+	const auto maybeFile = findFile(folder, fileHash);
 	if (!maybeFile) return nullptr;
-	FileEntry file = *maybeFile;
+	const FileEntry &file = *maybeFile;
 
 	byte *data = new byte[file.size];
 	_rmdp->seek(file.offset);
@@ -222,15 +218,15 @@ bool RMDPArchive::hasResource(const std::string &rid) const {
 }
 
 bool RMDPArchive::hasDirectory(const std::string &directory) const {
-	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(directory);
-	auto pathHashes = getPathHashes(path);
-	auto maybeFolder = findDirectory(pathHashes);
+	const std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(directory);
+	const auto pathHashes = getPathHashes(path);
+	const auto maybeFolder = findDirectory(pathHashes);
 	return maybeFolder.has_value();
 }
 
-std::string RMDPArchive::readEntryName(Common::ReadStream *bin, uint32_t offset, uint32_t nameSize) {
+std::string RMDPArchive::readEntryName(Common::ReadStream *bin, int64_t offset, uint32_t nameSize) {
 	std::string result;
-	if (offset != kNoEntry32) {
+	if (offset != -1) {
 		size_t lastPos = bin->pos();
 		bin->seek(-static_cast<int>(nameSize) + static_cast<int>(offset), Common::ReadStream::END);
 		result = bin->readNullTerminatedString();
@@ -245,12 +241,12 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 	// Load header version 2, used by Alan Wake
 	_pathPrefix = false;
 
-	uint32_t numFolders = end.readUint32();
-	uint32_t numFiles = end.readUint32();
+	const uint32_t numFolders = end.readUint32();
+	const uint32_t numFiles = end.readUint32();
 
-	uint32_t nameSize = end.readUint32();
+	const uint32_t nameSize = end.readUint32();
 
-	std::string pathPrefix = bin->readNullTerminatedString();
+	const std::string pathPrefix = bin->readNullTerminatedString();
 
 	bin->skip(120);
 
@@ -259,30 +255,28 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 
 	for (auto &entry : _folderEntries) {
 		entry.nameHash = end.readUint32();
-		entry.nextNeighbourFolder = end.readUint32();
-		entry.nextNeighbourFolder = EXTEND_INT(entry.nextNeighbourFolder);
-		entry.prevFolder = end.readUint32();
-		entry.prevFolder = EXTEND_INT(entry.prevFolder);
+		entry.nextNeighbourFolder = end.readSint32();
+		entry.prevFolder = end.readSint32();
 
 		bin->skip(4); // Unknown value
 
-		uint32_t nameOffset = end.readUint32();
+		const int32_t nameOffset = end.readSint32();
 		entry.name = readEntryName(bin, nameOffset, nameSize);
 
-		entry.nextLowerFolder = end.readUint32();
-		entry.nextFile = end.readUint32();
+		entry.nextLowerFolder = end.readSint32();
+		entry.nextFile = end.readSint32();
 	}
 
 	for (auto &entry : _fileEntries) {
 		entry.nameHash = end.readUint32();
-		entry.nextFile = end.readUint32();
-		entry.prevFolder = end.readUint32();
+		entry.nextFile = end.readSint32();
+		entry.prevFolder = end.readSint32();
 		entry.flags = end.readUint32();
 
-		uint32_t nameOffset = end.readUint32();
+		const int32_t nameOffset = end.readSint32();
 		entry.name = readEntryName(bin, nameOffset, nameSize);
 
-		uint32_t testHash = Common::crc32(Common::toLower(entry.name));
+		const uint32_t testHash = Common::crc32(Common::toLower(entry.name));
 		if (entry.nameHash != testHash)
 			throw CreateException("Invalid name hash: expected {}, but found {}",
 									entry.nameHash,
@@ -299,12 +293,12 @@ void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream
 	// Load header version 7, used by Nightmare
 	_pathPrefix = true;
 
-	uint32_t numFolders = end.readUint32();
-	uint32_t numFiles = end.readUint32();
+	const uint32_t numFolders = end.readUint32();
+	const uint32_t numFiles = end.readUint32();
 
 	bin->skip(8); // Always 64 bit 1?
 
-	uint32_t nameSize = end.readUint32();
+	const uint32_t nameSize = end.readUint32();
 
 	bin->skip(128);
 
@@ -313,30 +307,28 @@ void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream
 
 	for (auto &entry : _folderEntries) {
 		entry.nameHash = end.readUint32();
-		entry.nextNeighbourFolder = end.readUint32();
-		entry.nextNeighbourFolder = EXTEND_INT(entry.nextNeighbourFolder);
-		entry.prevFolder = end.readUint32();
-		entry.prevFolder = EXTEND_INT(entry.prevFolder);
+		entry.nextNeighbourFolder = end.readSint32();
+		entry.prevFolder = end.readSint32();
 
 		bin->skip(4); // Unknown value
 
-		uint32_t nameOffset = end.readUint32();
+		const int32_t nameOffset = end.readSint32();
 		entry.name = readEntryName(bin, nameOffset, nameSize);
 
-		entry.nextLowerFolder = end.readUint32();
-		entry.nextFile = end.readUint32();
+		entry.nextLowerFolder = end.readSint32();
+		entry.nextFile = end.readSint32();
 	}
 
 	for (auto &entry : _fileEntries) {
 		entry.nameHash = end.readUint32();
-		entry.nextFile = end.readUint32();
-		entry.prevFolder = end.readUint32();
+		entry.nextFile = end.readSint32();
+		entry.prevFolder = end.readSint32();
 		entry.flags = end.readUint32();
 
-		uint32_t nameOffset = end.readUint32();
+		const int32_t nameOffset = end.readSint32();
 		entry.name = readEntryName(bin, nameOffset, nameSize);
 
-		uint32_t testHash = Common::crc32(Common::toLower(entry.name));
+		const uint32_t testHash = Common::crc32(Common::toLower(entry.name));
 		if (entry.nameHash != testHash)
 			throw CreateException("Invalid name hash: expected {}, but found {}",
 									entry.nameHash,
@@ -354,30 +346,37 @@ void RMDPArchive::loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream
 	// Load header version 8, used by Quantum Break
 	_pathPrefix = true;
 
-	uint32_t numFolders = end.readUint32();
-	uint32_t numFiles = end.readUint32();
+	const uint32_t numFolders = end.readUint32();
+	const uint32_t numFiles = end.readUint32();
 
 	bin->skip(8);
 
-	uint32_t nameSize = end.readUint32();
+	const uint32_t nameSize = end.readUint32();
+	const std::string pathPrefix = bin->readNullTerminatedString();
 
-	std::string pathPrefix = bin->readNullTerminatedString();
+	bin->skip(120);
 
 	_folderEntries.resize(numFolders);
 	_fileEntries.resize(numFiles);
 
 	for (auto &entry : _folderEntries) {
 		entry.nameHash = end.readUint32();
-		entry.nextNeighbourFolder = end.readUint64();
-		entry.prevFolder = end.readUint64();
+		entry.nextNeighbourFolder = end.readSint64();
+		entry.prevFolder = end.readSint64();
 
 		bin->skip(4); // Unknown value
 
-		uint32_t nameOffset = end.readUint32();
+		const int64_t nameOffset = end.readSint64();
 		entry.name = readEntryName(bin, nameOffset, nameSize);
 
-		entry.nextLowerFolder = end.readUint32();
-		entry.nextFile = end.readUint32();
+		const uint32_t testHash = Common::crc32(Common::toLower(entry.name));
+		if (entry.nameHash != testHash)
+			throw CreateException("Invalid name hash: expected {}, but found {}",
+								  entry.nameHash,
+								  testHash);
+
+		entry.nextLowerFolder = end.readSint64();
+		entry.nextFile = end.readSint64();
 	}
 	
 	// TO-DO: Fill in _fileEntries array
