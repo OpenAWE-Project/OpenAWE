@@ -291,7 +291,8 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 		entry.offset = end.readUint64();
 		entry.size = end.readUint64();
 
-		entry.fileDataHash = end.readUint32();
+		// For some reason, Alan Wakes file data hashes are saved as little endian
+		entry.fileDataHash = bin->readUint32LE();
 	}
 }
 
