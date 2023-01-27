@@ -40,7 +40,7 @@
 enum kArchiveVersion {
 	kVersionAlanWake = 2,
 	kVersionNightmare = 7,
-	kVersionQuantumBreak = 8
+	kVersionQuantumBreak = 8,
 };
 
 namespace AWE {
@@ -378,8 +378,28 @@ void RMDPArchive::loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream
 		entry.nextLowerFolder = end.readSint64();
 		entry.nextFile = end.readSint64();
 	}
-	
-	// TO-DO: Fill in _fileEntries array
+
+	for (auto &entry: _fileEntries) {
+		entry.nameHash = end.readUint32();
+		entry.nextFile = end.readSint64();
+		entry.prevFolder = end.readSint64();
+		entry.flags = end.readUint32();
+
+		const int64_t nameOffset = end.readSint64();
+		entry.name = readEntryName(bin, nameOffset, nameSize);
+
+		const uint32_t testHash = Common::crc32(Common::toLower(entry.name));
+		if (entry.nameHash != testHash)
+			throw CreateException("Invalid name hash: expected {}, but found {}",
+								  entry.nameHash,
+								  testHash);
+
+		entry.offset = end.readUint64();
+		entry.size = end.readUint64();
+
+		entry.fileDataHash = end.readUint32();
+		bin->skip(8); // Write Time
+	}
 }
 
 } // End of namespace AWE
