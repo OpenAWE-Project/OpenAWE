@@ -18,33 +18,23 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AWE_PATH_H
-#define AWE_PATH_H
-
-#include <string>
-
 #include "src/common/strutil.h"
+#include "src/common/path.h"
 
-namespace AWE {
+using std::string;
 
-/*!
- * An utility function that normalizes file path by:
- * - replacing \ with /
- * - lowercasing the path
- * - removing runtimedata\pc and d:/data from path
- */
-inline std::string getNormalizedPath(const std::string &path) {
-	std::string lower = Common::toLower(path);
-	uint64_t pos = std::string::npos;
+namespace Common {
+
+string getNormalizedPath(const string &path) {
+	string lower = Common::toLower(path);
+	uint64_t pos = string::npos;
 	// replace runtimedata\pc with d:
 	if (lower.find("runtimedata\\pc") == 0) lower.replace(0, 14, "d:");
 	// replace \ with /
-	while ((pos = lower.find("\\")) != std::string::npos) lower.replace(pos, 1, "/", 1);
+	while ((pos = lower.find("\\")) != string::npos) lower.replace(pos, 1, "/", 1);
 	// remove d:/data from the start of the path
 	if (lower.find("d:/data/") == 0) lower.replace(0, 8, "");
 	return lower;
 }
 
-};
-
-#endif // AWE_PATH_H
+} // End of namespace Common
