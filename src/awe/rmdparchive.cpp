@@ -26,7 +26,6 @@
 #include <vector>
 
 #include <fmt/format.h>
-#include <zlib.h>
 
 #include "src/common/endianreadstream.h"
 #include "src/common/strutil.h"
@@ -109,7 +108,7 @@ std::optional<RMDPArchive::FileEntry> RMDPArchive::findFile(const FolderEntry &f
 	FileEntry file = _fileEntries[folder.nextFile];
 
 	while (file.nameHash != nameHash) {
-		if (file.nextFile == -1l)
+		if (file.nextFile == -1)
 			return {};
 		file = _fileEntries[file.nextFile];
 	}
@@ -153,9 +152,7 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 	std::string path = fileEntry.name;
 
 	// Check if the file is in the root directory
-	// Note: it may require better checking in future,
-	// since for folders pointer size here varies
-	if (fileEntry.prevFolder == -1)
+	if (fileEntry.prevFolder == 0)
 		return path;
 
 	// Get the first folder entry
@@ -224,7 +221,7 @@ bool RMDPArchive::hasDirectory(const std::string &directory) const {
 	return maybeFolder.has_value();
 }
 
-std::string RMDPArchive::readEntryName(Common::ReadStream *bin, int64_t offset, const int32_t nameSize) {
+std::string RMDPArchive::readEntryName(Common::ReadStream *bin, int64_t offset, const uint32_t nameSize) {
 	std::string result;
 	if (offset != -1) {
 		size_t lastPos = bin->pos();
@@ -267,7 +264,7 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 	const size_t fileAndFolderSize = bin->pos() - structStartAddress;
 
 	const bool isAlanWake = AWStructsSize == fileAndFolderSize;
-	const bool isAlanWakeRemastered = AWRStructsSize == fileAndFolderSize;
+	const bool isAlanWakeRemastered = AWRStructsSize <= fileAndFolderSize;
 
 	bin->seek(structStartAddress);
 
@@ -310,38 +307,45 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 			entry.offset = end.readUint64();
 			entry.size = end.readUint64();
 
+			// For some reason, Alan Wakes file data hashes are saved as little endian
 			entry.fileDataHash = bin->readUint32LE();
 		}
 	} else if (isAlanWakeRemastered) {
+		// Since name space may not be the end of a file,
+		// We need to readjust the value
+		const uint32_t adjustedNameSize = nameSize + (fileAndFolderSize - AWRStructsSize);
+
 		for (auto &entry : _folderEntries) {
-			entry.nameHash = end.readUint64();
+			entry.nameHash = end.readUint32();
+			bin->skip(4); // 0x00000000
 			entry.nextNeighbourFolder = end.readSint64();
 			entry.prevFolder = end.readSint64();
 
 			bin->skip(8); // Unknown value
 
-			const int32_t nameOffset = end.readSint64();
-			entry.name = readEntryName(bin, nameOffset, nameSize);
+			const int64_t nameOffset = end.readSint64();
+			entry.name = readEntryName(bin, nameOffset, adjustedNameSize);
 
 			entry.nextLowerFolder = end.readSint64();
 			entry.nextFile = end.readSint64();
 		}
 
 		for (auto &entry : _fileEntries) {
-			entry.nameHash = end.readUint64();
+			entry.nameHash = end.readUint32();
+			bin->skip(4); // 0x00000000
 			entry.nextFile = end.readSint64();
 			entry.prevFolder = end.readSint64();
 			entry.flags = end.readUint64();
 
-			const int32_t nameOffset = end.readSint64();
-			entry.name = readEntryName(bin, nameOffset, nameSize);
+			const int64_t nameOffset = end.readSint64();
+			entry.name = readEntryName(bin, nameOffset, adjustedNameSize);
 
 			const uint32_t testHash = Common::crc32(Common::toLower(entry.name));
 			if (entry.nameHash != testHash)
 				throw CreateException("Invalid name hash: expected {}, but found {}",
 										entry.nameHash,
 										testHash);
-
+			
 			entry.offset = end.readUint64();
 			entry.size = end.readUint64();
 
