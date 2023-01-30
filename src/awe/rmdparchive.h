@@ -139,7 +139,7 @@ private:
 	 *
 	 * \param bin the stream from which to load the name
 	 */
-	std::string readEntryName(Common::ReadStream *bin, int64_t offset, const int32_t nameSize);
+	std::string readEntryName(Common::ReadStream *bin, int64_t offset, const uint32_t nameSize);
 
 	/*!
 	 * Break down a given path into an array of CRC32 hashes
