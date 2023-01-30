@@ -31,6 +31,7 @@
 #include <src/awe/resman.h>
 #include <src/graphics/images/tex.h>
 #include <src/common/writefile.h>
+#include <src/common/path.h>
 #include "mesh_binmsh.h"
 #include "gfxman.h"
 #include "textureman.h"
@@ -185,9 +186,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 				case 7: {
 					uint32_t length = binmsh->readUint32LE();
 					std::string file = binmsh->readFixedSizeString(length, true);
-					file = std::regex_replace(file, std::regex("runtimedata\\\\pc"), "d:");
-					file = std::regex_replace(file, std::regex("\\\\"), "/");
-					file = std::regex_replace(file, std::regex("d:/data/"), "");
+					file = Common::getNormalizedPath(file);
 
 					attributes.emplace_back(Material::Attribute(attributeName, TextureMan.getTexture(file)));
 					break;

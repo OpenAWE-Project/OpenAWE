@@ -23,6 +23,8 @@
 
 #include <fmt/format.h>
 
+#include <src/common/path.h>
+
 #include "mesh_binfol.h"
 
 namespace Graphics {
@@ -43,9 +45,7 @@ BINFOLMesh::BINFOLMesh(Common::ReadStream *binfol) {
 	uint32_t billboard3Length = binfol->readUint32LE();
 	std::string billboard3 = binfol->readFixedSizeString(billboard3Length, true);
 
-	_colorAtlas = std::regex_replace(_colorAtlas, std::regex("runtimedata\\\\pc"), "d:");
-	_colorAtlas = std::regex_replace(_colorAtlas, std::regex("\\\\"), "/");
-	_colorAtlas = std::regex_replace(_colorAtlas, std::regex("d:/data/"), "");
+	_colorAtlas = Common::getNormalizedPath(_colorAtlas);
 
 	_billboardSize.x = binfol->readIEEEFloatLE();
 	_billboardSize.y = binfol->readIEEEFloatLE();
