@@ -31,11 +31,17 @@ namespace AWE {
  * An utility function that normalizes file path by:
  * - replacing \ with /
  * - lowercasing the path
+ * - removing runtimedata\pc and d:/data from path
  */
 inline std::string getNormalizedPath(const std::string &path) {
 	std::string lower = Common::toLower(path);
 	uint64_t pos = std::string::npos;
+	// replace runtimedata\pc with d:
+	if (lower.find("runtimedata\\pc") == 0) lower.replace(0, 14, "d:");
+	// replace \ with /
 	while ((pos = lower.find("\\")) != std::string::npos) lower.replace(pos, 1, "/", 1);
+	// remove d:/data from the start of the path
+	if (lower.find("d:/data/") == 0) lower.replace(0, 8, "");
 	return lower;
 }
 
