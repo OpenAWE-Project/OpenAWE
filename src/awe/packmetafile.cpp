@@ -20,9 +20,12 @@
 
 #include <vector>
 #include <regex>
-#include "packmetafile.h"
-#include "types.h"
-#include "cidfile.h"
+
+#include "src/common/path.h"
+
+#include "src/awe/types.h"
+#include "src/awe/cidfile.h"
+#include "src/awe/packmetafile.h"
 
 struct FileEntry {
 	uint32_t offset;
@@ -45,9 +48,7 @@ PACKMETAFile::PACKMETAFile(Common::ReadStream &packmeta) {
 	fileEntries.resize(numElements);
 
 	for (auto &item: fileEntries) {
-		item.name = packmeta.readNullTerminatedString();
-		item.name = std::regex_replace(item.name, std::regex("\\\\"), "/");
-		item.name = std::regex_replace(item.name, std::regex("d:/data/"), "");
+		item.name = Common::getNormalizedPath(packmeta.readNullTerminatedString());
 	}
 
 	for (auto &item: fileEntries) {

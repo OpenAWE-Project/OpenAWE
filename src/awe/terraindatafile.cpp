@@ -26,6 +26,8 @@
 #include <fmt/format.h>
 #include <glm/gtx/string_cast.hpp>
 
+#include <src/common/path.h>
+
 #include "terraindatafile.h"
 
 namespace AWE {
@@ -45,10 +47,7 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 			uint32_t fileNameLength = terrainData.readUint32LE();
 			texture = terrainData.readFixedSizeString(fileNameLength, true);
 
-			// Normalize Path
-			texture = std::regex_replace(texture, std::regex("runtimedata\\\\pc"), "d:");
-			texture = std::regex_replace(texture, std::regex("\\\\"), "/");
-			texture = std::regex_replace(texture, std::regex("d:/data/"), "");
+			texture = Common::getNormalizedPath(texture);
 		}
 
 		// Read tilesets
