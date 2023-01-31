@@ -19,9 +19,10 @@
  */
 
 #include "src/common/strutil.h"
-#include "src/common/path.h"
 
-namespace Common {
+#include "src/awe/path.h"
+
+namespace AWE {
 
 std::string getNormalizedPath(const std::string &path) {
 	std::string lower = Common::toLower(path);
@@ -33,4 +34,4 @@ std::string getNormalizedPath(const std::string &path) {
 	return lower;
 }
 
-} // End of namespace Common
+} // End of namespace AWE

@@ -32,8 +32,8 @@
 #include "src/common/memreadstream.h"
 #include "src/common/exception.h"
 #include "src/common/crc32.h"
-#include "src/common/path.h"
 
+#include "src/awe/path.h"
 #include "src/awe/rmdparchive.h"
 
 enum kArchiveVersion {
@@ -116,7 +116,7 @@ std::optional<RMDPArchive::FileEntry> RMDPArchive::findFile(const FolderEntry &f
 }
 
 std::vector<size_t> RMDPArchive::getDirectoryResources(const std::string &directory) {
-	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(directory);
+	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(directory);
 	auto pathHashes = getPathHashes(path);
 
 	auto maybeFolder = findDirectory(pathHashes);
@@ -166,11 +166,11 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 			path = folderEntry.name + "/" + path;
 	}
 
-	return Common::getNormalizedPath(path);
+	return Common::replace(path, "d:/data", "");
 }
 
 Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
-	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(rid);
+	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(rid);
 	// Extract and separate file name from the rest of the path
 	auto pathHashes = getPathHashes(path);
 	uint32_t fileHash = pathHashes.back();
@@ -197,7 +197,7 @@ Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 }
 
 bool RMDPArchive::hasResource(const std::string &rid) const {
-	std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(rid);
+	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(rid);
 	// Extract and separate file name from the rest of the path
 	auto pathHashes = getPathHashes(path);
 	uint32_t fileHash = pathHashes.back();
@@ -212,7 +212,7 @@ bool RMDPArchive::hasResource(const std::string &rid) const {
 }
 
 bool RMDPArchive::hasDirectory(const std::string &directory) const {
-	const std::string path = (_pathPrefix ? "d:/data/" : "") + Common::getNormalizedPath(directory);
+	const std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(directory);
 	const auto pathHashes = getPathHashes(path);
 	const auto maybeFolder = findDirectory(pathHashes);
 	return maybeFolder.has_value();

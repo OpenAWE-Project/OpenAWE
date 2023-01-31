@@ -23,7 +23,7 @@
 
 #include <string>
 
-namespace Common {
+namespace AWE {
 
 /*!
  * An utility function that normalizes file path by:

@@ -26,8 +26,7 @@
 #include <fmt/format.h>
 #include <glm/gtx/string_cast.hpp>
 
-#include "src/common/path.h"
-
+#include "src/awe/path.h"
 #include "src/awe/terraindatafile.h"
 
 namespace AWE {
@@ -47,7 +46,7 @@ TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 			uint32_t fileNameLength = terrainData.readUint32LE();
 			texture = terrainData.readFixedSizeString(fileNameLength, true);
 
-			texture = Common::getNormalizedPath(texture);
+			texture = AWE::getNormalizedPath(texture);
 		}
 
 		// Read tilesets
