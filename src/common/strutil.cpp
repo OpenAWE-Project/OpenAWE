@@ -23,6 +23,8 @@
 
 #include <zlib.h>
 
+#include "src/common/exception.h"
+
 #include "strutil.h"
 
 namespace Common {
@@ -49,6 +51,27 @@ std::string toUpper(std::string str) {
 
 bool contains(const std::string &str, const std::string &s) {
 	return str.find(s) != std::string::npos;
+}
+
+bool startsWith(const std::string &str, const std::string &substr) {
+	return str.find(substr) == 0;
+}
+
+bool endsWith(const std::string &str, const std::string &substr) {
+	return str.rfind(substr) == (str.length() - substr.length());
+}
+
+std::string replace(const std::string &str, const std::string &what, const std::string &with) {
+	if (contains(with, what))
+		CreateException("replace(): replacing {} with {} may create an infinite loop", what, with);
+	
+	std::string result = str;
+	unsigned long int position = std::string::npos;
+
+	while ((position = str.find(what)) != std::string::npos) 
+		result.replace(position, what.length(), with);
+
+	return result;
 }
 
 std::vector<std::string> split(const std::string &str, const std::regex &split) {

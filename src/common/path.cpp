@@ -21,19 +21,15 @@
 #include "src/common/strutil.h"
 #include "src/common/path.h"
 
-using std::string;
-
 namespace Common {
 
-string getNormalizedPath(const string &path) {
-	string lower = Common::toLower(path);
-	uint64_t pos = string::npos;
-	// replace runtimedata\pc with d:
-	if (lower.find("runtimedata\\pc") == 0) lower.replace(0, 14, "d:");
-	// replace \ with /
-	while ((pos = lower.find("\\")) != string::npos) lower.replace(pos, 1, "/", 1);
-	// remove d:/data from the start of the path
-	if (lower.find("d:/data/") == 0) lower.replace(0, 8, "");
+std::string getNormalizedPath(const std::string &path) {
+	std::string lower = Common::toLower(path);
+	if (Common::startsWith(lower, "runtimedata\\pc")) 
+		Common::replace(lower, "runtimedata\\pc", "d:");
+	Common::replace(lower, "\\", "/");
+	if (Common::startsWith(lower, "d:/data/")) 
+		Common::replace(lower, "d:/data/", "");
 	return lower;
 }
 

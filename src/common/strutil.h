@@ -50,6 +50,31 @@ std::string toUpper(std::string str);
 bool contains(const std::string &str, const std::string &s);
 
 /*!
+ * check if a string starts with a certain substring
+ * \param str the string to search a substring in
+ * \param substr the substring to search for
+ * \return if the string starts with the substring
+ */
+bool startsWith(const std::string &str, const std::string &substr);
+
+/*!
+ * check if a string ends with a certain substring
+ * \param str the string to search a substring in
+ * \param s the substring to search for
+ * \return if the string ends with the substring
+ */
+bool endsWith(const std::string &str, const std::string &substr);
+
+/*!
+ * substitutes one substring for another in a string
+ * \param str the string to replace in
+ * \param what the substring to search for
+ * \param with the subtring to replace "what" with
+ * \return string with replaced occurencies
+ */
+std::string replace(const std::string &str, const std::string &what, const std::string &with);
+
+/*!
  * Split a string by a given regex
  * \param str the string to split
  * \param split the regex to define the splits
