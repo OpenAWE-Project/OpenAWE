@@ -29,7 +29,7 @@
 #include "src/common/memwritestream.h"
 #include "src/common/writefile.h"
 
-#include "src/common/path.h"
+#include "src/awe/path.h"
 #include "src/awe/resman.h"
 
 #include "src/graphics/images/tex.h"
@@ -187,7 +187,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 				case 7: {
 					uint32_t length = binmsh->readUint32LE();
 					std::string file = binmsh->readFixedSizeString(length, true);
-					file = Common::getNormalizedPath(file);
+					file = AWE::getNormalizedPath(file);
 
 					attributes.emplace_back(Material::Attribute(attributeName, TextureMan.getTexture(file)));
 					break;

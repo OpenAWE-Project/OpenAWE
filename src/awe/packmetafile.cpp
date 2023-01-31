@@ -21,8 +21,7 @@
 #include <vector>
 #include <regex>
 
-#include "src/common/path.h"
-
+#include "src/awe/path.h"
 #include "src/awe/types.h"
 #include "src/awe/cidfile.h"
 #include "src/awe/packmetafile.h"
@@ -48,7 +47,7 @@ PACKMETAFile::PACKMETAFile(Common::ReadStream &packmeta) {
 	fileEntries.resize(numElements);
 
 	for (auto &item: fileEntries) {
-		item.name = Common::getNormalizedPath(packmeta.readNullTerminatedString());
+		item.name = AWE::getNormalizedPath(packmeta.readNullTerminatedString());
 	}
 
 	for (auto &item: fileEntries) {
