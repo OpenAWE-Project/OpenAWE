@@ -26,15 +26,16 @@
 
 #include "src/common/exception.h"
 #include "src/common/strutil.h"
+#include "src/common/memwritestream.h"
+#include "src/common/writefile.h"
 
-#include <src/common/memwritestream.h>
-#include <src/awe/resman.h>
-#include <src/graphics/images/tex.h>
-#include <src/common/writefile.h>
-#include <src/common/path.h>
-#include "mesh_binmsh.h"
-#include "gfxman.h"
-#include "textureman.h"
+#include "src/common/path.h"
+#include "src/awe/resman.h"
+
+#include "src/graphics/images/tex.h"
+#include "src/graphics/gfxman.h"
+#include "src/graphics/textureman.h"
+#include "src/graphics/mesh_binmsh.h"
 
 namespace Graphics {
 
