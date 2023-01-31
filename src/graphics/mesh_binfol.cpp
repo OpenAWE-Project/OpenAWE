@@ -23,9 +23,9 @@
 
 #include <fmt/format.h>
 
-#include <src/common/path.h>
+#include "src/common/path.h"
 
-#include "mesh_binfol.h"
+#include "src/graphics/mesh_binfol.h"
 
 namespace Graphics {
 

@@ -26,9 +26,9 @@
 #include <fmt/format.h>
 #include <glm/gtx/string_cast.hpp>
 
-#include <src/common/path.h>
+#include "src/common/path.h"
 
-#include "terraindatafile.h"
+#include "src/awe/terraindatafile.h"
 
 namespace AWE {
 
