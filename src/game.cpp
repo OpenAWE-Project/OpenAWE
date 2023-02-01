@@ -42,6 +42,7 @@
 #include "src/game.h"
 #include "src/awe/cidfile.h"
 #include "src/awe/havokfile.h"
+#include "src/awe/types.h"
 
 #include "src/engines/aw/engine.h"
 #include "src/engines/awan/engine.h"
@@ -52,6 +53,7 @@
 #include "src/task.h"
 #include "src/timerprocess.h"
 #include "src/transform.h"
+#include "src/probe.h"
 
 bool Game::parseArguments(int argc, char **argv) {
 	CLI::App app("Reimplmentation of the Alan Wake Engine", "awe");
@@ -121,19 +123,37 @@ void Game::init() {
 	}
 
 	if (identifiers.empty())
-		throw std::runtime_error("No .rmdp files found in the set data path, exiting ...");
+		throw Common::Exception("No .rmdp files found in the set data path.");
 
 	GameEngine engine;
 
+	// Launch probe to see what game we are dealing with
+	Probe probe = Probe();
+	unsigned char probeResult = probe.performProbe();
+	switch (probeResult) {
+		case kResultAlanWake:
+			spdlog::info("Initializing Alan Wake...");
+			engine = kAlanWake;
+			break;
+		case kResultNightmare:
+			spdlog::info("Initializing Alan Wake's American Nightmare...");
+			engine = kAlanWakesAmericanNightmare;
+			break;
+		case kResultQuantumBreak:
+		case kResultAlanWakeRemastered:
+			throw Common::Exception("This game is not yet supported by OpenAWE.");
+		case kResultUnknown:
+		default:
+			throw Common::Exception("Unknown game data was supplied.");
+	}
+
 	// Check if the resources have packmeta files and load them and if not load streamed resources
-	bool hasPackmeta = ResMan.hasResource("ep999-000.packmeta");
-	if (hasPackmeta) {
+	if (engine == kAlanWakesAmericanNightmare) {
 		for (const auto &identifier : identifiers) {
 			spdlog::info("Indexing packmeta file {}", identifier + ".packmeta");
 			ResMan.indexPackmeta(identifier + ".packmeta");
 		}
-		engine = kAlanWakesAmericanNightmare;
-	} else {
+	} else if (engine == kAlanWake) {
 		spdlog::info("Indexing streamed resource file cid_streamedcloth.bin");
 		ResMan.indexStreamedResource("resourcedb/cid_streamedcloth.bin");
 		spdlog::info("Indexing streamed resource file cid_streamedcollisionpackage.bin");
@@ -154,8 +174,6 @@ void Game::init() {
 		ResMan.indexStreamedResource("resourcedb/cid_streamedsound.bin");
 		spdlog::info("Indexing streamed resource file cid_streamedtexture.bin");
 		ResMan.indexStreamedResource("resourcedb/cid_streamedtexture.bin");
-
-		engine = kAlanWake;
 	}
 
 	_platform.init();
@@ -195,6 +213,8 @@ void Game::init() {
 				localeConfig.getLanguageConfig(_language)
 			);
 			break;
+		case kQuantumBreak:
+			throw Common::Exception("This game is not yet supported by OpenAWE");
 		default:
 			throw Common::Exception("Game engine not recognized");
 	}
