@@ -221,7 +221,7 @@ bool RMDPArchive::hasDirectory(const std::string &directory) const {
 	return maybeFolder.has_value();
 }
 
-std::string RMDPArchive::readEntryName(Common::ReadStream *bin, int64_t offset, const uint32_t nameSize) {
+std::string RMDPArchive::readEntryName(Common::ReadStream *bin, int64_t offset, uint32_t nameSize) {
 	std::string result;
 	if (offset != -1) {
 		size_t lastPos = bin->pos();
@@ -251,10 +251,10 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 	_fileEntries.resize(numFiles);
 
 	// Now let's figure out whether we're looking at a remaster or not
-	const byte AWFileSizeBytes = 40;
-	const byte AWRFileSizeBytes = 64;
-	const byte AWFolderSizeBytes = 28;
-	const byte AWRFolderSizeBytes = 56;
+	const size_t AWFileSizeBytes = 40;
+	const size_t AWRFileSizeBytes = 64;
+	const size_t AWFolderSizeBytes = 28;
+	const size_t AWRFolderSizeBytes = 56;
 	const size_t AWStructsSize = AWFileSizeBytes * numFiles + AWFolderSizeBytes * numFolders;
 	const size_t AWRStructsSize = AWRFileSizeBytes * numFiles + AWRFolderSizeBytes * numFolders;
 
@@ -317,7 +317,7 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 
 		for (auto &entry : _folderEntries) {
 			entry.nameHash = end.readUint32();
-			bin->skip(4); // 0x00000000
+			bin->skip(4); // Always 0
 			entry.nextNeighbourFolder = end.readSint64();
 			entry.prevFolder = end.readSint64();
 
@@ -332,7 +332,7 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 
 		for (auto &entry : _fileEntries) {
 			entry.nameHash = end.readUint32();
-			bin->skip(4); // 0x00000000
+			bin->skip(4); // Always 0
 			entry.nextFile = end.readSint64();
 			entry.prevFolder = end.readSint64();
 			entry.flags = end.readUint64();
@@ -351,8 +351,9 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 
 			entry.fileDataHash = bin->readUint64LE();
 		}
-	} else CreateException("Abnormal v2 header: found structures with size {}, while expected either {} or {}",
-						   fileAndFolderSize, AWStructsSize, AWRStructsSize);
+	} else 
+		CreateException("Abnormal v2 header: found structures with size {}, while expected either {} or {}",
+						fileAndFolderSize, AWStructsSize, AWRStructsSize);
 }
 
 void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream &end) {

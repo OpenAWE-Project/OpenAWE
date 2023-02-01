@@ -139,7 +139,7 @@ private:
 	 *
 	 * \param bin the stream from which to load the name
 	 */
-	std::string readEntryName(Common::ReadStream *bin, int64_t offset, const uint32_t nameSize);
+	std::string readEntryName(Common::ReadStream *bin, int64_t offset, uint32_t nameSize);
 
 	/*!
 	 * Break down a given path into an array of CRC32 hashes
@@ -154,7 +154,7 @@ private:
 	 */
 	struct FolderEntry {
 		std::string name;
-		uint64_t nameHash;
+		uint32_t nameHash;
 		int64_t nextLowerFolder;
 		int64_t nextNeighbourFolder;
 		int64_t nextFile;
@@ -169,7 +169,7 @@ private:
 	 */
 	struct FileEntry {
 		std::string name;
-		uint64_t nameHash;
+		uint32_t nameHash;
 		uint64_t fileDataHash;
 		int64_t nextFile;
 		int64_t prevFolder;
