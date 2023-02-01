@@ -349,7 +349,8 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 			entry.offset = end.readUint64();
 			entry.size = end.readUint64();
 
-			entry.fileDataHash = bin->readUint64LE();
+			entry.fileDataHash = bin->readUint32LE();
+			bin->skip(4); // Always 0
 		}
 	} else 
 		CreateException("Abnormal v2 header: found structures with size {}, while expected either {} or {}",

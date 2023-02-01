@@ -170,7 +170,7 @@ private:
 	struct FileEntry {
 		std::string name;
 		uint32_t nameHash;
-		uint64_t fileDataHash;
+		uint32_t fileDataHash;
 		int64_t nextFile;
 		int64_t prevFolder;
 		uint64_t flags;
