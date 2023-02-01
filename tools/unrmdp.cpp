@@ -48,8 +48,6 @@ int main(int argc, char** argv) {
 
 	CLI11_PARSE(app, argc, argv);
 
-	const bool extractFiles = !onlyListFiles;
-
 	AWE::RMDPArchive rmdp(
 		new Common::ReadFile(binFile),
 		new Common::ReadFile(rmdpFile)
@@ -60,7 +58,7 @@ int main(int argc, char** argv) {
 
 		fmt::print("{}/{} {}\n", i + 1, rmdp.getNumResources(), path);
 
-		if (extractFiles) {
+		if (!onlyListFiles) {
 			const auto resourceStream = std::unique_ptr<Common::ReadStream>(rmdp.getResource(path));
 
 			std::filesystem::path p(path);
