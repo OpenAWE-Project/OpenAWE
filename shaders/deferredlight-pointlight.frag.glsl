@@ -34,7 +34,6 @@ out vec4 out_Normal;
 void main() {
     vec2 vScreen = gl_FragCoord.xy / g_vScreenRes;
 
-    float fDecay = g_vLightFalloff.x;
     float fDepth = texture(g_sLinearDepthBuffer, vScreen).r;
     vec3 vNormal = normalize(texture(g_sNormalBuffer, vScreen).xyz * 2.0 - 1.0);
 
