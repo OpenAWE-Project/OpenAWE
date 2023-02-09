@@ -23,6 +23,8 @@
 
 #include <emmintrin.h>
 
+#include "src/common/exception.h"
+
 #include "src/codecs/yuv2rgb.h"
 
 namespace Codecs {
