@@ -250,6 +250,8 @@ void Game::start() {
 		lastTime = time;
 	}
 
+	transformModelObserver.disconnect();
+
 	spdlog::info("Stopping AWE...");
 
 	_engine->getConfiguration().write();
