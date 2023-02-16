@@ -354,6 +354,36 @@ struct GameEvent {
 	std::string name;
 };
 
+struct SpotLight {
+	GID gid, attachmentGid;
+	glm::vec3 position;
+	glm::mat3 rotation;
+	glm::vec3 color;
+	float coneAngle;
+	float decay;
+	rid_t lightMap;
+	rid_t shadowMap;
+	bool castShadows;
+	uint32_t shadowMapResolution;
+	uint32_t shadowMapFiltering;
+	bool autostart;
+	bool volumetric;
+	float intensity;
+	float volumetricDecay;
+	rid_t lightMeshResource;
+	uint32_t volumetricEffect;
+	rid_t meshResource;
+	glm::vec3 meshPosition;
+	glm::mat3 meshRotation;
+	float near, far;
+	float depthBias, depthSlopeBias;
+	float drainMultiplier;
+	bool controllable;
+	bool enableSpecular;
+	bool volumetricOnly;
+	uint32_t volumetricQuality;
+};
+
 } // End of namespace AWE::Templates
 
 #endif //OPENAWE_OBJECT_H

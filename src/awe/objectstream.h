@@ -74,6 +74,7 @@ protected:
 	void keyFrameAnimation(Templates::KeyFrameAnimation &keyFrameAnimation);
 	void keyFrame(Templates::KeyFrame &keyFrame);
 	void gameEvent(Templates::GameEvent &gameEvent);
+	void spotLight(Templates::SpotLight &spotLight);
 
 	void readFileInfoMetadata(Templates::FileInfoMetadata &fileInfoMetadata);
 	void foliageMeshMetadata(Templates::FoliageMeshMetadata foliageMeshMetadata);

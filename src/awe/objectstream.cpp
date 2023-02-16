@@ -579,6 +579,40 @@ void ObjectStream::gameEvent(Templates::GameEvent &gameEvent) {
 	skip(8);
 }
 
+void ObjectStream::spotLight(Templates::SpotLight &spotLight) {
+	variable("attachmentGid", spotLight.attachmentGid);
+	variable("gid", spotLight.gid);
+	variable("position", spotLight.position);
+	variable("rotation", spotLight.rotation);
+	variable("color", spotLight.color);
+	variable("coneAngle", spotLight.coneAngle);
+	variable("decay", spotLight.decay);
+	object("lightMap", spotLight.lightMap, kRID);
+	object("shadowMap", spotLight.shadowMap, kRID);
+	variable("castShadows", spotLight.castShadows);
+	variable("shadowMapResolution", spotLight.shadowMapResolution);
+	variable("shadowMapFiltering", spotLight.shadowMapFiltering);
+	variable("autostart", spotLight.autostart);
+	variable("volumetric", spotLight.volumetric);
+	variable("intensity", spotLight.intensity);
+	variable("volumetricDecay", spotLight.volumetricDecay);
+	object("lightVolumeResource", spotLight.lightMeshResource, kRID);
+	variable("volumetricEffect", spotLight.volumetricEffect);
+	object("meshResource", spotLight.meshResource, kRID);
+	variable("meshPosition", spotLight.meshPosition);
+	variable("meshRotation", spotLight.meshRotation);
+	variable("near", spotLight.near);
+	variable("depthBias", spotLight.depthBias);
+	variable("depthSlopeBias", spotLight.depthSlopeBias);
+	variable("far", spotLight.far);
+	variable("drainMultiplier", spotLight.drainMultiplier);
+	variable("controllable", spotLight.controllable);
+	variable("enableSpecular", spotLight.enableSpecular);
+	variable("volumetricOnly", spotLight.volumetricOnly);
+	variable("volumetricQuality", spotLight.volumetricQuality);
+	skip(8);
+}
+
 void ObjectStream::readFileInfoMetadata(Templates::FileInfoMetadata &fileInfoMetadata) {
 	variable("fileSize", fileInfoMetadata.fileSize);
 	variable("fileDataCRC", fileInfoMetadata.fileDataCRC);
@@ -662,6 +696,7 @@ void ObjectStream::object(Object &value, ObjectType type, unsigned int version) 
 		case kKeyframeAnimation: keyFrameAnimation(as<Templates::KeyFrameAnimation>(value)); break;
 		case kKeyframer: keyFramer(as<Templates::KeyFramer>(value)); break;
 		case kGameEvent: gameEvent(as<Templates::GameEvent>(value)); break;
+		case kSpotLight: spotLight(as<Templates::SpotLight>(value)); break;
 
 		case kFileInfoMetadata: readFileInfoMetadata(as<Templates::FileInfoMetadata>(value)); break;
 		case kFoliageMeshMetadata: foliageMeshMetadata(as<Templates::FoliageMeshMetadata>(value)); break;

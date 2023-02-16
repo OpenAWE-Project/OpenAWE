@@ -45,6 +45,7 @@ static const uint32_t kContentHashScriptVariables      = Common::crc32(Common::t
 static const uint32_t kContentHashScript               = Common::crc32(Common::toLower("content::Script"));
 static const uint32_t kContentHashScriptInstance       = Common::crc32(Common::toLower("content::ScriptInstance"));
 static const uint32_t kContentHashPointLight           = Common::crc32(Common::toLower("content::PointLightInstance"));
+static const uint32_t kContentHashSpotLight            = Common::crc32(Common::toLower("content::SpotLightInstance"));
 static const uint32_t kContentHashAmbientLight         = Common::crc32(Common::toLower("content::AmbientLightInstance"));
 static const uint32_t kContentHashFloatingScript       = Common::crc32(Common::toLower("content::FloatingScript"));
 static const uint32_t kContentHashTrigger              = Common::crc32(Common::toLower("content::Trigger"));
@@ -121,6 +122,7 @@ uint32_t ObjectBinaryReadStreamV2::getContentHash(ObjectType type) const {
 		case kScript: return kContentHashScript;
 		case kScriptInstance: return kContentHashScriptInstance;
 		case kPointLight: return kContentHashPointLight;
+		case kSpotLight: return kContentHashSpotLight;
 		case kAmbientLight: return kContentHashAmbientLight;
 		case kFloatingScript: return kContentHashFloatingScript;
 		case kTrigger: return kContentHashTrigger;

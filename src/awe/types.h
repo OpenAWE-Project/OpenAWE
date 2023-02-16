@@ -133,7 +133,8 @@ enum ObjectType {
 	kKeyframeAnimation,
 	kKeyframe,
 	kGameEvent,
-	kAttachmentContainer
+	kAttachmentContainer,
+	kSpotLight
 };
 
 #endif //AWE_TYPES_H
