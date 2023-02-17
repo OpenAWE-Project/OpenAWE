@@ -375,8 +375,10 @@ struct SpotLight {
 	rid_t meshResource;
 	glm::vec3 meshPosition;
 	glm::mat3 meshRotation;
-	float near, far;
-	float depthBias, depthSlopeBias;
+	float near;
+	float far;
+	float depthBias;
+	float depthSlopeBias;
 	float drainMultiplier;
 	bool controllable;
 	bool enableSpecular;
