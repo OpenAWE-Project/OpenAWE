@@ -349,15 +349,6 @@ add_library(awe_engines ${SOURCE_FILES})
 target_link_libraries(awe_engines awe_common awe_lib awe_graphics)
 
 # ------------------------------------
-# Shaders
-include(CompileTechnique)
-add_custom_target(awe_shaders)
-file(GLOB TECHNIQUE_FILES "techniques/*.json")
-foreach(technique_file IN ITEMS ${TECHNIQUE_FILES})
-    compile_technique(awe_shaders ${technique_file})
-endforeach()
-
-# ------------------------------------
 # Main awe executable
 file(GLOB SOURCE_FILES src/*.cpp src/*.h)
 add_executable(awe ${SOURCE_FILES})
