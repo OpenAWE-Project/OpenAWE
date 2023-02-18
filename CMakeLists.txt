@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.18)
 project(OpenAWE VERSION 0.0.1)
 
 include(TestBigEndian)
@@ -81,7 +81,6 @@ check_and_set_compiler_flag("-Werror=vla")
 check_and_set_compiler_flag("-Wswitch")
 check_and_set_compiler_flag("-Wsign-compare")
 check_and_set_compiler_flag_cxx("-Wreorder")
-check_and_set_compiler_flag("-Wl,--as-needed")
 
 # ------------------------------------
 # C++ checks
@@ -105,6 +104,14 @@ endif()
 macro(check_builtin_function_exists function output)
     check_cxx_source_compiles("int main(int argc, char** argv) { __builtin_${function}; return 0; }" ${output})
 endmacro()
+
+check_linker_flag(CXX -Wl,--as-needed HAS_AS_NEEDED)
+if (HAS_AS_NEEDED)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--as-needed")
+    set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -Wl,--as-needed")
+    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -Wl,--as-needed")
+endif ()
 
 # GCC/Clang byte swap functions
 check_builtin_function_exists(bswap16 HAS_BUILTIN_BSWAP16)
