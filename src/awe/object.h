@@ -1,6 +1,22 @@
-//
-// Created by patrick on 06.04.21.
-//
+/* OpenAWE - A reimplementation of Remedys Alan Wake Engine
+ *
+ * OpenAWE is the legal property of its developers, whose names
+ * can be found in the AUTHORS file distributed with this source
+ * distribution.
+ *
+ * OpenAWE is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * OpenAWE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef OPENAWE_OBJECT_H
 #define OPENAWE_OBJECT_H
@@ -8,6 +24,15 @@
 #include <vector>
 
 #include "src/awe/types.h"
+
+/*
+ * Windows headers define the name far and near for historical purposes. This should be disabled to avoid confusing
+ * compiler errors.
+ */
+#if OS_WINDOWS
+#	undef far
+#	undef near
+#endif
 
 namespace AWE::Templates {
 
@@ -375,8 +400,7 @@ struct SpotLight {
 	rid_t meshResource;
 	glm::vec3 meshPosition;
 	glm::mat3 meshRotation;
-	float near;
-	float far;
+	float near, far;
 	float depthBias;
 	float depthSlopeBias;
 	float drainMultiplier;
