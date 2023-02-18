@@ -63,6 +63,20 @@ target_link_libraries(
         tinyxml2::tinyxml2
 )
 
+add_executable(tex2dds tex2dds.cpp)
+target_link_libraries(
+        tex2dds
+        awe_common
+        awe_graphics
+)
+
+add_executable(fsb2wav fsb2wav.cpp)
+target_link_libraries(
+        fsb2wav
+        awe_common
+        awe_sound
+)
+
 install(
         TARGETS
         unrmdp
@@ -71,6 +85,8 @@ install(
         packmeta2xml
         streamedresources2xml
         cid2xml
+        tex2dds
+        fsb2wav
 
         DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
