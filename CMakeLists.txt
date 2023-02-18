@@ -355,6 +355,8 @@ target_link_libraries(
         awe_physics
         awe_video
         awe_engines
+
+        ${MOJOSHADER_LIBRARIES} # Mojoshader is noly recognized if it is placed at the end
 )
 
 install(
