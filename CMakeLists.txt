@@ -81,6 +81,7 @@ check_and_set_compiler_flag("-Werror=vla")
 check_and_set_compiler_flag("-Wswitch")
 check_and_set_compiler_flag("-Wsign-compare")
 check_and_set_compiler_flag_cxx("-Wreorder")
+check_and_set_compiler_flag("-Wl,--as-needed")
 
 # ------------------------------------
 # C++ checks
@@ -262,6 +263,12 @@ add_definitions(-DSPDLOG_FMT_EXTERNAL)
 # Libraries for awe
 file(GLOB_RECURSE SOURCE_FILES src/common/*.cpp src/common/*.h)
 add_library(awe_common ${SOURCE_FILES})
+target_link_libraries(
+        awe_common
+
+        tinyxml2::tinyxml2
+        ${ZLIB_LIBRARIES}
+)
 
 file(GLOB_RECURSE SOURCE_FILES src/codecs/*.cpp src/codecs/*.h)
 add_library(awe_codecs ${SOURCE_FILES})
@@ -269,6 +276,10 @@ target_link_libraries(
         awe_codecs
 
         awe_common
+
+        ${THEORA_LIBRARIES}
+        ${VORBIS_LIBRARIES}
+        ${OGG_LIBRARIES}
 )
 
 file(GLOB_RECURSE SOURCE_FILES src/awe/*.cpp src/awe/*.h)
@@ -285,6 +296,8 @@ target_link_libraries(
         awe_platform
 
         awe_common
+
+        glfw
 )
 
 file(GLOB_RECURSE SOURCE_FILES src/events/*.cpp src/events/*.h)
@@ -299,6 +312,10 @@ target_link_libraries(
         awe_common
         awe_lib
         awe_platform
+
+        GLEW::GLEW
+        OpenGL::GL
+        ${MOJOSHADER_LIBRARIES}
 )
 
 file(GLOB_RECURSE SOURCE_FILES src/sound/*.cpp src/sound/*.h)
@@ -309,6 +326,8 @@ target_link_libraries(
         awe_common
         awe_lib
         awe_codecs
+
+        ${OPENAL_LIBRARY}
 )
 
 file(GLOB_RECURSE SOURCE_FILES src/physics/*.cpp src/physics/*.h)
@@ -317,6 +336,8 @@ target_link_libraries(
         awe_physics
 
         awe_common
+
+        ${BULLET_LIBRARIES}
 )
 
 file(GLOB_RECURSE SOURCE_FILES src/video/*.cpp src/video/*.h)
@@ -326,6 +347,15 @@ target_link_libraries(awe_video awe_common awe_lib awe_graphics awe_sound)
 file(GLOB_RECURSE SOURCE_FILES src/engines/*.cpp src/engines/*.h)
 add_library(awe_engines ${SOURCE_FILES})
 target_link_libraries(awe_engines awe_common awe_lib awe_graphics)
+
+# ------------------------------------
+# Shaders
+include(CompileTechnique)
+add_custom_target(awe_shaders)
+file(GLOB TECHNIQUE_FILES "techniques/*.json")
+foreach(technique_file IN ITEMS ${TECHNIQUE_FILES})
+    compile_technique(awe_shaders ${technique_file})
+endforeach()
 
 # ------------------------------------
 # Main awe executable
@@ -343,18 +373,6 @@ target_link_libraries(
         awe_physics
         awe_video
         awe_engines
-
-        glfw
-        ${ZLIB_LIBRARIES}
-        tinyxml2::tinyxml2
-        ${BULLET_LIBRARIES}
-        ${THEORA_LIBRARIES}
-        ${VORBIS_LIBRARIES}
-        ${OGG_LIBRARIES}
-        ${OPENAL_LIBRARY}
-        GLEW::GLEW
-        OpenGL::GL
-        ${MOJOSHADER_LIBRARIES}
 )
 
 install(
