@@ -47,6 +47,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 option(USE_SYSTEM_CLI11 "Use the system CLI11" OFF)
 option(USE_SYSTEM_ENTT "Use the system entt" OFF)
 
+option(WITH_TOOLS "Compile with command line tool" ON)
 option(WITH_VULKAN "Compile with support for vulkan" OFF)
 
 # ------------------------------------
