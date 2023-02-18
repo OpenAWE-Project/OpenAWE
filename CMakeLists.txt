@@ -334,6 +334,16 @@ add_executable(awe ${SOURCE_FILES})
 target_link_libraries(
         awe
 
+        awe_common
+        awe_lib
+        awe_platform
+        awe_events
+        awe_graphics
+        awe_sound
+        awe_physics
+        awe_video
+        awe_engines
+
         glfw
         ${ZLIB_LIBRARIES}
         tinyxml2::tinyxml2
@@ -345,18 +355,6 @@ target_link_libraries(
         GLEW::GLEW
         OpenGL::GL
         ${MOJOSHADER_LIBRARIES}
-
-        awe_common
-        awe_lib
-        awe_platform
-        awe_events
-        awe_graphics
-        awe_sound
-        awe_physics
-        awe_video
-        awe_engines
-
-        ${MOJOSHADER_LIBRARIES} # Mojoshader is noly recognized if it is placed at the end
 )
 
 install(
