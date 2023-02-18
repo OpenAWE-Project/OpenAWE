@@ -333,15 +333,6 @@ file(GLOB SOURCE_FILES src/*.cpp src/*.h)
 add_executable(awe ${SOURCE_FILES})
 target_link_libraries(
         awe
-        awe_common
-        awe_lib
-        awe_platform
-        awe_events
-        awe_graphics
-        awe_sound
-        awe_physics
-        awe_video
-        awe_engines
 
         glfw
         ${ZLIB_LIBRARIES}
@@ -354,6 +345,16 @@ target_link_libraries(
         GLEW::GLEW
         OpenGL::GL
         ${MOJOSHADER_LIBRARIES}
+
+        awe_common
+        awe_lib
+        awe_platform
+        awe_events
+        awe_graphics
+        awe_sound
+        awe_physics
+        awe_video
+        awe_engines
 )
 
 install(
