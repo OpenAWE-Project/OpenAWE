@@ -372,7 +372,16 @@ if (GTEST_FOUND)
     list(FILTER SOURCE_FILES EXCLUDE REGEX \\.*/awe.cpp)
     file(GLOB_RECURSE TEST_SOURCE_FILES test/*.cpp)
     add_executable(awe_test ${TEST_SOURCE_FILES})
-    target_link_libraries(awe_test ${GTEST_BOTH_LIBRARIES} awe_common awe_lib)
+    target_link_libraries(
+            awe_test
+
+            ${GTEST_BOTH_LIBRARIES}
+            ${ZLIB_LIBRARIES}
+            tinyxml2::tinyxml2
+
+            awe_common
+            awe_lib
+    )
     gtest_add_tests(TARGET awe_test)
 endif ()
 
