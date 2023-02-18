@@ -215,16 +215,18 @@ endif ()
 if(PKG_CONFIG_FOUND)
     find_package(tinyxml2)
     if (NOT tinyxml2_FOUND)
-        pkg_search_module(TINYXML2 tinyxml2)
-        link_libraries(${TINYXML2_LIBRARIES})
-        include_directories(${TINYXML2_INCLUDE_DIRS})
-    else()
-        link_libraries(tinyxml2::tinyxml2)
+        pkg_search_module(TINYXML2 REQUIRED tinyxml2)
+
+        add_library(tinyxml2::tinyxml2 SHARED IMPORTED)
+        set_target_properties(
+                tinyxml2::tinyxml2
+                PROPERTIES
+                IMPORTED_LOCATION ${TINYXML2_LINK_LIBRARIES}
+        )
     endif ()
 # If pkgconfig is not available the package search stays as required
 else()
     find_package(tinyxml2 REQUIRED)
-    link_libraries(tinyxml2::tinyxml2)
 endif ()
 
 link_libraries(
