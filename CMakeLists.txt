@@ -259,11 +259,6 @@ add_definitions(-DSPDLOG_FMT_EXTERNAL)
 # Libraries for awe
 file(GLOB_RECURSE SOURCE_FILES src/common/*.cpp src/common/*.h)
 add_library(awe_common ${SOURCE_FILES})
-target_link_libraries(
-        awe_common
-
-        ${ZLIB_LIBRARIES}
-)
 
 file(GLOB_RECURSE SOURCE_FILES src/codecs/*.cpp src/codecs/*.h)
 add_library(awe_codecs ${SOURCE_FILES})
@@ -271,10 +266,6 @@ target_link_libraries(
         awe_codecs
 
         awe_common
-
-        ${THEORA_LIBRARIES}
-        ${VORBIS_LIBRARIES}
-        ${OGG_LIBRARIES}
 )
 
 file(GLOB_RECURSE SOURCE_FILES src/awe/*.cpp src/awe/*.h)
@@ -291,8 +282,6 @@ target_link_libraries(
         awe_platform
 
         awe_common
-
-        glfw
 )
 
 file(GLOB_RECURSE SOURCE_FILES src/events/*.cpp src/events/*.h)
@@ -307,10 +296,6 @@ target_link_libraries(
         awe_common
         awe_lib
         awe_platform
-
-        GLEW::GLEW
-        OpenGL::GL
-        ${MOJOSHADER_LIBRARIES}
 )
 
 file(GLOB_RECURSE SOURCE_FILES src/sound/*.cpp src/sound/*.h)
@@ -321,8 +306,6 @@ target_link_libraries(
         awe_common
         awe_lib
         awe_codecs
-
-        ${OPENAL_LIBRARY}
 )
 
 file(GLOB_RECURSE SOURCE_FILES src/physics/*.cpp src/physics/*.h)
@@ -331,8 +314,6 @@ target_link_libraries(
         awe_physics
 
         awe_common
-
-        ${BULLET_LIBRARIES}
 )
 
 file(GLOB_RECURSE SOURCE_FILES src/video/*.cpp src/video/*.h)
@@ -358,6 +339,18 @@ target_link_libraries(
         awe_physics
         awe_video
         awe_engines
+
+        glfw
+        ${ZLIB_LIBRARIES}
+        tinyxml2::tinyxml2
+        ${BULLET_LIBRARIES}
+        ${THEORA_LIBRARIES}
+        ${VORBIS_LIBRARIES}
+        ${OGG_LIBRARIES}
+        ${OPENAL_LIBRARY}
+        GLEW::GLEW
+        OpenGL::GL
+        ${MOJOSHADER_LIBRARIES}
 )
 
 install(
@@ -367,16 +360,9 @@ install(
 
 # ------------------------------------
 # Tools
-file(GLOB TOOLS_SOURCE_FILES tools/*.cpp)
-foreach(tool_source_file ${TOOLS_SOURCE_FILES})
-    get_filename_component(file_stem ${tool_source_file} NAME_WLE)
-    add_executable(${file_stem} ${tool_source_file})
-    target_link_libraries(${file_stem} awe_common awe_lib)
-    install(
-            TARGETS ${file_stem}
-            DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-endforeach()
+if (WITH_TOOLS)
+    add_subdirectory(tools)
+endif ()
 
 # ------------------------------------
 # Unit Tests
