@@ -58,9 +58,6 @@ FSBFile::FSBFile(Common::ReadStream *fsb) : _fsb(fsb) {
 	for (auto &entry : _entries) {
 		uint16_t fileEntryLength = _fsb->readUint16LE();
 
-		if (fileEntryLength != 80)
-			throw std::runtime_error("Invalid FSB entry length");
-
 		entry.fileName = _fsb->readFixedSizeString(30, true);
 		entry.fileName = std::filesystem::path(entry.fileName).stem().string() + ".wav";
 
