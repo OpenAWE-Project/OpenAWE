@@ -63,12 +63,12 @@ bool endsWith(const std::string &str, const std::string &substr) {
 
 std::string replace(const std::string &str, const std::string &what, const std::string &with) {
 	if (contains(with, what))
-		CreateException("replace(): replacing {} with {} may create an infinite loop", what, with);
+		throw CreateException("replace(): replacing {} with {} may create an infinite loop", what, with);
 	
 	std::string result = str;
 	unsigned long long position = std::string::npos;
 
-	while ((position = str.find(what)) != std::string::npos) 
+	while ((position = result.find(what)) != std::string::npos)
 		result.replace(position, what.length(), with);
 
 	return result;
