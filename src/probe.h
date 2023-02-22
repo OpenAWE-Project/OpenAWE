@@ -24,11 +24,11 @@
 #include "src/awe/resman.h"
 
 enum ProbeResult {
-	kResultUnknown 				= 0,
-	kResultAlanWake 			= 1,
-	kResultNightmare 			= 2,
-	kResultQuantumBreak 		= 4,
-	kResultAlanWakeRemastered 	= 8,
+	kResultUnknown = 0,
+	kResultAlanWake = 1,
+	kResultAmericanNightmare = 2,
+	kResultQuantumBreak = 4,
+	kResultAlanWakeRemastered = 8,
 };
 
 class Probe {
@@ -41,7 +41,7 @@ public:
 	 * 
 	 * \return One of the ProbeResult values
 	 */
-	unsigned char performProbe();
+	ProbeResult performProbe();
 
 private:
 	/*!
@@ -54,7 +54,7 @@ private:
 	 * Checks whether supplied data archives are of
 	 * Alan Wake's American Nightmare
 	 */
-	ProbeResult checkNightmare();
+	ProbeResult checkAmericanNightmare();
 
 	/*!
 	 * Checks whether supplied data archives are of
@@ -67,8 +67,6 @@ private:
 	 * Alan Wake Remastered
 	 */
 	ProbeResult checkAlanWakeRemastered();
-	
-	AWE::RessourceManager* _resources;
 
 };
 
