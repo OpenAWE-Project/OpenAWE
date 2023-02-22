@@ -123,28 +123,29 @@ void Game::init() {
 	}
 
 	if (identifiers.empty())
-		throw Common::Exception("No .rmdp files found in the set data path.");
+		throw CreateException("No .rmdp files found in the set data path.");
 
 	GameEngine engine;
 
 	// Launch probe to see what game we are dealing with
 	Probe probe = Probe();
-	unsigned char probeResult = probe.performProbe();
+	ProbeResult probeResult = probe.performProbe();
 	switch (probeResult) {
 		case kResultAlanWake:
 			spdlog::info("Initializing Alan Wake...");
 			engine = kAlanWake;
 			break;
-		case kResultNightmare:
+		case kResultAmericanNightmare:
 			spdlog::info("Initializing Alan Wake's American Nightmare...");
 			engine = kAlanWakesAmericanNightmare;
 			break;
 		case kResultQuantumBreak:
+			throw CreateException("Quantum Break is not yet supported by OpenAWE.");
 		case kResultAlanWakeRemastered:
-			throw Common::Exception("This game is not yet supported by OpenAWE.");
+			throw CreateException("Alan Wake Remastered is not yet supported by OpenAWE.");
 		case kResultUnknown:
 		default:
-			throw Common::Exception("Unknown game data was supplied.");
+			throw CreateException("Unknown game data was supplied.");
 	}
 
 	// Check if the resources have packmeta files and load them and if not load streamed resources
