@@ -27,10 +27,10 @@ namespace AWE {
 std::string getNormalizedPath(const std::string &path) {
 	std::string lower = Common::toLower(path);
 	if (Common::startsWith(lower, "runtimedata\\pc")) 
-		Common::replace(lower, "runtimedata\\pc", "d:");
-	Common::replace(lower, "\\", "/");
+		lower = Common::replace(lower, "runtimedata\\pc", "d:");
+	lower = Common::replace(lower, "\\", "/");
 	if (Common::startsWith(lower, "d:/data/")) 
-		Common::replace(lower, "d:/data/", "");
+		lower = Common::replace(lower, "d:/data/", "");
 	return lower;
 }
 
