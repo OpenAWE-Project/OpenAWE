@@ -22,6 +22,7 @@
 
 #include <gtest/gtest.h>
 
+#include "src/common/exception.h"
 #include "src/common/strutil.h"
 
 TEST(StringUtil, toLower) {
@@ -56,4 +57,34 @@ TEST(StringUtil, split) {
 	EXPECT_STREQ(split[0].c_str(), "multiple");
 	EXPECT_STREQ(split[1].c_str(), "words");
 	EXPECT_STREQ(split[2].c_str(), "splitted");
+}
+
+TEST(StringUtil, startsWith) {
+	const std::string testString = "This is a cool and awesome sentence.";
+
+	EXPECT_TRUE(Common::startsWith(testString, "This"));
+	EXPECT_FALSE(Common::startsWith(testString, "sentence."));
+	EXPECT_FALSE(Common::startsWith(testString, "awesome"));
+}
+
+TEST(StringUtil, endsWith) {
+	const std::string testString = "This is a cool and awesome sentence.";
+
+	EXPECT_FALSE(Common::endsWith(testString, "This"));
+	EXPECT_TRUE(Common::endsWith(testString, "sentence."));
+	EXPECT_FALSE(Common::endsWith(testString, "awesome"));
+}
+
+TEST(StringUtil, replace) {
+	const std::string testString = std::string("This is a cool and awesome sentence.");
+	EXPECT_THROW(Common::replace(testString, "cool", "super cool"), Common::Exception);
+	std::string testResult = Common::replace(testString, "incredible", "outstanding");
+	EXPECT_STREQ(testString.c_str(), testResult.c_str());
+
+	testResult = Common::replace(testString, " ", "/");
+	EXPECT_STREQ(testResult.c_str(), "This/is/a/cool/and/awesome/sentence.");
+	testResult = Common::replace(testString, "This is a", "Yet another");
+	EXPECT_STREQ(testResult.c_str(), "Yet another cool and awesome sentence.");
+	testResult = Common::replace(testString, "sentence.", "phrase!");
+	EXPECT_STREQ(testResult.c_str(), "This is a cool and awesome phrase!");
 }
