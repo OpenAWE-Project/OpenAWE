@@ -48,7 +48,7 @@ void convertYUV2RGB(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, uns
 }
 
 void convertYUV2RGB_SSE2(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height) {
-#if __SSE2__
+#if __SSE2__ || _M_IX86_FP==2
 	__m128i uvdiff = _mm_set1_epi16(128);
 
 	__m128i fac_r_cr = _mm_set1_epi16(90);
