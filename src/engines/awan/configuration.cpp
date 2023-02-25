@@ -33,7 +33,19 @@
 
 namespace Engines::AlanWakesAmericanNightmare {
 
-Configuration::Configuration() : _profileName("default") {
+Configuration::Configuration() :
+	_brightness(0.5),
+	_subtitles(false),
+	_securityArea(0.5),
+	_musicVolume(1.0),
+	_effectVolume(1.0),
+	_speechVolume(1.0),
+	_movieVolume(1.0),
+	_horicontallyInverted(false),
+	_verticallyInverted(false),
+	_sensitivity(1.0),
+	_hapticFeedback(false),
+	_profileName("default") {
 }
 
 void Configuration::write() {
@@ -106,17 +118,17 @@ void Configuration::readConfiguration(Common::ReadStream &file) {
 
 	file.skip(1);
 	_brightness = file.readIEEEFloatLE();
-	_subtitles = file.readByte() ? true : false;
+	_subtitles = file.readByte() != 0;
 	file.skip(8);
 	_securityArea = file.readIEEEFloatLE();
 	_musicVolume = file.readIEEEFloatLE();
 	_effectVolume = file.readIEEEFloatLE();
 	_speechVolume = file.readIEEEFloatLE();
 	_movieVolume = file.readIEEEFloatLE();
-	_horicontallyInverted = file.readByte() ? true : false;
-	_verticallyInverted = file.readByte() ? true : false;
+	_horicontallyInverted = file.readByte() != 0;
+	_verticallyInverted = file.readByte() != 0;
 	_sensitivity = file.readIEEEFloatLE();
-	_hapticFeedback = file.readByte() ? true : false;
+	_hapticFeedback = file.readByte() != 0;
 }
 
 void Configuration::writeResolution(Common::WriteStream &file) {
