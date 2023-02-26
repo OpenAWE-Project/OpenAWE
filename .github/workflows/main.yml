@@ -61,21 +61,23 @@ jobs:
         run: |
           mkdir vcpkg-cache
           echo "VCPKG_DEFAULT_BINARY_CACHE=${{ github.workspace }}/vcpkg-cache" >> $GITHUB_ENV
+          vcpkg update
+          vcpkg install --dry-run zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl >> vcpkg-cache/vcpkg_dry_run.txt
 
       - name: Cache dependencies for vcpkg
         if: ${{ matrix.os == 'windows-2019' }}
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/vcpkg-cache
-          key: ${{matrix.os}}-build-vcpkg-cache-${{ github.ref_name }}
+          key: ${{ matrix.os }}-build-vcpkg-cache-${{ github.ref_name }}-${{ hashFiles('vcpkg-cache/*') }}
           restore-keys: |
-            ${{matrix.os}}-build-vcpkg-cache-master
-            ${{matrix.os}}-build-vcpkg-cache-
+            ${{ matrix.os }}-build-vcpkg-cache-${{ github.ref_name }}-
+            ${{ matrix.os }}-build-vcpkg-cache-master-
+            ${{ matrix.os }}-build-vcpkg-cache-
 
       - name: Install dependencies with vcpkg
         if: ${{ matrix.os == 'windows-2019' }}
         run: |
-          vcpkg update
           vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl
 
       - name: Install dependencies with brew
@@ -88,13 +90,12 @@ jobs:
         if: ${{ matrix.os != 'windows-2019' }}
         uses: actions/cache@v3
         with:
-          path: |
-            ${{github.workspace}}/build
-            ${{github.workspace}}/.ccache
-          key: ${{ matrix.os }}-${{ matrix.compiler }}-build-compile-cache-${{ github.ref_name }}
+          path: ${{github.workspace}}/.ccache
+          key: ${{ matrix.os }}-${{ matrix.compiler }}-build-compile-cache-${{ github.ref_name }}-${{ hashFiles('**/src/*.cpp', '**/src/*.h') }}
           restore-keys: |
-            ${{matrix.os}}-${{ matrix.compiler }}-build-compile-cache-master
-            ${{matrix.os}}-${{ matrix.compiler }}-build-compile-cache-
+            ${{ matrix.os }}-${{ matrix.compiler }}-build-compile-cache-${{ github.ref_name }}-
+            ${{ matrix.os }}-${{ matrix.compiler }}-build-compile-cache-master-
+            ${{ matrix.os }}-${{ matrix.compiler }}-build-compile-cache-
 
       - name: Setup ccache
         if: ${{ matrix.os != 'windows-2019' }}
