@@ -55,11 +55,18 @@ jobs:
             libgtest-dev \
             ccache
 
+      - name: Override cache folder for vcpkg
+        if: ${{ matrix.os == 'windows-2019' }}
+        shell: bash
+        run: |
+          mkdir '${{ github.workspace }}/vcpkg-cache'
+          export VCPKG_DEFAULT_BINARY_CACHE=${{ github.workspace }}/vcpkg-cache
+
       - name: Cache dependencies for vcpkg
         if: ${{ matrix.os == 'windows-2019' }}
         uses: actions/cache@v3
         with:
-          path: ${{ github.workspace }}/vcpkg/archives
+          path: ${{ github.workspace }}/vcpkg-cache
           key: ${{matrix.os}}-build-vcpkg-cache-${{ github.ref_name }}
           restore-keys: |
             ${{matrix.os}}-build-vcpkg-cache-master
