@@ -12,16 +12,19 @@ jobs:
         include:
           - name: Linux GCC
             os: ubuntu-20.04
-            extra_cmake_args: -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+            compiler: gcc
+            extra_cmake_args: -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           - name: Linux Clang
             os: ubuntu-20.04
-            extra_cmake_args: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+            compiler: clang
+            extra_cmake_args: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           - name: Windows MSVC
             os: windows-2019
             extra_cmake_args: -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
           - name: MacOS Clang
             os: macos-11
-            extra_cmake_args: -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include/AL
+            compiler: clang
+            extra_cmake_args: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include/AL
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -49,13 +52,14 @@ jobs:
             libvorbis-dev \
             libspdlog-dev \
             libglew-dev \
-            libgtest-dev
+            libgtest-dev \
+            ccache
 
       - name: Cache dependencies for vcpkg
         if: ${{ matrix.os == 'windows-2019' }}
         uses: actions/cache@v3
         with:
-          path: $VCPKG_INSTALLATION_ROOT\archives
+          path: ${{ github.workspace }}/vcpkg/archives
           key: ${{matrix.os}}-build-vcpkg-cache-${{ github.ref_name }}
           restore-keys: |
             ${{matrix.os}}-build-vcpkg-cache-master
@@ -71,16 +75,24 @@ jobs:
         if: ${{ matrix.os == 'macos-11' }}
         run: |
           brew update
-          brew install zlib glfw libogg libvorbis theora spdlog glew openal-soft bullet fmt googletest tinyxml2 glm
+          brew install zlib glfw libogg libvorbis theora spdlog glew openal-soft bullet fmt googletest tinyxml2 glm ccache
 
       - name: Cache build
+        if: ${{ matrix.os != 'windows-2019' }}
         uses: actions/cache@v3
         with:
-          path: ${{github.workspace}}/build
-          key: ${{matrix.os}}-build-compile-cache-${{ github.ref_name }}
+          path: |
+            ${{github.workspace}}/build
+            ${{github.workspace}}/.ccache
+          key: ${{ matrix.os }}-${{ matrix.compiler }}-build-compile-cache-${{ github.ref_name }}
           restore-keys: |
-            ${{matrix.os}}-build-compile-cache-master
-            ${{matrix.os}}-build-compile-cache-
+            ${{matrix.os}}-${{ matrix.compiler }}-build-compile-cache-master
+            ${{matrix.os}}-${{ matrix.compiler }}-build-compile-cache-
+
+      - name: Select compiler for ccache
+        if: ${{ matrix.os != 'windows-2019' }}
+        shell: bash
+        run: export CCACHE_COMPILER=${{ matrix.compiler }} 
 
       - name: Configure CMake
         shell: bash
