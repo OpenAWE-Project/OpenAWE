@@ -51,6 +51,16 @@ jobs:
             libglew-dev \
             libgtest-dev
 
+      - name: Cache dependencies for vcpkg
+        if: ${{ matrix.os == 'windows-2019' }}
+        uses: actions/cache@v3
+        with:
+          path: $VCPKG_DEFAULT_BINARY_CACHE
+          key: ${{matrix.os}}-build-vcpkg-cache-${{ github.ref_name }}
+          restore-keys: |
+            ${{matrix.os}}-build-vcpkg-cache-master
+            ${{matrix.os}}-build-vcpkg-cache-
+
       - name: Install dependencies with vcpkg
         if: ${{ matrix.os == 'windows-2019' }}
         run: |
