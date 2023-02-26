@@ -166,7 +166,7 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 			path = folderEntry.name + "/" + path;
 	}
 
-	return Common::replace(path, "d:/data", "");
+	return Common::replace(path, "d:/data/", "");
 }
 
 Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
