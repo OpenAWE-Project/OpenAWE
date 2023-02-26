@@ -13,11 +13,11 @@ jobs:
           - name: Linux GCC
             os: ubuntu-20.04
             compiler: gcc
-            extra_cmake_args: -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            extra_cmake_args: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           - name: Linux Clang
             os: ubuntu-20.04
             compiler: clang
-            extra_cmake_args: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            extra_cmake_args: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           - name: Windows MSVC
             os: windows-2019
             extra_cmake_args: -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
@@ -59,8 +59,8 @@ jobs:
         if: ${{ matrix.os == 'windows-2019' }}
         shell: bash
         run: |
-          mkdir '${{ github.workspace }}/vcpkg-cache'
-          export VCPKG_DEFAULT_BINARY_CACHE=${{ github.workspace }}/vcpkg-cache
+          mkdir vcpkg-cache
+          echo "VCPKG_DEFAULT_BINARY_CACHE=${{ github.workspace }}/vcpkg-cache" >> $GITHUB_ENV
 
       - name: Cache dependencies for vcpkg
         if: ${{ matrix.os == 'windows-2019' }}
@@ -84,7 +84,7 @@ jobs:
           brew update
           brew install zlib glfw libogg libvorbis theora spdlog glew openal-soft bullet fmt googletest tinyxml2 glm ccache
 
-      - name: Cache build
+      - name: Cache non-Windows build with ccache
         if: ${{ matrix.os != 'windows-2019' }}
         uses: actions/cache@v3
         with:
@@ -96,10 +96,16 @@ jobs:
             ${{matrix.os}}-${{ matrix.compiler }}-build-compile-cache-master
             ${{matrix.os}}-${{ matrix.compiler }}-build-compile-cache-
 
-      - name: Select compiler for ccache
+      - name: Setup ccache
         if: ${{ matrix.os != 'windows-2019' }}
         shell: bash
-        run: export CCACHE_COMPILER=${{ matrix.compiler }} 
+        run: |
+          echo "CCACHE_COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
+          echo "CCACHE_BASEDIR=${{ github.workspace }}" >> $GITHUB_ENV
+          echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
+          echo "CCACHE_COMPRESS=true" >> $GITHUB_ENV
+          echo "CCACHE_COMPRESSLEVEL=6" >> $GITHUB_ENV
+          echo "CCACHE_MAXSIZE=400M" >> $GITHUB_ENV
 
       - name: Configure CMake
         shell: bash
