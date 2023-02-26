@@ -30,6 +30,9 @@ namespace AWE {
  * - replacing \ with /
  * - lowercasing the path
  * - removing runtimedata\pc and d:/data from path
+ * 
+ * \param path file path string to normalize
+ * \return normalized string
  */
 std::string getNormalizedPath(const std::string &path);
 

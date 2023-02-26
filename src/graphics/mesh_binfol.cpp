@@ -24,6 +24,7 @@
 #include <fmt/format.h>
 
 #include "src/awe/path.h"
+
 #include "src/graphics/mesh_binfol.h"
 
 namespace Graphics {
