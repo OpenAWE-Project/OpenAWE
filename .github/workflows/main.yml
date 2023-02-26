@@ -55,7 +55,7 @@ jobs:
         if: ${{ matrix.os == 'windows-2019' }}
         uses: actions/cache@v3
         with:
-          path: $VCPKG_DEFAULT_BINARY_CACHE
+          path: $VCPKG_INSTALLATION_ROOT\archives
           key: ${{matrix.os}}-build-vcpkg-cache-${{ github.ref_name }}
           restore-keys: |
             ${{matrix.os}}-build-vcpkg-cache-master
@@ -72,6 +72,15 @@ jobs:
         run: |
           brew update
           brew install zlib glfw libogg libvorbis theora spdlog glew openal-soft bullet fmt googletest tinyxml2 glm
+
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: ${{github.workspace}}/build
+          key: ${{matrix.os}}-build-compile-cache-${{ github.ref_name }}
+          restore-keys: |
+            ${{matrix.os}}-build-compile-cache-master
+            ${{matrix.os}}-build-compile-cache-
 
       - name: Configure CMake
         shell: bash
