@@ -53,6 +53,10 @@ void GraphicsManager::removeGUIElement(GUIElement *gui) {
 	_renderer->removeGUIElement(gui);
 }
 
+void GraphicsManager::addLight(Light *light) {
+	_renderer->addLight(light);
+}
+
 TexturePtr GraphicsManager::createTexture(const ImageDecoder &decoder) {
 	TexturePtr texture = _renderer->createTexture(decoder.getType());
 	texture->load(decoder);

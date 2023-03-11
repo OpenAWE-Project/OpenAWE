@@ -34,6 +34,7 @@
 #include "src/graphics/vertexattribute.h"
 #include "src/graphics/camera.h"
 #include "src/graphics/buffer.h"
+#include "src/graphics/light.h"
 
 namespace Graphics {
 
@@ -55,6 +56,12 @@ public:
 	 * \param gui The gui element to remove
 	 */
 	void removeGUIElement(GUIElement *gui);
+
+	/*!
+	 * Add light to the rendering queue
+	 * \param light The light to add
+	 */
+	void addLight(Light *light);
 
 	/*!
 	 * Create a texture in the initialized rendering system using given image data from a decoder as base. The decoder

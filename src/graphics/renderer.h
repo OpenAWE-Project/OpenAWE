@@ -32,6 +32,7 @@
 #include "src/graphics/ambiancestate.h"
 #include "src/graphics/texture.h"
 #include "src/graphics/buffer.h"
+#include "src/graphics/light.h"
 #include "src/graphics/attributeobject.h"
 #include "src/graphics/images/decoder.h"
 
@@ -47,6 +48,7 @@ public:
 	void removeModel(Model *model);
 	void addGUIElement(GUIElement *gui);
 	void removeGUIElement(GUIElement *gui);
+	void addLight(Light *light);
 
 	void setCamera(Camera &camera);
 

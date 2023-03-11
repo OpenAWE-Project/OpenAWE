@@ -98,6 +98,10 @@ void Graphics::Renderer::removeGUIElement(Graphics::GUIElement *gui) {
 	_guiElements.erase(iter);
 }
 
+void Graphics::Renderer::addLight(Graphics::Light *light) {
+	_lights.emplace_back(light);
+}
+
 void Graphics::Renderer::setCamera(Graphics::Camera &camera) {
 	_camera = camera;
 }
