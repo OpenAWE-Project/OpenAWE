@@ -29,7 +29,6 @@ uniform sampler2D g_sLinearDepthBuffer;
 uniform sampler2D g_sNormalBuffer;
 
 out vec4 out_Color;
-out vec4 out_Normal;
 
 void main() {
     vec2 vScreen = gl_FragCoord.xy / g_vScreenRes;
@@ -50,7 +49,4 @@ void main() {
 
     out_Color.rgb = g_vLightColor;
     out_Color.a = fDistanceFactor * fNormalFactor;
-
-    out_Normal.rgb = texture(g_sNormalBuffer, vScreen).xyz;
-    out_Normal.a = 1.0;
 }
