@@ -24,9 +24,12 @@ uniform mat4 g_mClipToView;
 uniform vec2 g_vScreenRes;
 uniform vec3 g_vLightPosition;
 uniform vec3 g_vLightColor;
+uniform vec4 g_vLightFalloff;
 
 uniform sampler2D g_sLinearDepthBuffer;
 uniform sampler2D g_sNormalBuffer;
+
+const float LOG2 = 1.442695;
 
 out vec4 out_Color;
 
@@ -45,7 +48,7 @@ void main() {
 
     // Calculate distance factor
     float fDistance = distance(g_vLightPosition, vViewPosition);
-    float fDistanceFactor = clamp(1.0 - fDistance, 0.0, 1.0);
+    float fDistanceFactor = clamp(exp2(-fDistance * g_vLightFalloff.x * LOG2) - g_vLightFalloff.y, 0.0, 1.0);
 
     out_Color.rgb = g_vLightColor;
     out_Color.a = fDistanceFactor * fNormalFactor;
