@@ -94,6 +94,7 @@ protected:
 
 	std::vector<RenderPass> _renderPasses;
 	std::vector<GUIElement *> _guiElements;
+	std::vector<Light *> _lights;
 };
 
 } // End of namespace Graphics
