@@ -4,6 +4,12 @@ on: ['push', 'pull_request']
 env:
   BUILD_TYPE: Release
   VCPKG_DEFAULT_TRIPLET: x64-windows
+  VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\vcpkg-cache
+  CCACHE_BASEDIR: ${{ github.workspace }}
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
+  CCACHE_COMPRESS: true
+  CCACHE_COMPRESSLEVEL: 6
+  CCACHE_MAXSIZE: 400M
 
 jobs:
   build:
@@ -13,18 +19,18 @@ jobs:
           - name: Linux GCC
             os: ubuntu-20.04
             compiler: gcc
-            extra_cmake_args: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            extra_cmake_args: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
           - name: Linux Clang
             os: ubuntu-20.04
             compiler: clang
-            extra_cmake_args: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            extra_cmake_args: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
           - name: Windows MSVC
             os: windows-2019
             extra_cmake_args: -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
           - name: MacOS Clang
             os: macos-11
             compiler: clang
-            extra_cmake_args: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include/AL
+            extra_cmake_args: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include/AL
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -60,7 +66,6 @@ jobs:
         shell: bash
         run: |
           mkdir vcpkg-cache
-          echo "VCPKG_DEFAULT_BINARY_CACHE=${{ github.workspace }}/vcpkg-cache" >> $GITHUB_ENV
           vcpkg update
           vcpkg install --dry-run zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl >> vcpkg-cache/vcpkg_dry_run.txt
 
@@ -96,17 +101,6 @@ jobs:
             ${{ matrix.os }}-${{ matrix.compiler }}-build-compile-cache-${{ github.ref_name }}-
             ${{ matrix.os }}-${{ matrix.compiler }}-build-compile-cache-master-
             ${{ matrix.os }}-${{ matrix.compiler }}-build-compile-cache-
-
-      - name: Setup ccache
-        if: ${{ matrix.os != 'windows-2019' }}
-        shell: bash
-        run: |
-          echo "CCACHE_COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
-          echo "CCACHE_BASEDIR=${{ github.workspace }}" >> $GITHUB_ENV
-          echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
-          echo "CCACHE_COMPRESS=true" >> $GITHUB_ENV
-          echo "CCACHE_COMPRESSLEVEL=6" >> $GITHUB_ENV
-          echo "CCACHE_MAXSIZE=400M" >> $GITHUB_ENV
 
       - name: Configure CMake
         shell: bash
