@@ -50,7 +50,7 @@
 
 namespace Graphics::OpenGL {
 
-Renderer::Renderer(Platform::Window &window) : _window(window) {
+Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory) : _window(window) {
 	_window.makeCurrent();
 
 	// Initialize GLEW
@@ -150,7 +150,7 @@ Renderer::Renderer(Platform::Window &window) : _window(window) {
 	// Read and initialize shaders
 	//
 	const std::regex objFile("^[a-z0-9]+\\.obj$");
-	for (const auto &item : std::filesystem::directory_iterator("../shaders")) {
+	for (const auto &item : std::filesystem::directory_iterator(shaderDirectory)) {
 		std::string filename = item.path().filename().string();
 		if (!item.is_regular_file())
 			continue;

@@ -30,11 +30,11 @@
 
 namespace Graphics {
 
-void GraphicsManager::initOpenGL(Platform::Window &window) {
+void GraphicsManager::initOpenGL(Platform::Window &window, const std::string &shaderDirectory) {
 	if (_renderer)
 		throw std::runtime_error("Renderer already initialized");
 
-	_renderer = std::make_unique<Graphics::OpenGL::Renderer>(window);
+	_renderer = std::make_unique<Graphics::OpenGL::Renderer>(window, shaderDirectory);
 }
 
 void GraphicsManager::addModel(Model *model) {

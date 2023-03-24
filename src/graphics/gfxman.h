@@ -40,7 +40,7 @@ namespace Graphics {
 
 class GraphicsManager : public Common::Singleton<GraphicsManager> {
 public:
-	void initOpenGL(Platform::Window &window);
+	void initOpenGL(Platform::Window &window, const std::string &shaderDirectory);
 
 	void setCamera(Camera &camera);
 

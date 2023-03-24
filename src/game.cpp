@@ -82,6 +82,9 @@ bool Game::parseArguments(int argc, char **argv) {
 			{"hu", Common::kHungarian}
 		}, CLI::ignore_case))
 		->default_val(Common::getSystemLanguage());
+	app.add_option("-s,--shader-path", _shaderPath, "The path in which the shader files are stored")
+		->default_val("../shaders");
+
 	_physicsDebugDraw = false;
 	app.add_flag("--debug-physics", _physicsDebugDraw, "Draw physics bodies for debugging");
 
@@ -181,7 +184,7 @@ void Game::init() {
 
 	_window = std::make_unique<Platform::Window>(Platform::Window::kOpenGL);
 
-	GfxMan.initOpenGL(*_window);
+	GfxMan.initOpenGL(*_window, _shaderPath);
 	//GfxMan.setAmbianceState("scene1_reststop_creepy");
 
 	// Initialize Physics

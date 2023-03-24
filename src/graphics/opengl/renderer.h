@@ -39,7 +39,7 @@ namespace Graphics::OpenGL {
 
 class Renderer : public Graphics::Renderer {
 public:
-	explicit Renderer(Platform::Window &window);
+	explicit Renderer(Platform::Window &window, const std::string &shaderDirectory);
 	~Renderer();
 
 	void drawFrame() override;
