@@ -32,6 +32,10 @@
 
 #include "src/graphics/model.h"
 #include "src/graphics/meshman.h"
+#include "src/graphics/light.h"
+#include "src/graphics/skeleton.h"
+#include "src/graphics/animation.h"
+#include "src/graphics/animationcontroller.h"
 
 #include "src/physics/havokobject.h"
 #include "src/physics/terraincollision.h"
@@ -145,7 +149,7 @@ void ObjectCollection::loadSkeleton(const AWE::Object &container) {
 
 	auto skeletonEntity = _registry.create();
 	_registry.emplace<GID>(skeletonEntity) = skeleton.gid;
-	// TODO: Load a representation of the skeleton
+	_registry.emplace<Graphics::Skeleton>(skeletonEntity) = skeleton.rid;
 
 	spdlog::debug("Loading skeleton {}", skeleton.name);
 }
