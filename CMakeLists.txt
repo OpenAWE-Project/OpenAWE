@@ -212,7 +212,7 @@ find_package(Doxygen)
 if (DOXYGEN_FOUND)
     doxygen_add_docs(
             doc
-            ${PROJECT_SOURCE_DIR}
+            ${PROJECT_SOURCE_DIR}/src
     )
 endif ()
 
