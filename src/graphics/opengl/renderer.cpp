@@ -42,6 +42,7 @@
 #include "src/awe/objfile.h"
 
 #include "src/graphics/shaderconverter.h"
+#include "src/graphics/skeleton.h"
 #include "src/graphics/opengl/renderer.h"
 #include "src/graphics/opengl/opengl.h"
 #include "src/graphics/opengl/vbo.h"
@@ -306,10 +307,12 @@ void Renderer::drawWorld(const std::string &stage) {
 		const ProgramPtr &currentShader = (!hasProgram(pass.programName, stage)) ? defaultShader : getProgram(pass.programName, stage);
 		currentShader->bind();
 
-		std::optional<GLint> localToView = currentShader->getUniformLocation("g_mLocalToView");
-		std::optional<GLint> localToClip = currentShader->getUniformLocation("g_mLocalToClip");
-		std::optional<GLint> viewToClip = currentShader->getUniformLocation("g_mViewToClip");
-		std::optional<GLint> viewToWorld = currentShader->getUniformLocation("g_mViewToWorld");
+		const std::optional<GLint> localToView = currentShader->getUniformLocation("g_mLocalToView");
+		const std::optional<GLint> localToClip = currentShader->getUniformLocation("g_mLocalToClip");
+		const std::optional<GLint> viewToClip = currentShader->getUniformLocation("g_mViewToClip");
+		const std::optional<GLint> viewToWorld = currentShader->getUniformLocation("g_mViewToWorld");
+
+		const std::optional<GLint> skinningMatrices = currentShader->getUniformLocation("GPU_skinning_matrices");
 
 		for (const auto &task: pass.renderTasks) {
 			glm::mat4 m = mirrorZ * task.model->getTransform();
@@ -382,6 +385,11 @@ void Renderer::drawWorld(const std::string &stage) {
 							break;
 					}
 					//assert(glGetError() == GL_NO_ERROR);
+				}
+
+				if (task.model->hasSkeleton() && skinningMatrices) {
+					const auto matrices =	task.model->getSkeleton().getSkinningMatrices(partmesh.boneMap);
+					currentShader->setUniformMatrix4x3fArray(*skinningMatrices, matrices);
 				}
 
 				GLenum type;
