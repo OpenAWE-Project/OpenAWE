@@ -43,9 +43,10 @@ public:
 	};
 
 	Animation();
-	Animation(rid_t rid);
+	Animation(rid_t rid, const std::string &name = "");
 
 	float getDuration() const;
+	const std::string &getName() const;
 
 	bool hasTrackForBone(const std::string &boneName) const;
 
@@ -53,6 +54,7 @@ public:
 
 private:
 	float _duration;
+	const std::string _name;
 	std::map<std::string, std::vector<Keyframe>> _keyframes;
 };
 

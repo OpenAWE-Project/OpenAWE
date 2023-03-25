@@ -46,7 +46,7 @@ namespace Graphics {
 Animation::Animation() {
 }
 
-Animation::Animation(rid_t rid) {
+Animation::Animation(rid_t rid, const std::string &name) : _name(name) {
 	std::unique_ptr<Common::ReadStream> havok(ResMan.getResource(rid));
 	if (!havok)
 		throw Common::Exception(fmt::format("Havok file for animation not found with the rid {:x}", rid));
@@ -105,6 +105,10 @@ Animation::Animation(rid_t rid) {
 
 float Animation::getDuration() const {
 	return _duration;
+}
+
+const std::string &Animation::getName() const {
+	return _name;
 }
 
 bool Animation::hasTrackForBone(const std::string &boneName) const {
