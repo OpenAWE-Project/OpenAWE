@@ -278,7 +278,7 @@ void Game::start() {
 
 	spdlog::info("Stopping AWE...");
 
-	_engine->getConfiguration().write();
+	_engine->writeConfiguration();
 
 	_window.reset();
 	_platform.terminate();

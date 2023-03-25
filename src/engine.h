@@ -48,6 +48,7 @@ public:
 	void playVideo();
 	void stopVideo();
 
+	void writeConfiguration();
 	Configuration &getConfiguration();
 
 	virtual void loadEpisode(const std::string &data);

@@ -67,6 +67,11 @@ void Engine::playVideo() {
 		});
 }
 
+void Engine::writeConfiguration() {
+	if (_configuration)
+		_configuration->write();
+}
+
 Configuration &Engine::getConfiguration() {
 	return *_configuration;
 }
