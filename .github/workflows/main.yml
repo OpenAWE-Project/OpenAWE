@@ -4,7 +4,7 @@ on: ['push', 'pull_request']
 env:
   BUILD_TYPE: Release
   VCPKG_DEFAULT_TRIPLET: x64-windows
-  VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\vcpkg-cache
+  VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
   CCACHE_BASEDIR: ${{ github.workspace }}
   CCACHE_DIR: ${{ github.workspace }}/.ccache
   CCACHE_COMPRESS: true
@@ -61,28 +61,19 @@ jobs:
             libgtest-dev \
             ccache
 
-      - name: Override cache folder for vcpkg
+      - name: Install dependencies with vcpkg
         if: ${{ matrix.os == 'windows-2019' }}
         shell: bash
         run: |
-          mkdir vcpkg-cache
           vcpkg update
-          vcpkg install --dry-run zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl >> vcpkg-cache/vcpkg_dry_run.txt
-
-      - name: Cache dependencies for vcpkg
-        if: ${{ matrix.os == 'windows-2019' }}
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}/vcpkg-cache
-          key: ${{ matrix.os }}-build-vcpkg-cache-${{ github.ref_name }}-${{ hashFiles('vcpkg-cache/*') }}
-          restore-keys: |
-            ${{ matrix.os }}-build-vcpkg-cache-${{ github.ref_name }}-
-            ${{ matrix.os }}-build-vcpkg-cache-master-
-            ${{ matrix.os }}-build-vcpkg-cache-
-
-      - name: Install dependencies with vcpkg
-        if: ${{ matrix.os == 'windows-2019' }}
-        run: |
+          nuget sources Add \
+            -source "https://nuget.pkg.github.com/${{ github.actor }}/index.json" \
+            -name "GitHub" \
+            -storepasswordincleartext \
+            -username "${{ github.actor }}" \
+            -password "${{ github.token }}"
+          nuget setapikey "${{ github.token }}" \
+            -source "https://nuget.pkg.github.com/${{ github.actor }}/index.json"
           vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl
 
       - name: Install dependencies with brew
