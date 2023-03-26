@@ -52,6 +52,8 @@ public:
 	 */
 	VideoStream(unsigned int width, unsigned int height, float fps);
 
+	virtual ~VideoStream() = default;
+
 	/*!
 	 * Return the frames per second of this video stream
 	 * \return The frames per second of this video stream

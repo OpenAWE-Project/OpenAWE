@@ -34,6 +34,8 @@ namespace Codecs {
  */
 class Container {
 public:
+	virtual ~Container() = default;
+
 	/*!
 	 * Get the number of audio streams contained in this container file
 	 * \return The number of audio stream contained in this container file

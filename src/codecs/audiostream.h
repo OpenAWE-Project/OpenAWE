@@ -36,6 +36,8 @@ namespace Codecs {
  */
 class AudioStream {
 public:
+	virtual ~AudioStream() = default;
+
 	/*!
 	 * Get the sample rate of the audio stream
 	 * \return The sample rate of the audio stream
