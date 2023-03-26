@@ -36,6 +36,7 @@
 namespace Platform {
 
 typedef std::function<void (int key, int scancode, int action, int mods)> KeyCallback;
+typedef std::function<void (int button, int action, int mods)> MouseCallback;
 
 class Window : public GLContext, public VulkanContext {
 public:
@@ -62,6 +63,7 @@ public:
 	bool shouldClose();
 
 	void setKeyCallback(const KeyCallback &keyCallback);
+	void setMouseCallback(const MouseCallback &mouseCallback);
 
 	GLFWwindow * getWindowHandle();
 
@@ -75,6 +77,7 @@ private:
 	GLFWwindow *_window;
 
 	KeyCallback _keyCallback;
+	MouseCallback _mouseCallback;
 };
 
 } // End of namespace Graphics

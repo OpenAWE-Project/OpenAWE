@@ -27,6 +27,7 @@
 #include "src/common/singleton.h"
 
 #include "src/events/key.h"
+#include "src/events/mouse.h"
 #include "src/events/event.h"
 
 namespace Events {
@@ -55,6 +56,13 @@ public:
 	void injectKeyboardInput(Key key, KeyState state);
 
 	/*!
+	 * Inject a keyboard event to the event system
+	 * \param key The key for the event
+	 * \param state If the key is pressed or released
+	 */
+	void injectMouseInput(Mouse mouse, KeyState state);
+
+	/*!
 	 * Set a callback for a set of actions
 	 * \param actions The actions, the callback is associated with
 	 * \param callback The callback, to be associated with actions
@@ -68,10 +76,18 @@ public:
 	 */
 	void addBinding(uint32_t action, Key key);
 
+	/*!
+	 * Associate an with a specific mouse key
+	 * \param action The action for association with the key
+	 * \param key The key for association with the action
+	 */
+	void addBinding(uint32_t action, Mouse mouse);
+
 private:
 	std::map<uint32_t, EventCallback> _actionCallbacks;
 
 	std::multimap<Key, uint32_t> _keyBindings;
+	std::multimap<Mouse, uint32_t> _mouseBindings;
 };
 
 } // Enf of namespace Events
