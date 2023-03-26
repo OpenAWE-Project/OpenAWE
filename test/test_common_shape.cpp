@@ -50,16 +50,16 @@ TEST(Shape, generateIcoSphere) {
 		EXPECT_NEAR(glm::length(position), 3.0, 0.0001);
 	}
 
-	for (int i = 0; i < icoSphere0.positions.size(); ++i) {
+	for (unsigned int i = 0; i < icoSphere0.positions.size(); ++i) {
 		EXPECT_EQ(std::count(icoSphere0.indices.begin(), icoSphere0.indices.end(), i), 5);
 	}
 
-	for (int i = 0; i < icoSphere1.positions.size(); ++i) {
+	for (unsigned int i = 0; i < icoSphere1.positions.size(); ++i) {
 		EXPECT_GE(std::count(icoSphere1.indices.begin(), icoSphere1.indices.end(), i), 5);
 		EXPECT_LE(std::count(icoSphere1.indices.begin(), icoSphere1.indices.end(), i), 6);
 	}
 
-	for (int i = 0; i < icoSphere2.positions.size(); ++i) {
+	for (unsigned int i = 0; i < icoSphere2.positions.size(); ++i) {
 		EXPECT_GE(std::count(icoSphere2.indices.begin(), icoSphere2.indices.end(), i), 5);
 		EXPECT_LE(std::count(icoSphere2.indices.begin(), icoSphere2.indices.end(), i), 6);
 	}

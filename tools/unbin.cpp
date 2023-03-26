@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 	std::unique_ptr<Common::ReadStream> binStream = std::make_unique<Common::ReadFile>(binFile);
 	AWE::BINArchive bin(*binStream);
 
-	for (int i = 0; i < bin.getNumResources(); ++i) {
+	for (size_t i = 0; i < bin.getNumResources(); ++i) {
 		const std::string path = bin.getResourcePath(i);
 
 		fmt::print("{}/{} {}\n", i + 1, bin.getNumResources(), path);
