@@ -242,6 +242,10 @@ void Game::start() {
 		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
 	});
 
+	_window->setMouseCallback([&](int button, int action, int mods){
+		EventMan.injectMouseInput(static_cast<Events::Mouse>(button), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
+	});
+
 	entt::observer transformModelObserver{
 		_registry,
 		entt::collector.update<Transform>().where<Graphics::ModelPtr>()

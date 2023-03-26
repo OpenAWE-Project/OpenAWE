@@ -105,7 +105,14 @@ void Window::callbackMousePosition(GLFWwindow *window, double xpos, double ypos)
 }
 
 void Window::callbackMouseButton(GLFWwindow *window, int button, int action, int mods) {
+	if (action == GLFW_REPEAT)
+		return;
+
 	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
+	if (!w->_keyCallback)
+		return;
+
+	w->_mouseCallback(button, action, mods);
 }
 
 void Window::callbackFramebufferSize(GLFWwindow *window, int width, int height) {
@@ -114,6 +121,10 @@ void Window::callbackFramebufferSize(GLFWwindow *window, int width, int height) 
 
 void Window::setKeyCallback(const KeyCallback &keyCallback) {
 	_keyCallback = keyCallback;
+}
+
+void Window::setMouseCallback(const MouseCallback &mouseCallback) {
+	_mouseCallback = mouseCallback;
 }
 
 GLFWwindow * Window::getWindowHandle() {

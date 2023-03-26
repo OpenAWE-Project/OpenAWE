@@ -18,48 +18,30 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_EVENT_H
-#define OPENAWE_EVENT_H
-
-#include <variant>
-
-#include <glm/glm.hpp>
+#ifndef OPENAWE_MOUSE_H
+#define OPENAWE_MOUSE_H
 
 namespace Events {
 
 /*!
- * Enum representing if a key is pressed or released. This is for both keys and mouse and controller buttons
+ * An enum representing mouse buttons. The list is mirrored with the macros from glfw.
+ * For info on glfw mouse button macros see https://www.glfw.org/docs/latest/group__buttons.html 
  */
-enum KeyState {
-	kPress,
-	kRelease
+enum Mouse {
+    kMouseButton1,
+    kMouseButton2,
+    kMouseButton3,
+    kMouseButton4,
+    kMouseButton5,
+    kMouseButton6,
+    kMouseButton7,
+    kMouseButton8,
+    kMouseLeft = kMouseButton1,
+    kMouseRight = kMouseButton2,
+    kMouseMiddle = kMouseButton3,
+    kMouseLast = kMouseButton8
 };
 
-/*!
- * An event on a specific value
- * @tparam T
- */
-template<typename T>
-struct AxisEvent {
-	T absolute, delta;
-};
+} // End of namespace Events
 
-struct KeyEvent {
-	KeyState state;
-};
-
-typedef std::variant<
-		AxisEvent<float>,
-		AxisEvent<double>,
-		AxisEvent<glm::vec2>,
-		KeyEvent
-> EventData;
-
-struct Event {
-	uint32_t action;
-	EventData data;
-};
-
-}
-
-#endif //OPENAWE_EVENT_H
+#endif //OPENAWE_MOUSE_H

@@ -39,6 +39,23 @@ void EventManager::injectKeyboardInput(Events::Key key, Events::KeyState state) 
 	}
 }
 
+void EventManager::injectMouseInput(Events::Mouse mouse, Events::KeyState state) {
+	const auto actions = _mouseBindings.equal_range(mouse);
+
+	KeyEvent keyEvent{state};
+	Event event;
+	event.data = keyEvent;
+
+	for (auto actionIter = actions.first; actionIter != actions.second; ++actionIter) {
+		const auto action = actionIter->second;
+
+		const auto callback = _actionCallbacks[action];
+		event.action = action;
+
+		callback(event);
+	}
+}
+
 void EventManager::setActionCallback(std::initializer_list<uint32_t> actions, EventCallback callback) {
 	for (const auto &action: actions) {
 		_actionCallbacks[action] = callback;
@@ -47,6 +64,10 @@ void EventManager::setActionCallback(std::initializer_list<uint32_t> actions, Ev
 
 void EventManager::addBinding(uint32_t action, Key key) {
 	_keyBindings.insert(std::make_pair(key, action));
+}
+
+void EventManager::addBinding(uint32_t action, Mouse mouse) {
+	_mouseBindings.insert(std::make_pair(mouse, action));
 }
 
 }
