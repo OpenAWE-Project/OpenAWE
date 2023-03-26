@@ -692,7 +692,7 @@ AttributeObjectPtr Renderer::createAttributeObject(
 	}
 
 	GLuint localOffset = 0;
-	for (int i = 0; i < vertexAttributes.size(); ++i) {
+	for (unsigned int i = 0; i < vertexAttributes.size(); ++i) {
 		const auto vertexAttribute = vertexAttributes[i];
 		bool integer = false;
 		GLuint size = 0, totalSize = 0;

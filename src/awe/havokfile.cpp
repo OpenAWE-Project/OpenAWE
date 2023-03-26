@@ -343,7 +343,7 @@ glm::quat HavokFile::read40BitQuaternion(Common::ReadStream &binhkx) {
 	if (invert)
 		tmp2.w = -tmp2.w;
 
-	for (unsigned int i = 0; i < 3 - shift; ++i) {
+	for (unsigned int i = 0; i < 3u - shift; ++i) {
 		std::swap(tmp2[3 - i], tmp2[2 - i]);
 	}
 
