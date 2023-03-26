@@ -28,7 +28,7 @@ KeyFramerProcess::KeyFramerProcess(entt::entity keyFramerEntity, entt::registry 
 	_keyFramer = _registry.get<KeyFramerPtr>(_keyFramerEntity);
 }
 
-void KeyFramerProcess::update(float delta, void *) {
+void KeyFramerProcess::update(double delta, void *) {
 	if (!_keyFramer->hasAnimation()) {
 		succeed();
 		return;

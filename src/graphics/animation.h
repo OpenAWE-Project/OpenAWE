@@ -54,7 +54,7 @@ public:
 
 private:
 	float _duration;
-	const std::string _name;
+	std::string _name;
 	std::map<std::string, std::vector<Keyframe>> _keyframes;
 };
 

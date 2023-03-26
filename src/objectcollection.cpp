@@ -35,7 +35,6 @@
 #include "src/graphics/light.h"
 #include "src/graphics/skeleton.h"
 #include "src/graphics/animation.h"
-#include "src/graphics/animationcontroller.h"
 
 #include "src/physics/havokobject.h"
 #include "src/physics/terraincollision.h"

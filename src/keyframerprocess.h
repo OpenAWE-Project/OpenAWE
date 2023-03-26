@@ -28,7 +28,7 @@
 class KeyFramerProcess : public entt::process<KeyFramerProcess, double> {
 public:
 	KeyFramerProcess(entt::entity keyFramerEntity, entt::registry &registry);
-	void update(float delta, void *);
+	void update(double delta, void *);
 
 private:
 	KeyFramerPtr _keyFramer;
