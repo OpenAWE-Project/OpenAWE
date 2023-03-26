@@ -24,7 +24,7 @@ uniform mat4 g_mLocalToView;
 uniform mat4 g_mViewToClip;
 
 in vec3 in_Position;
-in vec3 in_Normal;
+in vec4 in_Normal;
 
 out vec4 pass_ViewPosition;
 out vec4 pass_ClipPosition;

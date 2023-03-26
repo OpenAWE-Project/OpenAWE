@@ -24,12 +24,12 @@ uniform sampler2D g_sColorMap;
 
 in vec4 pass_ClipPosition;
 in vec4 pass_ViewPosition;
-in vec4 pass_Normal;
+in vec3 pass_Normal;
 
 layout(location=0) out vec4 out_Depth;
 layout(location=1) out vec4 out_Normal;
 
 void main() {
     out_Depth = vec4(pass_ClipPosition.zzz / pass_ClipPosition.w, 1.0);
-    out_Normal = pass_Normal * 0.5 + 0.5;
+    out_Normal = vec4(pass_Normal * 0.5 + 0.5, 1.0);
 }
