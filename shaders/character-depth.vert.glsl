@@ -28,11 +28,11 @@ in vec4 in_Normal;
 
 out vec4 pass_ViewPosition;
 out vec4 pass_ClipPosition;
-out vec3 pass_Normal;
+out vec4 pass_Normal;
 
 void main() {
     pass_ViewPosition = g_mLocalToView * vec4(in_Position, 1.0);
     pass_ClipPosition = g_mViewToClip * pass_ViewPosition;
-    pass_Normal = (g_mLocalToView * vec4(in_Normal * (1.0/32767.0), 1.0)).xyz;
+    pass_Normal = g_mLocalToView * vec4(in_Normal.xyz * (1.0/32767.0), 1.0);
     gl_Position = pass_ClipPosition;
 }
