@@ -26,6 +26,7 @@
 #include <src/graphics/fontman.h>
 #include "src/graphics/text.h"
 
+#include "src/common/crc32.h"
 #include "src/common/threadpool.h"
 #include "src/common/strutil.h"
 #include "src/common/exception.h"
@@ -49,7 +50,7 @@
 
 #include "src/sound/soundman.h"
 
-#include "src/controlledfreecamera.h"
+#include "src/mousecontrolledfreecamera.h"
 #include "src/task.h"
 #include "src/timerprocess.h"
 #include "src/transform.h"
@@ -230,13 +231,22 @@ void Game::init() {
 void Game::start() {
 	spdlog::info("Starting AWE...");
 
-	ControlledFreeCamera freeCamera;
+	MouseControlledFreeCamera freeCamera;
 
 	GfxMan.setCamera(freeCamera);
 
 	Graphics::Text text;
 	text.setText(u"OpenAWE - v0.0.1");
 	text.show();
+
+	_window->lockMouse();
+	// Allow locking and unlocking the mouse
+	static constexpr uint32_t lockMouse = Common::crc32("MOUSE_LOCK");
+	static constexpr uint32_t unlockMouse = Common::crc32("MOUSE_UNLOCK");
+	EventMan.setActionCallback({ lockMouse }, [&](Events::Event event){_window->lockMouse();});
+	EventMan.setActionCallback({ unlockMouse }, [&](Events::Event event){_window->unlockMouse();});
+	EventMan.addBinding(lockMouse, Events::kMouseLeft);
+	EventMan.addBinding(unlockMouse, Events::kKeyEscape);
 
 	_window->setKeyCallback([&](int key, int scancode, int action, int mods){
 		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);

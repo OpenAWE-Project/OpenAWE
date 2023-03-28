@@ -56,8 +56,8 @@ public:
 
 	void getSize(unsigned int &width, unsigned int &height) override;
 
-	void lockMouse(GLFWwindow *window);
-	void unlockMouse(GLFWwindow *window);
+	void lockMouse();
+	void unlockMouse();
 
 #ifdef WITH_VULKAN
 	const char **getInstanceExtensions(unsigned int &numExtensions) override;

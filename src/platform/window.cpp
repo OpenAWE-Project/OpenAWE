@@ -140,13 +140,15 @@ void Window::setMousePositionCallback(const MousePositionCallback &mousePosition
 	_mousePositionCallback = mousePositionCallback;
 }
 
-void Window::lockMouse(GLFWwindow *window) {
+void Window::lockMouse() {
+	GLFWwindow *window = this->getWindowHandle();
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	if (glfwRawMouseMotionSupported())
     	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 }
 
-void Window::unlockMouse(GLFWwindow *window) {
+void Window::unlockMouse() {
+	GLFWwindow *window = this->getWindowHandle();
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	if (glfwRawMouseMotionSupported())
     	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
