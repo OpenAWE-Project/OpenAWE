@@ -59,6 +59,9 @@ Window::Window(ContextType type) {
 
 	_window = glfwCreateWindow(1920, 1080, "", nullptr, nullptr);
 
+	glfwSetCursorPos(_window, 960, 540);
+	_lastMousePosition = glm::vec2(960, 540);
+
 	glfwSetInputMode(_window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
 	glfwSetWindowUserPointer(_window, this);
@@ -102,6 +105,12 @@ void Window::callbackKey(GLFWwindow *window, int key, int scancode, int action, 
 
 void Window::callbackMousePosition(GLFWwindow *window, double xpos, double ypos) {
 	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
+	if (!w->_keyCallback)
+		return;
+
+	w->_mousePositionCallback(xpos, ypos);
+
+	w->_lastMousePosition = glm::vec2(xpos, ypos);
 }
 
 void Window::callbackMouseButton(GLFWwindow *window, int button, int action, int mods) {
@@ -125,6 +134,26 @@ void Window::setKeyCallback(const KeyCallback &keyCallback) {
 
 void Window::setMouseCallback(const MouseCallback &mouseCallback) {
 	_mouseCallback = mouseCallback;
+}
+
+void Window::setMousePositionCallback(const MousePositionCallback &mousePositionCallback) {
+	_mousePositionCallback = mousePositionCallback;
+}
+
+void Window::lockMouse(GLFWwindow *window) {
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	if (glfwRawMouseMotionSupported())
+    	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+}
+
+void Window::unlockMouse(GLFWwindow *window) {
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	if (glfwRawMouseMotionSupported())
+    	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+}
+
+glm::vec2 Window::getMouseLastPosition() {
+	return _lastMousePosition;
 }
 
 GLFWwindow * Window::getWindowHandle() {

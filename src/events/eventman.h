@@ -22,6 +22,7 @@
 #define OPENAWE_EVENTMAN_H
 
 #include <map>
+#include <vector>
 #include <functional>
 
 #include "src/common/singleton.h"
@@ -56,11 +57,18 @@ public:
 	void injectKeyboardInput(Key key, KeyState state);
 
 	/*!
-	 * Inject a keyboard event to the event system
+	 * Inject a mouse button event to the event system
 	 * \param key The key for the event
 	 * \param state If the key is pressed or released
 	 */
 	void injectMouseInput(Mouse mouse, KeyState state);
+
+	/*!
+	 * Inject a mouse position event to the event system
+	 * \param position Current mouse position 
+	 * \param delta Change from previous mouse position
+	 */
+	void injectMousePositionInput(glm::vec2 position, glm::vec2 delta);
 
 	/*!
 	 * Set a callback for a set of actions
@@ -70,24 +78,31 @@ public:
 	void setActionCallback(std::initializer_list<uint32_t> actions, EventCallback callback);
 
 	/*!
-	 * Associate an with a specific keyboard key
+	 * Associate an action with a specific keyboard key
 	 * \param action The action for association with the key
 	 * \param key The key for association with the action
 	 */
 	void addBinding(uint32_t action, Key key);
 
 	/*!
-	 * Associate an with a specific mouse key
+	 * Associate an action with a specific mouse key
 	 * \param action The action for association with the key
 	 * \param key The key for association with the action
 	 */
 	void addBinding(uint32_t action, Mouse mouse);
+
+	/*!
+	 * Associate an action with mouse movement
+	 * \param action The action for association
+	 */
+	void addMouseBinding(uint32_t action);
 
 private:
 	std::map<uint32_t, EventCallback> _actionCallbacks;
 
 	std::multimap<Key, uint32_t> _keyBindings;
 	std::multimap<Mouse, uint32_t> _mouseBindings;
+	std::vector<uint32_t> _mousePositionBindings;
 };
 
 } // Enf of namespace Events

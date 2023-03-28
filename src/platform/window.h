@@ -29,6 +29,7 @@
 #   define GLFW_INCLUDE_VULKAN
 #endif // WITH_VULKAN
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include "glcontext.h"
 #include "vulkancontext.h"
@@ -37,6 +38,7 @@ namespace Platform {
 
 typedef std::function<void (int key, int scancode, int action, int mods)> KeyCallback;
 typedef std::function<void (int button, int action, int mods)> MouseCallback;
+typedef std::function<void (double xpos, double ypos)> MousePositionCallback;
 
 class Window : public GLContext, public VulkanContext {
 public:
@@ -54,6 +56,9 @@ public:
 
 	void getSize(unsigned int &width, unsigned int &height) override;
 
+	void lockMouse(GLFWwindow *window);
+	void unlockMouse(GLFWwindow *window);
+
 #ifdef WITH_VULKAN
 	const char **getInstanceExtensions(unsigned int &numExtensions) override;
 	void createWindowSurface(VkInstance &instance, VkSurfaceKHR &surface) override;
@@ -64,6 +69,8 @@ public:
 
 	void setKeyCallback(const KeyCallback &keyCallback);
 	void setMouseCallback(const MouseCallback &mouseCallback);
+	void setMousePositionCallback(const MousePositionCallback &mousePositionCallback);
+	glm::vec2 getMouseLastPosition();
 
 	GLFWwindow * getWindowHandle();
 
@@ -78,6 +85,8 @@ private:
 
 	KeyCallback _keyCallback;
 	MouseCallback _mouseCallback;
+	MousePositionCallback _mousePositionCallback;
+	glm::vec2 _lastMousePosition = glm::vec2(.0, .0);
 };
 
 } // End of namespace Graphics

@@ -56,6 +56,21 @@ void EventManager::injectMouseInput(Events::Mouse mouse, Events::KeyState state)
 	}
 }
 
+void EventManager::injectMousePositionInput(glm::vec2 position, glm::vec2 delta) {
+	const auto actions = _mousePositionBindings;
+
+	AxisEvent<glm::vec2> axis{position, delta};
+	Event event;
+	event.data = axis;
+
+	for (auto &action: actions) {
+		const auto callback = _actionCallbacks[action];
+		event.action = action;
+
+		callback(event);
+	}
+}
+
 void EventManager::setActionCallback(std::initializer_list<uint32_t> actions, EventCallback callback) {
 	for (const auto &action: actions) {
 		_actionCallbacks[action] = callback;
@@ -68,6 +83,10 @@ void EventManager::addBinding(uint32_t action, Key key) {
 
 void EventManager::addBinding(uint32_t action, Mouse mouse) {
 	_mouseBindings.insert(std::make_pair(mouse, action));
+}
+
+void EventManager::addMouseBinding(uint32_t action) {
+	_mousePositionBindings.push_back(action);
 }
 
 }
