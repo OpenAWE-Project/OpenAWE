@@ -62,8 +62,8 @@ MouseControlledFreeCamera::MouseControlledFreeCamera(): _yaw(0.0f), _pitch(0.0f)
 }
 
 void MouseControlledFreeCamera::update(float delta) {
-	_pitch -= glm::radians(_movementRotation.x * delta * _mouseSensitivity) * _invertY;
-	_yaw += glm::radians(_movementRotation.y * delta * _mouseSensitivity);
+	_pitch -= glm::radians(_movementRotation.y * delta * _mouseSensitivity) * _invertY;
+	_yaw += glm::radians(_movementRotation.x * delta * _mouseSensitivity);
 	// roll is not used so far
 	_roll += glm::radians(_movementRotation.z * delta * _mouseSensitivity);
 	// get rid of stored rotation
@@ -94,8 +94,8 @@ void MouseControlledFreeCamera::handleEvent(const Events::Event &event) {
 		case kMoveRight:    _movementDirection.x = (keyEvent->state == Events::kPress) ? -1.0 : 0.0; break;
 
 		case kRotate:  
-			_movementRotation.y = axisEvent->delta.x; 
-			_movementRotation.x = axisEvent->delta.y; 
+			_movementRotation.x = axisEvent->delta.x; 
+			_movementRotation.y = axisEvent->delta.y; 
 			break;
 	}
 
