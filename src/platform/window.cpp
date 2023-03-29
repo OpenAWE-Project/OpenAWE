@@ -69,6 +69,7 @@ Window::Window(ContextType type) {
 	glfwSetKeyCallback(_window, &Window::callbackKey);
 	glfwSetCursorPosCallback(_window, &Window::callbackMousePosition);
 	glfwSetMouseButtonCallback(_window, &Window::callbackMouseButton);
+	glfwSetScrollCallback(_window, &Window::callbackMouseScroll);
 	glfwSetFramebufferSizeCallback(_window, &Window::callbackFramebufferSize);
 }
 
@@ -113,6 +114,14 @@ void Window::callbackMousePosition(GLFWwindow *window, double xpos, double ypos)
 	w->_lastMousePosition = glm::vec2(xpos, ypos);
 }
 
+void Window::callbackMouseScroll(GLFWwindow *window, double xpos, double ypos) {
+	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
+	if (!w->_keyCallback)
+		return;
+
+	w->_mouseScrollCallback(xpos, ypos);
+}
+
 void Window::callbackMouseButton(GLFWwindow *window, int button, int action, int mods) {
 	if (action == GLFW_REPEAT)
 		return;
@@ -136,8 +145,12 @@ void Window::setMouseCallback(const MouseCallback &mouseCallback) {
 	_mouseCallback = mouseCallback;
 }
 
-void Window::setMousePositionCallback(const MousePositionCallback &mousePositionCallback) {
+void Window::setMousePositionCallback(const Axis2DCallback &mousePositionCallback) {
 	_mousePositionCallback = mousePositionCallback;
+}
+
+void Window::setMouseScrollCallback(const Axis2DCallback &mouseScrollCallback) {
+	_mouseScrollCallback = mouseScrollCallback;
 }
 
 void Window::lockMouse() {

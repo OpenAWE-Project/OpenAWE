@@ -22,7 +22,6 @@
 #define OPENAWE_EVENTMAN_H
 
 #include <map>
-#include <vector>
 #include <functional>
 
 #include "src/common/singleton.h"
@@ -61,14 +60,14 @@ public:
 	 * \param key The key for the event
 	 * \param state If the key is pressed or released
 	 */
-	void injectMouseInput(Mouse mouse, KeyState state);
+	void injectMouseInput(MouseButton mouse, KeyState state);
 
 	/*!
 	 * Inject a mouse position event to the event system
 	 * \param position Current mouse position 
 	 * \param delta Change from previous mouse position
 	 */
-	void injectMousePositionInput(glm::vec2 position, glm::vec2 delta);
+	void injectMouse2DAxisInput(Mouse2DAxis axis, glm::vec2 position, glm::vec2 delta);
 
 	/*!
 	 * Set a callback for a set of actions
@@ -89,20 +88,20 @@ public:
 	 * \param action The action for association with the key
 	 * \param key The key for association with the action
 	 */
-	void addBinding(uint32_t action, Mouse mouse);
+	void addBinding(uint32_t action, MouseButton mouse);
 
 	/*!
 	 * Associate an action with mouse movement
 	 * \param action The action for association
 	 */
-	void addMouseBinding(uint32_t action);
+	void add2DAxisBinding(uint32_t action, Mouse2DAxis axis);
 
 private:
 	std::map<uint32_t, EventCallback> _actionCallbacks;
 
 	std::multimap<Key, uint32_t> _keyBindings;
-	std::multimap<Mouse, uint32_t> _mouseBindings;
-	std::vector<uint32_t> _mousePositionBindings;
+	std::multimap<MouseButton, uint32_t> _mouseBindings;
+	std::multimap<Mouse2DAxis, uint32_t> _mouse2DAxisBindings;
 };
 
 } // Enf of namespace Events

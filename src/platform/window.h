@@ -38,7 +38,7 @@ namespace Platform {
 
 typedef std::function<void (int key, int scancode, int action, int mods)> KeyCallback;
 typedef std::function<void (int button, int action, int mods)> MouseCallback;
-typedef std::function<void (double xpos, double ypos)> MousePositionCallback;
+typedef std::function<void (double xpos, double ypos)> Axis2DCallback;
 
 class Window : public GLContext, public VulkanContext {
 public:
@@ -69,7 +69,8 @@ public:
 
 	void setKeyCallback(const KeyCallback &keyCallback);
 	void setMouseCallback(const MouseCallback &mouseCallback);
-	void setMousePositionCallback(const MousePositionCallback &mousePositionCallback);
+	void setMousePositionCallback(const Axis2DCallback &mousePositionCallback);
+	void setMouseScrollCallback(const Axis2DCallback &mouseScrollCallback);
 	glm::vec2 getMouseLastPosition();
 
 	GLFWwindow * getWindowHandle();
@@ -77,6 +78,7 @@ public:
 private:
 	static void callbackKey(GLFWwindow *window, int key, int scancode, int action, int mods);
 	static void callbackMousePosition(GLFWwindow *window, double xpos, double ypos);
+	static void callbackMouseScroll(GLFWwindow *window, double xpos, double ypos);
 	static void callbackMouseButton(GLFWwindow *window, int button, int action, int mods);
 
 	static void callbackFramebufferSize(GLFWwindow *window, int width, int height);
@@ -85,7 +87,8 @@ private:
 
 	KeyCallback _keyCallback;
 	MouseCallback _mouseCallback;
-	MousePositionCallback _mousePositionCallback;
+	Axis2DCallback _mousePositionCallback;
+	Axis2DCallback _mouseScrollCallback;
 	glm::vec2 _lastMousePosition = glm::vec2(.0, .0);
 };
 

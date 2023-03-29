@@ -27,7 +27,7 @@ namespace Events {
  * An enum representing mouse buttons. The list is mirrored with the macros from glfw.
  * For info on glfw mouse button macros see https://www.glfw.org/docs/latest/group__buttons.html 
  */
-enum Mouse {
+enum MouseButton {
     kMouseButton1,
     kMouseButton2,
     kMouseButton3,
@@ -40,6 +40,11 @@ enum Mouse {
     kMouseRight = kMouseButton2,
     kMouseMiddle = kMouseButton3,
     kMouseLast = kMouseButton8
+};
+
+enum Mouse2DAxis {
+    kMousePosition,
+    kMouseScroll
 };
 
 } // End of namespace Events
