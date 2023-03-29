@@ -42,9 +42,28 @@ enum MouseButton {
     kMouseLast = kMouseButton8
 };
 
+/*
+ * Axis values follow the underlying logic:
+ * - If first two bits of a value are both zeroes - we're dealing with a 2D axis
+ * - If the first bit is one - we use a horizontal 1D part of a 2D axis
+ * - If the second bit is one - we use a vertical 1D part of a 2D axis
+ */
+
 enum Mouse2DAxis {
-    kMousePosition,
-    kMouseScroll
+    kMousePosition = 4,
+    kMouseScroll = 8
+};
+
+enum AxisConverter {
+    kSliceHorizontal = 1,
+    kSliceVertical = 2
+};
+
+enum Mouse1DAxis {
+    kMousePositionHorizontal = kMousePosition | kSliceHorizontal,
+    kMousePositionVertical = kMousePosition | kSliceVertical,
+    kMouseScrollHorizontal = kMouseScroll | kSliceHorizontal,
+    kMouseScrollVertical = kMouseScroll | kSliceVertical
 };
 
 } // End of namespace Events

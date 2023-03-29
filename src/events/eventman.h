@@ -63,11 +63,18 @@ public:
 	void injectMouseInput(MouseButton mouse, KeyState state);
 
 	/*!
-	 * Inject a mouse position event to the event system
-	 * \param position Current mouse position 
-	 * \param delta Change from previous mouse position
+	 * Inject a mouse 2D axis event to the event system
+	 * \param position Current mouse 2D axis values 
+	 * \param delta Change from previous mouse 2D axis values
 	 */
 	void injectMouse2DAxisInput(Mouse2DAxis axis, glm::vec2 position, glm::vec2 delta);
+
+	/*!
+	 * Inject a mouse 1D axis event to the event system
+	 * \param position Current mouse 1D axis values 
+	 * \param delta Change from previous mouse 1D axis values
+	 */
+	void injectMouse1DAxisInput(Mouse1DAxis axis, float position, float delta);
 
 	/*!
 	 * Set a callback for a set of actions
@@ -91,10 +98,18 @@ public:
 	void addBinding(uint32_t action, MouseButton mouse);
 
 	/*!
-	 * Associate an action with mouse movement
+	 * Associate an action with 2D axis mouse movement
 	 * \param action The action for association
+	 * \param axis The axis for association with the action
 	 */
 	void add2DAxisBinding(uint32_t action, Mouse2DAxis axis);
+
+	/*!
+	 * Associate an action with 1D axis mouse movement
+	 * \param action The action for association
+	 * \param axis The axis for association with the action
+	 */
+	void add1DAxisBinding(uint32_t action, Mouse1DAxis axis);
 
 private:
 	std::map<uint32_t, EventCallback> _actionCallbacks;
@@ -102,9 +117,10 @@ private:
 	std::multimap<Key, uint32_t> _keyBindings;
 	std::multimap<MouseButton, uint32_t> _mouseBindings;
 	std::multimap<Mouse2DAxis, uint32_t> _mouse2DAxisBindings;
+	std::multimap<Mouse1DAxis, uint32_t> _mouse1DAxisBindings;
 };
 
-} // Enf of namespace Events
+} // End of namespace Events
 
 #define EventMan Events::EventManager::instance()
 

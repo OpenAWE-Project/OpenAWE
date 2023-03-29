@@ -39,6 +39,7 @@ namespace Platform {
 typedef std::function<void (int key, int scancode, int action, int mods)> KeyCallback;
 typedef std::function<void (int button, int action, int mods)> MouseCallback;
 typedef std::function<void (double xpos, double ypos)> Axis2DCallback;
+typedef std::function<void (double pos)> Axis1DCallback;
 
 class Window : public GLContext, public VulkanContext {
 public:
