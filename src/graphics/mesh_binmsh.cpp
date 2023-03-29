@@ -102,6 +102,8 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 		_inverseRestTransforms[boneName] = boneTransform;
 	}
 
+	const bool animated = boneCount > 0;
+
 	Common::BoundSphere boundSphere{};
 	boundSphere.position.x = binmsh->readIEEEFloatLE();
 	boundSphere.position.y = binmsh->readIEEEFloatLE();
@@ -121,6 +123,8 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 	assert(boundBox.ymax >= boundBox.ymin);
 	assert(boundBox.zmax >= boundBox.zmin);
 
+	const uint32_t globalProperties = animated ? 0x40000000 : 0;
+
 	const uint32_t lodCount = binmsh->readUint32LE();
 
 	const uint32_t materialCount = binmsh->readUint32LE();
@@ -136,7 +140,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 		shaderName = Common::toLower(shaderName);
 		shaderName = std::regex_replace(shaderName, std::regex("\\.rfx"), "");
 
-		const uint32_t properties = binmsh->readUint32LE();
+		const uint32_t properties = binmsh->readUint32LE() | globalProperties;
 		const uint32_t blendMode = binmsh->readUint32LE();
 		const uint32_t cullMode = binmsh->readUint32LE();
 		const uint32_t materialFlags = binmsh->readUint32LE();
