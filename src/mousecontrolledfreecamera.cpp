@@ -31,8 +31,7 @@ static constexpr uint32_t kMoveForward  = Common::crc32("FREECAM_MOVE_FORWARD");
 static constexpr uint32_t kMoveBackward = Common::crc32("FREECAM_MOVE_BACKWARD");
 static constexpr uint32_t kMoveLeft     = Common::crc32("FREECAM_MOVE_LEFT");
 static constexpr uint32_t kMoveRight    = Common::crc32("FREECAM_MOVE_RIGHT");
-static constexpr uint32_t kMoveUp       = Common::crc32("FREECAM_MOVE_UP");
-static constexpr uint32_t kMoveDown     = Common::crc32("FREECAM_MOVE_DOWN");
+static constexpr uint32_t kElevate       = Common::crc32("FREECAM_ELEVATE");
 
 static constexpr uint32_t kRotate     = Common::crc32("FREECAM_ROTATE");
 
@@ -43,9 +42,10 @@ MouseControlledFreeCamera::MouseControlledFreeCamera(): _yaw(0.0f), _pitch(0.0f)
 	_mouseSensitivity = 10.f;
 	Events::EventCallback callbackMovement = [this](auto && PH1) { handleMovement(std::forward<decltype(PH1)>(PH1)); };
 	Events::EventCallback callbackRotation = [this](auto && PH1) { handleRotation(std::forward<decltype(PH1)>(PH1)); };
+	Events::EventCallback callbackElevation = [this](auto && PH1) { handleElevation(std::forward<decltype(PH1)>(PH1)); };
 
 	EventMan.setActionCallback(
-		{kMoveForward, kMoveBackward, kMoveLeft, kMoveRight, kMoveUp, kMoveDown, kIncreaseSpeed, kDecreaseSpeed},
+		{kMoveForward, kMoveBackward, kMoveLeft, kMoveRight, kIncreaseSpeed, kDecreaseSpeed},
 		callbackMovement
 	);
 
@@ -54,12 +54,17 @@ MouseControlledFreeCamera::MouseControlledFreeCamera(): _yaw(0.0f), _pitch(0.0f)
 		callbackRotation
 	);
 
+	EventMan.setActionCallback(
+		{kElevate},
+		callbackElevation
+	);
+
 	EventMan.addBinding(kMoveForward, Events::kKeyW);
 	EventMan.addBinding(kMoveLeft, Events::kKeyA);
 	EventMan.addBinding(kMoveBackward, Events::kKeyS);
 	EventMan.addBinding(kMoveRight, Events::kKeyD);
-	EventMan.addBinding(kMoveUp, Events::kKeyR);
-	EventMan.addBinding(kMoveDown, Events::kKeyF);
+
+	EventMan.add1DAxisBinding(kElevate, Events::kMouseScrollVertical);
 
 	EventMan.add2DAxisBinding(kRotate, Events::kMousePosition);
 
@@ -86,6 +91,9 @@ void MouseControlledFreeCamera::update(float delta) {
 	_position += delta * _movementFactor * _movementDirection.x * 100.0f * right;
 	_position += delta * _movementFactor * _movementDirection.y * 100.0f * _up;
 	_position += delta * _movementFactor * _movementDirection.z * 100.0f * _direction;
+
+	// Set elevation to 0 because it is controlled via scrolling
+	_movementDirection.y = 0;
 }
 
 void MouseControlledFreeCamera::handleRotation(const Events::Event &event) {
@@ -94,11 +102,14 @@ void MouseControlledFreeCamera::handleRotation(const Events::Event &event) {
 	_movementRotation.y = axisEvent.delta.y; 
 }
 
+void MouseControlledFreeCamera::handleElevation(const Events::Event &event) {
+	const auto axisEvent = std::get<Events::AxisEvent<float>>(event.data); 
+	_movementDirection.y = axisEvent.delta; 
+}
+
 void MouseControlledFreeCamera::handleMovement(const Events::Event &event) {
 	const auto keyEvent = std::get<Events::KeyEvent>(event.data);
 	switch (event.action) {
-		case kMoveUp:       _movementDirection.y = (keyEvent.state == Events::kPress) ?  1.0 : 0.0; break;
-		case kMoveDown:     _movementDirection.y = (keyEvent.state == Events::kPress) ? -1.0 : 0.0; break;
 		case kMoveForward:  _movementDirection.z = (keyEvent.state == Events::kPress) ?  1.0 : 0.0; break;
 		case kMoveBackward: _movementDirection.z = (keyEvent.state == Events::kPress) ? -1.0 : 0.0; break;
 		case kMoveLeft:     _movementDirection.x = (keyEvent.state == Events::kPress) ?  1.0 : 0.0; break;

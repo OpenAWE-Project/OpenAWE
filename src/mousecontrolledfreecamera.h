@@ -38,6 +38,7 @@ public:
 private:
 	void handleRotation(const Events::Event &event);
 	void handleMovement(const Events::Event &event);
+	void handleElevation(const Events::Event &event);
 
 protected:
 	float _mouseSensitivity;
