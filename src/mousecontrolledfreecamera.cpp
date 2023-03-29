@@ -55,7 +55,7 @@ MouseControlledFreeCamera::MouseControlledFreeCamera(): _yaw(0.0f), _pitch(0.0f)
 	EventMan.addBinding(kMoveUp, Events::kKeyR);
 	EventMan.addBinding(kMoveDown, Events::kKeyF);
 
-	EventMan.addMouseBinding(kRotate);
+	EventMan.add2DAxisBinding(kRotate, Events::kMousePosition);
 
 	EventMan.addBinding(kIncreaseSpeed, Events::kKeyT);
 	EventMan.addBinding(kDecreaseSpeed, Events::kKeyG);

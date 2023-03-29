@@ -39,7 +39,7 @@ void EventManager::injectKeyboardInput(Events::Key key, Events::KeyState state) 
 	}
 }
 
-void EventManager::injectMouseInput(Events::Mouse mouse, Events::KeyState state) {
+void EventManager::injectMouseInput(Events::MouseButton mouse, Events::KeyState state) {
 	const auto actions = _mouseBindings.equal_range(mouse);
 
 	KeyEvent keyEvent{state};
@@ -56,14 +56,16 @@ void EventManager::injectMouseInput(Events::Mouse mouse, Events::KeyState state)
 	}
 }
 
-void EventManager::injectMousePositionInput(glm::vec2 position, glm::vec2 delta) {
-	const auto actions = _mousePositionBindings;
+void EventManager::injectMouse2DAxisInput(Events::Mouse2DAxis axis, glm::vec2 position, glm::vec2 delta) {
+	const auto actions = _mouse2DAxisBindings.equal_range(axis);
 
-	AxisEvent<glm::vec2> axis{position, delta};
+	AxisEvent<glm::vec2> axisEvent{position, delta};
 	Event event;
-	event.data = axis;
+	event.data = axisEvent;
 
-	for (auto &action: actions) {
+	for (auto actionIter = actions.first; actionIter != actions.second; ++actionIter) {
+		const auto action = actionIter->second;
+
 		const auto callback = _actionCallbacks[action];
 		event.action = action;
 
@@ -81,12 +83,12 @@ void EventManager::addBinding(uint32_t action, Key key) {
 	_keyBindings.insert(std::make_pair(key, action));
 }
 
-void EventManager::addBinding(uint32_t action, Mouse mouse) {
+void EventManager::addBinding(uint32_t action, MouseButton mouse) {
 	_mouseBindings.insert(std::make_pair(mouse, action));
 }
 
-void EventManager::addMouseBinding(uint32_t action) {
-	_mousePositionBindings.push_back(action);
+void EventManager::add2DAxisBinding(uint32_t action, Mouse2DAxis axis) {
+	_mouse2DAxisBindings.insert(std::make_pair(axis, action));
 }
 
 }

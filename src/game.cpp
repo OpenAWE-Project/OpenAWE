@@ -253,13 +253,19 @@ void Game::start() {
 	});
 
 	_window->setMouseCallback([&](int button, int action, int mods){
-		EventMan.injectMouseInput(static_cast<Events::Mouse>(button), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
+		EventMan.injectMouseInput(static_cast<Events::MouseButton>(button), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
 	});
 
 	_window->setMousePositionCallback([&](double xpos, double ypos){
 		glm::vec2 absolute = glm::vec2(xpos, ypos);
 		glm::vec2 delta = absolute - this->_window->getMouseLastPosition();
-		EventMan.injectMousePositionInput(absolute, delta);
+		EventMan.injectMouse2DAxisInput(Events::kMousePosition, absolute, delta);
+	});
+
+	_window->setMouseScrollCallback([&](double xpos, double ypos){
+		glm::vec2 absolute = glm::vec2(xpos, ypos);
+		glm::vec2 delta = absolute;
+		EventMan.injectMouse2DAxisInput(Events::kMouseScroll, absolute, delta);
 	});
 
 	entt::observer transformModelObserver{
