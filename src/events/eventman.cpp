@@ -75,14 +75,8 @@ void EventManager::injectMouse2DAxisInput(Events::Mouse2DAxis axis, glm::vec2 po
 	}
 
 	// Also inject separate 1D axis inputs
-	// Injections are ordered by absolute delta values
-	if (std::abs(delta.x) > std::abs(delta.y)) {
-		injectMouse1DAxisInput(static_cast<Mouse1DAxis>(axis | kSliceHorizontal), position.x, delta.x);
-		injectMouse1DAxisInput(static_cast<Mouse1DAxis>(axis | kSliceVertical), position.y, delta.y);
-	} else {
-		injectMouse1DAxisInput(static_cast<Mouse1DAxis>(axis | kSliceVertical), position.y, delta.y);
-		injectMouse1DAxisInput(static_cast<Mouse1DAxis>(axis | kSliceHorizontal), position.x, delta.x);
-	}
+	injectMouse1DAxisInput(static_cast<Mouse1DAxis>(axis | kSliceHorizontal), position.x, delta.x);
+	injectMouse1DAxisInput(static_cast<Mouse1DAxis>(axis | kSliceVertical), position.y, delta.y);
 }
 
 void EventManager::injectMouse1DAxisInput(Events::Mouse1DAxis axis, float position, float delta) {
