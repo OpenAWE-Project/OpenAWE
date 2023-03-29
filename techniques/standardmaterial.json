@@ -1,0 +1,42 @@
+{
+  "name": "standardmaterial",
+  "property_sets": [
+    {
+      "stages": ["material", "depth"],
+      "properties": [
+        {
+          "name": "PROP_NORMAL_MAP",
+          "flag": 0
+        },
+        {
+          "name": "PROP_DETAIL_MAP",
+          "flag": 1
+        },
+        {
+          "name": "PROP_SPECULAR_MAP",
+          "flag": 2
+        },
+        {
+          "name": "PROP_UNK1",
+          "flag": 3
+        },
+        {
+          "name": "PROP_GLOB_UNK1",
+          "flag": 27
+        },
+        {
+          "name": "PROP_GLOB_UNK2",
+          "flag": 29
+        },
+        {
+          "name": "PROP_GLOB_SKINNED",
+          "flag": 30
+        },
+        {
+          "name": "PROP_GLOB_ALPHA_TEST",
+          "flag": 31
+        }
+      ]
+    }
+  ]
+}

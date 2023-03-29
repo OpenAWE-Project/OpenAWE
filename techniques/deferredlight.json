@@ -1,0 +1,26 @@
+{
+  "name": "deferredlight",
+  "property_sets": [
+    {
+      "stages": ["pointlight"],
+      "properties": [
+        {
+          "name": "PROP_VARIANCE_SHADOW_MAP",
+          "flag": 1
+        },
+        {
+          "name": "PROP_DIRECTION",
+          "flag": 2
+        },
+        {
+          "name": "PROP_GLOSSINESS",
+          "flag": 3
+        }
+      ]
+    },
+    {
+      "stages": ["render_stencil"],
+      "properties": []
+    }
+  ]
+}

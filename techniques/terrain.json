@@ -1,0 +1,13 @@
+{
+  "name": "terrain",
+  "property_sets": [
+    {
+      "stages": ["depth"],
+      "properties": []
+    },
+    {
+      "stages": ["material"],
+      "properties": []
+    }
+  ]
+}

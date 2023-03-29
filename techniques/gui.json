@@ -1,0 +1,9 @@
+{
+  "name": "gui",
+  "property_sets": [
+    {
+      "stages": ["material"],
+      "properties": []
+    }
+  ]
+}

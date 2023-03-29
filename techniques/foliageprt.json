@@ -1,0 +1,22 @@
+{
+  "name": "foliageprt",
+  "property_sets": [
+    {
+      "stages": ["depth", "material"],
+      "properties": [
+        {
+          "name": "PROP_UNK1",
+          "flag": 0
+        },
+        {
+          "name": "PROP_UNK2",
+          "flag": 1
+        },
+        {
+          "name": "PROP_UNK3",
+          "flag": 2
+        }
+      ]
+    }
+  ]
+}

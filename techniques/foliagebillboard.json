@@ -1,0 +1,13 @@
+{
+  "name": "foliagebillboard",
+  "property_sets": [
+    {
+      "stages": ["depth"],
+      "properties": []
+    },
+    {
+      "stages": ["material"],
+      "properties": []
+    }
+  ]
+}

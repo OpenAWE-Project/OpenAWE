@@ -1,0 +1,9 @@
+{
+  "name": "terrainmesh",
+  "property_sets": [
+    {
+      "stages": ["material"],
+      "properties": []
+    }
+  ]
+}
