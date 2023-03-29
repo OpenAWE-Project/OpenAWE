@@ -41,11 +41,17 @@ static constexpr uint32_t kDecreaseSpeed = Common::crc32("FREECAM_DECREASE_SPEED
 
 MouseControlledFreeCamera::MouseControlledFreeCamera(): _yaw(0.0f), _pitch(0.0f), _roll(0.0f), _invertY(kDoNotInvert) {
 	_mouseSensitivity = 10.f;
-	Events::EventCallback callback = [this](auto && PH1) { handleEvent(std::forward<decltype(PH1)>(PH1)); };
+	Events::EventCallback callbackMovement = [this](auto && PH1) { handleMovement(std::forward<decltype(PH1)>(PH1)); };
+	Events::EventCallback callbackRotation = [this](auto && PH1) { handleRotation(std::forward<decltype(PH1)>(PH1)); };
 
 	EventMan.setActionCallback(
-		{kMoveForward, kMoveBackward, kMoveLeft, kMoveRight, kMoveUp, kMoveDown, kRotate, kIncreaseSpeed, kDecreaseSpeed},
-		callback
+		{kMoveForward, kMoveBackward, kMoveLeft, kMoveRight, kMoveUp, kMoveDown, kIncreaseSpeed, kDecreaseSpeed},
+		callbackMovement
+	);
+
+	EventMan.setActionCallback(
+		{kRotate},
+		callbackRotation
 	);
 
 	EventMan.addBinding(kMoveForward, Events::kKeyW);
@@ -82,24 +88,24 @@ void MouseControlledFreeCamera::update(float delta) {
 	_position += delta * _movementFactor * _movementDirection.z * 100.0f * _direction;
 }
 
-void MouseControlledFreeCamera::handleEvent(const Events::Event &event) {
-	const auto keyEvent = std::get_if<Events::KeyEvent>(& event.data);
-	const auto axisEvent = std::get_if<Events::AxisEvent<glm::vec2>>(& event.data);
-	switch (event.action) {
-		case kMoveUp:       _movementDirection.y = (keyEvent->state == Events::kPress) ?  1.0 : 0.0; break;
-		case kMoveDown:     _movementDirection.y = (keyEvent->state == Events::kPress) ? -1.0 : 0.0; break;
-		case kMoveForward:  _movementDirection.z = (keyEvent->state == Events::kPress) ?  1.0 : 0.0; break;
-		case kMoveBackward: _movementDirection.z = (keyEvent->state == Events::kPress) ? -1.0 : 0.0; break;
-		case kMoveLeft:     _movementDirection.x = (keyEvent->state == Events::kPress) ?  1.0 : 0.0; break;
-		case kMoveRight:    _movementDirection.x = (keyEvent->state == Events::kPress) ? -1.0 : 0.0; break;
+void MouseControlledFreeCamera::handleRotation(const Events::Event &event) {
+	const auto axisEvent = std::get<Events::AxisEvent<glm::vec2>>(event.data); 
+	_movementRotation.x = axisEvent.delta.x; 
+	_movementRotation.y = axisEvent.delta.y; 
+}
 
-		case kRotate:  
-			_movementRotation.x = axisEvent->delta.x; 
-			_movementRotation.y = axisEvent->delta.y; 
-			break;
+void MouseControlledFreeCamera::handleMovement(const Events::Event &event) {
+	const auto keyEvent = std::get<Events::KeyEvent>(event.data);
+	switch (event.action) {
+		case kMoveUp:       _movementDirection.y = (keyEvent.state == Events::kPress) ?  1.0 : 0.0; break;
+		case kMoveDown:     _movementDirection.y = (keyEvent.state == Events::kPress) ? -1.0 : 0.0; break;
+		case kMoveForward:  _movementDirection.z = (keyEvent.state == Events::kPress) ?  1.0 : 0.0; break;
+		case kMoveBackward: _movementDirection.z = (keyEvent.state == Events::kPress) ? -1.0 : 0.0; break;
+		case kMoveLeft:     _movementDirection.x = (keyEvent.state == Events::kPress) ?  1.0 : 0.0; break;
+		case kMoveRight:    _movementDirection.x = (keyEvent.state == Events::kPress) ? -1.0 : 0.0; break;
 	}
 
-	if (keyEvent && keyEvent->state == Events::kRelease) {
+	if (keyEvent.state == Events::kRelease) {
 		switch (event.action) {
 			case kIncreaseSpeed:
 				setMovementFactor(getMovementFactor() * 2.0f);

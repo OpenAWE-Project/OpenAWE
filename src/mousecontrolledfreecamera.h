@@ -36,7 +36,8 @@ public:
 	void update(float delta) override;
 
 private:
-	void handleEvent(const Events::Event &event);
+	void handleRotation(const Events::Event &event);
+	void handleMovement(const Events::Event &event);
 
 protected:
 	float _mouseSensitivity;
