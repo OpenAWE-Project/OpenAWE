@@ -34,12 +34,16 @@ void TimerProcess::update(double delta, void *) {
 	const float startTime = _timer->getStartTime();
 	const float duration = _timer->getDuration();
 	if (delta - created >= startTime && _timer->getState() == Timer::kNotStarted) {
-		if (startBytecodeOffset)
+		if (startBytecodeOffset) {
+			_ctx.getFunctions().setTime(startTime);
 			_bytecode->run(_ctx, *startBytecodeOffset, _timerEntity);
+		}
 		_timer->setState(Timer::kStarted);
 	} else if (delta - created >= duration + startTime && _timer->getState() == Timer::kStarted) {
-		if (endBytecodeOffset)
+		if (endBytecodeOffset) {
+			_ctx.getFunctions().setTime(startTime + duration);
 			_bytecode->run(_ctx, *endBytecodeOffset, _timerEntity);
+		}
 		_timer->setState(Timer::kStopped);
 		succeed();
 	}
