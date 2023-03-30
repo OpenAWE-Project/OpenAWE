@@ -51,7 +51,7 @@ void KeyFramer::update(float time) {
 	_transformation = glm::identity<glm::mat4>();
 
 	if (_currentAnimation->animation) {
-		const auto havokAnimation = _currentAnimation->animation;
+		const auto havokAnimation = *_currentAnimation->animation;
 
 		_transformation *= havokAnimation->calculateTransformation(
 			"Bone00",

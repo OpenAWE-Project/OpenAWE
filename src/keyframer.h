@@ -48,7 +48,7 @@ struct KeyFrameAnimation {
 	unsigned int start, end;
 	float duration;
 	std::optional<GID> nextAnimation;
-	std::optional<Graphics::Animation> animation;
+	std::optional<Graphics::AnimationPtr> animation;
 };
 
 class KeyFramer;

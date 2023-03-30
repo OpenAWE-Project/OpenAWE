@@ -500,7 +500,7 @@ void ObjectCollection::loadKeyFrameAnimation(const AWE::Object &container) {
 
 	try {
 		if (keyFrameAnimation.animationResource)
-			keyFrameAnimationObject.animation = Graphics::Animation(keyFrameAnimation.animationResource);
+			keyFrameAnimationObject.animation = std::make_shared<Graphics::Animation>(keyFrameAnimation.animationResource);
 	} catch (Common::Exception &e) {
 		spdlog::error("Failed to load keyframe animation: {}", e.what());
 		return;
