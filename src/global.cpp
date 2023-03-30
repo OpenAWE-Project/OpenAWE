@@ -56,4 +56,7 @@ Global::Global(entt::registry &registry) : ObjectCollection(registry) {
 
 	spdlog::info("Loading character classes");
 	load(ResMan.getResource("global/cid_characterclass.bin"), kCharacterClass, dp);
+
+	spdlog::info("Loading weapons");
+	load(ResMan.getResource("global/cid_weapon.bin"), kWeapon, dp);
 }

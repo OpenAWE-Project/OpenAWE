@@ -61,6 +61,7 @@ static const uint32_t kContentHashKeyframer            = Common::crc32(Common::t
 static const uint32_t kContentHashKeyframe             = Common::crc32(Common::toLower("content::Keyframe"));
 static const uint32_t kContentHashGameEvent            = Common::crc32(Common::toLower("content::GameEvent"));
 static const uint32_t kContentHashAttachmentContainer  = Common::crc32(Common::toLower("content::AttachmentContainer"));
+static const uint32_t kContentHashWeapon               = Common::crc32(Common::toLower("content::Weapon"));
 
 namespace AWE {
 
@@ -136,6 +137,7 @@ uint32_t ObjectBinaryReadStreamV2::getContentHash(ObjectType type) const {
 		case kKeyframe: return kContentHashKeyframe;
 		case kGameEvent: return kContentHashGameEvent;
 		case kAttachmentContainer: return kContentHashAttachmentContainer;
+		case kWeapon: return kContentHashWeapon;
 		default: return 0;
 	}
 }

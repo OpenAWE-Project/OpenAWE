@@ -410,6 +410,42 @@ struct SpotLight {
 	uint32_t volumetricQuality;
 };
 
+struct Weapon {
+	GID gid;
+	std::string name;
+	std::string identifier;
+	rid_t physicsResource;
+	rid_t meshResource;
+	std::string path;
+	bool melee;
+	float accuracy;
+	float energy;
+	int scatterCount;
+	float energyHotspotRange;
+	float energyFalloffRange;
+	int maxCarriedBullets;
+	int clipSize;
+	bool twoHanded;
+	float timeBetweenShots;
+	bool shootsFlares;
+	bool pumpAction;
+	int lowClipLimit;
+	int lowAmmoLimit;
+	glm::vec3 hudAtlasOffset;
+	float recoil;
+	float aimFovMultiplier;
+	int pickupAmmoCount;
+	float autoAimDistance;
+	bool automatic;
+	float takenKickBack;
+	float meleeRange;
+	int meleeType;
+	bool enableRandomWeaponPickup;
+	int reloadCount;
+	int penetrationCount;
+	glm::vec3 barrellOffset;
+};
+
 } // End of namespace AWE::Templates
 
 #endif //OPENAWE_OBJECT_H
