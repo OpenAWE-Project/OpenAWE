@@ -383,6 +383,19 @@ install(
 )
 
 # ------------------------------------
+# Shaders
+if (WITH_COMPILED_SHADERS)
+    include(CompileTechnique)
+    find_package(GLSLC REQUIRED)
+    add_custom_target(awe_shaders)
+    file(GLOB TECHNIQUE_FILES "techniques/*.json")
+    foreach(technique_file IN ITEMS ${TECHNIQUE_FILES})
+        compile_technique(awe_shaders ${GLSLC_EXECUTABLE} ${technique_file})
+    endforeach()
+    add_dependencies(awe awe_shaders)
+endif ()
+
+# ------------------------------------
 # Tools
 if (WITH_TOOLS)
     add_subdirectory(tools)
