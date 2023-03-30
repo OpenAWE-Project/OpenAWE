@@ -102,6 +102,11 @@ if(UNIX)
     endif()
 endif()
 
+check_include_file(cpuid.h CPUID_H)
+if(CPUID_H)
+    add_definitions(-DHAS_CPUID_H)
+endif()
+
 # For some reason check_function_exists doesn't work on builtin gcc/clang functions
 macro(check_builtin_function_exists function output)
     check_cxx_source_compiles("int main(int argc, char** argv) { __builtin_${function}; return 0; }" ${output})
