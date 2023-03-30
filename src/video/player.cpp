@@ -25,6 +25,7 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
+#include "src/common/cpuinfo.h"
 #include "src/common/threadpool.h"
 
 #include "src/awe/resman.h"
@@ -39,7 +40,10 @@
 
 namespace Video {
 
-Player::Player() : _playing(false), _proxyTexture(GfxMan.createProxyTexture()) {
+Player::Player() :
+	_sse2(Common::hasSSE2()),
+	_playing(false),
+	_proxyTexture(GfxMan.createProxyTexture()) {
 
 }
 
@@ -192,12 +196,21 @@ void Player::prepareSurfaces() {
 		_video->readNextFrame(_ycbcr);
 		auto surface = _availableSurfaces.front();
 		_availableSurfaces.pop_front();
-		Codecs::convertYUV2RGB(
-			_ycbcr,
-			reinterpret_cast<byte *>(surface->getData()),
-			_video->getWidth(),
-			_video->getHeight()
-		);
+		if (_sse2) {
+			Codecs::convertYUV2RGB_SSE2(
+				_ycbcr,
+				reinterpret_cast<byte *>(surface->getData()),
+				_video->getWidth(),
+				_video->getHeight()
+			);
+		} else {
+			Codecs::convertYUV2RGB(
+				_ycbcr,
+				reinterpret_cast<byte *>(surface->getData()),
+				_video->getWidth(),
+				_video->getHeight()
+			);
+		}
 
 		_preparedSurfaces.push_back(surface);
 	}
