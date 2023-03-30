@@ -32,6 +32,10 @@
 
 namespace Graphics {
 
+class Animation;
+
+typedef std::shared_ptr<Animation> AnimationPtr;
+
 class Animation {
 public:
 	struct Keyframe {

@@ -158,7 +158,14 @@ void ObjectCollection::loadAnimation(const AWE::Object &container) {
 
 	auto animationEntity = _registry.create();
 	_registry.emplace<GID>(animationEntity) = animation.gid;
-	// TODO: Load a representation of the animation
+	try {
+		_registry.emplace<Graphics::AnimationPtr>(animationEntity) = std::make_shared<Graphics::Animation>(
+			animation.rid,
+			animation.name
+		);
+	} catch (Common::Exception &exception) {
+		spdlog::error(exception.what());
+	}
 
 	_objects[kAnimationID].emplace_back(animationEntity);
 
