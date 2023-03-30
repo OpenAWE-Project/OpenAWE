@@ -647,7 +647,7 @@ void ObjectStream::weapon(Templates::Weapon &weapon) {
 
 	variable("identifier", weapon.identifier, true);
 
-	skip(36); // TODO
+	skip(38); // TODO
 }
 
 void ObjectStream::readFileInfoMetadata(Templates::FileInfoMetadata &fileInfoMetadata) {
