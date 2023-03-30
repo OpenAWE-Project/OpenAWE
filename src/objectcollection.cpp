@@ -124,6 +124,7 @@ void ObjectCollection::load(const AWE::Object &container, ObjectType type) {
 		case kDynamicObject: loadDynamicObject(container); break;
 		case kDynamicObjectScript: loadDynamicObjectScript(container); break;
 		case kCharacter: loadCharacter(container); break;
+		case kCharacterScript: loadCharacterScript(container); break;
 		case kScriptInstance: loadScriptInstance(container); break;
 		case kScript: loadScript(container); break;
 		case kAreaTrigger: loadAreaTrigger(container); break;
@@ -272,6 +273,35 @@ void ObjectCollection::loadCharacter(const AWE::Object &container) {
 	_entities.emplace_back(characterEntity);
 
 	spdlog::debug("Loading character {}", _gid->getString(character.gid));
+}
+
+void ObjectCollection::loadCharacterScript(const AWE::Object &container) {
+	const auto characterScript = std::any_cast<AWE::Templates::CharacterScript>(container);
+
+	entt::entity scriptEntity = getEntityByGID(_registry, characterScript.gid);
+	if (scriptEntity == entt::null) {
+		spdlog::error(
+			"Couldn't find character {}:{:x} for script, skipping it",
+			characterScript.gid.type,
+			characterScript.gid.id
+		);
+		return;
+	}
+
+	AWE::Script::BytecodePtr bytecode;
+	AWE::Script::VariableStorePtr variableStore;
+	_bytecode->createScript(
+		characterScript.script,
+		bytecode,
+		variableStore
+	);
+
+	if (bytecode)
+		_registry.emplace<AWE::Script::BytecodePtr>(scriptEntity) = bytecode;
+	if (variableStore)
+		_registry.emplace<AWE::Script::VariableStorePtr>(scriptEntity) = variableStore;
+
+	spdlog::debug("Loading script for object {}", _gid->getString(characterScript.gid));
 }
 
 void ObjectCollection::loadScriptInstance(const AWE::Object &container) {
