@@ -21,7 +21,9 @@
 #include <algorithm>
 #include <cstring>
 
-#include <emmintrin.h>
+#if __SSE2__ || _M_IX86_FP==2
+#	include <emmintrin.h>
+#endif
 
 #include "src/common/exception.h"
 
