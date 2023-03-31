@@ -59,6 +59,7 @@ private:
 	void loadDynamicObject(const AWE::Object &container);
 	void loadDynamicObjectScript(const AWE::Object &container);
 	void loadCharacter(const AWE::Object &container);
+	void loadCharacterScript(const AWE::Object &container);
 	void loadScriptInstance(const AWE::Object &container);
 	void loadScript(const AWE::Object &container);
 	void loadFloatingScript(const AWE::Object &container);
