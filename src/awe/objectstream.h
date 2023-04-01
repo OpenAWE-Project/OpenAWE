@@ -75,7 +75,7 @@ protected:
 	void keyFrame(Templates::KeyFrame &keyFrame);
 	void gameEvent(Templates::GameEvent &gameEvent);
 	void spotLight(Templates::SpotLight &spotLight);
-	void weapon(Templates::Weapon &weapon);
+	void weapon(Templates::Weapon &weapon, unsigned int version);
 
 	void readFileInfoMetadata(Templates::FileInfoMetadata &fileInfoMetadata);
 	void foliageMeshMetadata(Templates::FoliageMeshMetadata foliageMeshMetadata);

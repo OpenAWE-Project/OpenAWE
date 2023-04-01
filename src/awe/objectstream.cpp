@@ -613,7 +613,12 @@ void ObjectStream::spotLight(Templates::SpotLight &spotLight) {
 	skip(8);
 }
 
-void ObjectStream::weapon(Templates::Weapon &weapon) {
+void ObjectStream::weapon(Templates::Weapon &weapon, unsigned int version) {
+	/*
+	 * Versions:
+	 * Alan Wake: 33
+	 * Alan Wakes American Nightmare: 39
+	 */
 	variable("gid", weapon.gid);
 	variable("name", weapon.name, true);
 
@@ -622,32 +627,36 @@ void ObjectStream::weapon(Templates::Weapon &weapon) {
 
 	variable("path", weapon.path, true);
 
-	variable("melee", weapon.melee);
-	variable("accuracy", weapon.accuracy);
-	variable("energy", weapon.energy);
-	variable("scatterCount", weapon.scatterCount);
-	variable("energyHotspotRange", weapon.energyHotspotRange);
-	variable("energyHotspotRange", weapon.energyFalloffRange);
-	variable("maxCarriedBullets", weapon.maxCarriedBullets);
-	variable("clipSize", weapon.clipSize);
-	variable("twoHanded", weapon.twoHanded);
-	variable("timeBetweenShots", weapon.timeBetweenShots);
-	variable("shootsFlares", weapon.shootsFlares);
-	variable("pumpAction", weapon.pumpAction);
-	variable("lowClipLimit", weapon.lowClipLimit);
-	variable("lowAmmoLimit", weapon.lowAmmoLimit);
-	variable("Recoil", weapon.recoil);
-	variable("aimFovMultiplier", weapon.aimFovMultiplier);
-	variable("pickupAmmoCount", weapon.pickupAmmoCount);
-	variable("autoAimDistance", weapon.autoAimDistance);
-	//variable("automatic", weapon.automatic);
-	variable("takenKickBack", weapon.takenKickBack);
+	if (version == 39) {
+		variable("melee", weapon.melee);
+		variable("accuracy", weapon.accuracy);
+		variable("energy", weapon.energy);
+		variable("scatterCount", weapon.scatterCount);
+		variable("energyHotspotRange", weapon.energyHotspotRange);
+		variable("energyHotspotRange", weapon.energyFalloffRange);
+		variable("maxCarriedBullets", weapon.maxCarriedBullets);
+		variable("clipSize", weapon.clipSize);
+		variable("twoHanded", weapon.twoHanded);
+		variable("timeBetweenShots", weapon.timeBetweenShots);
+		variable("shootsFlares", weapon.shootsFlares);
+		variable("pumpAction", weapon.pumpAction);
+		variable("lowClipLimit", weapon.lowClipLimit);
+		variable("lowAmmoLimit", weapon.lowAmmoLimit);
+		variable("Recoil", weapon.recoil);
+		variable("aimFovMultiplier", weapon.aimFovMultiplier);
+		variable("pickupAmmoCount", weapon.pickupAmmoCount);
+		variable("autoAimDistance", weapon.autoAimDistance);
+		//variable("automatic", weapon.automatic);
+		variable("takenKickBack", weapon.takenKickBack);
 
-	skip(4); // TODO
+		skip(4); // TODO
 
-	variable("identifier", weapon.identifier, true);
+		variable("identifier", weapon.identifier, true);
 
-	skip(38); // TODO
+		skip(38); // TODO
+	} else { // version == 33
+		skip(103); // TODO
+	}
 }
 
 void ObjectStream::readFileInfoMetadata(Templates::FileInfoMetadata &fileInfoMetadata) {
@@ -734,7 +743,7 @@ void ObjectStream::object(Object &value, ObjectType type, unsigned int version) 
 		case kKeyframer: keyFramer(as<Templates::KeyFramer>(value)); break;
 		case kGameEvent: gameEvent(as<Templates::GameEvent>(value)); break;
 		case kSpotLight: spotLight(as<Templates::SpotLight>(value)); break;
-		case kWeapon: weapon(as<Templates::Weapon>(value)); break;
+		case kWeapon: weapon(as<Templates::Weapon>(value), version); break;
 
 		case kFileInfoMetadata: readFileInfoMetadata(as<Templates::FileInfoMetadata>(value)); break;
 		case kFoliageMeshMetadata: foliageMeshMetadata(as<Templates::FoliageMeshMetadata>(value)); break;
