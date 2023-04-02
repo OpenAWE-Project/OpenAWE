@@ -61,6 +61,17 @@ jobs:
             libgtest-dev \
             ccache
 
+      - name: Install glslc compiler
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        run: |
+          git clone https://github.com/google/shaderc shaderc
+          cd shaderc
+          ./utils/git-sync-deps
+          mkdir build
+          cd build
+          cmake -GNinja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DSHADERC_SKIP_TESTS=ON -DSHADERC_SKIP_EXAMPLES=ON ..
+          ninja
+
       - name: Install dependencies with vcpkg
         if: ${{ matrix.os == 'windows-2019' }}
         shell: bash
@@ -74,13 +85,13 @@ jobs:
             -password "${{ github.token }}"
           nuget setapikey "${{ github.token }}" \
             -source "https://nuget.pkg.github.com/${{ github.actor }}/index.json"
-          vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl
+          vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl shaderc
 
       - name: Install dependencies with brew
         if: ${{ matrix.os == 'macos-11' }}
         run: |
           brew update
-          brew install zlib glfw libogg libvorbis theora spdlog glew openal-soft bullet fmt googletest tinyxml2 glm ccache
+          brew install zlib glfw libogg libvorbis theora spdlog glew openal-soft bullet fmt googletest tinyxml2 glm ccache shaderc
 
       - name: Cache non-Windows build with ccache
         if: ${{ matrix.os != 'windows-2019' }}
