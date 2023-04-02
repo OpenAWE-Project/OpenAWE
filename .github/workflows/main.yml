@@ -84,8 +84,9 @@ jobs:
           ./utils/git-sync-deps
           mkdir build
           cd build
-          cmake -GNinja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DSHADERC_SKIP_TESTS=ON -DSHADERC_SKIP_EXAMPLES=ON ..
-          ninja
+          cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DSHADERC_SKIP_TESTS=ON -DSHADERC_SKIP_EXAMPLES=ON ..
+          make
+          sudo make install
 
       - name: Install dependencies with vcpkg
         if: ${{ matrix.os == 'windows-2019' }}
