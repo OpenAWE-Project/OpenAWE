@@ -39,7 +39,7 @@ namespace Platform {
 
 typedef std::function<void (int key, int scancode, int action, int mods)> KeyCallback;
 typedef std::function<void (int button, int action, int mods)> MouseButtonCallback;
-typedef std::function<void (double xpos, double ypos)> Axis2DCallback;
+typedef std::function<void (glm::vec2 absolute, glm::vec2 delta)> Axis2DCallback;
 typedef std::function<void (int entered)> MouseEnterCallback;
 
 class Window : public GLContext, public VulkanContext {
@@ -58,8 +58,8 @@ public:
 
 	void getSize(unsigned int &width, unsigned int &height) override;
 
-	void lockMouse();
-	void unlockMouse();
+	void hideMouseCursor();
+	void showMouseCursor();
 
 #ifdef WITH_VULKAN
 	const char **getInstanceExtensions(unsigned int &numExtensions) override;
@@ -74,7 +74,6 @@ public:
 	void setMousePositionCallback(const Axis2DCallback &mousePositionCallback);
 	void setMouseScrollCallback(const Axis2DCallback &mouseScrollCallback);
 	void setMouseEnterCallback(const MouseEnterCallback &mouseEnterCallback);
-	std::optional<glm::vec2> getMouseLastPosition();
 
 	GLFWwindow * getWindowHandle();
 
