@@ -107,10 +107,14 @@ void Window::callbackKey(GLFWwindow *window, int key, int scancode, int action, 
 
 void Window::callbackMousePosition(GLFWwindow *window, double xpos, double ypos) {
 	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
-	if (w->_mousePositionCallback)
-		w->_mousePositionCallback(xpos, ypos);
 
-	w->_lastMousePosition = glm::vec2(xpos, ypos);
+	glm::vec2 absolute = glm::vec2(xpos, ypos);
+	glm::vec2 delta = absolute - w->_lastMousePosition.value_or(absolute);
+
+	if (w->_mousePositionCallback)
+		w->_mousePositionCallback(absolute, delta);
+
+	w->_lastMousePosition = absolute;
 }
 
 void Window::callbackMouseScroll(GLFWwindow *window, double xpos, double ypos) {
@@ -118,7 +122,8 @@ void Window::callbackMouseScroll(GLFWwindow *window, double xpos, double ypos) {
 	if (!w->_mouseScrollCallback)
 		return;
 
-	w->_mouseScrollCallback(xpos, ypos);
+	glm::vec2 position(xpos, ypos);
+	w->_mouseScrollCallback(position, position);
 }
 
 void Window::callbackMouseEnter(GLFWwindow *window, int entered) {
@@ -173,20 +178,16 @@ void Window::setMouseEnterCallback(const MouseEnterCallback &mouseEnterCallback)
 	_mouseEnterCallback = mouseEnterCallback;
 }
 
-void Window::lockMouse() {
+void Window::hideMouseCursor() {
 	glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	if (glfwRawMouseMotionSupported())
 		glfwSetInputMode(_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 }
 
-void Window::unlockMouse() {
+void Window::showMouseCursor() {
 	glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	if (glfwRawMouseMotionSupported())
 		glfwSetInputMode(_window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
-}
-
-std::optional<glm::vec2> Window::getMouseLastPosition() {
-	return _lastMousePosition;
 }
 
 GLFWwindow * Window::getWindowHandle() {

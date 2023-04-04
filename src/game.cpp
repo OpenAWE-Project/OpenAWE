@@ -242,10 +242,10 @@ void Game::start() {
 	text.setText(u"OpenAWE - v0.0.1");
 	text.show();
 
-	_window->lockMouse();
+	_window->hideMouseCursor();
 	// Allow locking and unlocking the mouse
-	EventMan.setActionCallback({ kLockMouse }, [&](Events::Event event){_window->lockMouse();});
-	EventMan.setActionCallback({ kUnlockMouse }, [&](Events::Event event){_window->unlockMouse();});
+	EventMan.setActionCallback({ kLockMouse }, [&](Events::Event event){_window->hideMouseCursor();});
+	EventMan.setActionCallback({ kUnlockMouse }, [&](Events::Event event){_window->showMouseCursor();});
 	EventMan.addBinding(kLockMouse, Events::kMouseLeft);
 	EventMan.addBinding(kUnlockMouse, Events::kKeyEscape);
 
@@ -257,15 +257,11 @@ void Game::start() {
 		EventMan.injectMouseButtonInput(static_cast<Events::MouseButton>(button), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
 	});
 
-	_window->setMousePositionCallback([&](double xpos, double ypos){
-		glm::vec2 absolute = glm::vec2(xpos, ypos);
-		glm::vec2 delta = absolute - this->_window->getMouseLastPosition().value_or(absolute);
+	_window->setMousePositionCallback([&](glm::vec2 absolute, glm::vec2 delta){
 		EventMan.injectMouse2DAxisInput(Events::kMousePosition, absolute, delta);
 	});
 
-	_window->setMouseScrollCallback([&](double xpos, double ypos){
-		glm::vec2 absolute = glm::vec2(xpos, ypos);
-		glm::vec2 delta = absolute;
+	_window->setMouseScrollCallback([&](glm::vec2 absolute, glm::vec2 delta){
 		EventMan.injectMouse2DAxisInput(Events::kMouseScroll, absolute, delta);
 	});
 
