@@ -60,7 +60,7 @@ public:
 	 * \param key The key for the event
 	 * \param state If the key is pressed or released
 	 */
-	void injectMouseInput(MouseButton mouse, KeyState state);
+	void injectMouseButtonInput(MouseButton mouse, KeyState state);
 
 	/*!
 	 * Inject a mouse 2D axis event to the event system
