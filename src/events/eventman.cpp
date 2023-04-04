@@ -41,7 +41,7 @@ void EventManager::injectKeyboardInput(Events::Key key, Events::KeyState state) 
 	}
 }
 
-void EventManager::injectMouseInput(Events::MouseButton mouse, Events::KeyState state) {
+void EventManager::injectMouseButtonInput(Events::MouseButton mouse, Events::KeyState state) {
 	const auto actions = _mouseBindings.equal_range(mouse);
 
 	KeyEvent keyEvent{state};
@@ -117,7 +117,7 @@ void EventManager::add2DAxisBinding(uint32_t action, Mouse2DAxis axis) {
 	if ((_mouse1DAxisBindings.count(slices[0]) == 0) && (_mouse1DAxisBindings.count(slices[0]) == 0)) {
 		_mouse2DAxisBindings.insert(std::make_pair(axis, action));
 	} else {
-		CreateException("Attempted to add binding to a 2D axis {} while one of its 1D axes was in use", axis);
+		throw CreateException("Attempted to add binding to a 2D axis {} while one of its 1D axes was in use", axis);
 	}
 }
 
@@ -128,7 +128,7 @@ void EventManager::add1DAxisBinding(uint32_t action, Mouse1DAxis axis) {
 	if (_mouse2DAxisBindings.count(full) == 0) {
 		_mouse1DAxisBindings.insert(std::make_pair(axis, action));
 	} else {
-		CreateException("Attempted to add binding to a 1D axis {} while its full 2D axis {} was in use", axis, full);
+		throw CreateException("Attempted to add binding to a 1D axis {} while its full 2D axis {} was in use", axis, full);
 	}
 }
 

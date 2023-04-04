@@ -56,6 +56,9 @@
 #include "src/transform.h"
 #include "src/probe.h"
 
+static constexpr uint32_t kLockMouse = Common::crc32("MOUSE_LOCK");
+static constexpr uint32_t kUnlockMouse = Common::crc32("MOUSE_UNLOCK");
+
 bool Game::parseArguments(int argc, char **argv) {
 	CLI::App app("Reimplmentation of the Alan Wake Engine", "awe");
 
@@ -241,24 +244,22 @@ void Game::start() {
 
 	_window->lockMouse();
 	// Allow locking and unlocking the mouse
-	static constexpr uint32_t lockMouse = Common::crc32("MOUSE_LOCK");
-	static constexpr uint32_t unlockMouse = Common::crc32("MOUSE_UNLOCK");
-	EventMan.setActionCallback({ lockMouse }, [&](Events::Event event){_window->lockMouse();});
-	EventMan.setActionCallback({ unlockMouse }, [&](Events::Event event){_window->unlockMouse();});
-	EventMan.addBinding(lockMouse, Events::kMouseLeft);
-	EventMan.addBinding(unlockMouse, Events::kKeyEscape);
+	EventMan.setActionCallback({ kLockMouse }, [&](Events::Event event){_window->lockMouse();});
+	EventMan.setActionCallback({ kUnlockMouse }, [&](Events::Event event){_window->unlockMouse();});
+	EventMan.addBinding(kLockMouse, Events::kMouseLeft);
+	EventMan.addBinding(kUnlockMouse, Events::kKeyEscape);
 
 	_window->setKeyCallback([&](int key, int scancode, int action, int mods){
 		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
 	});
 
-	_window->setMouseCallback([&](int button, int action, int mods){
-		EventMan.injectMouseInput(static_cast<Events::MouseButton>(button), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
+	_window->setMouseButtonCallback([&](int button, int action, int mods){
+		EventMan.injectMouseButtonInput(static_cast<Events::MouseButton>(button), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
 	});
 
 	_window->setMousePositionCallback([&](double xpos, double ypos){
 		glm::vec2 absolute = glm::vec2(xpos, ypos);
-		glm::vec2 delta = absolute - this->_window->getMouseLastPosition();
+		glm::vec2 delta = absolute - this->_window->getMouseLastPosition().value_or(absolute);
 		EventMan.injectMouse2DAxisInput(Events::kMousePosition, absolute, delta);
 	});
 

@@ -22,6 +22,7 @@
 #define AWE_WINDOW_H
 
 #include <string>
+#include <optional>
 #include <functional>
 
 #define GLFW_INCLUDE_NONE
@@ -37,9 +38,9 @@
 namespace Platform {
 
 typedef std::function<void (int key, int scancode, int action, int mods)> KeyCallback;
-typedef std::function<void (int button, int action, int mods)> MouseCallback;
+typedef std::function<void (int button, int action, int mods)> MouseButtonCallback;
 typedef std::function<void (double xpos, double ypos)> Axis2DCallback;
-typedef std::function<void (double pos)> Axis1DCallback;
+typedef std::function<void (int entered)> MouseEnterCallback;
 
 class Window : public GLContext, public VulkanContext {
 public:
@@ -69,10 +70,11 @@ public:
 	bool shouldClose();
 
 	void setKeyCallback(const KeyCallback &keyCallback);
-	void setMouseCallback(const MouseCallback &mouseCallback);
+	void setMouseButtonCallback(const MouseButtonCallback &mouseButtonCallback);
 	void setMousePositionCallback(const Axis2DCallback &mousePositionCallback);
 	void setMouseScrollCallback(const Axis2DCallback &mouseScrollCallback);
-	glm::vec2 getMouseLastPosition();
+	void setMouseEnterCallback(const MouseEnterCallback &mouseEnterCallback);
+	std::optional<glm::vec2> getMouseLastPosition();
 
 	GLFWwindow * getWindowHandle();
 
@@ -81,16 +83,18 @@ private:
 	static void callbackMousePosition(GLFWwindow *window, double xpos, double ypos);
 	static void callbackMouseScroll(GLFWwindow *window, double xpos, double ypos);
 	static void callbackMouseButton(GLFWwindow *window, int button, int action, int mods);
+	static void callbackMouseEnter(GLFWwindow *window, int entered);
 
 	static void callbackFramebufferSize(GLFWwindow *window, int width, int height);
 
 	GLFWwindow *_window;
 
 	KeyCallback _keyCallback;
-	MouseCallback _mouseCallback;
+	MouseButtonCallback _mouseButtonCallback;
 	Axis2DCallback _mousePositionCallback;
 	Axis2DCallback _mouseScrollCallback;
-	glm::vec2 _lastMousePosition = glm::vec2(.0, .0);
+	MouseEnterCallback _mouseEnterCallback;
+	std::optional<glm::vec2> _lastMousePosition;
 };
 
 } // End of namespace Graphics

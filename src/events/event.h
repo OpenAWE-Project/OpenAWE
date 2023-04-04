@@ -50,7 +50,6 @@ struct KeyEvent {
 
 typedef std::variant<
 		AxisEvent<float>,
-		AxisEvent<double>,
 		AxisEvent<glm::vec2>,
 		KeyEvent
 > EventData;
