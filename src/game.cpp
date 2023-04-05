@@ -250,11 +250,11 @@ void Game::start() {
 	EventMan.addBinding(kUnlockMouse, Events::kKeyEscape);
 
 	_window->setKeyCallback([&](int key, int scancode, int action, int mods){
-		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
+		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : action == GLFW_PRESS ? Events::kPress : Events::kHold);
 	});
 
 	_window->setMouseButtonCallback([&](int button, int action, int mods){
-		EventMan.injectMouseButtonInput(static_cast<Events::MouseButton>(button), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
+		EventMan.injectMouseButtonInput(static_cast<Events::MouseButton>(button), action == GLFW_RELEASE ? Events::kRelease : action == GLFW_PRESS ? Events::kPress : Events::kHold);
 	});
 
 	_window->setMousePositionCallback([&](glm::vec2 absolute, glm::vec2 delta){

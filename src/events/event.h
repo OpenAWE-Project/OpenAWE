@@ -32,6 +32,7 @@ namespace Events {
  */
 enum KeyState {
 	kPress,
+	kHold,
 	kRelease
 };
 

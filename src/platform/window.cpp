@@ -23,6 +23,8 @@
 
 #include "src/common/types.h"
 
+#include "src/platform/inputman.h"
+
 #include "window.h"
 
 namespace Platform {
@@ -66,9 +68,9 @@ Window::Window(ContextType type) {
 
 	glfwSetWindowUserPointer(_window, this);
 
-	glfwSetKeyCallback(_window, &Window::callbackKey);
+	InputMan.setKeyCallback(_window, &Window::callbackKey);
 	glfwSetCursorPosCallback(_window, &Window::callbackMousePosition);
-	glfwSetMouseButtonCallback(_window, &Window::callbackMouseButton);
+	InputMan.setMouseButtonCallback(_window, &Window::callbackMouseButton);
 	glfwSetScrollCallback(_window, &Window::callbackMouseScroll);
 	glfwSetCursorEnterCallback(_window, &Window::callbackMouseEnter);
 	glfwSetFramebufferSizeCallback(_window, &Window::callbackFramebufferSize);
