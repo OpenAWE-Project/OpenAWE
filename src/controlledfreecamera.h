@@ -28,9 +28,15 @@
 class ControlledFreeCamera : public Graphics::FreeCamera {
 public:
 	ControlledFreeCamera();
+	void useMouseInput(bool enabled);
+	bool isMouseInputAllowed();
 
 private:
-	void handleEvent(const Events::Event &event);
+	void handleMovement(const Events::Event &event);
+	void handleRotation(const Events::Event &event);
+	void switchMouseInput(const Events::Event &event);
+
+	bool _mouseInputAllowed;
 };
 
 

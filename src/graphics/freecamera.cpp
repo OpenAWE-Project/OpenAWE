@@ -24,13 +24,21 @@
 
 namespace Graphics {
 
-FreeCamera::FreeCamera() : _movementFactor(1.0), _movementDirection(0.0f), _movementRotation(0.0f) {
+FreeCamera::FreeCamera() : 
+	_movementFactor(1.0), _movementDirection(0.0f), 
+	_rotationFactor(10.0), _movementRotation(0.0f), _rotationAttitude(0.0f){
 }
 
 void FreeCamera::update(float delta) {
-	_direction = glm::rotateX(_direction, delta * _movementFactor * _movementRotation.x);
-	_direction = glm::rotateY(_direction, delta * _movementFactor * _movementRotation.y);
-	_direction = glm::rotateZ(_direction, delta * _movementFactor * _movementRotation.z);
+	_rotationAttitude.x += glm::radians(_movementRotation.x * delta * _rotationFactor);
+	_rotationAttitude.y -= glm::radians(_movementRotation.y * delta * _rotationFactor);
+	// roll is not used so far
+	_rotationAttitude.z += glm::radians(_movementRotation.z * delta * _rotationFactor);
+	// limit pitch to -90..90 degree range
+	_rotationAttitude.y = glm::clamp(double(_rotationAttitude.y), -M_PI_2, M_PI_2);
+	_direction.x = cos(_rotationAttitude.y) * cos(_rotationAttitude.x);
+	_direction.y = sin(_rotationAttitude.y);
+	_direction.z = sin(_rotationAttitude.x) * cos(_rotationAttitude.y);
 	_direction = glm::normalize(_direction);
 
 	glm::vec3 right = glm::cross(_up, _direction);
@@ -38,6 +46,9 @@ void FreeCamera::update(float delta) {
 	_position += delta * _movementFactor * _movementDirection.x * 100.0f * right;
 	_position += delta * _movementFactor * _movementDirection.y * 100.0f * _up;
 	_position += delta * _movementFactor * _movementDirection.z * 100.0f * _direction;
+
+	// clear movementRotation
+	_movementRotation = glm::zero<glm::vec3>();
 }
 
 float FreeCamera::getMovementFactor() const {
@@ -46,6 +57,14 @@ float FreeCamera::getMovementFactor() const {
 
 void FreeCamera::setMovementFactor(float movementFactor) {
 	_movementFactor = movementFactor;
+}
+
+float FreeCamera::getRotationFactor() const {
+	return _rotationFactor;
+}
+
+void FreeCamera::setRotationFactor(float rotationFactor) {
+	_rotationFactor = rotationFactor;
 }
 
 } // End of namespace Graphics

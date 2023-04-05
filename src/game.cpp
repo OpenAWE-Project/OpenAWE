@@ -50,7 +50,7 @@
 
 #include "src/sound/soundman.h"
 
-#include "src/mousecontrolledfreecamera.h"
+#include "src/controlledfreecamera.h"
 #include "src/task.h"
 #include "src/timerprocess.h"
 #include "src/transform.h"
@@ -234,7 +234,7 @@ void Game::init() {
 void Game::start() {
 	spdlog::info("Starting AWE...");
 
-	MouseControlledFreeCamera freeCamera;
+	ControlledFreeCamera freeCamera;
 
 	GfxMan.setCamera(freeCamera);
 
