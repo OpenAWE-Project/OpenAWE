@@ -21,6 +21,8 @@
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 
+#include "src/platform/inputman.h"
+
 #include "platform.h"
 
 namespace Platform {
@@ -47,6 +49,8 @@ double Platform::getTime() {
 
 void Platform::update() {
 	glfwPollEvents();
+	InputMan.pollHoldEvents();
+	InputMan.pollGamepadEvents();
 }
 
 void Platform::errorCallback(int code, const char *description) {
