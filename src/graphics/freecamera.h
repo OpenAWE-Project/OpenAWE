@@ -33,12 +33,18 @@ public:
 
 	void setMovementFactor(float movementFactor);
 
+	float getRotationFactor() const;
+
+	void setRotationFactor(float rotationFactor);
+
 	void update(float delta) override;
 
 protected:
 	float _movementFactor;
 	glm::vec3 _movementDirection;
+	float _rotationFactor;
 	glm::vec3 _movementRotation;
+	glm::vec3 _rotationAttitude; // yaw, pitch and roll
 };
 
 } // End of namespace Graphics
