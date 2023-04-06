@@ -35,8 +35,9 @@ varies depending on your operating system (and in the case of Linux, distributio
  - OpenAL
  - Bullet
  - FMT
- - OGG
+ - Ogg
  - Theora
+ - Vorbis
  - GTest (Optional, only for unit tests)
  - spdlog
 
@@ -49,6 +50,9 @@ submodules already:
 
 To use these from your system instead of the submodule you can set `USE_SYSTEM_ENTT` and `USE_SYSTEM_CLI11`,
 respectively.
+
+In addition to these library dependencies, OpenAWE requires the glslc compiler to be installed for building the 
+permutations of the glsl shaders.
 
 Next step is to configure CMake and build. The `cmake` invocation will fail if you don't have all aforementioned
 dependencies configured on your system. This can be useful to check if you've installed everything as it tells you
