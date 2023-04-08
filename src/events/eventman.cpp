@@ -58,6 +58,23 @@ void EventManager::injectMouseButtonInput(Events::MouseButton mouse, Events::Key
 	}
 }
 
+void EventManager::injectGamepadButtonInput(Events::GamepadButton button, Events::KeyState state) {
+	const auto actions = _gamepadBindings.equal_range(button);
+
+	KeyEvent keyEvent{state};
+	Event event;
+	event.data = keyEvent;
+
+	for (auto actionIter = actions.first; actionIter != actions.second; ++actionIter) {
+		const auto action = actionIter->second;
+
+		const auto callback = _actionCallbacks[action];
+		event.action = action;
+
+		callback(event);
+	}
+}
+
 void EventManager::injectMouse2DAxisInput(Events::Mouse2DAxis axis, glm::vec2 position, glm::vec2 delta) {
 	const auto actions = _mouse2DAxisBindings.equal_range(axis);
 
@@ -96,6 +113,44 @@ void EventManager::injectMouse1DAxisInput(Events::Mouse1DAxis axis, float positi
 	}
 }
 
+void EventManager::injectGamepad2DAxisInput(Events::Gamepad2DAxis axis, glm::vec2 position, glm::vec2 delta) {
+	const auto actions = _gamepad2DAxisBindings.equal_range(axis);
+
+	AxisEvent<glm::vec2> axisEvent{position, delta};
+	Event event;
+	event.data = axisEvent;
+
+	for (auto actionIter = actions.first; actionIter != actions.second; ++actionIter) {
+		const auto action = actionIter->second;
+
+		const auto callback = _actionCallbacks[action];
+		event.action = action;
+
+		callback(event);
+	}
+
+	// Also inject separate 1D axis inputs
+	injectGamepad1DAxisInput(static_cast<Gamepad1DAxis>(axis | kSliceHorizontal), position.x, delta.x);
+	injectGamepad1DAxisInput(static_cast<Gamepad1DAxis>(axis | kSliceVertical), position.y, delta.y);
+}
+
+void EventManager::injectGamepad1DAxisInput(Events::Gamepad1DAxis axis, double position, double delta) {
+	const auto actions = _gamepad1DAxisBindings.equal_range(axis);
+
+	AxisEvent<double> axisEvent{position, delta};
+	Event event;
+	event.data = axisEvent;
+
+	for (auto actionIter = actions.first; actionIter != actions.second; ++actionIter) {
+		const auto action = actionIter->second;
+
+		const auto callback = _actionCallbacks[action];
+		event.action = action;
+
+		callback(event);
+	}
+}
+
 void EventManager::setActionCallback(std::initializer_list<uint32_t> actions, EventCallback callback) {
 	for (const auto &action: actions) {
 		_actionCallbacks[action] = callback;
@@ -108,6 +163,10 @@ void EventManager::addBinding(uint32_t action, Key key) {
 
 void EventManager::addBinding(uint32_t action, MouseButton mouse) {
 	_mouseBindings.insert(std::make_pair(mouse, action));
+}
+
+void EventManager::addBinding(uint32_t action, GamepadButton button) {
+	_gamepadBindings.insert(std::make_pair(button, action));
 }
 
 void EventManager::add2DAxisBinding(uint32_t action, Mouse2DAxis axis) {
@@ -127,6 +186,28 @@ void EventManager::add1DAxisBinding(uint32_t action, Mouse1DAxis axis) {
 
 	if (_mouse2DAxisBindings.count(full) == 0) {
 		_mouse1DAxisBindings.insert(std::make_pair(axis, action));
+	} else {
+		throw CreateException("Attempted to add binding to a 1D axis {} while its full 2D axis {} was in use", axis, full);
+	}
+}
+
+void EventManager::add2DAxisBinding(uint32_t action, Gamepad2DAxis axis) {
+	// ensure that none of the 1D axes are already busy
+	Gamepad1DAxis slices[2] = {static_cast<Gamepad1DAxis>(axis | kSliceHorizontal), static_cast<Gamepad1DAxis>(axis | kSliceVertical)};
+
+	if ((_gamepad1DAxisBindings.count(slices[0]) == 0) && (_gamepad1DAxisBindings.count(slices[0]) == 0)) {
+		_gamepad2DAxisBindings.insert(std::make_pair(axis, action));
+	} else {
+		throw CreateException("Attempted to add binding to a 2D axis {} while one of its 1D axes was in use", axis);
+	}
+}
+
+void EventManager::add1DAxisBinding(uint32_t action, Gamepad1DAxis axis) {
+	// ensure that 2D axis is not already busy
+	Gamepad2DAxis full = static_cast<Gamepad2DAxis>((axis >> 2) << 2);
+
+	if (_gamepad2DAxisBindings.count(full) == 0) {
+		_gamepad1DAxisBindings.insert(std::make_pair(axis, action));
 	} else {
 		throw CreateException("Attempted to add binding to a 1D axis {} while its full 2D axis {} was in use", axis, full);
 	}

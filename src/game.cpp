@@ -33,6 +33,7 @@
 #include "src/common/platform.h"
 
 #include "src/platform/keyconversion.h"
+#include "src/platform/gamepadconversion.h"
 
 #include "src/events/eventman.h"
 
@@ -263,6 +264,18 @@ void Game::start() {
 
 	_window->setMouseScrollCallback([&](glm::vec2 absolute, glm::vec2 delta){
 		EventMan.injectMouse2DAxisInput(Events::kMouseScroll, absolute, delta);
+	});
+
+	_window->setGamepadButtonCallback([&](int button, int action){
+		EventMan.injectGamepadButtonInput(static_cast<Events::GamepadButton>(button), action == GLFW_RELEASE? Events::kRelease : action == GLFW_PRESS? Events::kPress : Events::kHold);
+	});
+
+	_window->setGamepadStickCallback([&](int stick, glm::vec2 absolute, glm::vec2 delta){
+		EventMan.injectGamepad2DAxisInput(Platform::convertGamepadStick(stick), absolute, delta);
+	});
+
+	_window->setGamepadTriggerCallback([&](int trigger, double absolute, double delta){
+		EventMan.injectGamepad1DAxisInput(Platform::convertGamepadTrigger(trigger), absolute, delta);
 	});
 
 	entt::observer transformModelObserver{

@@ -28,6 +28,7 @@
 
 #include "src/events/key.h"
 #include "src/events/mouse.h"
+#include "src/events/gamepad.h"
 #include "src/events/event.h"
 
 namespace Events {
@@ -77,6 +78,27 @@ public:
 	void injectMouse1DAxisInput(Mouse1DAxis axis, float position, float delta);
 
 	/*!
+	 * Inject a gamepad button event to the event system
+	 * \param key The key for the event
+	 * \param state If the key is pressed or released
+	 */
+	void injectGamepadButtonInput(GamepadButton button, KeyState state);
+
+	/*!
+	 * Inject a gamepad 2D axis event to the event system
+	 * \param position Current gamepad 2D axis values 
+	 * \param delta Change from previous gamepad 2D axis values
+	 */
+	void injectGamepad2DAxisInput(Gamepad2DAxis axis, glm::vec2 position, glm::vec2 delta);
+
+	/*!
+	 * Inject a gamepad 1D axis event to the event system
+	 * \param position Current gamepad 1D axis values 
+	 * \param delta Change from previous gamepad 1D axis values
+	 */
+	void injectGamepad1DAxisInput(Gamepad1DAxis axis, double position, double delta);
+
+	/*!
 	 * Set a callback for a set of actions
 	 * \param actions The actions, the callback is associated with
 	 * \param callback The callback, to be associated with actions
@@ -98,6 +120,13 @@ public:
 	void addBinding(uint32_t action, MouseButton mouse);
 
 	/*!
+	 * Associate an action with a specific gamepad buttpn
+	 * \param action The action for association with the button
+	 * \param key The button for association with the action
+	 */
+	void addBinding(uint32_t action, GamepadButton button);
+
+	/*!
 	 * Associate an action with 2D axis mouse movement
 	 * \param action The action for association
 	 * \param axis The axis for association with the action
@@ -111,13 +140,30 @@ public:
 	 */
 	void add1DAxisBinding(uint32_t action, Mouse1DAxis axis);
 
+	/*!
+	 * Associate an action with 2D axis gamepad stick movement
+	 * \param action The action for association
+	 * \param axis The axis for association with the action
+	 */
+	void add2DAxisBinding(uint32_t action, Gamepad2DAxis axis);
+
+	/*!
+	 * Associate an action with 1D gamepad stick/trigger movement
+	 * \param action The action for association
+	 * \param axis The axis for association with the action
+	 */
+	void add1DAxisBinding(uint32_t action, Gamepad1DAxis axis);
+
 private:
 	std::map<uint32_t, EventCallback> _actionCallbacks;
 
 	std::multimap<Key, uint32_t> _keyBindings;
 	std::multimap<MouseButton, uint32_t> _mouseBindings;
+	std::multimap<GamepadButton, uint32_t> _gamepadBindings;
 	std::multimap<Mouse2DAxis, uint32_t> _mouse2DAxisBindings;
 	std::multimap<Mouse1DAxis, uint32_t> _mouse1DAxisBindings;
+	std::multimap<Gamepad2DAxis, uint32_t> _gamepad2DAxisBindings;
+	std::multimap<Gamepad1DAxis, uint32_t> _gamepad1DAxisBindings;
 };
 
 } // End of namespace Events
