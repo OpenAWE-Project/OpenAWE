@@ -24,12 +24,11 @@
 #include <set>
 #include <map>
 #include <optional>
+#include <functional>
 
 #include <GLFW/glfw3.h>
 
 #include "src/common/singleton.h"
-
-#include "src/platform/window.h"
 
 namespace Platform {
 
@@ -41,9 +40,9 @@ enum KeyAcrions {
 	kActionHold    = 4
 };
 
-typedef std::function<void (GLFWwindow *window, int button, int action)> GamepadButtonCallback;
-typedef std::function<void (GLFWwindow *window, int trigger, double pos)> GamepadTriggerCallback;
-typedef std::function<void (GLFWwindow *window, int stick, double xpos, double ypos)> GamepadStickCallback;
+typedef std::function<void (GLFWwindow *window, int button, int action)> InputGamepadButtonCallback;
+typedef std::function<void (GLFWwindow *window, int trigger, double pos)> InputGamepadTriggerCallback;
+typedef std::function<void (GLFWwindow *window, int stick, double xpos, double ypos)> InputGamepadStickCallback;
 
 typedef struct {
 	std::set<std::pair<int, int>> keysHeld;
@@ -51,9 +50,9 @@ typedef struct {
 	std::set<int> gamepadButtonsHeld;
 	std::optional<GLFWkeyfun> keyCallback;
 	std::optional<GLFWmousebuttonfun> mouseButtonCallback;
-	std::optional<GamepadButtonCallback> gamepadButtonCallback;
-	std::optional<GamepadTriggerCallback> gamepadTriggerCallback;
-	std::optional<GamepadStickCallback> gamepadStickCallback;
+	std::optional<InputGamepadButtonCallback> gamepadButtonCallback;
+	std::optional<InputGamepadTriggerCallback> gamepadTriggerCallback;
+	std::optional<InputGamepadStickCallback> gamepadStickCallback;
 } windowInfo;
 
 /*!
@@ -72,20 +71,21 @@ public:
 	GLFWkeyfun setKeyCallback(GLFWwindow *window, GLFWkeyfun function);
 	GLFWmousebuttonfun setMouseButtonCallback(GLFWwindow *window, GLFWmousebuttonfun function);
 
-	// TODO: All of the public functions below regarding gamepad support
 	void pollGamepadEvents();
-	void setGamepadButtonCallback(GLFWwindow *window, GamepadButtonCallback function);
-	void setGamepadTriggerCallback(GLFWwindow *window, GamepadTriggerCallback function);
-	void setGamepadStickCallback(GLFWwindow *window, GamepadStickCallback function);
+	void setGamepadButtonCallback(GLFWwindow *window, InputGamepadButtonCallback function);
+	void setGamepadTriggerCallback(GLFWwindow *window, InputGamepadTriggerCallback function);
+	void setGamepadStickCallback(GLFWwindow *window, InputGamepadStickCallback function);
+	bool hasActiveGamepad();
+	std::optional<std::string> getActiveGamepadName();
 
 private:
 	static void injectKeyHoldState(GLFWwindow *window, int key, int scancode, int action, int mods);
 	static void injectMouseButtonHoldState(GLFWwindow *window, int button, int action, int mods);
 
-	// TODO: All of the functions below regarding gamepad support
 	static void callbackJoystickConnectionChanged(int jid, int event);
 
 	std::map<GLFWwindow *, windowInfo> _windows;
+	std::optional<int> _activeGamepadId;
 };
 
 } // End of namespace Platform

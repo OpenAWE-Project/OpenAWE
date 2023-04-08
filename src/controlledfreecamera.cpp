@@ -32,13 +32,14 @@ static constexpr uint32_t kMoveLeft     = Common::crc32("FREECAM_MOVE_LEFT");
 static constexpr uint32_t kMoveRight    = Common::crc32("FREECAM_MOVE_RIGHT");
 static constexpr uint32_t kMoveUp       = Common::crc32("FREECAM_MOVE_UP");
 static constexpr uint32_t kMoveDown     = Common::crc32("FREECAM_MOVE_DOWN");
-static constexpr uint32_t kMove         = Common::crc32("FREECAM_MOVE"); // Forward + Backward + Left + Right
+static constexpr uint32_t kMoveGamepad  = Common::crc32("FREECAM_MOVE_GAMEPAD");
 
 static constexpr uint32_t kRotateLeft          = Common::crc32("FREECAM_ROTATE_LEFT");
 static constexpr uint32_t kRotateRight         = Common::crc32("FREECAM_ROTATE_RIGHT");
 static constexpr uint32_t kRotateUp            = Common::crc32("FREECAM_ROTATE_UP");
 static constexpr uint32_t kRotateDown          = Common::crc32("FREECAM_ROTATE_DOWN");
-static constexpr uint32_t kRotate              = Common::crc32("FREECAM_ROTATE");
+static constexpr uint32_t kRotateMouse         = Common::crc32("FREECAM_ROTATE_MOUSE");
+static constexpr uint32_t kRotateGamepad       = Common::crc32("FREECAM_ROTATE_GAMEPAD");
 static constexpr uint32_t kSwitchMouseControls = Common::crc32("FREECAM_SWITCH_MOUSE_CONTROLS");
 
 static constexpr uint32_t kIncreaseSpeed       = Common::crc32("FREECAM_INCREASE_SPEED");
@@ -52,12 +53,12 @@ ControlledFreeCamera::ControlledFreeCamera() {
 	Events::EventCallback callbackSwitch = [this](auto && PH1) { switchMouseInput(std::forward<decltype(PH1)>(PH1)); };
 
 	EventMan.setActionCallback(
-		{kMoveForward, kMoveBackward, kMoveLeft, kMoveRight, kMoveUp, kMoveDown, kMove, kIncreaseSpeed, kDecreaseSpeed},
+		{kMoveForward, kMoveBackward, kMoveLeft, kMoveRight, kMoveUp, kMoveDown, kMoveGamepad, kIncreaseSpeed, kDecreaseSpeed},
 		callbackMove
 	);
 
 	EventMan.setActionCallback(
-		{kRotateLeft, kRotateRight, kRotateDown, kRotateUp, kRotate, kIncreaseSensitivity, kDecreaseSensitivity},
+		{kRotateLeft, kRotateRight, kRotateDown, kRotateUp, kRotateMouse, kRotateGamepad, kIncreaseSensitivity, kDecreaseSensitivity},
 		callbackRotate
 	);
 
@@ -81,8 +82,18 @@ ControlledFreeCamera::ControlledFreeCamera() {
 	EventMan.addBinding(kIncreaseSensitivity, Events::kKeyY);
 	EventMan.addBinding(kDecreaseSensitivity, Events::kKeyH);
 
-	EventMan.add2DAxisBinding(kRotate, Events::kMousePosition);
+	EventMan.add2DAxisBinding(kRotateMouse, Events::kMousePosition);
 	_mouseInputAllowed = false;
+
+	EventMan.add2DAxisBinding(kMoveGamepad, Events::kGamepadAxisLeft);
+	EventMan.add2DAxisBinding(kRotateGamepad, Events::kGamepadAxisRight);
+
+	EventMan.addBinding(kMoveUp, Events::kGamepadButtonDPadUp);
+	EventMan.addBinding(kMoveDown, Events::kGamepadButtonDPadDown);
+	EventMan.addBinding(kIncreaseSensitivity, Events::kGamepadButtonA);
+	EventMan.addBinding(kDecreaseSensitivity, Events::kGamepadButtonB);
+	EventMan.addBinding(kIncreaseSpeed, Events::kGamepadButtonX);
+	EventMan.addBinding(kDecreaseSpeed, Events::kGamepadButtonY);
 }
 
 void ControlledFreeCamera::handleMovement(const Events::Event &event) {
@@ -108,8 +119,8 @@ void ControlledFreeCamera::handleMovement(const Events::Event &event) {
 					break;
 			}
 		}
-	} else if (axisEvent) { // For future gamepad implementation
-		if (event.action == kMove) {
+	} else if (axisEvent) {
+		if (event.action == kMoveGamepad) {
 			_movementDirection.x = axisEvent->delta.x;
 			_movementDirection.y = axisEvent->delta.y;
 		}
@@ -139,8 +150,11 @@ void ControlledFreeCamera::handleRotation(const Events::Event &event) {
 					break;
 			}
 		}
-	} else if (axisEvent && _mouseInputAllowed) {
-		if (event.action == kRotate) {
+	} else if (axisEvent) {
+		if (event.action == kRotateMouse && _mouseInputAllowed) {
+			_movementRotation.x = axisEvent->delta.x;
+			_movementRotation.y = axisEvent->delta.y;
+		} else if (event.action == kRotateGamepad) {
 			_movementRotation.x = axisEvent->delta.x;
 			_movementRotation.y = axisEvent->delta.y;
 		}

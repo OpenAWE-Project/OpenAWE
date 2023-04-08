@@ -18,49 +18,24 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_EVENT_H
-#define OPENAWE_EVENT_H
+#include "src/events/gamepad.h"
 
-#include <variant>
+#include "src/platform/gamepadconversion.h"
 
-#include <glm/glm.hpp>
+namespace Platform {
 
-namespace Events {
-
-/*!
- * Enum representing if a key is pressed, held or released. This is for both keys and mouse and controller buttons
- */
-enum KeyState {
-	kPress,
-	kHold,
-	kRelease
-};
-
-/*!
- * An event on a specific value
- * @tparam T
- */
-template<typename T>
-struct AxisEvent {
-	T absolute, delta;
-};
-
-struct KeyEvent {
-	KeyState state;
-};
-
-typedef std::variant<
-		AxisEvent<float>,
-		AxisEvent<double>,
-		AxisEvent<glm::vec2>,
-		KeyEvent
-> EventData;
-
-struct Event {
-	uint32_t action;
-	EventData data;
-};
-
+Events::Gamepad2DAxis convertGamepadStick(int stick) {
+	switch (stick) {
+        case 0: return Events::Gamepad2DAxis::kGamepadAxisLeft;
+        case 1: return Events::Gamepad2DAxis::kGamepadAxisRight;
+    }
 }
 
-#endif //OPENAWE_EVENT_H
+Events::Gamepad1DAxis convertGamepadTrigger(int trigger) {
+	switch (trigger) {
+        case 0: return Events::Gamepad1DAxis::kGamepadAxisLeftTrigger;
+        case 1: return Events::Gamepad1DAxis::kGamepadAxisRightTrigger;
+    }
+}
+
+} // End of namespace Platform

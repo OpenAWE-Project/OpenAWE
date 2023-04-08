@@ -74,6 +74,9 @@ Window::Window(ContextType type) {
 	glfwSetScrollCallback(_window, &Window::callbackMouseScroll);
 	glfwSetCursorEnterCallback(_window, &Window::callbackMouseEnter);
 	glfwSetFramebufferSizeCallback(_window, &Window::callbackFramebufferSize);
+	InputMan.setGamepadButtonCallback(_window, &Window::callbackGamepadButton);
+	InputMan.setGamepadTriggerCallback(_window, &Window::callbackGamepadTrigger);
+	InputMan.setGamepadStickCallback(_window, &Window::callbackGamepadStick);
 }
 
 Window::~Window() {
@@ -156,6 +159,31 @@ void Window::callbackMouseButton(GLFWwindow *window, int button, int action, int
 	w->_mouseButtonCallback(button, action, mods);
 }
 
+void Window::callbackGamepadButton(GLFWwindow *window, int button, int action) {
+	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
+	if (!w->_gamepadButtonCallback)
+		return;
+
+	w->_gamepadButtonCallback(button, action);
+}
+
+void Window::callbackGamepadTrigger(GLFWwindow *window, int trigger, double pos) {
+	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
+	if (!w->_gamepadTriggerCallback)
+		return;
+	
+	w->_gamepadTriggerCallback(trigger, pos, pos);
+}
+
+void Window::callbackGamepadStick(GLFWwindow *window, int stick, double xpos, double ypos) {
+	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
+	if (!w->_gamepadTriggerCallback)
+		return;
+	
+	glm::vec2 vec(xpos, ypos);
+	w->_gamepadStickCallback(stick, vec, vec);
+}
+
 void Window::callbackFramebufferSize(GLFWwindow *window, int width, int height) {
 	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
 }
@@ -178,6 +206,18 @@ void Window::setMouseScrollCallback(const Axis2DCallback &mouseScrollCallback) {
 
 void Window::setMouseEnterCallback(const MouseEnterCallback &mouseEnterCallback) {
 	_mouseEnterCallback = mouseEnterCallback;
+}
+
+void Window::setGamepadButtonCallback(const GamepadButtonCallback &gamepadButtonCallback) {
+	_gamepadButtonCallback = gamepadButtonCallback;
+}
+
+void Window::setGamepadStickCallback(const GamepadStickCallback &gamepadStickCallback) {
+	_gamepadStickCallback = gamepadStickCallback;
+}
+
+void Window::setGamepadTriggerCallback(const GamepadTriggerCallback &GamepadTriggerCallback) {
+	_gamepadTriggerCallback = GamepadTriggerCallback;
 }
 
 void Window::hideMouseCursor() {
