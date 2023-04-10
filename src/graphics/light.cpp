@@ -53,6 +53,7 @@ Light::Light() {
 	_attribute = GfxMan.createAttributeObject(
 		"deferredlight",
 		"pointlight",
+		0,
 		attributes,
 		_shape
 	);

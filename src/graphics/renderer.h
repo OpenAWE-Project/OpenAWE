@@ -60,12 +60,18 @@ public:
 	virtual AttributeObjectPtr createAttributeObject(
 		const std::string &shader,
 		const std::string &stage,
+		uint32_t properties,
 		const std::vector<VertexAttribute> &vertexAttributes,
 		BufferPtr vertexData,
 		unsigned int offset
 	) = 0;
 
-	virtual int getUniformIndex(const std::string &shaderName, const std::string &stage, const std::string &id) = 0;
+	virtual int getUniformIndex(
+		const std::string &shaderName,
+		const std::string &stage,
+		uint32_t properties,
+		const std::string &id
+	) = 0;
 
 	void update();
 	virtual void drawFrame() = 0;
@@ -76,11 +82,29 @@ protected:
 		std::vector<unsigned int> partMeshsToRender;
 	};
 
-	struct RenderPass {
+	struct RenderPassId {
 		std::string programName;
+		uint32_t properties;
+
+		bool operator<(const RenderPassId &rhs) const {
+			return std::tie(programName, properties) < std::tie(rhs.programName, rhs.properties);
+		}
+
+		bool operator==(const RenderPassId &rhs) const {
+			return std::tie(programName, properties) == std::tie(rhs.programName, rhs.properties);
+		}
+
+		RenderPassId(const std::string &programName, uint32_t properties) :
+			programName(programName),
+			properties(properties) {
+		}
+	};
+
+	struct RenderPass {
+		RenderPassId id;
 		std::vector<RenderTask> renderTasks;
 
-		RenderPass(const std::string &programName) : programName(programName) {
+		RenderPass(const std::string &programName, uint32_t properties) : id(programName, properties) {
 		}
 	};
 

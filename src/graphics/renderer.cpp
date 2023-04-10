@@ -34,7 +34,7 @@ Graphics::Renderer::~Renderer() {
 }
 
 void Graphics::Renderer::addModel(Graphics::Model *model) {
-	std::map<std::string, RenderTask> renderTasks;
+	std::map<RenderPassId, RenderTask> renderTasks;
 
 	// Collect all render tasks
 	const auto &partMeshs = model->getMesh()->getMeshs();
@@ -42,17 +42,18 @@ void Graphics::Renderer::addModel(Graphics::Model *model) {
 		const auto &partMesh = partMeshs[i];
 
 		const auto shaderName = partMesh.material.getShaderName();
-		const auto taskIter = renderTasks.find(shaderName);
+		const auto renderPassId = RenderPassId(shaderName, partMesh.material.getProperties());
+		const auto taskIter = renderTasks.find(renderPassId);
 		if (taskIter == renderTasks.end()) {
 			RenderTask renderTask{model};
-			renderTasks.insert({shaderName, renderTask});
+			renderTasks.insert({renderPassId, renderTask});
 		}
-		renderTasks.at(shaderName).partMeshsToRender.emplace_back(i);
+		renderTasks.at(renderPassId).partMeshsToRender.emplace_back(i);
 	}
 
 	// Put tasks into render passes
 	for (auto &pass : _renderPasses) {
-		auto passTask = renderTasks.find(pass.programName);
+		auto passTask = renderTasks.find(pass.id);
 		if (passTask == renderTasks.end())
 			continue;
 
@@ -68,7 +69,7 @@ void Graphics::Renderer::addModel(Graphics::Model *model) {
 			_renderPasses.begin(),
 			_renderPasses.end(),
 			[](const auto &pass) -> bool {
-				return pass.programName == "standardmaterial";
+				return pass.id == RenderPassId("standardmaterial", 0);
 			}
 	);
 

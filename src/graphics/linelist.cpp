@@ -44,7 +44,13 @@ LineList::LineList() {
 	partMesh.vertexData = _buffer;
 	partMesh.material = Material("color", {"material"}, materialAttributes, 0);
 	partMesh.material.setCullMode(Material::kNone);
-	partMesh.vertexAttributes["material"] = GfxMan.createAttributeObject("color", "material", attributes, partMesh.vertexData);
+	partMesh.vertexAttributes["material"] = GfxMan.createAttributeObject(
+		"color",
+		"material",
+		0,
+		attributes,
+		partMesh.vertexData
+	);
 
 	_mesh->addPartMesh(partMesh);
 

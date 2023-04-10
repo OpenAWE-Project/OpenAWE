@@ -62,7 +62,13 @@ FullScreenPlane::FullScreenPlane() {
 		{kPosition,  kVec2F},
 		{kTexCoord0, kVec2F}
 	};
-	_vao = GfxMan.createAttributeObject("gui", "material", attributes, part.vertices);
+	_vao = GfxMan.createAttributeObject(
+		"gui",
+		"material",
+		0,
+		attributes,
+		part.vertices
+	);
 
 	_parts.emplace_back(part);
 }

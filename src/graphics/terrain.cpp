@@ -184,7 +184,7 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 
 		for (const auto &stage: {"material"}) {
 			partMesh.vertexAttributes[stage] = GfxMan.createAttributeObject(
-				"terrain", stage,
+				"terrain", stage, 0,
 				attributes,
 				vertexBuffer
 			);

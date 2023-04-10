@@ -47,7 +47,13 @@ BINFNTFont::BINFNTFont(Common::ReadStream &binfnt) {
 			{kPosition,  kVec2F},
 			{kTexCoord0, kVec2F}
 	};
-	_vao = GfxMan.createAttributeObject("gui", "material", attributes, _vertices);
+	_vao = GfxMan.createAttributeObject(
+		"gui",
+		"material",
+		0,
+		attributes,
+		_vertices
+	);
 
 	delete [] data;
 	delete [] indicesData;

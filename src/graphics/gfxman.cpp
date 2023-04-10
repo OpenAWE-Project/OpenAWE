@@ -85,20 +85,30 @@ BufferPtr GraphicsManager::createEmptyBuffer(BufferType type, bool modifiable) {
 }
 
 AttributeObjectPtr
-GraphicsManager::createAttributeObject(const std::string &shader, const std::string &stage,
-									   const std::vector<VertexAttribute> &vertexAttributes, BufferPtr vertexData,
-									   unsigned int offset) {
+GraphicsManager::createAttributeObject(
+	const std::string &shader,
+	const std::string &stage,
+	uint32_t properties,
+	const std::vector<VertexAttribute> &vertexAttributes,
+	BufferPtr vertexData,
+	unsigned int offset
+) {
 	return _renderer->createAttributeObject(
 		shader,
 		stage,
+		properties,
 		vertexAttributes,
 		std::move(vertexData),
 		offset
 	);
 }
 
-int GraphicsManager::getUniformIndex(const std::string &shaderName, const std::string &stage, const std::string &id) {
-	return _renderer->getUniformIndex(shaderName, stage, id);
+int GraphicsManager::getUniformIndex(
+	const std::string &shaderName,
+	const std::string &stage,
+	uint32_t properties,
+	const std::string &id) {
+	return _renderer->getUniformIndex(shaderName, stage, properties, id);
 }
 
 void GraphicsManager::drawFrame() {

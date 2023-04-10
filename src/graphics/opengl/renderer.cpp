@@ -183,17 +183,17 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 				p->addSamplerMappings(vertexConverter.getSamplerMappings());
 				p->addSamplerMappings(pixelConverter.getSamplerMappings());
 
-				_programs[obj.getName()]->setProgram("material", std::move(p));
+				_programs[RenderPassId(obj.getName(), program.shaders.front().flags)]->setProgram("material", std::move(p));
 			}
 		}
 
 	}
 	assert(glGetError() == GL_NO_ERROR);
 
-	const std::regex shaderFile("^[a-z]+-[a-z]+\\.(vert|frag|tesc|tese)\\.glsl$");
-	std::map<std::tuple<std::string, std::string>, ProgramPtr> programs;
+	const std::regex shaderFile("^[a-z]+-[a-z\\_]+-0x[0-9a-c]+\\.(vert|frag|tesc|tese)\\.(glsl|spv)$");
+	std::map<std::tuple<std::string, std::string, uint32_t>, ProgramPtr> programs;
 	std::vector<ShaderPtr> shaders;
-	for (const auto &item : std::filesystem::directory_iterator("../shaders")) {
+	for (const auto &item : std::filesystem::directory_iterator(shaderDirectory)) {
 		std::string filename = item.path().filename().string();
 
 		if (!std::regex_match(filename, shaderFile))
@@ -201,11 +201,14 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 
 		spdlog::info("Loading shader {}", filename);
 
-		std::string name, stage, type;
+		std::string name, stage, type, propertiesString;
 		std::stringstream ss(filename);
 		std::getline(ss, name, '-');
-		std::getline(ss, stage, '.');
+		std::getline(ss, stage, '-');
+		std::getline(ss, propertiesString, '.');
 		std::getline(ss, type, '.');
+
+		const uint32_t properties = std::stoul(propertiesString, nullptr, 16);
 
 		std::ifstream in(item.path());
 		std::string source((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
@@ -224,7 +227,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 
 		auto &shader = shaders.emplace_back(Shader::fromGLSL(shaderType, source));
 
-		const auto identifier = std::make_tuple(name, stage);
+		const auto identifier = std::make_tuple(name, stage, properties);
 		if (programs.find(identifier) == programs.end())
 			programs[identifier] = std::make_shared<Program>();
 
@@ -232,15 +235,18 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	}
 
 	for (const auto &program: programs) {
-		const auto &[name, stage] = program.first;
-		spdlog::info("Linking Program {} in stage {}", name, stage);
+		const auto &[name, stage, properties] = program.first;
+		spdlog::info("Linking Program {} in stage {} with properties {:x}", name, stage, properties);
 
+		const auto id = RenderPassId(name, properties);
+
+		program.second->validate();
 		program.second->link();
 
-		if (_programs.find(name) == _programs.end())
-			_programs[name] = std::make_unique<ProgramCollection>();
+		if (_programs.find(id) == _programs.end())
+			_programs[id] = std::make_unique<ProgramCollection>();
 
-		_programs[name]->setProgram(stage, program.second);
+		_programs[id]->setProgram(stage, program.second);
 	}
 
 	for (auto &item : _programs) {
@@ -248,11 +254,11 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 		if (std::find_if(
 			_renderPasses.begin(),
 			_renderPasses.end(),
-			[&](const auto &v){ return v.programName == item.first; })
+			[&](const auto &v){ return v.id == item.first; })
 			!= _renderPasses.end()
 		)
 			continue;
-		_renderPasses.emplace_back(item.first);
+		_renderPasses.emplace_back(RenderPass(item.first.programName, item.first.properties));
 	}
 
 	// Get width and height of the default framebuffer
@@ -294,7 +300,7 @@ void Renderer::drawWorld(const std::string &stage) {
 	glm::mat4 vp = _projection * _view;
 	glm::mat4 viewToWorldMat = glm::inverse(_view);
 
-	const auto &defaultShader = getProgram("standardmaterial", stage);
+	const auto &defaultShader = getProgram("standardmaterial", stage, 0);
 	static const glm::mat4 mirrorZ = glm::scale(glm::vec3(1, 1, -1));
 
 	bool wireframe = false;
@@ -304,7 +310,7 @@ void Renderer::drawWorld(const std::string &stage) {
 		if (pass.renderTasks.empty())
 			continue;
 
-		const ProgramPtr &currentShader = (!hasProgram(pass.programName, stage)) ? defaultShader : getProgram(pass.programName, stage);
+		const ProgramPtr &currentShader = (!hasProgram(pass.id.programName, stage, pass.id.properties)) ? defaultShader : getProgram(pass.id.programName, stage, pass.id.properties);
 		currentShader->bind();
 
 		const std::optional<GLint> localToView = currentShader->getUniformLocation("g_mLocalToView");
@@ -468,7 +474,7 @@ void Renderer::drawWorld(const std::string &stage) {
 void Renderer::drawGUI() {
 	glm::mat4 vp = glm::ortho(0.0f, 1920.0f, 0.0f, 1080.0f, -1000.0f, 1000.0f);
 
-	auto program = getProgram("gui", "material");
+	auto program = getProgram("gui", "material", 0);
 	program->bind();
 
 	const GLint locationTexture = *program->getUniformLocation("g_sTexture");
@@ -510,16 +516,18 @@ void Renderer::drawGUI() {
 	glEnable(GL_DEPTH_TEST);
 }
 
-ProgramPtr Renderer::getProgram(const std::string &name, const std::string &stage) {
-	const auto &programCollection = _programs[name];
+ProgramPtr Renderer::getProgram(const std::string &name, const std::string &stage, const uint32_t property) {
+	const auto &programCollection = _programs[RenderPassId(name, property)];
 	return programCollection->getProgram(stage);
 }
 
-bool Renderer::hasProgram(const std::string &name, const std::string &stage) {
-	if (_programs.find(name) == _programs.end())
+bool Renderer::hasProgram(const std::string &name, const std::string &stage, uint32_t properties) {
+	const auto id = RenderPassId(name, properties);
+
+	if (_programs.find(id) == _programs.end())
 		return false;
 
-	const auto &programCollection = _programs[name];
+	const auto &programCollection = _programs[id];
 	if (!programCollection->hasStage(stage))
 		return false;
 
@@ -635,20 +643,23 @@ BufferPtr Renderer::createBuffer(BufferType type, bool modifiable) {
 	return std::make_shared<Graphics::OpenGL::VBO>(bufferType, usage);
 }
 
-int Renderer::getUniformIndex(const std::string &shaderName, const std::string &stage, const std::string &id) {
-	if (!hasProgram(shaderName, stage))
+int Renderer::getUniformIndex(const std::string &shaderName, const std::string &stage, uint32_t properties,
+							  const std::string &id) {
+	if (!hasProgram(shaderName, stage, properties))
 		return -1;
 
-	const auto uniformLocation = getProgram(shaderName, stage)->getUniformLocation(id);
+	const auto uniformLocation = getProgram(shaderName, stage, properties)->getUniformLocation(id);
 	if (!uniformLocation)
 		return -1;
 
 	return *uniformLocation;
 }
 
-AttributeObjectPtr Renderer::createAttributeObject(
+AttributeObjectPtr
+Renderer::createAttributeObject(
 	const std::string &shader,
 	const std::string &stage,
+	uint32_t properties,
 	const std::vector<VertexAttribute> &vertexAttributes,
 	BufferPtr vertexData,
 	unsigned int offset
@@ -658,10 +669,10 @@ AttributeObjectPtr Renderer::createAttributeObject(
 	std::static_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
 
 	std::string shaderName = shader;
-	if (!hasProgram(shaderName, stage))
+	if (!hasProgram(shaderName, stage, properties))
 		shaderName = "standardmaterial";
 
-	ProgramPtr program = getProgram(shaderName, stage);
+	ProgramPtr program = getProgram(shaderName, stage, properties);
 	program->bind();
 
 	// Calculate the size of the vertex element.

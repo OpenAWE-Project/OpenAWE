@@ -38,7 +38,12 @@ Material::Material(
 	for (const auto &stage: _stages) {
 		_attributes[stage] = attributes;
 		for (auto &attribute: _attributes[stage]) {
-			attribute.index = GfxMan.getUniformIndex(_shaderName, stage, attribute.id);
+			attribute.index = GfxMan.getUniformIndex(
+				_shaderName,
+				stage,
+				_properties,
+				attribute.id
+			);
 		}
 	}
 }

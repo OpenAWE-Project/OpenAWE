@@ -328,6 +328,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 			_meshs[i].vertexAttributes[stage] = GfxMan.createAttributeObject(
 				materials[i].getShaderName(),
 				stage,
+				materials[i].getProperties(),
 				attributes,
 				buffer,
 				vertexOffset

@@ -51,18 +51,19 @@ public:
 	BufferPtr createBuffer(BufferType type, bool modifiable) override;
 
 	AttributeObjectPtr
-	createAttributeObject(const std::string &shader, const std::string &stage,
+	createAttributeObject(const std::string &shader, const std::string &stage, uint32_t properties,
 						  const std::vector<VertexAttribute> &vertexAttributes, BufferPtr vertexData,
 						  unsigned int offset) override;
 
-	int getUniformIndex(const std::string &shaderName, const std::string &stage, const std::string &id) override;
+	int getUniformIndex(const std::string &shaderName, const std::string &stage, uint32_t properties,
+						const std::string &id) override;
 
 private:
 	void drawWorld(const std::string &stage);
 	void drawGUI();
 
-	ProgramPtr getProgram(const std::string &name, const std::string &stage);
-	bool hasProgram(const std::string &name, const std::string &stage);
+	ProgramPtr getProgram(const std::string &name, const std::string &stage, const uint32_t property);
+	bool hasProgram(const std::string &name, const std::string &stage, uint32_t properties);
 	GLenum getTextureSlot(unsigned int slot);
 
 	static void debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, void *userParam);
@@ -73,7 +74,7 @@ private:
 	std::unique_ptr<Texture> _normalTexture;
 	std::unique_ptr<Framebuffer> _deferredBuffer;
 
-	std::map<std::string, std::unique_ptr<ProgramCollection>> _programs;
+	std::map<RenderPassId, std::unique_ptr<ProgramCollection>> _programs;
 };
 
 }

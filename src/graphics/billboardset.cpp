@@ -113,6 +113,7 @@ BillboardSet::BillboardSet(
 		partMesh.vertexAttributes[stage] = GfxMan.createAttributeObject(
 			"foliagebillboard",
 			stage,
+			0,
 			attributes,
 			partMesh.vertexData
 		);
