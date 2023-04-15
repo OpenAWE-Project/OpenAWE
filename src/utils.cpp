@@ -18,19 +18,18 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_ENTT_UTILS_H
-#define OPENAWE_ENTT_UTILS_H
+#include "src/utils.h"
 
-#include <entt/entt.hpp>
+entt::entity getEntityByGID(entt::registry &registry, GID gid) {
+	static const auto gidView = registry.view<GID>();
+	entt::entity finalEntity = entt::null;
+	for (const auto &entity : gidView) {
+		GID g = registry.get<GID>(entity);
+		if (g == gid) {
+			finalEntity = entity;
+			break;
+		}
+	}
 
-#include "src/awe/types.h"
-
-/*!
- * Get the entity associated with a specific global id
- * \param registry The registry from which to search for the entity
- * \param gid The global id to search for
- * \return The entity with the given global id or entt::null if the entity was not found
- */
-entt::entity getEntityByGID(entt::registry &registry, GID gid);
-
-#endif //OPENAWE_ENTT_UTILS_H
+	return finalEntity;
+}
