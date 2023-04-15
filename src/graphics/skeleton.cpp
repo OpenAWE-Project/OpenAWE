@@ -83,7 +83,13 @@ Skeleton &Skeleton::operator=(const Skeleton &skeleton) {
 	return *this;
 }
 
-void Skeleton::update(const Animation &animation, float time) {
+void Skeleton::reset() {
+	for (auto &transformation: _transformations) {
+		transformation.second = glm::zero<glm::mat4>();
+	}
+}
+
+void Skeleton::update(const Animation &animation, float time, float factor) {
 	std::vector<glm::mat4> animationTransforms(_bones.size());
 
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
@@ -122,7 +128,7 @@ void Skeleton::update(const Animation &animation, float time) {
 		if (inverseTransform != _inverseTransform.end())
 			transformation *= inverseTransform->second;
 
-		_transformations[bone.name] = transformation;
+		_transformations[bone.name] += factor * transformation;
 	}
 }
 

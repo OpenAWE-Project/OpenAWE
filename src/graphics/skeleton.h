@@ -55,12 +55,18 @@ public:
 	Skeleton &operator=(const Skeleton &skeleton);
 
 	/*!
+	 * Reset all bone transformations to zero, to enable the application of new transforms
+	 */
+	void reset();
+
+	/*!
 	 * Update the state of the skeleton with a specific animation and a specific time
 	 *
 	 * \param animation The animation with which to modify the skeleton
 	 * \param time The time at which to apply the animation
+	 * \param factor The factor on which the skeleton will be modified
 	 */
-	void update(const Animation &animation, float time);
+	void update(const Animation &animation, float time, float factor = 1.0f);
 
 	/*!
 	 * Get the name of the skeleton
