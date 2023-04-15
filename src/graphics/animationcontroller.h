@@ -43,6 +43,11 @@ private:
 	AnimationControllerPtr _animationController;
 };
 
+/*!
+ * \brief Class for handling complex animation systems
+ *
+ * This class is responsible for applying animations and animation transitions to a skeleton.
+ */
 class AnimationController {
 public:
 	AnimationController(Skeleton &skeleton, float blendTime);
@@ -54,12 +59,16 @@ public:
 	void addAnimation(AnimationPtr animation);
 
 	/*!
-	 * 
-	 * \param id
-	 * \param loop
+	 * Play a new animation which blends through the old one
+	 * \param id The id of the animation
+	 * \param startTime The time at which the animation has to start
 	 */
 	void play(const std::string &id, float startTime = 0.0f);
 
+	/*!
+	 * Update the animation to the given time point
+	 * \param time The time to which to transform the skeleton
+	 */
 	void update(float time);
 
 private:
