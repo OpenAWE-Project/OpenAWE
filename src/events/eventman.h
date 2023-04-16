@@ -22,6 +22,8 @@
 #define OPENAWE_EVENTMAN_H
 
 #include <map>
+#include <optional>
+#include <bitset>
 #include <functional>
 
 #include "src/common/singleton.h"
@@ -54,7 +56,7 @@ public:
 	 * \param key The key for the event
 	 * \param state If the key is pressed or released
 	 */
-	void injectKeyboardInput(Key key, KeyState state);
+	void injectKeyboardInput(Key key, KeyState state, std::bitset<kModifierCount> modifiers);
 
 	/*!
 	 * Inject a mouse button event to the event system

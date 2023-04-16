@@ -223,12 +223,15 @@ void Window::setGamepadTriggerCallback(const GamepadTriggerCallback &GamepadTrig
 	_gamepadTriggerCallback = GamepadTriggerCallback;
 }
 
-void Window::hideMouseCursor() {
-	glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+bool Window::isMouseCursorVisible() {
+	return glfwGetInputMode(_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 }
 
-void Window::showMouseCursor() {
-	glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+void Window::setMouseCursorVisible(bool visible) {
+	if (visible)
+		glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	else
+		glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void Window::useRawMouseMotion(bool enabled) {
