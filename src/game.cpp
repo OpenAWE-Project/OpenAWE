@@ -263,7 +263,8 @@ void Game::start() {
 	});
 
 	_window->setMouseScrollCallback([&](glm::vec2 absolute, glm::vec2 delta){
-		EventMan.injectMouse2DAxisInput(Events::kMouseScroll, absolute, delta);
+		EventMan.injectMouse1DAxisInput(Events::kMouseScrollHorizontal, absolute.x, delta.x);
+		EventMan.injectMouse1DAxisInput(Events::kMouseScrollVertical, absolute.y, delta.y);
 	});
 
 	_window->setGamepadButtonCallback([&](int button, int action){
@@ -271,11 +272,11 @@ void Game::start() {
 	});
 
 	_window->setGamepadStickCallback([&](int stick, glm::vec2 absolute, glm::vec2 delta){
-		EventMan.injectGamepad2DAxisInput(Platform::convertGamepadStick(stick), absolute, delta);
+		EventMan.injectGamepad2DAxisInput(Platform::convertGLFW2GamepadStick(stick), absolute, delta);
 	});
 
 	_window->setGamepadTriggerCallback([&](int trigger, double absolute, double delta){
-		EventMan.injectGamepad1DAxisInput(Platform::convertGamepadTrigger(trigger), absolute, delta);
+		EventMan.injectGamepad1DAxisInput(Platform::convertGLFW2GamepadTrigger(trigger), absolute, delta);
 	});
 
 	entt::observer transformModelObserver{

@@ -90,10 +90,6 @@ void EventManager::injectMouse2DAxisInput(Events::Mouse2DAxis axis, glm::vec2 po
 
 		callback(event);
 	}
-
-	// Also inject separate 1D axis inputs
-	injectMouse1DAxisInput(static_cast<Mouse1DAxis>(axis | kSliceHorizontal), position.x, delta.x);
-	injectMouse1DAxisInput(static_cast<Mouse1DAxis>(axis | kSliceVertical), position.y, delta.y);
 }
 
 void EventManager::injectMouse1DAxisInput(Events::Mouse1DAxis axis, float position, float delta) {
@@ -170,25 +166,11 @@ void EventManager::addBinding(uint32_t action, GamepadButton button) {
 }
 
 void EventManager::add2DAxisBinding(uint32_t action, Mouse2DAxis axis) {
-	// ensure that none of the 1D axes are already busy
-	Mouse1DAxis slices[2] = {static_cast<Mouse1DAxis>(axis | kSliceHorizontal), static_cast<Mouse1DAxis>(axis | kSliceVertical)};
-
-	if ((_mouse1DAxisBindings.count(slices[0]) == 0) && (_mouse1DAxisBindings.count(slices[0]) == 0)) {
-		_mouse2DAxisBindings.insert(std::make_pair(axis, action));
-	} else {
-		throw CreateException("Attempted to add binding to a 2D axis {} while one of its 1D axes was in use", axis);
-	}
+	_mouse2DAxisBindings.insert(std::make_pair(axis, action));
 }
 
 void EventManager::add1DAxisBinding(uint32_t action, Mouse1DAxis axis) {
-	// ensure that 2D axis is not already busy
-	Mouse2DAxis full = static_cast<Mouse2DAxis>((axis >> 2) << 2);
-
-	if (_mouse2DAxisBindings.count(full) == 0) {
-		_mouse1DAxisBindings.insert(std::make_pair(axis, action));
-	} else {
-		throw CreateException("Attempted to add binding to a 1D axis {} while its full 2D axis {} was in use", axis, full);
-	}
+	_mouse1DAxisBindings.insert(std::make_pair(axis, action));
 }
 
 void EventManager::add2DAxisBinding(uint32_t action, Gamepad2DAxis axis) {

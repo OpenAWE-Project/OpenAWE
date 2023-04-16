@@ -33,7 +33,7 @@
 namespace Platform {
 
 // Mimics actions from GLFW, but adds hold state
-enum KeyAcrions {
+enum KeyActions {
 	kActionRelease = 0,
 	kActionPress   = 1,
 	kActionRepeat  = 2,
@@ -67,7 +67,7 @@ public:
 	InputManager();
 	void pollHoldEvents();
 
-	// This functions mimic equivalent GLFW functions, thus the return type
+	// These functions mimic equivalent GLFW functions, thus the return type
 	GLFWkeyfun setKeyCallback(GLFWwindow *window, GLFWkeyfun function);
 	GLFWmousebuttonfun setMouseButtonCallback(GLFWwindow *window, GLFWmousebuttonfun function);
 

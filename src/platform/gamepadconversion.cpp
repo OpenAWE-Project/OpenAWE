@@ -18,23 +18,32 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <GLFW/glfw3.h>
+
+#include "src/common/exception.h"
+
 #include "src/events/gamepad.h"
 
 #include "src/platform/gamepadconversion.h"
 
 namespace Platform {
 
-Events::Gamepad2DAxis convertGamepadStick(int stick) {
-	switch (stick) {
-        case 0: return Events::Gamepad2DAxis::kGamepadAxisLeft;
-        case 1: return Events::Gamepad2DAxis::kGamepadAxisRight;
+static constexpr int GLFW_GAMEPAD_AXIS_LEFT = GLFW_GAMEPAD_AXIS_LEFT_X | GLFW_GAMEPAD_AXIS_LEFT_Y;
+static constexpr int GLFW_GAMEPAD_AXIS_RIGHT = GLFW_GAMEPAD_AXIS_RIGHT_X | GLFW_GAMEPAD_AXIS_RIGHT_Y;
+
+Events::Gamepad2DAxis convertGLFW2GamepadStick(int stick) {
+    switch (stick) {
+        case GLFW_GAMEPAD_AXIS_LEFT: return Events::Gamepad2DAxis::kGamepadAxisLeft;
+        case GLFW_GAMEPAD_AXIS_RIGHT: return Events::Gamepad2DAxis::kGamepadAxisRight;
+        default: throw CreateException("Trying to convert unknown gamepad stick {}", stick);
     }
 }
 
-Events::Gamepad1DAxis convertGamepadTrigger(int trigger) {
-	switch (trigger) {
-        case 0: return Events::Gamepad1DAxis::kGamepadAxisLeftTrigger;
-        case 1: return Events::Gamepad1DAxis::kGamepadAxisRightTrigger;
+Events::Gamepad1DAxis convertGLFW2GamepadTrigger(int trigger) {
+    switch (trigger) {
+        case GLFW_GAMEPAD_AXIS_LEFT_TRIGGER: return Events::Gamepad1DAxis::kGamepadAxisLeftTrigger;
+        case GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER: return Events::Gamepad1DAxis::kGamepadAxisRightTrigger;
+        default: throw CreateException("Trying to convert unknown gamepad trigger {}", trigger);
     }
 }
 

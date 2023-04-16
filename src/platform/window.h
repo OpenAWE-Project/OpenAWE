@@ -63,6 +63,7 @@ public:
 
 	void hideMouseCursor();
 	void showMouseCursor();
+	void useRawMouseMotion(bool enabled);
 
 #ifdef WITH_VULKAN
 	const char **getInstanceExtensions(unsigned int &numExtensions) override;
