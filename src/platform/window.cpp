@@ -25,7 +25,8 @@
 
 #include "src/common/types.h"
 
-#include "src/platform/inputman.h"
+#include "src/platform/gamepadman.h"
+#include "src/platform/keyman.h"
 
 #include "window.h"
 
@@ -70,15 +71,15 @@ Window::Window(ContextType type) {
 
 	glfwSetWindowUserPointer(_window, this);
 
-	InputMan.setKeyCallback(_window, &Window::callbackKey);
+	KeyMan.setKeyCallback(_window, &Window::callbackKey);
 	glfwSetCursorPosCallback(_window, &Window::callbackMousePosition);
-	InputMan.setMouseButtonCallback(_window, &Window::callbackMouseButton);
+	KeyMan.setMouseButtonCallback(_window, &Window::callbackMouseButton);
 	glfwSetScrollCallback(_window, &Window::callbackMouseScroll);
 	glfwSetCursorEnterCallback(_window, &Window::callbackMouseEnter);
 	glfwSetFramebufferSizeCallback(_window, &Window::callbackFramebufferSize);
-	InputMan.setGamepadButtonCallback(_window, &Window::callbackGamepadButton);
-	InputMan.setGamepadTriggerCallback(_window, &Window::callbackGamepadTrigger);
-	InputMan.setGamepadStickCallback(_window, &Window::callbackGamepadStick);
+	GamepadMan.setGamepadButtonCallback(_window, &Window::callbackGamepadButton);
+	GamepadMan.setGamepadTriggerCallback(_window, &Window::callbackGamepadTrigger);
+	GamepadMan.setGamepadStickCallback(_window, &Window::callbackGamepadStick);
 }
 
 Window::~Window() {
