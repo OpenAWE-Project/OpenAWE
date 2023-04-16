@@ -45,6 +45,13 @@ enum Language {
 	kUnrecognized
 };
 
+struct VideoMode {
+	int width;
+	int height;
+	int bpp;
+	int refreshRate;
+};
+
 /*!
  * Get the currently configured system language. If it is not supported or unrecognized, return
  * english as standard
@@ -67,6 +74,13 @@ std::string getHomeDirectory();
  */
 std::string getUserDataDirectory();
 
+
+/*!
+ * Get primary monitor's current video mode
+ * 
+ * \return The primary monitor's current video mode
+ */
+VideoMode getPrimaryMonitorVideoMode();
 }
 
 #endif // COMMON_PLATFORM_H

@@ -41,8 +41,12 @@ namespace Graphics {
 
 class Renderer {
 public:
-	Renderer();
+	Renderer(unsigned int width, unsigned int height);
+	Renderer(glm::vec2 renderPlane);
 	virtual ~Renderer();
+
+	virtual void setRenderPlane(unsigned int width, unsigned int height);
+	virtual void setRenderPlane(glm::vec2 renderPlane);
 
 	void addModel(Model *model);
 	void removeModel(Model *model);
@@ -119,6 +123,7 @@ protected:
 
 	glm::mat4 _view;
 	glm::mat4 _projection;
+	glm::vec2 _renderPlane;
 
 	std::optional<std::reference_wrapper<Camera>> _camera;
 	AmbianceState _ambiance;

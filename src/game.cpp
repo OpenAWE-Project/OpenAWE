@@ -231,6 +231,12 @@ void Game::init() {
 	_window->setTitle(_engine->getName());
 
 	_engine->init();
+
+	// set window resolution and fullscreen mode
+	bool fullscreen = _engine->getConfiguration().resolution.fullscreen;
+	_window->setFullscreen(fullscreen);
+	_window->setSize(_engine->getConfiguration().resolution.width, _engine->getConfiguration().resolution.height);
+	GfxMan.setScreenSize(_engine->getConfiguration().resolution.width, _engine->getConfiguration().resolution.height);
 }
 
 void Game::start() {

@@ -22,9 +22,22 @@
 
 #include "renderer.h"
 
-Graphics::Renderer::Renderer() {
+Graphics::Renderer::Renderer(unsigned int width, unsigned int height) {
+	setRenderPlane(width, height);
+}
+
+Graphics::Renderer::Renderer(glm::vec2 renderPlane) {
+	setRenderPlane(renderPlane);
+}
+
+void Graphics::Renderer::setRenderPlane(unsigned int width, unsigned int height) {
+	setRenderPlane(glm::vec2(width, height));
+}
+
+void Graphics::Renderer::setRenderPlane(glm::vec2 renderPlane) {
 	// Setup initial projection matrix
-	_projection = glm::perspectiveFov(45.0f, 1920.0f, 1080.0f, 1.0f, 10000.0f);
+	_renderPlane = renderPlane;
+	_projection = glm::perspectiveFov(45.0f, _renderPlane.x, _renderPlane.y, 1.0f, 10000.0f);
 
 	// Initialize frustrum with projection matrix
 	_frustrum.setProjectionMatrix(_projection);

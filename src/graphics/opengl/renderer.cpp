@@ -38,11 +38,14 @@
 #include "src/common/exception.h"
 #include "src/common/strutil.h"
 
+#include "src/platform/window.h"
+
 #include "src/awe/resman.h"
 #include "src/awe/objfile.h"
 
 #include "src/graphics/shaderconverter.h"
 #include "src/graphics/skeleton.h"
+#include "src/graphics/renderer.h"
 #include "src/graphics/opengl/renderer.h"
 #include "src/graphics/opengl/opengl.h"
 #include "src/graphics/opengl/vbo.h"
@@ -51,7 +54,7 @@
 
 namespace Graphics::OpenGL {
 
-Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory) : _window(window) {
+Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory) : Graphics::Renderer(window.getSize()), _window(window) {
 	_window.makeCurrent();
 
 	// Initialize GLEW
@@ -270,25 +273,39 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 		_renderPasses.emplace_back(RenderPass(item.first.programName, item.first.properties));
 	}
 
-	// Get width and height of the default framebuffer
-	unsigned int width, height;
-	window.getSize(width, height);
+	_deferredBuffer = std::make_unique<Framebuffer>();
+	setRenderPlane(_window.getSize());
+
+	// Check for errors
+    assert(glGetError() == GL_NO_ERROR);
+}
+
+void Renderer::setRenderPlane(unsigned int width, unsigned int height) {
+	setRenderPlane(glm::vec2(width, height));
+}
+
+void Renderer::setRenderPlane(const glm::vec2 size) {
+	Graphics::Renderer::setRenderPlane(size);
 
 	// Initialize deferred shading
 	//
-	_depthTexture = std::make_unique<Texture>(width, height, "depth_buffer");
-	_normalTexture = std::make_unique<Texture>(width, height, "normal_buffer");
-	_depthstencilBuffer = std::make_unique<Renderbuffer>(width, height, GL_DEPTH24_STENCIL8, "depthstencil_renderbuffer");
+	if (_depthTexture) {
+		_depthTexture.reset();
+	}
+	if (_normalTexture) {
+		_normalTexture.reset();
+	}
+	_depthTexture = std::make_unique<Texture>(size.x, size.y);
+	_normalTexture = std::make_unique<Texture>(size.x, size.y);
 
 	_deferredBuffer = std::make_unique<Framebuffer>("Deferred Buffer");
 	_deferredBuffer->bind();
-
 	_deferredBuffer->attachRenderBuffer(*_depthstencilBuffer, GL_DEPTH_STENCIL_ATTACHMENT);
 
 	_deferredBuffer->attachTexture(*_depthTexture, GL_COLOR_ATTACHMENT0);
 	_deferredBuffer->attachTexture(*_normalTexture, GL_COLOR_ATTACHMENT1);
 
-	_lightBufferTexture = std::make_unique<Texture>(width, height, "light_buffer");
+	_lightBufferTexture = std::make_unique<Texture>(size.x, size.y, "light_buffer");
 
 	_lightBuffer = std::make_unique<Framebuffer>("Light Buffer");
 	_lightBuffer->bind();
@@ -297,6 +314,8 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	_lightBuffer->attachRenderBuffer(*_depthstencilBuffer, GL_DEPTH_STENCIL_ATTACHMENT);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glViewport(0, 0, size.x, size.y);
 
 	// Check for errors
     assert(glGetError() == GL_NO_ERROR);
@@ -626,7 +645,7 @@ void Renderer::drawLights() {
 }
 
 void Renderer::drawGUI() {
-	glm::mat4 vp = glm::ortho(0.0f, 1920.0f, 0.0f, 1080.0f, -1000.0f, 1000.0f);
+	glm::mat4 vp = glm::ortho(0.0f, _renderPlane.x, 0.0f, _renderPlane.y, -1000.0f, 1000.0f);
 
 	pushDebug("Draw GUI");
 
@@ -642,14 +661,14 @@ void Renderer::drawGUI() {
 	for (const auto &element : _guiElements) {
 		glm::mat4 m = glm::translate(glm::vec3(
 			element->getAbsolutePosition() +
-			element->getRelativePosition() * glm::vec2(1920.0, 1080.0),
+			element->getRelativePosition() * _renderPlane,
 			0.0f
 		));
 		std::static_pointer_cast<Graphics::OpenGL::VAO>(element->getVertexAttributes())->bind();
 
 		for (const auto &part : element->getParts()) {
 			glm::mat4 m2 = m *
-				glm::scale(glm::vec3(part.absoluteSize + part.relativeSize * glm::vec2(1920, 1080), 1.0f)) *
+				glm::scale(glm::vec3(part.absoluteSize + part.relativeSize * _renderPlane, 1.0f)) *
 				glm::translate(glm::vec3(part.position, 1.0f))
 			;
 			std::static_pointer_cast<Graphics::OpenGL::VBO>(part.indices)->bind();
