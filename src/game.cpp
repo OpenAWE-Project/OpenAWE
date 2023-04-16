@@ -59,7 +59,6 @@
 #include "src/probe.h"
 
 static constexpr uint32_t kLockMouse = Common::crc32("MOUSE_LOCK");
-static constexpr uint32_t kUnlockMouse = Common::crc32("MOUSE_UNLOCK");
 
 bool Game::parseArguments(int argc, char **argv) {
 	CLI::App app("Reimplmentation of the Alan Wake Engine", "awe");
@@ -244,15 +243,22 @@ void Game::start() {
 	text.setText(u"OpenAWE - v0.0.1");
 	text.show();
 
-	_window->hideMouseCursor();
+	_window->setMouseCursorVisible(false);
 	// Allow locking and unlocking the mouse
-	EventMan.setActionCallback({ kLockMouse }, [&](Events::Event event){_window->hideMouseCursor();});
-	EventMan.setActionCallback({ kUnlockMouse }, [&](Events::Event event){_window->showMouseCursor();});
-	EventMan.addBinding(kLockMouse, Events::kMouseLeft);
-	EventMan.addBinding(kUnlockMouse, Events::kKeyEscape);
+	EventMan.setActionCallback({ kLockMouse }, [&](Events::Event event){
+		Events::KeyEvent key = std::get<Events::KeyEvent>(event.data);
+		if (!key.modifiers.has_value())
+			return;
+		if(key.modifiers.value().test(Events::kModifierAlt) && key.state == Events::kPress) {
+			if (_window->isMouseCursorVisible()) {
+				_window->setMouseCursorVisible(false); 
+			} else {
+				_window->setMouseCursorVisible(true);}}});
+	EventMan.addBinding(kLockMouse, Events::kKeyL);
 
 	_window->setKeyCallback([&](int key, int scancode, int action, int mods){
-		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : action == GLFW_PRESS ? Events::kPress : Events::kHold);
+		std::bitset<Events::kModifierCount> modifiers(mods);
+		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : action == GLFW_PRESS ? Events::kPress : Events::kHold, modifiers);
 	});
 
 	_window->setMouseButtonCallback([&](int button, int action, int mods){

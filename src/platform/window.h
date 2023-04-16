@@ -61,8 +61,8 @@ public:
 
 	void getSize(unsigned int &width, unsigned int &height) override;
 
-	void hideMouseCursor();
-	void showMouseCursor();
+	bool isMouseCursorVisible();
+	void setMouseCursorVisible(bool visible);
 	void useRawMouseMotion(bool enabled);
 
 #ifdef WITH_VULKAN

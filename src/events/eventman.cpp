@@ -24,10 +24,10 @@
 
 namespace Events {
 
-void EventManager::injectKeyboardInput(Events::Key key, Events::KeyState state) {
+void EventManager::injectKeyboardInput(Events::Key key, Events::KeyState state, std::bitset<kModifierCount> modifiers) {
 	const auto actions = _keyBindings.equal_range(key);
 
-	KeyEvent keyEvent{state};
+	KeyEvent keyEvent{state, modifiers};
 	Event event;
 	event.data = keyEvent;
 

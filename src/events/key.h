@@ -162,6 +162,21 @@ enum Key {
 	kKeyMenu
 };
 
+
+/*!
+ * An enum representing keyboard key modifiers. 
+ * The list is mirrored with the modifier macros from glfw.
+ */
+enum KeyModifier {
+	kModifierShift,
+	kModifierControl,
+	kModifierAlt,
+	kModifierSuper,
+	kModifierCapsLock,
+	kModifierNumLock,
+	kModifierCount
+};
+
 } // End of namespace Key
 
 #endif //OPENAWE_KEY_H
