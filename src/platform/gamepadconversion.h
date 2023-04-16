@@ -24,9 +24,20 @@
 #include "src/events/gamepad.h"
 
 namespace Platform {
+/*!
+ * Convert a GLFW gamepad stick (combined from two separate axes) 
+ * to an OpenAWE stick enum.
+ * 
+ * \param stick The GLFW stick to convert.
+ */
+Events::Gamepad2DAxis convertGLFW2GamepadStick(int stick);
 
-Events::Gamepad2DAxis convertGamepadStick(int stick);
-Events::Gamepad1DAxis convertGamepadTrigger(int trigger);
+/*!
+ * Convert a GLFW gamepad trigger to an OpenAWE trigger enum.
+ * 
+ * \param trigger The GLFW trigger to convert.
+ */
+Events::Gamepad1DAxis convertGLFW2GamepadTrigger(int trigger);
 
 } // End of namespace Platform
 

@@ -21,6 +21,8 @@
 #include <stdexcept>
 #include <optional>
 
+#include <spdlog/spdlog.h>
+
 #include "src/common/types.h"
 
 #include "src/platform/inputman.h"
@@ -222,13 +224,20 @@ void Window::setGamepadTriggerCallback(const GamepadTriggerCallback &GamepadTrig
 
 void Window::hideMouseCursor() {
 	glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	if (glfwRawMouseMotionSupported())
-		glfwSetInputMode(_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 }
 
 void Window::showMouseCursor() {
 	glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	if (glfwRawMouseMotionSupported())
+}
+
+void Window::useRawMouseMotion(bool enabled) {
+	if (!glfwRawMouseMotionSupported())
+		spdlog::warn("Raw mouse motion is not supported");
+		return;
+	
+	if (enabled)	
+		glfwSetInputMode(_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+	else
 		glfwSetInputMode(_window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
 }
 

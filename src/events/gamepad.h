@@ -21,8 +21,6 @@
 #ifndef OPENAWE_GAMEPAD_H
 #define OPENAWE_GAMEPAD_H
 
-#include "src/events/mouse.h"
-
 namespace Events {
 
 /*!
@@ -45,11 +43,7 @@ enum GamepadButton {
     kGamepadButtonDPadRight,
     kGamepadButtonDPadDown,
     kGamepadButtonDPadLeft,
-    kGamepadButtonLast = kGamepadButtonDPadLeft,
-    kGamepadButtonCross = kGamepadButtonA,
-    kGamepadButtonCircle = kGamepadButtonB,
-    kGamepadButtonSquare = kGamepadButtonX,
-    kGamepadButtonTriangle = kGamepadButtonY
+    kGamepadButtonLast = kGamepadButtonDPadLeft
 };
 
 /*
@@ -64,13 +58,18 @@ enum Gamepad2DAxis {
     kGamepadAxisRight = 8
 };
 
+enum AxisSlice {
+    kSliceHorizontal = 1,
+    kSliceVertical = 2
+};
+
 enum Gamepad1DAxis {
+    kGamepadAxisLeftTrigger = 0,
+    kGamepadAxisRightTrigger = 1,
     kGamepadAxisLeftX = kGamepadAxisLeft | kSliceHorizontal,
     kGamepadAxisLeftY = kGamepadAxisLeft | kSliceVertical,
     kGamepadAxisRightX = kGamepadAxisRight | kSliceHorizontal,
-    kGamepadAxisRightY = kGamepadAxisRight | kSliceVertical,
-    kGamepadAxisLeftTrigger = 0,
-    kGamepadAxisRightTrigger = 1
+    kGamepadAxisRightY = kGamepadAxisRight | kSliceVertical
 };
 
 } // End of namespace Events
