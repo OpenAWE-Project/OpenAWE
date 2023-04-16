@@ -265,4 +265,20 @@ void Window::getSize(unsigned int &width, unsigned int &height) {
 	glfwGetFramebufferSize(_window, reinterpret_cast<int *>(&width), reinterpret_cast<int *>(&height));
 }
 
+glm::vec2 Window::getSize() {
+	unsigned int width, height;
+	glfwGetFramebufferSize(_window, reinterpret_cast<int *>(&width), reinterpret_cast<int *>(&height));
+	return glm::vec2(width, height);
+}
+
+void Window::setSize(unsigned int width, unsigned int height) {
+	glfwSetWindowSize(_window, width, height);
+}
+
+void Window::setFullscreen(bool fullscreen) {
+	unsigned int width, height;
+	getSize(width, height);
+	glfwSetWindowMonitor(_window, fullscreen ? glfwGetPrimaryMonitor() : NULL, 0, 0, width, height, GLFW_DONT_CARE);
+}
+
 }

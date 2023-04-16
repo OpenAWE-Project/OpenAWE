@@ -21,7 +21,10 @@
 #include <locale>
 #include <regex>
 
+#include <GLFW/glfw3.h>
+
 #include "src/common/platform.h"
+#include "src/common/exception.h"
 #include "src/common/types.h"
 #include "src/common/crc32.h"
 #include "src/common/strutil.h"
@@ -135,4 +138,16 @@ std::string getUserDataDirectory() {
 	return userData;
 }
 
+VideoMode getPrimaryMonitorVideoMode() {
+	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+	if (!monitor)
+		throw CreateException("Failed to get primary monitor");
+	const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+	return VideoMode{
+		mode->width, 
+		mode->height, 
+		mode->redBits + mode->greenBits + mode->blueBits,
+		mode->refreshRate};
 }
+
+} // End of namespace Common

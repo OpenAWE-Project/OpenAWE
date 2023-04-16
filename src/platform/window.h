@@ -57,6 +57,9 @@ public:
 	void swap() override;
 
 	void getSize(unsigned int &width, unsigned int &height) override;
+	glm::vec2 getSize() override;
+	void setSize(unsigned int width, unsigned int height) override;
+	void setFullscreen(bool fullscreen) override;
 
 	bool isMouseCursorVisible();
 	void setMouseCursorVisible(bool visible);

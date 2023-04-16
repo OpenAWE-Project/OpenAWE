@@ -181,6 +181,8 @@ public:
 
 	void drawFrame();
 
+	void setScreenSize(unsigned int width, unsigned int height);
+
 private:
 	std::unique_ptr<Renderer> _renderer;
 };

@@ -48,6 +48,8 @@ public:
 	void drawFrame() override;
 
 	bool isLoading() const override;
+	void setRenderPlane(unsigned int width, unsigned int height) override;
+	void setRenderPlane(glm::vec2 size) override;
 
 	TexturePtr createTexture(
             TextureType type,

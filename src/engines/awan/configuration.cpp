@@ -77,10 +77,16 @@ void Configuration::read() {
 
 	std::string configFile = fmt::format("{}/config", path);
 	std::string resolutionFile = fmt::format("{}/resolution.xml", path);
+	spdlog::info("Resolution file: {} ({} {})", resolutionFile, std::filesystem::exists(resolutionFile),  std::filesystem::is_regular_file(resolutionFile));
 
 	if (std::filesystem::is_regular_file(resolutionFile)) {
 		auto resolutionStream = std::make_unique<Common::ReadFile>(resolutionFile);
 		readResolution(*resolutionStream);
+	} else {
+		Common::VideoMode videoMode = Common::getPrimaryMonitorVideoMode();
+		resolution.width = videoMode.width;
+		resolution.height = videoMode.height;
+		resolution.fullscreen = true;
 	}
 
 	if (std::filesystem::is_regular_file(configFile)) {

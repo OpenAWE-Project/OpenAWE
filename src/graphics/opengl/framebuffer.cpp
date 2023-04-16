@@ -19,6 +19,7 @@
  */
 
 #include <glm/gtc/type_ptr.hpp>
+#include <algorithm>
 
 #include "src/common/exception.h"
 
@@ -42,6 +43,17 @@ Framebuffer::~Framebuffer() {
 }
 
 void Framebuffer::attachTexture(const Texture &texture, GLenum attachmentType) {
+	auto hasAttachment = std::find(_attachments.begin(), _attachments.end(), attachmentType);
+	if (hasAttachment != _attachments.end()) {
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER,
+			attachmentType,
+			texture._type,
+			0,
+			0
+		);
+		_attachments.erase(hasAttachment);	
+	}
 	glFramebufferTexture2D(
 			GL_FRAMEBUFFER,
 			attachmentType,
@@ -63,9 +75,6 @@ void Framebuffer::attachRenderBuffer(const Renderbuffer &renderbuffer, GLenum at
 			GL_RENDERBUFFER,
 			renderbuffer._id
 	);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		throw CreateException("Failed to attach renderbuffer tot exture");
 }
 
 void Framebuffer::clear() {

@@ -45,6 +45,13 @@ enum Language {
 	kUnrecognized
 };
 
+struct VideoMode {
+	int width;
+	int height;
+	int bpp;
+	int refreshRate;
+};
+
 /*!
  * Return if the current desktop environment (Not the application itself!) is running on X11
  * \return If the current desktop envionment is running on X11
@@ -79,6 +86,13 @@ std::string getHomeDirectory();
  */
 std::string getUserDataDirectory();
 
+
+/*!
+ * Get primary monitor's current video mode
+ * 
+ * \return The primary monitor's current video mode
+ */
+VideoMode getPrimaryMonitorVideoMode();
 }
 
 #endif // COMMON_PLATFORM_H

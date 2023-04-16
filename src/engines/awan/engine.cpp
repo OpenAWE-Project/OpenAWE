@@ -37,6 +37,7 @@ Engine::Engine(entt::registry &registry, const LocaleConfig::Config &config) :
 	::Engine(registry, config, new Functions(registry, *this)) {
 	_storyModeRound = 1;
 	_configuration.reset(new AlanWakesAmericanNightmare::Configuration());
+	_configuration->read();
 }
 
 void Engine::init() {
