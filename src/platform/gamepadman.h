@@ -33,43 +33,36 @@
 namespace Platform {
 
 // Mimics actions from GLFW, but adds hold state
+#ifndef OPENAWE_KEY_ACTIONS
+#define OPENAWE_KEY_ACTIONS
 enum KeyActions {
 	kActionRelease = 0,
 	kActionPress   = 1,
 	kActionRepeat  = 2,
 	kActionHold    = 4
 };
+#endif // OPENAWE_KEY_ACTIONS
 
 typedef std::function<void (GLFWwindow *window, int button, int action)> InputGamepadButtonCallback;
 typedef std::function<void (GLFWwindow *window, int trigger, double pos)> InputGamepadTriggerCallback;
 typedef std::function<void (GLFWwindow *window, int stick, double xpos, double ypos)> InputGamepadStickCallback;
 
 typedef struct {
-	std::set<std::pair<int, int>> keysHeld;
-	std::set<int> mouseButtonsHeld;
 	std::set<int> gamepadButtonsHeld;
-	std::optional<GLFWkeyfun> keyCallback;
-	std::optional<GLFWmousebuttonfun> mouseButtonCallback;
 	std::optional<InputGamepadButtonCallback> gamepadButtonCallback;
 	std::optional<InputGamepadTriggerCallback> gamepadTriggerCallback;
 	std::optional<InputGamepadStickCallback> gamepadStickCallback;
-} windowInfo;
+} windowGamepadInfo;
 
 /*!
- * \brief Class for supplementing hold inputs
+ * \brief Class for supplementing gamepad input callbacks
  *
- * This class is a singleton for providing additional callbacks to inputs. It allows to overcome some of the
- * current shortcomings of the GLFW library, such as lack of gamepad input callbacks and implementing hold
- * state for keys, which is required for easier implementation of in-game controls. 
+ * This class is a singleton for providing additional callbacks to inputs. It allows to overcome 
+ * lack of gamepad input callbacks in GLFW, which is required for easier implementation of in-game controls. 
  */
-class InputManager: public Common::Singleton<InputManager> {
+class GamepadManager: public Common::Singleton<GamepadManager> {
 public:
-	InputManager();
-	void pollHoldEvents();
-
-	// These functions mimic equivalent GLFW functions, thus the return type
-	GLFWkeyfun setKeyCallback(GLFWwindow *window, GLFWkeyfun function);
-	GLFWmousebuttonfun setMouseButtonCallback(GLFWwindow *window, GLFWmousebuttonfun function);
+	GamepadManager();
 
 	void pollGamepadEvents();
 	void setGamepadButtonCallback(GLFWwindow *window, InputGamepadButtonCallback function);
@@ -79,17 +72,14 @@ public:
 	std::optional<std::string> getActiveGamepadName();
 
 private:
-	static void injectKeyHoldState(GLFWwindow *window, int key, int scancode, int action, int mods);
-	static void injectMouseButtonHoldState(GLFWwindow *window, int button, int action, int mods);
-
 	static void callbackJoystickConnectionChanged(int jid, int event);
 
-	std::map<GLFWwindow *, windowInfo> _windows;
+	std::map<GLFWwindow *, windowGamepadInfo> _windows;
 	std::optional<int> _activeGamepadId;
 };
 
 } // End of namespace Platform
 
-#define InputMan InputManager::instance()
+#define GamepadMan Platform::GamepadManager::instance()
 
 #endif // OPENAWE_INPUTMAN_H

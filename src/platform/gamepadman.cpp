@@ -21,106 +21,25 @@
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 
-#include "inputman.h"
+#include "gamepadman.h"
 
 namespace Platform {
 
-InputManager::InputManager() {
-    glfwSetJoystickCallback(&InputManager::callbackJoystickConnectionChanged);
+GamepadManager::GamepadManager() {
+    glfwSetJoystickCallback(&GamepadManager::callbackJoystickConnectionChanged);
 }
 
-GLFWkeyfun InputManager::setKeyCallback(GLFWwindow *window, GLFWkeyfun function) {
-    glfwSetKeyCallback(window, &InputManager::injectKeyHoldState);
-    auto windowState = _windows.find(window);
-    if (windowState != _windows.end()) {
-        windowInfo *wInfo = &(windowState->second);
-        GLFWkeyfun prev = wInfo->keyCallback.value_or(nullptr);
-        wInfo->keyCallback = function;
-        return prev;
-    } else {
-        // Init new windowInfo
-        windowInfo newInfo;
-        newInfo.keyCallback = function;
-        _windows.insert({window, newInfo});
-        return nullptr;
-    }
-}
-
-GLFWmousebuttonfun InputManager::setMouseButtonCallback(GLFWwindow *window, GLFWmousebuttonfun function) {
-    glfwSetMouseButtonCallback(window, &InputManager::injectMouseButtonHoldState);
-    auto windowState = _windows.find(window);
-    if (windowState != _windows.end()) {
-        windowInfo *wInfo = &(windowState->second);
-        GLFWmousebuttonfun prev = wInfo->mouseButtonCallback.value_or(nullptr);
-        wInfo->mouseButtonCallback = function;
-        return prev;
-    } else {
-        // Init new windowInfo
-        windowInfo newInfo;
-        newInfo.mouseButtonCallback = function;
-        _windows.insert({window, newInfo});
-        return nullptr;
-    }
-}
-
-void InputManager::injectKeyHoldState(GLFWwindow *window, int key, int scancode, int action, int mods) {
-    if (action == GLFW_REPEAT)
-        return;
-    
-    windowInfo *wInfo = &(InputMan._windows.find(window)->second);
-    if (action == GLFW_PRESS) {
-        wInfo->keysHeld.insert({key, scancode});
-    } else if (action == GLFW_RELEASE) {
-        wInfo->keysHeld.erase({key, scancode});
-    }
-    if (wInfo->keyCallback)
-        wInfo->keyCallback.value()(window, key, scancode, action, mods);
-}
-
-void InputManager::injectMouseButtonHoldState(GLFWwindow *window, int button, int action, int mods) {
-    if (action == GLFW_REPEAT)
-        return;
-    
-    windowInfo *wInfo = &(InputMan._windows.find(window)->second);
-    if (action == GLFW_PRESS) {
-        wInfo->mouseButtonsHeld.insert(button);
-    } else if (action == GLFW_RELEASE) {
-        wInfo->mouseButtonsHeld.erase(button);
-    }
-    if (wInfo->mouseButtonCallback)
-        wInfo->mouseButtonCallback.value()(window, button, action, mods);
-}
-
-void InputManager::pollHoldEvents() {
-    for (auto &window_pair: _windows) {
-        GLFWwindow *window = window_pair.first;
-        windowInfo wInfo = window_pair.second;
-        if (wInfo.keyCallback) {
-            GLFWkeyfun callback = wInfo.keyCallback.value();
-            for (auto &key: wInfo.keysHeld) {
-                callback(window, key.first, key.second, kActionHold, 0);
-            }
-        }
-        if (wInfo.mouseButtonCallback) {
-            GLFWmousebuttonfun callback = wInfo.mouseButtonCallback.value();
-            for (auto &key: wInfo.mouseButtonsHeld) {
-                callback(window, key, kActionHold, 0);
-            }
-        }
-    }
-}
-
-void InputManager::callbackJoystickConnectionChanged(int jid, int event) {
+void GamepadManager::callbackJoystickConnectionChanged(int jid, int event) {
     if (event == GLFW_CONNECTED) {
-        if (!InputMan._activeGamepadId && glfwJoystickIsGamepad(jid)) {
-            InputMan._activeGamepadId = jid;
+        if (!GamepadMan._activeGamepadId && glfwJoystickIsGamepad(jid)) {
+            GamepadMan._activeGamepadId = jid;
         }
     } else if (event == GLFW_DISCONNECTED) {
-        if (InputMan._activeGamepadId == jid) {
-            InputMan._activeGamepadId = {};
+        if (GamepadMan._activeGamepadId == jid) {
+            GamepadMan._activeGamepadId = {};
             for (int gid = 0; gid < GLFW_JOYSTICK_LAST; gid++) {
                 if (glfwJoystickIsGamepad(gid)) {
-                    InputMan._activeGamepadId = gid;
+                    GamepadMan._activeGamepadId = gid;
                     break;
                 }
             }
@@ -128,7 +47,7 @@ void InputManager::callbackJoystickConnectionChanged(int jid, int event) {
     }
 }
 
-void InputManager::pollGamepadEvents() {
+void GamepadManager::pollGamepadEvents() {
     if (!_activeGamepadId)
         return;
     
@@ -136,7 +55,7 @@ void InputManager::pollGamepadEvents() {
     glfwGetGamepadState(_activeGamepadId.value(), &state);
     for (auto &window_pair: _windows) {
         GLFWwindow *window = window_pair.first;
-        windowInfo *wInfo = &(window_pair.second);
+        windowGamepadInfo *wInfo = &(window_pair.second);
 
         for (int i = 0; i < GLFW_GAMEPAD_BUTTON_LAST; i++) {
             if (state.buttons[i] == GLFW_PRESS) {
@@ -184,26 +103,26 @@ void InputManager::pollGamepadEvents() {
     }
 }
 
-void InputManager::setGamepadButtonCallback(GLFWwindow *window, InputGamepadButtonCallback function) {
-    windowInfo *wInfo = &(_windows.find(window)->second);
+void GamepadManager::setGamepadButtonCallback(GLFWwindow *window, InputGamepadButtonCallback function) {
+    windowGamepadInfo *wInfo = &(_windows.find(window)->second);
     wInfo->gamepadButtonCallback = function;
 }
 
-void InputManager::setGamepadStickCallback(GLFWwindow *window, InputGamepadStickCallback function) {
-    windowInfo *wInfo = &(_windows.find(window)->second);
+void GamepadManager::setGamepadStickCallback(GLFWwindow *window, InputGamepadStickCallback function) {
+    windowGamepadInfo *wInfo = &(_windows.find(window)->second);
     wInfo->gamepadStickCallback = function;
 }
 
-void InputManager::setGamepadTriggerCallback(GLFWwindow *window, InputGamepadTriggerCallback function) {
-    windowInfo *wInfo = &(_windows.find(window)->second);
+void GamepadManager::setGamepadTriggerCallback(GLFWwindow *window, InputGamepadTriggerCallback function) {
+    windowGamepadInfo *wInfo = &(_windows.find(window)->second);
     wInfo->gamepadTriggerCallback = function;
 }
 
-bool InputManager::hasActiveGamepad() {
+bool GamepadManager::hasActiveGamepad() {
     return _activeGamepadId.has_value();
 }
 
-std::optional<std::string> InputManager::getActiveGamepadName() {
+std::optional<std::string> GamepadManager::getActiveGamepadName() {
     if (hasActiveGamepad())
         return std::string(glfwGetGamepadName(_activeGamepadId.value()));
     else

@@ -34,6 +34,7 @@
 
 #include "src/platform/keyconversion.h"
 #include "src/platform/gamepadconversion.h"
+#include "src/platform/gamepadman.h"
 
 #include "src/events/eventman.h"
 
@@ -305,6 +306,7 @@ void Game::start() {
 		GfxMan.drawFrame();
 
 		_platform.update();
+		GamepadMan.pollGamepadEvents();
 		if (_window->shouldClose())
 			exit = true;
 
