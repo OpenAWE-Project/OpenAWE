@@ -300,6 +300,9 @@ void Renderer::drawWorld(const std::string &stage) {
 	glm::mat4 vp = _projection * _view;
 	glm::mat4 viewToWorldMat = glm::inverse(_view);
 
+	std::vector<glm::mat4x3> placeholderMatrices(64);
+	std::fill(placeholderMatrices.begin(), placeholderMatrices.end(), glm::identity<glm::mat4x3>());
+
 	const auto &defaultShader = getProgram("standardmaterial", stage, 0);
 	static const glm::mat4 mirrorZ = glm::scale(glm::vec3(1, 1, -1));
 
@@ -396,6 +399,8 @@ void Renderer::drawWorld(const std::string &stage) {
 				if (task.model->hasSkeleton() && skinningMatrices) {
 					const auto matrices =	task.model->getSkeleton().getSkinningMatrices(partmesh.boneMap);
 					currentShader->setUniformMatrix4x3fArray(*skinningMatrices, matrices);
+				} else if (skinningMatrices) {
+					currentShader->setUniformMatrix4x3fArray(*skinningMatrices, placeholderMatrices);
 				}
 
 				GLenum type;
