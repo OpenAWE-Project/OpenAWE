@@ -38,9 +38,12 @@ public:
 	void update(float delta);
 
 	void add(btCollisionObject *collisionObject);
+	void add(btCollisionObject *collisionObject, int collisionFilterGroup, int collisionFilterMask);
 	void add(btRigidBody *collisionObject);
+	void add(btActionInterface *actionInterface);
 	void remove(btCollisionObject *collisionObject);
 	void remove(btRigidBody *collisionObject);
+	void remove(btActionInterface * actionInterface);
 
 private:
 	bool _debugDraw;

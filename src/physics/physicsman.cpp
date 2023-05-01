@@ -59,8 +59,16 @@ void PhysicsManager::add(btCollisionObject *collisionObject) {
 	_world->addCollisionObject(collisionObject);
 }
 
+void PhysicsManager::add(btCollisionObject *collisionObject, int collisionFilterGroup, int collisionFilterMask) {
+	_world->addCollisionObject(collisionObject, collisionFilterGroup, collisionFilterMask);
+}
+
 void PhysicsManager::add(btRigidBody *collisionObject) {
 	_world->addRigidBody(collisionObject);
+}
+
+void PhysicsManager::add(btActionInterface *actionInterface) {
+	_world->addCharacter(actionInterface);
 }
 
 void PhysicsManager::remove(btCollisionObject *collisionObject) {
@@ -69,6 +77,10 @@ void PhysicsManager::remove(btCollisionObject *collisionObject) {
 
 void PhysicsManager::remove(btRigidBody *collisionObject) {
 	_world->removeRigidBody(collisionObject);
+}
+
+void PhysicsManager::remove(btActionInterface *actionInterface) {
+	_world->removeAction(actionInterface);
 }
 
 }
