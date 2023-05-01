@@ -24,12 +24,16 @@
 
 #include "src/video/playerprocess.h"
 
+#include "src/graphics/animationcontroller.h"
+
 #include "src/engine.h"
 #include "src/task.h"
+#include "src/utils.h"
 
 Engine::Engine(entt::registry &registry,  const LocaleConfig::Config &config, AWE::Script::Functions *functions) :
 	_registry(registry),
 	_functions(functions),
+	_playerController(_registry),
 	_localeConfig(config) {
 	_context = std::make_unique<AWE::Script::Context>(_registry, *_functions);
 	_player = std::make_unique<Video::Player>();
@@ -67,6 +71,10 @@ void Engine::playVideo() {
 		});
 }
 
+void Engine::update(float time) {
+	_playerController.update(time);
+}
+
 void Engine::writeConfiguration() {
 	if (_configuration)
 		_configuration->write();
@@ -90,6 +98,14 @@ void Engine::loadEpisode(const std::string &data) {
 
 	_world->loadEpisode(episodeName);
 
+	// Start animation controller process
+	auto animControllerView = _registry.view<Graphics::AnimationControllerPtr>();
+	for (const auto &controllerEntity: animControllerView) {
+		auto controller = _registry.get<Graphics::AnimationControllerPtr>(controllerEntity);
+
+		_scheduler.attach<Graphics::AnimationControllerProcess>(controller);
+	}
+
 	// Call OnInit on every object
 	auto bytecodeView = _registry.view<AWE::Script::BytecodePtr>();
 	for (const auto &item : bytecodeView) {
@@ -112,6 +128,9 @@ void Engine::loadEpisode(const std::string &data) {
 
 		if (!task.isActiveOnStartup())
 			continue;
+
+		if (!task.getPlayerCharacter().isNil())
+			_playerController.setPlayerCharacter(getEntityByGID(_registry, task.getPlayerCharacter()));
 
 		spdlog::debug("Firing OnTaskActivate on {} {:x}", gid.type, gid.id);
 		bytecode->run(*_context, "OnTaskActivate", item);

@@ -32,6 +32,7 @@
 #include "src/configuration.h"
 #include "src/localeconfig.h"
 #include "src/world.h"
+#include "src/playercontroller.h"
 
 class Engine {
 public:
@@ -47,6 +48,8 @@ public:
 	void loadVideo(const std::string &videoFile);
 	void playVideo();
 	void stopVideo();
+
+	void update(float time);
 
 	void writeConfiguration();
 	Configuration &getConfiguration();
@@ -64,6 +67,7 @@ private:
 	std::unique_ptr<AWE::Script::Context> _context;
 	std::unique_ptr<Video::Player> _player;
 	std::unique_ptr<Graphics::FullScreenPlane> _videoPlane;
+	PlayerController _playerController;
 	LocaleConfig::Config _localeConfig;
 };
 

@@ -253,6 +253,7 @@ void Game::start() {
 	while (!exit) {
 		double time = _platform.getTime();
 
+		_engine->update(time);
 		_engine->getScheduler().update(time);
 
 		for (const auto &transformEntity : transformModelObserver) {
