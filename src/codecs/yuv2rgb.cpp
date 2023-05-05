@@ -34,13 +34,13 @@ namespace Codecs {
 void convertYUV2RGB(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height) {
 	for (unsigned int y = 0; y < height; ++y) {
 		for (unsigned int x = 0; x < width; ++x) {
-			const int y1 = ycbcr.y[y * width + x];
+			const int y1 = ycbcr.y[y * width + x] << 6;
 			const int cb = ycbcr.cb[(y / 2) * (width / 2) + x / 2];
 			const int cr = ycbcr.cr[(y / 2) * (width / 2) + x / 2];
 
-			const int r = y1 + 1.4075 * (cr - 128);
-			const int g = y1 - 0.3455 * (cb - 128) - 0.7169 * (cr - 128);
-			const int b = y1 + 1.7790 * (cb - 128);
+			const int r = (y1 + 90 * (cr - 128)) >> 6;
+			const int g = (y1 - 22 * (cb - 128) - (cr - 128)) >> 6;
+			const int b = (y1 + 114 * (cb - 128)) >> 6;
 
 			rgb[(y * width + x) * 3]     = std::clamp(r, 0, 255);
 			rgb[(y * width + x) * 3 + 1] = std::clamp(g, 0, 255);
