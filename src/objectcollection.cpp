@@ -35,9 +35,11 @@
 #include "src/graphics/light.h"
 #include "src/graphics/skeleton.h"
 #include "src/graphics/animation.h"
+#include "src/graphics/animationcontroller.h"
 
 #include "src/physics/havokobject.h"
 #include "src/physics/terraincollision.h"
+#include "src/physics/charactercontroller.h"
 
 #include "src/sound/audiostreamfactory.h"
 
@@ -269,6 +271,37 @@ void ObjectCollection::loadCharacter(const AWE::Object &container) {
 	// TODO: Physics and Cloth Resource
 
 	model->setTransform(transform.getTransformation());
+
+	const auto characterClass = _registry.get<AWE::Templates::CharacterClass>(getEntityByGID(_registry, character.classGid));
+
+	const auto skeletonEntity = getEntityByGID(_registry, characterClass.skeletonGid);
+	model->setSkeleton(_registry.get<Graphics::Skeleton>(skeletonEntity));
+
+	Graphics::AnimationControllerPtr animationController
+		= _registry.emplace<Graphics::AnimationControllerPtr>(characterEntity)
+		= std::make_shared<Graphics::AnimationController>(
+			const_cast<Graphics::Skeleton &>(model->getSkeleton()),
+			characterClass.animationParameters.animationBlendTime
+		);
+
+	auto animationView = _registry.view<Graphics::AnimationPtr>();
+	for (const auto &animation: characterClass.animations) {
+		const auto animationEntity = _objects[kAnimationID][animation.getID()];
+		const auto anim = _registry.try_get<Graphics::AnimationPtr>(animationEntity);
+		if (!anim)
+			continue;
+
+		animationController->addAnimation(*anim);
+		spdlog::debug("Add animation {}", (*anim)->getName());
+	}
+
+	Physics::CharacterControllerPtr characterController
+		= _registry.emplace<Physics::CharacterControllerPtr>(characterEntity)
+		= std::make_shared<Physics::CharacterController>(
+		characterClass.capsuleHeight,
+		characterClass.capsuleRadius
+	);
+	characterController->setTransform(character.position, character.rotation);
 
 	_entities.emplace_back(characterEntity);
 
