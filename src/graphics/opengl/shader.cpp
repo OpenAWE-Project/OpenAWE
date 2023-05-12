@@ -28,8 +28,8 @@
 
 namespace Graphics::OpenGL {
 
-ShaderPtr Shader::fromSPIRV(GLuint type, const std::vector<byte> &bytecode) {
-	ShaderPtr shader(new Shader(type));
+ShaderPtr Shader::fromSPIRV(GLuint type, const std::vector<byte> &bytecode, const std::string &label) {
+	ShaderPtr shader(new Shader(type, label));
 
 	if (!GLEW_ARB_gl_spirv || !GLEW_ARB_spirv_extensions)
 		throw CreateException("Cannot create spirv shader without spirv extension");
@@ -52,8 +52,8 @@ ShaderPtr Shader::fromSPIRV(GLuint type, const std::vector<byte> &bytecode) {
 	return shader;
 }
 
-ShaderPtr Shader::fromGLSL(GLuint type, const std::string &source) {
-	ShaderPtr shader(new Shader(type));
+ShaderPtr Shader::fromGLSL(GLuint type, const std::string &source, const std::string &label) {
+	ShaderPtr shader(new Shader(type, label));
 
 	const char *shaderSource = source.c_str();
 	glShaderSource(
@@ -82,7 +82,9 @@ ShaderPtr Shader::fromGLSL(GLuint type, const std::string &source) {
 	return shader;
 }
 
-Shader::Shader(GLuint type) : _id(glCreateShader(type)) {
+Shader::Shader(GLuint type, const std::string &label) : _id(glCreateShader(type)) {
+	if (GLEW_KHR_debug && !label.empty())
+		glObjectLabel(GL_SHADER, _id, label.size(), label.c_str());
 }
 
 Shader::~Shader() {

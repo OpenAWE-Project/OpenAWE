@@ -39,7 +39,7 @@ typedef std::shared_ptr<Program> ProgramPtr;
 
 class Program : Common::Noncopyable {
 public:
-	Program();
+	Program(const std::string &label = "");
 	~Program();
 
 	void attach(const Shader &shader) const;
@@ -69,7 +69,7 @@ private:
 	std::map<std::string, GLuint> _attributes;
 	std::map<std::string, GLuint> _uniforms;
 
-	GLuint _id;
+	const GLuint _id;
 };
 
 }

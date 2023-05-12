@@ -36,19 +36,42 @@ typedef std::shared_ptr<Shader> ShaderPtr;
 
 class Shader : Common::Noncopyable {
 public:
-	static ShaderPtr fromSPIRV(GLuint type, const std::vector<byte> &bytecode);
-	static ShaderPtr fromGLSL(GLuint type, const std::string &source);
+	/*!
+	 * Create a new shader from a spirv binary
+	 * \param type The type of the shader created. Should be given as opengl constant
+	 * \param bytecode A byte vector containing the valid bytecode of the shader
+	 * \param label An optional label with which this shader should be labelled. Useful for graphics debuggers
+	 * \return A shared pointer to the new shader object
+	 */
+	static ShaderPtr fromSPIRV(
+		GLuint type,
+		const std::vector<byte> &bytecode,
+		const std::string &label = ""
+	);
+
+	/*!
+	 * Create a new shader from a glsl text source
+	 * \param type The type of the shader created. Should be given as opengl constant
+	 * \param source The glsl source of the shader to be created
+	 * \param label An optional label with which this shader should be labelled. Useful for graphics debuggers
+	 * \return A shared pointer to the new shader object
+	 */
+	static ShaderPtr fromGLSL(
+		GLuint type,
+		const std::string &source,
+		const std::string &label = ""
+	);
 
 	~Shader();
 
 private:
-	Shader(GLuint type);
+	Shader(GLuint type, const std::string &label);
 
 	friend class Program;
 
 	const GLuint _id;
 };
 
-}
+} // End of namespace Graphics::OpenGL
 
 #endif //AWE_SHADER_H

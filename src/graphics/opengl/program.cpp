@@ -29,8 +29,9 @@
 
 namespace Graphics::OpenGL {
 
-Program::Program() {
-	_id = glCreateProgram();
+Program::Program(const std::string &label) : _id(glCreateProgram()) {
+	if (GLEW_KHR_debug && !label.empty())
+		glObjectLabel(GL_PROGRAM, _id, label.size(), label.c_str());
 }
 
 Program::~Program() {

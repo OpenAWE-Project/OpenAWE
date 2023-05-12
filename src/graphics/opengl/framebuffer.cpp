@@ -24,11 +24,15 @@
 
 namespace Graphics::OpenGL {
 
-Framebuffer::Framebuffer() {
+Framebuffer::Framebuffer(const std::string &label) {
 	glGenFramebuffers(1, &_id);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		throw CreateException("Failed to initialize framebuffer");
+
+	bind();
+	if (GLEW_KHR_debug && !label.empty())
+		glObjectLabel(GL_FRAMEBUFFER, _id, label.size(), label.c_str());
 }
 
 Framebuffer::~Framebuffer() {

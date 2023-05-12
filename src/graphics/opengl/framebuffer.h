@@ -28,7 +28,7 @@ namespace Graphics::OpenGL {
 
 class Framebuffer {
 public:
-	Framebuffer();
+	Framebuffer(const std::string &label = "");
 	~Framebuffer();
 
 	void attachTexture(const Texture &texture, GLenum attachmentType);

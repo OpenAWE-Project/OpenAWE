@@ -225,11 +225,17 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 		else
 			throw std::runtime_error("Unknown or unsupported shader");
 
-		auto &shader = shaders.emplace_back(Shader::fromGLSL(shaderType, source));
+		auto &shader = shaders.emplace_back(Shader::fromGLSL(
+			shaderType,
+			source,
+			fmt::format("{}-{}-0x{:0>8x}-{}", name, stage, properties, type)
+		));
 
 		const auto identifier = std::make_tuple(name, stage, properties);
 		if (programs.find(identifier) == programs.end())
-			programs[identifier] = std::make_shared<Program>();
+			programs[identifier] = std::make_shared<Program>(
+				fmt::format("{}-{}-0x{:0>8x}", name, stage, properties)
+			);
 
 		programs[identifier]->attach(*shader);
 	}
@@ -270,7 +276,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	_depthTexture = std::make_unique<Texture>(width, height);
 	_normalTexture = std::make_unique<Texture>(width, height);
 
-	_deferredBuffer = std::make_unique<Framebuffer>();
+	_deferredBuffer = std::make_unique<Framebuffer>("Deferred Buffer");
 	_deferredBuffer->bind();
 
 	_deferredBuffer->attachRenderBuffer(width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT);
