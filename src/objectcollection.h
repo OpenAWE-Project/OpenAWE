@@ -77,7 +77,7 @@ private:
 	void loadKeyFrame(const AWE::Object &container);
 
 	std::vector<entt::entity> _entities;
-	std::map<ObjectIDType, std::vector<entt::entity>> _objects;
+	static std::map<ObjectIDType, std::vector<entt::entity>> _objects;
 	std::unique_ptr<AWE::GIDRegistryFile> _gid;
 	std::unique_ptr<AWE::Script::Collection> _bytecode;
 };

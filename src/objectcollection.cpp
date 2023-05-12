@@ -561,3 +561,5 @@ void ObjectCollection::loadKeyFrame(const AWE::Object &container) {
 
 	_entities.emplace_back(keyFrameEntity);
 }
+
+std::map<ObjectIDType, std::vector<entt::entity>> ObjectCollection::_objects = std::map<ObjectIDType, std::vector<entt::entity>>();
