@@ -62,6 +62,9 @@ private:
 	void drawWorld(const std::string &stage);
 	void drawGUI();
 
+	void pushDebug(const std::string &message);
+	void popDebug();
+
 	ProgramPtr getProgram(const std::string &name, const std::string &stage, const uint32_t property);
 	bool hasProgram(const std::string &name, const std::string &stage, uint32_t properties);
 	GLenum getTextureSlot(unsigned int slot);
@@ -69,6 +72,8 @@ private:
 	static void debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, void *userParam);
 
 	Platform::Window &_window;
+
+	bool _hasDebug;
 
 	std::unique_ptr<Texture> _depthTexture;
 	std::unique_ptr<Texture> _normalTexture;

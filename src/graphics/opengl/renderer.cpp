@@ -123,6 +123,8 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 		throw std::runtime_error("No S3TC extension available");
 	}
 
+	_hasDebug = GLEW_KHR_debug;
+
 	// Make some initial settings
 	//
 
@@ -314,10 +316,14 @@ void Renderer::drawWorld(const std::string &stage) {
 
 	bool wireframe = false;
 	Material::CullMode cullMode = Material::kNone;
+	
+	pushDebug(fmt::format("Draw stage {}", stage));
 
 	for (const auto &pass: _renderPasses) {
 		if (pass.renderTasks.empty())
 			continue;
+
+		pushDebug(fmt::format("Pass {} {:0<8x}", pass.id.programName, pass.id.properties));
 
 		const ProgramPtr &currentShader = (!hasProgram(pass.id.programName, stage, pass.id.properties)) ? defaultShader : getProgram(pass.id.programName, stage, pass.id.properties);
 		currentShader->bind();
@@ -479,11 +485,17 @@ void Renderer::drawWorld(const std::string &stage) {
 				}
 			}
 		}
+
+		popDebug(); // Pop Pass Message
 	}
+
+	popDebug(); // Pop Stage Message
 }
 
 void Renderer::drawGUI() {
 	glm::mat4 vp = glm::ortho(0.0f, 1920.0f, 0.0f, 1080.0f, -1000.0f, 1000.0f);
+
+	pushDebug("Draw GUI");
 
 	auto program = getProgram("gui", "material", 0);
 	program->bind();
@@ -525,6 +537,27 @@ void Renderer::drawGUI() {
 	}
 
 	glEnable(GL_DEPTH_TEST);
+
+	popDebug(); // Pop Draw GUI Message
+}
+
+void Renderer::pushDebug(const std::string &message) {
+	if (!_hasDebug)
+		return;
+
+	glPushDebugGroup(
+			GL_DEBUG_SOURCE_APPLICATION,
+			0,
+			message.size(),
+			message.c_str()
+	);
+}
+
+void Renderer::popDebug() {
+	if (!_hasDebug)
+		return;
+
+	glPopDebugGroup();
 }
 
 ProgramPtr Renderer::getProgram(const std::string &name, const std::string &stage, const uint32_t property) {
