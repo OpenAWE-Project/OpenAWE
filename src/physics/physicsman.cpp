@@ -36,7 +36,7 @@ PhysicsManager::PhysicsManager() : _debugDraw(false), _configuration(new btDefau
 
 	_debugDrawInterface = std::make_unique<DebugDraw>();
 
-	_world->setGravity(btVector3(0, -1, 0));
+	_world->setGravity(btVector3(0, -9.8, 0));
 	_world->setDebugDrawer(_debugDrawInterface.get());
 	_world->getDebugDrawer()->setDebugMode(
 		btIDebugDraw::DBG_DrawWireframe |

@@ -45,7 +45,7 @@ CharacterController::CharacterController(float capsuleHeight, float capsuleRadiu
 		_shape.get(),
 		1.0f
 	);
-	_characterController->setGravity(btVector3(0.0f, -1.0f, 0.0f));
+	_characterController->setGravity(btVector3(0.0f, -9.8f, 0.0f));
 	_characterController->setFallSpeed(100.0f);
 	_characterController->setJumpSpeed(100.0f);
 	_characterController->setUseGhostSweepTest(false);
