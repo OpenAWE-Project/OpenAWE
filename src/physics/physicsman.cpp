@@ -68,7 +68,7 @@ void PhysicsManager::add(btRigidBody *collisionObject) {
 }
 
 void PhysicsManager::add(btActionInterface *actionInterface) {
-	_world->addCharacter(actionInterface);
+	_world->addAction(actionInterface);
 }
 
 void PhysicsManager::remove(btCollisionObject *collisionObject) {
