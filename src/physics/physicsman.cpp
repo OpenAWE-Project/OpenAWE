@@ -50,7 +50,7 @@ void PhysicsManager::setDebugDraw(bool enable) {
 }
 
 void PhysicsManager::update(float delta) {
-	_world->stepSimulation(1.0f, 10);
+	_world->stepSimulation(delta, 10);
 	if (_debugDraw)
 		_world->debugDrawWorld();
 }
