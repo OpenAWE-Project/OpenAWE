@@ -124,6 +124,8 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	}
 
 	_hasDebug = GLEW_KHR_debug;
+	if (_hasDebug)
+		spdlog::info("GL_KHR_debug extension found, opengl labelling and messaging will be available");
 
 	// Make some initial settings
 	//
