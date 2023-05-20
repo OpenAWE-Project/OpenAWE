@@ -250,7 +250,6 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 
 		const auto id = RenderPassId(name, properties);
 
-		program.second->validate();
 		program.second->link();
 
 		if (_programs.find(id) == _programs.end())
