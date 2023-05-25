@@ -62,8 +62,8 @@ Terrain::Terrain(unsigned int maxPolygons, unsigned int maxMaps) {
 
 	std::reverse(_bigMapCoords.begin(), _bigMapCoords.end());
 
-	_blendMap = GfxMan.createEmptyTexture2D(kA1RGB5, alignedTextureSize, alignedTextureSize);
-	_geoNormalMap = GfxMan.createEmptyTexture2D(kA1RGB5, alignedTextureSize, alignedTextureSize);
+	_blendMap = GfxMan.createEmptyTexture2D(kA1RGB5, alignedTextureSize, alignedTextureSize, "Terrain Blend Map");
+	_geoNormalMap = GfxMan.createEmptyTexture2D(kA1RGB5, alignedTextureSize, alignedTextureSize, "Terrain Geonormal Map");
 }
 
 void Terrain::loadTerrainData(Common::ReadStream &ld) {

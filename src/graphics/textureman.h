@@ -36,6 +36,12 @@ namespace Graphics {
 
 class TextureManager : public Common::Singleton<TextureManager> {
 public:
+    /*!
+     * Get a new texture decribed by a path. The texture will be cached to prevent multiple objects with the same
+     * texture content
+     * \param path The path from which the texture is loaded
+     * \return A shared pointer to the newly created object
+     */
 	TexturePtr getTexture(const std::string &path);
 
 private:

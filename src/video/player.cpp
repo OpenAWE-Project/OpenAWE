@@ -88,7 +88,8 @@ void Player::load(const std::string &videoFile) {
 		_availableTextures.emplace_back(GfxMan.createEmptyTexture2D(
 			kRGB8,
 			_video->getWidth(),
-			_video->getHeight()
+			_video->getHeight(),
+			fmt::format("Video Surface {}/64", i)
 		));
 	}
 

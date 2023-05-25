@@ -29,8 +29,11 @@
 
 namespace Graphics::OpenGL {
 
-Texture::Texture(GLenum type) : _type(type) {
+Texture::Texture(GLenum type, const std::string &label) : _type(type) {
 	glCreateTextures(_type, 1, &_id);
+
+    if (GLEW_KHR_debug && !label.empty())
+        glObjectLabel(GL_TEXTURE, _id, label.size(), label.c_str());
 }
 
 Texture::Texture(unsigned int width, unsigned int height) : _type(GL_TEXTURE_2D) {

@@ -20,16 +20,16 @@
 
 #include <memory>
 #include <regex>
+#include <filesystem>
 
 #include "src/common/exception.h"
 
-#include "src/graphics/images/tex.h"
-#include "src/graphics/images/dds.h"
-#include "src/graphics/textureman.h"
-
 #include "src/awe/resman.h"
 
+#include "src/graphics/textureman.h"
 #include "src/graphics/gfxman.h"
+#include "src/graphics/images/tex.h"
+#include "src/graphics/images/dds.h"
 
 namespace Graphics {
 
@@ -51,7 +51,13 @@ TexturePtr TextureManager::getTexture(const std::string &path) {
 	else
 		decoder = std::make_unique<TEX>(*stream);
 
-	_textures.insert(std::make_pair(path, GfxMan.createTexture(*decoder)));
+	_textures.insert(std::make_pair(
+            path,
+            GfxMan.createTexture(
+                *decoder,
+                std::filesystem::path(path).stem().string()
+            )
+    ));
 
 	return _textures[path];
 }

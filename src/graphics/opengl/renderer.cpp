@@ -642,7 +642,7 @@ ProxyTexturePtr Renderer::createProxyTexture() {
 	return std::make_shared<Graphics::OpenGL::ProxyTexture>();
 }
 
-TexturePtr Renderer::createTexture(TextureType type) {
+TexturePtr Renderer::createTexture(TextureType type, const std::string &label) {
 	GLenum texType;
 	switch (type) {
 		case kTexture2D:
@@ -658,7 +658,7 @@ TexturePtr Renderer::createTexture(TextureType type) {
 			throw Common::Exception("Invalid texture type");
 	}
 
-	return std::make_shared<Graphics::OpenGL::Texture>(texType);
+	return std::make_shared<Graphics::OpenGL::Texture>(texType, label);
 }
 
 BufferPtr Renderer::createBuffer(BufferType type, bool modifiable) {

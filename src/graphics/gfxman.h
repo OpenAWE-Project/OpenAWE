@@ -67,9 +67,10 @@ public:
 	 * Create a texture in the initialized rendering system using given image data from a decoder as base. The decoder
 	 * also defines metadata, like how the dimensions of the texture are and the format of the texture.
 	 * \param decoder The decoder defining the image data
+	 * \param label String label for identification in graphics debuggers
 	 * \return A render system specific texture object
 	 */
-	TexturePtr createTexture(const ImageDecoder &decoder);
+	TexturePtr createTexture(const ImageDecoder &decoder, const std::string &label = "");
 
 	/*!
 	 * Create an empty proxy texture for assigning other textures to it. This is useful for video playback to switch
@@ -83,9 +84,10 @@ public:
 	 * \param format The texture format, the texture should have
 	 * \param width The width of the newly created texture
 	 * \param height The height of the newly created texture
+	 * \param label The label for the texture
 	 * \return A pointer to the newly created empty texture
 	 */
-	TexturePtr createEmptyTexture2D(TextureFormat format, unsigned int width, unsigned int height);
+    TexturePtr createEmptyTexture2D(TextureFormat format, unsigned int width, unsigned int height, const std::string &label = "");
 
 	/*!
 	 * Create a buffer in the intialized render system using the given data block and the buffer type.

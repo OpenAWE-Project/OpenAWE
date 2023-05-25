@@ -57,8 +57,8 @@ void GraphicsManager::addLight(Light *light) {
 	_renderer->addLight(light);
 }
 
-TexturePtr GraphicsManager::createTexture(const ImageDecoder &decoder) {
-	TexturePtr texture = _renderer->createTexture(decoder.getType());
+TexturePtr GraphicsManager::createTexture(const ImageDecoder &decoder, const std::string &label) {
+	TexturePtr texture = _renderer->createTexture(decoder.getType(), label);
 	texture->load(decoder);
 	return texture;
 }
@@ -67,8 +67,9 @@ ProxyTexturePtr GraphicsManager::createProxyTexture() {
 	return _renderer->createProxyTexture();
 }
 
-TexturePtr GraphicsManager::createEmptyTexture2D(TextureFormat format, unsigned int width, unsigned int height) {
-	TexturePtr texture = _renderer->createTexture(kTexture2D);
+TexturePtr GraphicsManager::createEmptyTexture2D(TextureFormat format, unsigned int width, unsigned int height,
+                                                 const std::string &label) {
+	TexturePtr texture = _renderer->createTexture(kTexture2D, label);
 	texture->allocate(format, width, height);
 	return texture;
 }

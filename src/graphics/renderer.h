@@ -54,7 +54,16 @@ public:
 
 	void setAmbianceState(const AmbianceState ambiance);
 
-	virtual TexturePtr createTexture(TextureType type) = 0;
+    /*!
+     * Create a texture by the specified type with the given label
+     * @param type The type of the texture
+     * @param label The label of the texture
+     * @return The neqly created shared texture pointer
+     */
+	virtual TexturePtr createTexture(
+        TextureType type,
+        const std::string &label
+    ) = 0;
 	virtual ProxyTexturePtr createProxyTexture() = 0;
 	virtual BufferPtr createBuffer(BufferType type, bool modifiable) = 0;
 	virtual AttributeObjectPtr createAttributeObject(

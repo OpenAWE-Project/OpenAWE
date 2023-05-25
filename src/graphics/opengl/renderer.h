@@ -44,7 +44,10 @@ public:
 
 	void drawFrame() override;
 
-	TexturePtr createTexture(TextureType type) override;
+	TexturePtr createTexture(
+            TextureType type,
+            const std::string &label
+    ) override;
 
 	ProxyTexturePtr createProxyTexture() override;
 
