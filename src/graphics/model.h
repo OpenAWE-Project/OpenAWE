@@ -49,6 +49,18 @@ public:
 	Model(MeshPtr mesh);
 	virtual ~Model();
 
+	/*!
+	 * Set a label for the model, which will help to identify it
+	 * \param label
+	 */
+	void setLabel(const std::string &label);
+
+    /*!
+     * Get a label of the model
+     * \return The label of the model
+     */
+	const std::string &getLabel() const;
+
 	void show();
 	void hide();
 
@@ -63,6 +75,8 @@ public:
 
 protected:
 	Model();
+
+	std::string _label;
 
 	MeshPtr _mesh;
 	std::unique_ptr<Skeleton> _skeleton;

@@ -27,18 +27,19 @@
 
 namespace Graphics {
 
-Model::Model() : _mesh(new Mesh), _transform(glm::identity<glm::mat4>()) {
+Model::Model() : _label("<No Label>"), _mesh(new Mesh), _transform(glm::identity<glm::mat4>()) {
+
 }
 
-Model::Model(rid_t rid) : _mesh(MeshMan.getMesh(rid)), _transform(glm::identity<glm::mat4>()) {
+Model::Model(rid_t rid) : _label("<No Label>"), _mesh(MeshMan.getMesh(rid)), _transform(glm::identity<glm::mat4>()) {
 	show();
 }
 
-Model::Model(const std::string &path) :  _mesh(MeshMan.getMesh(path)), _transform(glm::identity<glm::mat4>()) {
+Model::Model(const std::string &path) : _label("<No Label>"),  _mesh(MeshMan.getMesh(path)), _transform(glm::identity<glm::mat4>()) {
 	show();
 }
 
-Model::Model(MeshPtr mesh) : _mesh(mesh) {
+Model::Model(MeshPtr mesh) : _label("<No Label>"), _mesh(mesh) {
 	show();
 }
 
@@ -82,6 +83,14 @@ const Skeleton &Model::getSkeleton() const {
 
 bool Model::hasSkeleton() const {
 	return !!_skeleton;
+}
+
+void Model::setLabel(const std::string &label) {
+	_label = label;
+}
+
+const std::string &Model::getLabel() const {
+	return _label;
 }
 
 }

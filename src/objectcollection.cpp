@@ -191,6 +191,7 @@ void ObjectCollection::loadStaticObject(const AWE::Object &container) {
 	auto staticObjectEntity = _registry.create();
 	auto transform = _registry.emplace<Transform>(staticObjectEntity) = Transform(staticObject.position, staticObject.rotation);
 	Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(staticObjectEntity) = std::make_shared<Graphics::Model>(staticObject.meshResource);
+	model->setLabel("<Static Object>");
 
 	model->setTransform(transform.getTransformation());
 
@@ -223,6 +224,7 @@ void ObjectCollection::loadDynamicObject(const AWE::Object &container) {
 	_registry.emplace<GID>(dynamicObjectEntity) = dynamicObject.gid;
 	auto &transform = _registry.emplace<Transform>(dynamicObjectEntity) = Transform(dynamicObject.position, dynamicObject.rotation);
 	Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(dynamicObjectEntity) = std::make_shared<Graphics::Model>(dynamicObject.meshResource);
+	model->setLabel(dynamicObject.identifier);
 	// TODO: Physics Resource
 
 	model->setTransform(transform.getTransformation());
@@ -268,6 +270,7 @@ void ObjectCollection::loadCharacter(const AWE::Object &container) {
 	_registry.emplace<GID>(characterEntity) = character.gid;
 	auto &transform = _registry.emplace<Transform>(characterEntity) = Transform(character.position, character.rotation);
 	Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(characterEntity) = std::make_shared<Graphics::Model>(character.meshResource);
+	model->setLabel(character.identifier);
 	// TODO: Physics and Cloth Resource
 
 	model->setTransform(transform.getTransformation());
@@ -505,6 +508,7 @@ void ObjectCollection::loadKeyFramedObject(const AWE::Object &container) {
 	// TODO: Physics Resource
 
 	model->setTransform(transform.getTransformation());
+    model->setLabel(_gid->getString(keyFramedObject.gid));
 
 	const auto &keyFramer = _registry.get<KeyFramerPtr>(
 		_objects[kKeyframerID][keyFramedObject.keyFramer.getID()]

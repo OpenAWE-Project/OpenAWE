@@ -21,6 +21,8 @@
 #ifndef OPENAWE_LIGHT_H
 #define OPENAWE_LIGHT_H
 
+#include <string>
+
 #include "src/graphics/buffer.h"
 #include "src/graphics/attributeobject.h"
 
@@ -116,7 +118,21 @@ public:
 	 */
 	const AttributeObjectPtr &getAttributeObject() const;
 
+    /*!
+     * Get the current label of the light
+     * \return The label of the light
+     */
+	const std::string &getLabel() const;
+
+    /*!
+     * Set the label of the light
+     * \param label The new label of the light
+     */
+	void setLabel(const std::string &label);
+
 private:
+	std::string _label;
+
 	float _decay;
 	float _intensity;
 	float _directionalFalloff;

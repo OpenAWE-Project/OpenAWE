@@ -350,6 +350,11 @@ void Renderer::drawWorld(const std::string &stage) {
 					continue;
 			}
 
+            if (task.partMeshsToRender.empty())
+                continue;
+
+			pushDebug(task.model->getLabel());
+
 			const auto &partMeshs = mesh->getMeshs();
 			const auto indices = std::static_pointer_cast<Graphics::OpenGL::VBO>(mesh->getIndices());
 
@@ -485,6 +490,8 @@ void Renderer::drawWorld(const std::string &stage) {
 					);
 				}
 			}
+
+			popDebug(); // Pop Model Message
 		}
 
 		popDebug(); // Pop Pass Message

@@ -31,7 +31,7 @@ enum PointLightPropertyFlags {
 
 namespace Graphics {
 
-Light::Light() {
+Light::Light() : _label("<No Label>") {
 	const auto shape = Common::generateIcoSphere(1.075, 1);
 	_shape = GfxMan.createBuffer(
 		reinterpret_cast<const byte *>(shape.positions.data()),
@@ -120,6 +120,15 @@ void Light::setIntensity(float intensity) {
 
 float Light::getIntensity() const {
 	return _intensity;
+}
+
+const std::string &Light::getLabel() const {
+	return _label;
+}
+
+void Light::setLabel(const std::string &label) {
+    assert(!label.empty());
+	_label = label;
 }
 
 } // End of namespace Graphics

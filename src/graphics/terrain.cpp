@@ -40,6 +40,8 @@
 namespace Graphics {
 
 Terrain::Terrain(unsigned int maxPolygons, unsigned int maxMaps) {
+    setLabel("Terrain");
+
 	const unsigned int textureSize = std::ceil(std::sqrt((maxPolygons + maxMaps * 4) * 64));
 	const unsigned int alignedTextureSize = textureSize + (128 - textureSize % 128);
 
