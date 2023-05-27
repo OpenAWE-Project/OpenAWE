@@ -110,7 +110,7 @@ void Texture::load(unsigned int xoffset, unsigned int yoffset, const ImageDecode
 			break;
 
 		default:
-			throw Common::Exception("Invalid image type", decoder.getType());
+			throw CreateException("Invalid image type {}", fmt::underlying(decoder.getType()));
 	}
 
 	bind();
@@ -341,7 +341,7 @@ void Texture::getParameters(
 			break;
 
 		default:
-			throw std::runtime_error("Invalid texture format");
+			throw CreateException("Invalid texture format {}", fmt::underlying(textureFormat));
 	}
 }
 
