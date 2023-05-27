@@ -161,14 +161,14 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 				case 0: {
 					const float v1 = binmsh->readIEEEFloatLE();
 
-					attributes.emplace_back(Material::Attribute(attributeName, glm::vec1(v1)));
+					attributes.emplace_back(attributeName, glm::vec1(v1));
 					break;
 				}
 				case 1: {
 					const float v1 = binmsh->readIEEEFloatLE();
 					const float v2 = binmsh->readIEEEFloatLE();
 
-					attributes.emplace_back(Material::Attribute(attributeName, glm::vec2(v1, v2)));
+					attributes.emplace_back(attributeName, glm::vec2(v1, v2));
 					break;
 				}
 				case 2: {
@@ -176,7 +176,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 					const float v2 = binmsh->readIEEEFloatLE();
 					const float v3 = binmsh->readIEEEFloatLE();
 
-					attributes.emplace_back(Material::Attribute(attributeName, glm::vec3(v1, v2, v3)));
+					attributes.emplace_back(attributeName, glm::vec3(v1, v2, v3));
 					break;
 				}
 				case 3: {
@@ -185,7 +185,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 					const float v3 = binmsh->readIEEEFloatLE();
 					const float v4 = binmsh->readIEEEFloatLE();
 
-					attributes.emplace_back(Material::Attribute(attributeName, glm::vec4(v1, v2, v3, v4)));
+					attributes.emplace_back(attributeName, glm::vec4(v1, v2, v3, v4));
 					break;
 				}
 				case 7: {
@@ -193,7 +193,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 					std::string file = binmsh->readFixedSizeString(length, true);
 					file = AWE::getNormalizedPath(file);
 
-					attributes.emplace_back(Material::Attribute(attributeName, TextureMan.getTexture(file)));
+					attributes.emplace_back(attributeName, TextureMan.getTexture(file));
 					break;
 				}
 			}
