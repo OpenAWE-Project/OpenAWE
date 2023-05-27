@@ -178,7 +178,7 @@ std::string ShaderConverter::convertToGLSL() {
 				shaderTypeName = "pixel";
 				break;
 			default:
-				throw CreateException("Unexpected Shader type {} found for conversion", parseData->shader_type);
+				throw CreateException("Unexpected Shader type {} found for conversion", fmt::underlying(parseData->shader_type));
 		}
 
 		spdlog::debug("Converted {} shader to glsl:\n{}", shaderTypeName, shader);
