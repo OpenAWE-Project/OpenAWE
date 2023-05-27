@@ -52,6 +52,10 @@ TheoraStream::~TheoraStream() {
 }
 
 void TheoraStream::readNextFrame(YCbCrBuffer &ycbcrBuffer) {
+	assert(ycbcrBuffer.y.size() == getWidth() * getHeight());
+	assert(ycbcrBuffer.cb.size() == (getWidth() / 2) * (getHeight() / 2));
+	assert(ycbcrBuffer.cr.size() == (getWidth() / 2) * (getHeight() / 2));
+
 	ogg_packet packet;
 	readNextPacket(packet);
 
@@ -67,13 +71,6 @@ void TheoraStream::readNextFrame(YCbCrBuffer &ycbcrBuffer) {
 
 	th_ycbcr_buffer buffer;
 	th_decode_ycbcr_out(_decoder, buffer);
-
-	if (ycbcrBuffer.y.size() != static_cast<unsigned int>(buffer[0].width * buffer[0].height))
-		ycbcrBuffer.y.resize(buffer[0].width * buffer[0].height);
-	if (ycbcrBuffer.cb.size() != static_cast<unsigned int>(buffer[1].width * buffer[1].height))
-		ycbcrBuffer.cb.resize(buffer[1].width * buffer[1].height);
-	if (ycbcrBuffer.cr.size() != static_cast<unsigned int>(buffer[2].width * buffer[2].height))
-		ycbcrBuffer.cr.resize(buffer[2].width * buffer[2].height);
 
 	for (int i = 0; i < buffer[0].height; ++i) {
 		std::memcpy(

@@ -73,6 +73,12 @@ public:
 	unsigned int getHeight() const;
 
 	/*!
+	 * Resize the buffer to contain a frame of the video stream
+	 * \param buffer the buffer to resize
+	 */
+    void allocateBuffer(YCbCrBuffer &buffer);
+
+	/*!
 	 * If this video stream reached its end
 	 * \return If this video stream reached its end
 	 */

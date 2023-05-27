@@ -102,6 +102,8 @@ void Player::load(const std::string &videoFile) {
 		));
 	}
 
+	_video->allocateBuffer(_ycbcr);
+
 	_frameDuration = std::chrono::milliseconds(static_cast<long>(1000 / _video->getFps()));
 
 	prepareSurfaces();

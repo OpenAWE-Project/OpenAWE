@@ -40,4 +40,10 @@ unsigned int VideoStream::getHeight() const {
 	return _height;
 }
 
+void VideoStream::allocateBuffer(YCbCrBuffer &buffer) {
+	buffer.y.resize(_width * _height);
+	buffer.cb.resize((_width / 2) * (_height / 2));
+	buffer.cr.resize((_width / 2) * (_height / 2));
+}
+
 } // Codecs
