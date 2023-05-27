@@ -17,7 +17,7 @@ jobs:
       matrix:
         include:
           - name: Linux GCC
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             compiler: gcc
             extra_cmake_args:
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
@@ -25,7 +25,7 @@ jobs:
               -DCMAKE_C_COMPILER=gcc \
               -DCMAKE_CXX_COMPILER=g++ \
           - name: Linux Clang
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             compiler: clang
             extra_cmake_args: |
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
