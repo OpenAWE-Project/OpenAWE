@@ -23,6 +23,8 @@
 #include <spdlog/spdlog.h>
 #include <fmt/format.h>
 
+#include "src/common/exception.h"
+
 #include "src/awe/script/bytecode.h"
 #include "src/awe/script/types.h"
 
@@ -54,7 +56,7 @@ void Bytecode::run(Context &context, uint32_t offset, const entt::entity &caller
 		param2 = _bytecode->readByte();
 		param3 = _bytecode->readByte();
 
-		auto opcode = Opcode(_bytecode->readByte());
+		const auto opcode = _bytecode->readByte();
 
 		switch (opcode) {
 			case kPush:       push(); break;
@@ -76,7 +78,7 @@ void Bytecode::run(Context &context, uint32_t offset, const entt::entity &caller
 			case kEq:         eq(); break;
 			case kNeq:        neq(); break;
 			default:
-				throw std::runtime_error(fmt::format("Unknown opcode {:x}", opcode));
+				throw CreateException("Unknown opcode {:x}", opcode);
 		}
 	}
 
