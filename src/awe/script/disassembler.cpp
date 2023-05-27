@@ -48,7 +48,7 @@ std::string Disassembler::generate() {
 		param2 = _bytecode->readByte();
 		param3 = _bytecode->readByte();
 
-		auto opcode = Opcode(_bytecode->readByte());
+		const auto opcode = _bytecode->readByte();
 
 		switch (opcode) {
 			case kPush:       push(); break;
