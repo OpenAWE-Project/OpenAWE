@@ -43,6 +43,11 @@ Stream::Stream(Codecs::AudioStream *stream) :
 Stream::~Stream() {
 	if (isPlaying())
 		stop();
+
+	// Unqueue all used buffers to delete them
+	for (const auto &usedBuffer: _usedBuffers)
+		unqueueBuffer(usedBuffer);
+
 	alDeleteBuffers(32, _buffers.data());
 }
 
