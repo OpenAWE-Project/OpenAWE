@@ -192,7 +192,7 @@ void Texture::load(const ImageDecoder &decoder) {
 			break;
 
 		default:
-			throw Common::Exception("Invalid image type", decoder.getType());
+			throw Common::Exception("Invalid image type", fmt::underlying(decoder.getType()));
 	}
 
 	bind();
