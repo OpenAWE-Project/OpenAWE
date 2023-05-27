@@ -71,7 +71,7 @@ OggContainer::~OggContainer() {
 		ogg_stream_clear(&stream);
 	}
 
-	ogg_sync_destroy(&_sync);
+	ogg_sync_clear(&_sync);
 }
 
 void OggContainer::readNextPage() {
