@@ -127,7 +127,7 @@ void dumpDDS(Common::WriteStream &dds, ImageDecoder &imageDecoder) {
 			break;
 
 		default:
-			throw CreateException("TODO: Implement image format {}", imageDecoder.getFormat());
+			throw CreateException("TODO: Implement image format {}", fmt::underlying(imageDecoder.getFormat()));
 	}
 
 	dds.writeUint32LE(caps);
