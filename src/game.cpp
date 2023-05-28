@@ -189,6 +189,7 @@ void Game::init() {
 
 	_window = std::make_unique<Platform::Window>(Platform::Window::kOpenGL);
 
+
 	GfxMan.initOpenGL(*_window, _shaderPath);
 	//GfxMan.setAmbianceState("scene1_reststop_creepy");
 
@@ -286,6 +287,11 @@ void Game::start() {
 		EventMan.injectGamepad1DAxisInput(Platform::convertGLFW2GamepadTrigger(trigger), absolute, delta);
 	});
 
+	// Set callbacks for the gamepad
+	GamepadMan.setGamepadButtonCallback(_window->getWindowHandle(), &Platform::Window::callbackGamepadButton);
+	GamepadMan.setGamepadTriggerCallback(_window->getWindowHandle(), &Platform::Window::callbackGamepadTrigger);
+	GamepadMan.setGamepadStickCallback(_window->getWindowHandle(), &Platform::Window::callbackGamepadStick);
+	
 	entt::observer transformModelObserver{
 		_registry,
 		entt::collector.update<Transform>().where<Graphics::ModelPtr>()

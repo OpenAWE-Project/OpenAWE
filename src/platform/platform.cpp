@@ -21,8 +21,6 @@
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 
-#include "src/platform/keyman.h"
-
 #include "platform.h"
 
 namespace Platform {
@@ -49,7 +47,6 @@ double Platform::getTime() {
 
 void Platform::update() {
 	glfwPollEvents();
-	KeyManager::instance().pollHoldEvents();
 }
 
 void Platform::errorCallback(int code, const char *description) {

@@ -45,6 +45,7 @@ protected:
 	float _rotationFactor;
 	glm::vec3 _movementRotation;
 	glm::vec3 _rotationAttitude; // yaw, pitch and roll
+	bool _clearDirection, _clearRotation;
 };
 
 } // End of namespace Graphics
