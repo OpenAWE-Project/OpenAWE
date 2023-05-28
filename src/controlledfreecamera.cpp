@@ -100,6 +100,7 @@ void ControlledFreeCamera::handleMovement(const Events::Event &event) {
 	const auto keyEvent = std::get_if<Events::KeyEvent>(&event.data);
 	const auto axisEvent = std::get_if<Events::AxisEvent<glm::vec2>>(&event.data);
 	if (keyEvent) {
+		_clearDirection = false;
 		switch (event.action) {
 			case kMoveUp:       _movementDirection.y = (keyEvent->state != Events::kRelease) ?  1.0 : 0.0; break;
 			case kMoveDown:     _movementDirection.y = (keyEvent->state != Events::kRelease) ? -1.0 : 0.0; break;
@@ -120,6 +121,7 @@ void ControlledFreeCamera::handleMovement(const Events::Event &event) {
 			}
 		}
 	} else if (axisEvent) {
+		_clearDirection = true;
 		if (event.action == kMoveGamepad) {
 			_movementDirection.x = axisEvent->delta.x;
 			_movementDirection.y = axisEvent->delta.y;
@@ -131,6 +133,7 @@ void ControlledFreeCamera::handleRotation(const Events::Event &event) {
 	const auto keyEvent = std::get_if<Events::KeyEvent>(&event.data);
 	const auto axisEvent = std::get_if<Events::AxisEvent<glm::vec2>>(&event.data);
 	if (keyEvent) {
+		_clearRotation = false;
 		if (!_mouseInputAllowed) {
 			switch (event.action) {
 				case kRotateLeft:  _movementRotation.x = (keyEvent->state != Events::kRelease) ? -1.0 : 0.0; break;
@@ -151,6 +154,7 @@ void ControlledFreeCamera::handleRotation(const Events::Event &event) {
 			}
 		}
 	} else if (axisEvent) {
+		_clearRotation = true;
 		if (event.action == kRotateMouse && _mouseInputAllowed) {
 			_movementRotation.x = axisEvent->delta.x;
 			_movementRotation.y = axisEvent->delta.y;

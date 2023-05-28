@@ -81,6 +81,9 @@ public:
 	void setGamepadButtonCallback(const GamepadButtonCallback &gamepadButtonCallback);
 	void setGamepadStickCallback(const GamepadStickCallback &gamepadStickCallback);
 	void setGamepadTriggerCallback(const GamepadTriggerCallback &gamepadTriggerCallback);
+	static void callbackGamepadButton(GLFWwindow *window, int button, int action);
+	static void callbackGamepadTrigger(GLFWwindow *window, int trigger, double pos);
+	static void callbackGamepadStick(GLFWwindow *window, int stick, double xpos, double ypos);
 
 	GLFWwindow * getWindowHandle();
 
@@ -90,9 +93,6 @@ private:
 	static void callbackMouseScroll(GLFWwindow *window, double xpos, double ypos);
 	static void callbackMouseButton(GLFWwindow *window, int button, int action, int mods);
 	static void callbackMouseEnter(GLFWwindow *window, int entered);
-	static void callbackGamepadButton(GLFWwindow *window, int button, int action);
-	static void callbackGamepadTrigger(GLFWwindow *window, int trigger, double pos);
-	static void callbackGamepadStick(GLFWwindow *window, int stick, double xpos, double ypos);
 
 	static void callbackFramebufferSize(GLFWwindow *window, int width, int height);
 

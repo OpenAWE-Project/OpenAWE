@@ -26,8 +26,8 @@ namespace Graphics {
 
 FreeCamera::FreeCamera() : 
 	_movementFactor(1.0), _movementDirection(0.0f), 
-	_rotationFactor(10.0), _movementRotation(0.0f), _rotationAttitude(0.0f){
-}
+	_rotationFactor(10.0), _movementRotation(0.0f), _rotationAttitude(0.0f),
+	_clearDirection(false), _clearRotation(false) {}
 
 void FreeCamera::update(float delta) {
 	_rotationAttitude.x += glm::radians(_movementRotation.x * delta * _rotationFactor);
@@ -47,8 +47,8 @@ void FreeCamera::update(float delta) {
 	_position += delta * _movementFactor * _movementDirection.y * 100.0f * _up;
 	_position += delta * _movementFactor * _movementDirection.z * 100.0f * _direction;
 
-	// clear movementRotation
-	_movementRotation = glm::zero<glm::vec3>();
+	if (_clearRotation) _movementRotation = glm::zero<glm::vec3>();
+	if (_clearDirection) _movementDirection = glm::zero<glm::vec3>();
 }
 
 float FreeCamera::getMovementFactor() const {

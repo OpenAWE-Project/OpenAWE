@@ -26,7 +26,6 @@
 #include "src/common/types.h"
 
 #include "src/platform/gamepadman.h"
-#include "src/platform/keyman.h"
 
 #include "window.h"
 
@@ -71,9 +70,9 @@ Window::Window(ContextType type) {
 
 	glfwSetWindowUserPointer(_window, this);
 
-	KeyMan.setKeyCallback(_window, &Window::callbackKey);
+	glfwSetKeyCallback(_window, &Window::callbackKey);
 	glfwSetCursorPosCallback(_window, &Window::callbackMousePosition);
-	KeyMan.setMouseButtonCallback(_window, &Window::callbackMouseButton);
+	glfwSetMouseButtonCallback(_window, &Window::callbackMouseButton);
 	glfwSetScrollCallback(_window, &Window::callbackMouseScroll);
 	glfwSetCursorEnterCallback(_window, &Window::callbackMouseEnter);
 	glfwSetFramebufferSizeCallback(_window, &Window::callbackFramebufferSize);
@@ -235,9 +234,10 @@ void Window::setMouseCursorVisible(bool visible) {
 }
 
 void Window::useRawMouseMotion(bool enabled) {
-	if (!glfwRawMouseMotionSupported())
+	if (!glfwRawMouseMotionSupported()) {
 		spdlog::warn("Raw mouse motion is not supported");
 		return;
+	}
 	
 	if (enabled)	
 		glfwSetInputMode(_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
