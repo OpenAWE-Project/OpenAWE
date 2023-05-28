@@ -76,9 +76,6 @@ Window::Window(ContextType type) {
 	glfwSetScrollCallback(_window, &Window::callbackMouseScroll);
 	glfwSetCursorEnterCallback(_window, &Window::callbackMouseEnter);
 	glfwSetFramebufferSizeCallback(_window, &Window::callbackFramebufferSize);
-	GamepadMan.setGamepadButtonCallback(_window, &Window::callbackGamepadButton);
-	GamepadMan.setGamepadTriggerCallback(_window, &Window::callbackGamepadTrigger);
-	GamepadMan.setGamepadStickCallback(_window, &Window::callbackGamepadStick);
 }
 
 Window::~Window() {
