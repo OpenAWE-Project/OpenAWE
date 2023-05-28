@@ -180,7 +180,7 @@ void EventManager::add2DAxisBinding(uint32_t action, Gamepad2DAxis axis) {
 	if ((_gamepad1DAxisBindings.count(slices[0]) == 0) && (_gamepad1DAxisBindings.count(slices[0]) == 0)) {
 		_gamepad2DAxisBindings.insert(std::make_pair(axis, action));
 	} else {
-		throw CreateException("Attempted to add binding to a 2D axis {} while one of its 1D axes was in use", axis);
+		throw CreateException("Attempted to add binding to a 2D axis {} while one of its 1D axes was in use", (int)axis);
 	}
 }
 
@@ -191,7 +191,7 @@ void EventManager::add1DAxisBinding(uint32_t action, Gamepad1DAxis axis) {
 	if (_gamepad2DAxisBindings.count(full) == 0) {
 		_gamepad1DAxisBindings.insert(std::make_pair(axis, action));
 	} else {
-		throw CreateException("Attempted to add binding to a 1D axis {} while its full 2D axis {} was in use", axis, full);
+		throw CreateException("Attempted to add binding to a 1D axis {} while its full 2D axis {} was in use", (int)axis, (int)full);
 	}
 }
 
