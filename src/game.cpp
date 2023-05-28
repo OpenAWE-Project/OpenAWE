@@ -259,11 +259,11 @@ void Game::start() {
 
 	_window->setKeyCallback([&](int key, int scancode, int action, int mods){
 		std::bitset<Events::kModifierCount> modifiers(mods);
-		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : action == GLFW_PRESS ? Events::kPress : Events::kHold, modifiers);
+		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : Events::kPress, modifiers);
 	});
 
 	_window->setMouseButtonCallback([&](int button, int action, int mods){
-		EventMan.injectMouseButtonInput(static_cast<Events::MouseButton>(button), action == GLFW_RELEASE ? Events::kRelease : action == GLFW_PRESS ? Events::kPress : Events::kHold);
+		EventMan.injectMouseButtonInput(static_cast<Events::MouseButton>(button), action == GLFW_RELEASE ? Events::kRelease : Events::kPress);
 	});
 
 	_window->setMousePositionCallback([&](glm::vec2 absolute, glm::vec2 delta){
@@ -276,7 +276,7 @@ void Game::start() {
 	});
 
 	_window->setGamepadButtonCallback([&](int button, int action){
-		EventMan.injectGamepadButtonInput(static_cast<Events::GamepadButton>(button), action == GLFW_RELEASE? Events::kRelease : action == GLFW_PRESS? Events::kPress : Events::kHold);
+		EventMan.injectGamepadButtonInput(static_cast<Events::GamepadButton>(button), action == GLFW_RELEASE? Events::kRelease : Events::kPress);
 	});
 
 	_window->setGamepadStickCallback([&](int stick, glm::vec2 absolute, glm::vec2 delta){

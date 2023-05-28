@@ -59,17 +59,12 @@ void GamepadManager::pollGamepadEvents() {
 
         for (int i = 0; i < GLFW_GAMEPAD_BUTTON_LAST; i++) {
             if (state.buttons[i] == GLFW_PRESS) {
-                if (wInfo->gamepadButtonsHeld.count(i)) {
-                    if (wInfo->gamepadButtonCallback) {
-                        InputGamepadButtonCallback callback = wInfo->gamepadButtonCallback.value();
-                        callback(window, i, kActionHold);
-                    }
-                } else {
+                if (wInfo->gamepadButtonsHeld.count(i) == 0) {
                     wInfo->gamepadButtonsHeld.insert(i);
 
                     if (wInfo->gamepadButtonCallback) {
                         InputGamepadButtonCallback callback = wInfo->gamepadButtonCallback.value();
-                        callback(window, i, kActionPress);
+                        callback(window, i, GLFW_PRESS);
                     }
                 }
             } else if (state.buttons[i] == GLFW_RELEASE) {
@@ -78,7 +73,7 @@ void GamepadManager::pollGamepadEvents() {
 
                     if (wInfo->gamepadButtonCallback) {
                         InputGamepadButtonCallback callback = wInfo->gamepadButtonCallback.value();
-                        callback(window, i, kActionRelease);
+                        callback(window, i, GLFW_RELEASE);
                     }
                 }
             }
