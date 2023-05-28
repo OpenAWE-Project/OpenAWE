@@ -28,11 +28,10 @@
 namespace Events {
 
 /*!
- * Enum representing if a key is pressed, held or released. This is for both keys and mouse and controller buttons
+ * Enum representing if a key is pressed or released. This is for keys and mouse and controller buttons
  */
 enum KeyState {
 	kPress,
-	kHold,
 	kRelease
 };
 

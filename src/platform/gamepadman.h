@@ -32,17 +32,6 @@
 
 namespace Platform {
 
-// Mimics actions from GLFW, but adds hold state
-#ifndef OPENAWE_KEY_ACTIONS
-#define OPENAWE_KEY_ACTIONS
-enum KeyActions {
-	kActionRelease = 0,
-	kActionPress   = 1,
-	kActionRepeat  = 2,
-	kActionHold    = 4
-};
-#endif // OPENAWE_KEY_ACTIONS
-
 typedef std::function<void (GLFWwindow *window, int button, int action)> InputGamepadButtonCallback;
 typedef std::function<void (GLFWwindow *window, int trigger, double pos)> InputGamepadTriggerCallback;
 typedef std::function<void (GLFWwindow *window, int stick, double xpos, double ypos)> InputGamepadStickCallback;
