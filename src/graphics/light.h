@@ -22,6 +22,7 @@
 #define OPENAWE_LIGHT_H
 
 #include <string>
+#include <optional>
 
 #include "src/graphics/buffer.h"
 #include "src/graphics/attributeobject.h"
@@ -92,7 +93,7 @@ public:
 	 * Get the transform of the light
 	 * \return A matrix expressing the transform of the light
 	 */
-	const glm::mat4 &getTransform() const;
+	glm::mat4 getTransform() const;
 
 	/*!
 	 * Get the buffer of the shapes indices
@@ -130,8 +131,22 @@ public:
      */
 	void setLabel(const std::string &label);
 
+	/*!
+	 * Set a value where to clip the range
+	 * @param rangeClip
+	 */
+	void setRangeClip(float rangeClip);
+
+	/*!
+	 * Get the maximum range, this light will affect
+	 * \return The maximum range, this light will affect
+	 */
+	float getRange() const;
+
 private:
 	std::string _label;
+
+    std::optional<float> _rangeClip;
 
 	float _decay;
 	float _intensity;

@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <glm/gtx/transform.hpp>
+
 #include "src/common/shape.h"
 
 #include "src/graphics/light.h"
@@ -67,8 +69,16 @@ void Light::setTransform(const glm::mat4 &transform) {
 	_transform = transform;
 }
 
-const glm::mat4 &Light::getTransform() const {
-	return _transform;
+glm::mat4 Light::getTransform() const {
+	glm::mat4 transform = _transform;
+
+	if (_rangeClip)
+		transform *= glm::scale(glm::vec3(*_rangeClip));
+	else
+		// TODO: Find out what the original engine does if no range clip is given
+		transform *= glm::scale(glm::vec3(16.0));
+
+	return transform;
 }
 
 const BufferPtr &Light::getIndices() const {
@@ -129,6 +139,17 @@ const std::string &Light::getLabel() const {
 void Light::setLabel(const std::string &label) {
     assert(!label.empty());
 	_label = label;
+}
+
+void Light::setRangeClip(float rangeClip) {
+	_rangeClip = rangeClip;
+}
+
+float Light::getRange() const {
+	if (_rangeClip)
+		return *_rangeClip;
+	else
+		return 16.0f;
 }
 
 } // End of namespace Graphics
