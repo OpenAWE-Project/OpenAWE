@@ -78,6 +78,9 @@ private:
 
 	bool _hasDebug;
 
+	std::unique_ptr<Texture> _lightBufferTexture;
+	std::unique_ptr<Framebuffer> _lightBuffer;
+
 	std::unique_ptr<Texture> _depthTexture;
 	std::unique_ptr<Texture> _normalTexture;
 	std::unique_ptr<Framebuffer> _deferredBuffer;

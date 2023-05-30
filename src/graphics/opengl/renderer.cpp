@@ -287,6 +287,13 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	_deferredBuffer->attachTexture(*_depthTexture, GL_COLOR_ATTACHMENT0);
 	_deferredBuffer->attachTexture(*_normalTexture, GL_COLOR_ATTACHMENT1);
 
+	_lightBufferTexture = std::make_unique<Texture>(width, height);
+
+	_lightBuffer = std::make_unique<Framebuffer>("Light Buffer");
+	_lightBuffer->bind();
+
+	_lightBuffer->attachTexture(*_lightBufferTexture, GL_COLOR_ATTACHMENT0);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Check for errors
