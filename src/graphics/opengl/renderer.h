@@ -63,6 +63,7 @@ public:
 
 private:
 	void drawWorld(const std::string &stage);
+	void drawLights();
 	void drawGUI();
 
 	void pushDebug(const std::string &message);

@@ -322,6 +322,8 @@ void Renderer::drawWorld(const std::string &stage) {
 	const auto &defaultShader = getProgram("standardmaterial", stage, 0);
 	static const glm::mat4 mirrorZ = glm::scale(glm::vec3(1, 1, -1));
 
+	const auto screenResolution = glm::vec2(1920, 1080);
+
 	bool wireframe = false;
 	Material::CullMode cullMode = Material::kNone;
 	
@@ -505,6 +507,106 @@ void Renderer::drawWorld(const std::string &stage) {
 	}
 
 	popDebug(); // Pop Stage Message
+}
+
+void Renderer::drawLights() {
+	pushDebug("Draw Lights");
+
+	auto stencilProgram    = getProgram("deferredlight", "render_stencil", 0);
+	auto pointlightProgram = getProgram("deferredlight", "pointlight", 0);
+
+	const glm::mat4 vp = _projection * _view;
+	const glm::mat4 clipToView = glm::inverse(_projection);
+	const glm::mat4 mirrorZ = glm::scale(glm::vec3(1, 1, -1));
+	const GLint localToClipIndex = *pointlightProgram->getUniformLocation("g_mLocalToClip");
+	const GLint localToClipStencilIndex = *stencilProgram->getUniformLocation("g_mLocalToClip");
+	const GLint clipToViewIndex = *pointlightProgram->getUniformLocation("g_mClipToView");
+
+	const GLint lightColorIndex = *pointlightProgram->getUniformLocation("g_vLightColor");
+	const GLint lightFalloffIndex = *pointlightProgram->getUniformLocation("g_vLightFalloff");
+	const GLint lightPositionIndex = *pointlightProgram->getUniformLocation("g_vLightPosition");
+	const GLint screenResIndex = *pointlightProgram->getUniformLocation("g_vScreenRes");
+	const GLint linearDepthIndex = *pointlightProgram->getUniformLocation("g_sLinearDepthBuffer");
+	const GLint normalBufferIndex = *pointlightProgram->getUniformLocation("g_sNormalBuffer");
+
+	glEnable(GL_STENCIL_TEST);
+	glDisable(GL_CULL_FACE);
+
+	for (const auto &light: _lights) {
+		if (!_frustrum.test(Common::BoundSphere {mirrorZ * light->getTransform()[3], light->getRange() * 1.075f}))
+			continue;
+
+        pushDebug(light->getLabel());
+
+		glClear(GL_STENCIL_BUFFER_BIT);
+
+		const auto vao = std::static_pointer_cast<Graphics::OpenGL::VAO>(light->getAttributeObject());
+		const auto indices = std::static_pointer_cast<Graphics::OpenGL::VBO>(light->getIndices());
+
+
+		// Render a stencil test
+		//
+		stencilProgram->bind();
+
+		vao->bind();
+		indices->bind();
+
+		glStencilFuncSeparate(GL_BACK, GL_ALWAYS, 1, 0xFF);
+		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_REPLACE, GL_KEEP);
+
+		stencilProgram->setUniformMatrix4f(localToClipStencilIndex, vp * mirrorZ * light->getTransform());
+
+		glDrawElements(
+			GL_TRIANGLES,
+			light->getNumIndices(),
+			GL_UNSIGNED_SHORT,
+			reinterpret_cast<void*>(0)
+		);
+
+
+		// Render the actual pointlight
+		//
+		pointlightProgram->bind();
+
+		vao->bind();
+		indices->bind();
+
+		glStencilFuncSeparate(GL_BACK, GL_EQUAL, 1, 0xFF);
+		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_REPLACE, GL_KEEP);
+
+		if (linearDepthIndex) {
+			glActiveTexture(GL_TEXTURE0);
+			_depthTexture->bind();
+			pointlightProgram->setUniformSampler(linearDepthIndex, 0);
+		}
+
+		glActiveTexture(GL_TEXTURE1);
+		_normalTexture->bind();
+		pointlightProgram->setUniformSampler(normalBufferIndex, 1);
+
+		const auto cameraLightPositionView = _view * mirrorZ * light->getTransform()[3];
+
+		pointlightProgram->setUniform2f(screenResIndex, glm::vec2(1920, 1080));
+		pointlightProgram->setUniformMatrix4f(localToClipIndex, vp * mirrorZ * light->getTransform());
+		pointlightProgram->setUniformMatrix4f(clipToViewIndex, clipToView);
+		pointlightProgram->setUniform3f(lightPositionIndex, cameraLightPositionView);
+		pointlightProgram->setUniform3f(lightColorIndex, light->getColor() * light->getIntensity());
+		pointlightProgram->setUniform4f(lightFalloffIndex, light->getFalloff());
+
+		glDrawElements(
+			GL_TRIANGLES,
+			light->getNumIndices(),
+			GL_UNSIGNED_SHORT,
+			reinterpret_cast<void*>(0)
+		);
+
+        popDebug();
+	}
+
+	glDisable(GL_STENCIL_TEST);
+	glEnable(GL_CULL_FACE);
+
+	popDebug(); // Pop Draw Lights message
 }
 
 void Renderer::drawGUI() {
