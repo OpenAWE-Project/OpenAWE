@@ -199,7 +199,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 			}
 		}
 
-		material = Material(shaderName, {"material"}, attributes, properties);
+		material = Material(shaderName, {"depth", "material"}, attributes, properties);
 
 		switch (cullMode) {
 			case 2:
@@ -324,7 +324,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 
 		_meshs[i].renderType = kTriangles;
 		_meshs[i].vertexData = buffer;
-		for (const auto &stage: {"material"}) {
+		for (const auto &stage: {"depth", "material"}) {
 			_meshs[i].vertexAttributes[stage] = GfxMan.createAttributeObject(
 				materials[i].getShaderName(),
 				stage,

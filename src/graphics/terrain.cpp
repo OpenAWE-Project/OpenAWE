@@ -184,7 +184,7 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 
 		Mesh::PartMesh partMesh;
 
-		for (const auto &stage: {"material"}) {
+		for (const auto &stage: {"material", "depth"}) {
 			partMesh.vertexAttributes[stage] = GfxMan.createAttributeObject(
 				"terrain", stage, 0,
 				attributes,
@@ -193,7 +193,7 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 		}
 		partMesh.renderType = Mesh::kTriangles;
 		partMesh.vertexData = vertexBuffer;
-		partMesh.material = Material("terrain", {"material"}, materialAttributes);
+		partMesh.material = Material("terrain", {"material", "depth"}, materialAttributes);
 		partMesh.material.setCullMode(Material::kBack);
 		partMesh.offset = currentIndex * 2;
 		partMesh.length = indices.size();
