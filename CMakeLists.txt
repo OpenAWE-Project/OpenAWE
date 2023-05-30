@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.19)
 project(OpenAWE VERSION 0.0.1)
 
 include(TestBigEndian)
