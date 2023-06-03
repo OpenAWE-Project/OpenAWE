@@ -25,14 +25,22 @@ uniform mat4 g_mViewToClip;
 
 in vec3 in_Position;
 in vec4 in_Normal;
+in vec3 in_Tangent;
+in vec2 in_UV0;
 
 out vec4 pass_ClipPosition;
 out vec4 pass_ViewPosition;
 out vec3 pass_Normal;
+out vec3 pass_Tangent;
+out vec3 pass_Bitangent;
+out vec2 pass_UV;
 
 void main() {
     pass_ViewPosition = g_mLocalToView * vec4(in_Position, 1.0);
     pass_ClipPosition = g_mViewToClip * pass_ViewPosition;
     pass_Normal = mat3(g_mLocalToView) * (in_Normal.xyz * (1.0/32767.0));
+    pass_Tangent = mat3(g_mLocalToView) * (in_Tangent * (1.0/255.0) * 2.0 - 1.0);
+    pass_Bitangent = cross(pass_Normal, pass_Tangent);
+    pass_UV = in_UV0 * (1.0/4096.0);
     gl_Position = pass_ClipPosition;
 }
