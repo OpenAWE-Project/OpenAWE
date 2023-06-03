@@ -31,7 +31,7 @@ namespace Graphics::OpenGL {
 class Texture : public Graphics::Texture, public GLTexture {
 public:
 	Texture(GLenum type, const std::string &label = "");
-	Texture(unsigned int width, unsigned int height);
+	Texture(unsigned int width, unsigned int height, const std::string &label = "");
 	~Texture();
 
 	void bind() override;
