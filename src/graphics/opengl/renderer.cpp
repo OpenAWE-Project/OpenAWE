@@ -276,8 +276,8 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 
 	// Initialize deferred shading
 	//
-	_depthTexture = std::make_unique<Texture>(width, height);
-	_normalTexture = std::make_unique<Texture>(width, height);
+	_depthTexture = std::make_unique<Texture>(width, height, "depth_buffer");
+	_normalTexture = std::make_unique<Texture>(width, height, "normal_buffer");
 
 	_deferredBuffer = std::make_unique<Framebuffer>("Deferred Buffer");
 	_deferredBuffer->bind();
@@ -287,7 +287,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	_deferredBuffer->attachTexture(*_depthTexture, GL_COLOR_ATTACHMENT0);
 	_deferredBuffer->attachTexture(*_normalTexture, GL_COLOR_ATTACHMENT1);
 
-	_lightBufferTexture = std::make_unique<Texture>(width, height);
+	_lightBufferTexture = std::make_unique<Texture>(width, height, "light_buffer");
 
 	_lightBuffer = std::make_unique<Framebuffer>("Light Buffer");
 	_lightBuffer->bind();
