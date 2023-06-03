@@ -18,26 +18,30 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_HAVOKOBJECT_H
-#define OPENAWE_HAVOKOBJECT_H
+#ifndef OPENAWE_HAVOKSHAPE_H
+#define OPENAWE_HAVOKSHAPE_H
 
 #include "src/awe/havokfile.h"
 #include "src/awe/types.h"
 
-#include "src/physics/rigidbody.h"
+#include "src/physics/shape.h"
 
 namespace Physics {
 
-class HavokObject : public RigidBody {
+class HavokShape : public Shape {
 public:
-	HavokObject(rid_t rid);
-	virtual ~HavokObject();
+	HavokShape(rid_t rid);
+
+
 
 private:
-	std::vector<btCollisionShape*> _additionalShapes;
-	btCollisionShape *getShape(AWE::HavokFile &havok, const AWE::HavokFile::hkpShape &shape, btTransform &shapeOffset);
+	btCollisionShape *getShape(
+		AWE::HavokFile &havok,
+		const AWE::HavokFile::hkpShape &shape,
+		btTransform &shapeOffset
+	);
 };
 
-} // End of namespace Physics
+} // Physics
 
-#endif //OPENAWE_HAVOKOBJECT_H
+#endif //OPENAWE_HAVOKSHAPE_H

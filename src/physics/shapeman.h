@@ -18,25 +18,32 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_RIGIDBODY_H
-#define OPENAWE_RIGIDBODY_H
+#ifndef OPENAWE_SHAPEMAN_H
+#define OPENAWE_SHAPEMAN_H
 
-#include "src/physics/collisionobject.h"
+#include <map>
+#include <string>
+
+#include <btBulletCollisionCommon.h>
+
+#include "src/common/singleton.h"
+
+#include "src/awe/types.h"
+
+#include "src/physics/shape.h"
 
 namespace Physics {
 
-class RigidBody : public CollisionObject {
+class ShapeManager : public Common::Singleton<ShapeManager> {
 public:
-	RigidBody(rid_t rid);
-
-	void setActive(bool active) override;
+	ShapePtr get(rid_t rid);
 
 private:
-	btRigidBody *_rigidBody;
-
-	std::unique_ptr<btDefaultMotionState> _motionState;
+	std::map<rid_t, ShapePtr> _shapes;
 };
 
-} // End of namespace Physics
+} // Physics
 
-#endif //OPENAWE_RIGIDBODY_H
+#define ShapeMan Physics::ShapeManager::instance()
+
+#endif //OPENAWE_SHAPEMAN_H

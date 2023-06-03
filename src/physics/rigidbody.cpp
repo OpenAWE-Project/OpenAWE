@@ -20,13 +20,25 @@
 
 #include "src/physics/physicsman.h"
 #include "src/physics/rigidbody.h"
+#include "src/physics/shapeman.h"
 
 namespace Physics {
 
-RigidBody::RigidBody() :
+RigidBody::RigidBody(rid_t rid) :
 	_motionState(std::make_unique<btDefaultMotionState>()) {
-	_rigidBody = new btRigidBody(0.0, _motionState.get(), new btEmptyShape);
+
+    const auto shape = ShapeMan.get(rid);
+
+    if (!shape)
+        return;
+
+	_rigidBody = new btRigidBody(
+            0.0,
+            _motionState.get(),
+            shape->getRootShape()
+    );
 	setCollisionObject(_rigidBody);
+    setOffset(shape->getOffset());
 }
 
 void RigidBody::setActive(bool active) {

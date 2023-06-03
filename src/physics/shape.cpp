@@ -18,25 +18,26 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_RIGIDBODY_H
-#define OPENAWE_RIGIDBODY_H
-
-#include "src/physics/collisionobject.h"
+#include "shape.h"
 
 namespace Physics {
 
-class RigidBody : public CollisionObject {
-public:
-	RigidBody(rid_t rid);
+Shape::Shape() : _rootShape(nullptr) {
+}
 
-	void setActive(bool active) override;
+Shape::~Shape() {
+    for (const auto &additionalShape: _additionalShapes) {
+        delete additionalShape;
+    }
+    delete _rootShape;
+}
 
-private:
-	btRigidBody *_rigidBody;
+btCollisionShape *Shape::getRootShape() const {
+	return _rootShape;
+}
 
-	std::unique_ptr<btDefaultMotionState> _motionState;
-};
+const btTransform &Shape::getOffset() const {
+	return _offset;
+}
 
 } // End of namespace Physics
-
-#endif //OPENAWE_RIGIDBODY_H

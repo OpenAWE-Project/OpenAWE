@@ -18,25 +18,19 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_RIGIDBODY_H
-#define OPENAWE_RIGIDBODY_H
-
-#include "src/physics/collisionobject.h"
+#include "shapeman.h"
+#include "havokshape.h"
 
 namespace Physics {
 
-class RigidBody : public CollisionObject {
-public:
-	RigidBody(rid_t rid);
+ShapePtr ShapeManager::get(rid_t rid) {
+    const auto iter = _shapes.find(rid);
+    if (iter != _shapes.end())
+        return iter->second;
 
-	void setActive(bool active) override;
+    const auto shape = std::make_shared<HavokShape>(rid);
+    _shapes[rid] = shape;
+	return shape;
+}
 
-private:
-	btRigidBody *_rigidBody;
-
-	std::unique_ptr<btDefaultMotionState> _motionState;
-};
-
-} // End of namespace Physics
-
-#endif //OPENAWE_RIGIDBODY_H
+} // Physics

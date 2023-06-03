@@ -37,7 +37,7 @@
 #include "src/graphics/animation.h"
 #include "src/graphics/animationcontroller.h"
 
-#include "src/physics/havokobject.h"
+#include "src/physics/rigidbody.h"
 #include "src/physics/terraincollision.h"
 #include "src/physics/charactercontroller.h"
 
@@ -198,7 +198,7 @@ void ObjectCollection::loadStaticObject(const AWE::Object &container) {
 
 	if (staticObject.physicsResource) {
 		try {
-			Physics::CollisionObjectPtr collisionObject = std::make_shared<Physics::HavokObject>(
+			Physics::CollisionObjectPtr collisionObject = std::make_shared<Physics::RigidBody>(
 				staticObject.physicsResource
 			);
 
