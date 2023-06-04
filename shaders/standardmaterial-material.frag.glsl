@@ -40,6 +40,9 @@ uniform struct {
 } g_sunlight;
 
 uniform sampler2D g_sColorMap;
+uniform sampler2D g_sLightBuffer;
+
+uniform vec2 g_vScreenRes;
 uniform vec4 g_vColorMultiplier = vec4(1.0);
 
 in vec2 pass_UV;
@@ -48,10 +51,15 @@ out vec4 out_Color;
 out float out_Depth;
 
 void main() {
-    out_Color = texture(g_sColorMap, pass_UV) * g_vColorMultiplier;
+    vec2 vScreen = gl_FragCoord.xy / g_vScreenRes;
 
-    if (out_Color.a < 0.5)
+    vec4 vColor = texture(g_sColorMap, pass_UV) * g_vColorMultiplier;
+
+    if (vColor.a < 0.5)
         discard;
 
+    vec4 vLight = texture(g_sLightBuffer, vScreen);
+
+    out_Color.rgb = mix(vColor.rgb, vLight.rgb, min(vLight.a, 1.0f));
     out_Color.a = 1.0;
 }
