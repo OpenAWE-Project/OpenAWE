@@ -40,6 +40,12 @@ std::string getCPUName();
  */
 bool hasSSE2();
 
+/*!
+ * Return if the cpu supports NEON instructions
+ * \return If the cpu supports NEON instructions
+ */
+bool hasNEON();
+
 } // End of namespace Common
 
 #endif //OPENAWE_CPUINFO_H

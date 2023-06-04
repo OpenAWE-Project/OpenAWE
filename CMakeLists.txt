@@ -132,6 +132,11 @@ if (HAS_BUILTIN_BSWAP64)
     add_definitions(-DHAS_BUILTIN_BSWAP64)
 endif ()
 
+check_function_exists(getauxval HAS_GETAUXVAL)
+if (HAS_GETAUXVAL)
+    add_definitions(-DHAS_GETAUXVAL)
+endif ()
+
 # MSVC byte swap functions
 check_function_exists(_byteswap_ushort HAS_BYTESWAP_USHORT)
 check_function_exists(_byteswap_ulong HAS_BYTESWAP_ULONG)

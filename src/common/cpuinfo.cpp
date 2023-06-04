@@ -25,6 +25,11 @@
 #	include <cpuid.h>
 #endif
 
+#if HAS_GETAUXVAL
+#   include <sys/auxv.h>
+#   define HWCAP_NEON (1 << 12)
+#endif
+
 #include "src/common/cpuinfo.h"
 #include "src/common/strutil.h"
 
@@ -74,6 +79,14 @@ bool hasSSE2() {
 	return data[3] & bit_SSE2;
 #else
 	return false;
+#endif
+}
+
+bool hasNEON() {
+#if HAS_GETAUXVAL
+    return (getauxval(AT_HWCAP) & HWCAP_NEON) == HWCAP_NEON;
+#else
+    return false;
 #endif
 }
 
