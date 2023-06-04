@@ -75,6 +75,7 @@ private:
 	void loadKeyFramer(const AWE::Object &container);
 	void loadKeyFrameAnimation(const AWE::Object &container);
 	void loadKeyFrame(const AWE::Object &container);
+	void loadWeapon(const AWE::Object &container);
 
 	std::vector<entt::entity> _entities;
 	static std::map<ObjectIDType, std::vector<entt::entity>> _objects;

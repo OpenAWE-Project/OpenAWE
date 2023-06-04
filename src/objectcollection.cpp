@@ -141,6 +141,8 @@ void ObjectCollection::load(const AWE::Object &container, ObjectType type) {
 		case kKeyframeAnimation: loadKeyFrameAnimation(container); break;
 		case kKeyframe:	loadKeyFrame(container); break;
 		case kAmbientLight:	loadAmbientLightInstance(container); break;
+		case kPointLight: loadPointLight(container); break;
+		case kWeapon: loadWeapon(container); break;
 		default:
 			break; // If the object is currently not addable to the collection, skip it.
 	}
@@ -406,8 +408,19 @@ void ObjectCollection::loadPointLight(const AWE::Object &container) {
 	const auto pointLight = std::any_cast<AWE::Templates::PointLight>(container);
 
 	auto pointLightEntity = _registry.create();
-	_registry.emplace<GID>(pointLightEntity) = pointLight.gid;
-	_registry.emplace<Transform>(pointLightEntity) = Transform(pointLight.position, pointLight.rotation);
+	_registry.emplace<GID>(pointLightEntity) = pointLight.gid2;
+	const auto &transform = _registry.emplace<Transform>(pointLightEntity) = Transform(pointLight.position, pointLight.rotation);
+	auto &light = _registry.emplace<Graphics::Light>(pointLightEntity);
+
+	light.setColor(pointLight.color);
+	light.setIntensity(pointLight.intensity);
+	light.setDecay(pointLight.decay);
+	light.setDirectionalFalloff(pointLight.directionalFalloff);
+	light.setTransform(transform.getTransformation());
+	if (pointLight.enableRangeClip)
+		light.setRangeClip(pointLight.rangeClip);
+	light.setLabel(_gid->getString(pointLight.gid2));
+	light.show();
 
 	spdlog::debug("Loading point light {}", _gid->getString(pointLight.gid));
 }
@@ -597,6 +610,18 @@ void ObjectCollection::loadKeyFrame(const AWE::Object &container) {
 	_objects[kKeyframeID].emplace_back(keyFrameEntity);
 
 	_entities.emplace_back(keyFrameEntity);
+}
+
+void ObjectCollection::loadWeapon(const AWE::Object &container) {
+	const auto weapon = std::any_cast<AWE::Templates::Weapon>(container);
+
+	const auto weaponEntity = _registry.create();
+	_registry.emplace<GID>(weaponEntity) = weapon.gid;
+	_registry.emplace<Graphics::MeshPtr>(weaponEntity) = MeshMan.getMesh(weapon.meshResource);
+
+	_entities.emplace_back(weaponEntity);
+
+	spdlog::debug("Loading Weapon {}", _gid->getString(weapon.gid));
 }
 
 std::map<ObjectIDType, std::vector<entt::entity>> ObjectCollection::_objects = std::map<ObjectIDType, std::vector<entt::entity>>();
