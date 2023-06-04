@@ -104,6 +104,7 @@ void ObjectCollection::loadFoliageData(Common::ReadStream *foliageData) {
 		Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(foliage) = std::make_shared<Graphics::Model>(foliageMeshs[instance.foliageId]);
 
 		model->setTransform(glm::translate(glm::identity<glm::mat4>(), instance.position));
+		model->setLabel("<Foliage>");
 
 		_entities.emplace_back(foliage);
 	}
