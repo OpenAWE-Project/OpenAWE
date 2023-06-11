@@ -34,7 +34,8 @@ enum PointLightPropertyFlags {
 namespace Graphics {
 
 Light::Light() : _label("<No Label>") {
-	const auto shape = Common::generateIcoSphere(1.075, 1);
+	auto shape = Common::generateIcoSphere(1.075, 1);
+	Common::reverseTriangles(shape);
 	_shape = GfxMan.createBuffer(
 		reinterpret_cast<const byte *>(shape.positions.data()),
 		shape.positions.size() * sizeof(glm::vec3),
