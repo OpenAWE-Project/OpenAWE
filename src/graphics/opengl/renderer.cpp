@@ -531,6 +531,7 @@ void Renderer::drawLights() {
 
 	glEnable(GL_STENCIL_TEST);
 	glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
 
 	for (const auto &light: _lights) {
 		if (!_frustrum.test(Common::BoundSphere {mirrorZ * light->getTransform()[3], light->getRange() * 1.075f}))
@@ -605,6 +606,7 @@ void Renderer::drawLights() {
 
 	glDisable(GL_STENCIL_TEST);
 	glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
 
 	popDebug(); // Pop Draw Lights message
 }
