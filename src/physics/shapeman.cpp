@@ -18,8 +18,10 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "shapeman.h"
-#include "havokshape.h"
+#include <spdlog/spdlog.h>
+
+#include "src/physics/shapeman.h"
+#include "src/physics/havokshape.h"
 
 namespace Physics {
 
@@ -28,9 +30,15 @@ ShapePtr ShapeManager::get(rid_t rid) {
     if (iter != _shapes.end())
         return iter->second;
 
-    const auto shape = std::make_shared<HavokShape>(rid);
-    _shapes[rid] = shape;
-	return shape;
+    try {
+        const auto shape = std::make_shared<HavokShape>(rid);
+        _shapes[rid] = shape;
+        return shape;
+    } catch (std::exception &e) {
+        spdlog::error("Failed to create Physics shape: {}", e.what());
+        _shapes[rid] = ShapePtr();
+        return {};
+    }
 }
 
 } // Physics
