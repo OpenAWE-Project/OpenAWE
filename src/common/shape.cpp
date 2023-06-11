@@ -25,6 +25,7 @@
 #include <glm/gtx/vec_swizzle.hpp>
 
 #include "src/common/shape.h"
+#include "src/common/exception.h"
 
 namespace Common {
 
@@ -177,6 +178,18 @@ Shape generateIcoSphere(float radius, unsigned int numSubdivisions) {
 	}
 
 	return icoSphere;
+}
+
+void reverseTriangles(Shape &shape) {
+	if (shape.indices.size() % 3 != 0)
+		throw CreateException("This shape does not contain valid triangles");
+
+	for (size_t i = 0; i < shape.indices.size(); i+=3) {
+		std::reverse(
+			shape.indices.begin() + i,
+			shape.indices.begin() + i + 2
+		);
+	}
 }
 
 Shape generateCone(float radius, float height, unsigned int resolution) {

@@ -44,6 +44,14 @@ struct Shape {
  */
 Shape generateIcoSphere(float radius, unsigned int numSubdivisions);
 
+/*!
+ * Reverse the indices of the shape, assuming that the indices represent triangles. Throw an error if that cannot be
+ * done because the number of indices doesn't match a multiple of three and therefore cannot be a triangle only mesh
+ *
+ * \param shape The shape to modify as a reference
+ */
+void reverseTriangles(Shape &shape);
+
 }
 
 #endif //OPENAWE_SHAPE_H
