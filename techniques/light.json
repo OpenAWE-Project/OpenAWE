@@ -1,0 +1,29 @@
+{
+  "name": "light",
+  "property_sets": [
+    {
+      "stages": [
+        "material",
+        "depth"
+      ],
+      "properties": [
+        {
+          "name": "PROP_UNK_1",
+          "flag": 27
+        },
+        {
+          "name": "PROP_UNK_2",
+          "flag": 29
+        },
+        {
+          "name": "PROP_GLOB_SKINNED",
+          "flag": 30
+        },
+        {
+          "name": "PROP_GLOB_ALPHA_TEST",
+          "flag": 31
+        }
+      ]
+    }
+  ]
+}
