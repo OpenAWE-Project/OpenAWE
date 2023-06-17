@@ -21,8 +21,8 @@
 #include <algorithm>
 #include <cstring>
 
-#if __SSE2__ || _M_IX86_FP==2
-#	include <emmintrin.h>
+#if __SSSE3__
+#	include <tmmintrin.h>
 #endif
 
 #include "src/common/exception.h"
@@ -49,8 +49,8 @@ void convertYUV2RGB(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, uns
 	}
 }
 
-void convertYUV2RGB_SSE2(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height) {
-#if __SSE2__ || _M_IX86_FP==2
+void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height) {
+#if __SSSE3__
 	__m128i uvdiff = _mm_set1_epi16(128);
 
 	__m128i fac_r_cr = _mm_set1_epi16(90);
@@ -67,6 +67,47 @@ void convertYUV2RGB_SSE2(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width
 
 	assert(width % 16 == 0);
 	assert(height % 2 == 0);
+
+    __m128i rmask1 = _mm_set_epi8(
+            5, 128, 128, 4, 128, 128, 3, 128,
+            128, 2, 128, 128, 1, 128, 128, 0
+    );
+    __m128i rmask2 = _mm_set_epi8(
+            128, 10, 128, 128, 9, 128, 128, 8,
+            128, 128, 7, 128, 128, 6, 128, 128
+    );
+    __m128i rmask3 = _mm_set_epi8(
+            128, 128, 15, 128, 128, 14, 128, 128,
+            13, 128, 128, 12, 128, 128, 11, 128
+    );
+    __m128i gmask1 = _mm_set_epi8(
+            128, 128, 4, 128, 128, 3, 128, 128,
+            2, 128, 128, 1, 128, 128, 0, 128
+    );
+    __m128i gmask2 = _mm_set_epi8(
+            10, 128, 128, 9, 128, 128, 8, 128,
+            128, 7, 128, 128, 6, 128, 128, 5
+    );
+    __m128i gmask3 = _mm_set_epi8(
+            128, 15, 128, 128, 14, 128, 128, 13,
+            128, 128, 12, 128, 128, 11, 128, 128
+    );
+    __m128i bmask1 = _mm_set_epi8(
+            128, 4, 128, 128, 3, 128, 128,
+            2, 128, 128, 1, 128, 128, 0, 128, 128
+    );
+    __m128i bmask2 = _mm_set_epi8(
+            128, 128, 9, 128, 128, 8, 128,
+            128, 7, 128, 128, 6, 128, 128, 5, 128
+    );
+    __m128i bmask3 = _mm_set_epi8(
+            15, 128, 128, 14, 128, 128, 13, 128,
+            128, 12, 128, 128, 11, 128, 128, 10
+    );
+
+    __m128i shuffledResult[3];
+    __m128i shuffledResultR[6], shuffledResultG[6], shuffledResultB[6];
+
 
 	for (unsigned int y = 0; y < height; y+=2) {
 		for (unsigned int x = 0; x < width; x+=16) {
@@ -118,17 +159,21 @@ void convertYUV2RGB_SSE2(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width
 				g[0] = _mm_packus_epi16(g[0], g[1]);
 				b[0] = _mm_packus_epi16(b[0], b[1]);
 
-				// Copy the rgb data to arrays for better access
-				std::memcpy(result_r, &r[0], sizeof(__m128i));
-				std::memcpy(result_g, &g[0], sizeof(__m128i));
-				std::memcpy(result_b, &b[0], sizeof(__m128i));
+				shuffledResultR[0] = _mm_shuffle_epi8(r[0], rmask1);
+				shuffledResultR[1] = _mm_shuffle_epi8(r[0], rmask2);
+				shuffledResultR[2] = _mm_shuffle_epi8(r[0], rmask3);
+				shuffledResultG[0] = _mm_shuffle_epi8(g[0], gmask1);
+				shuffledResultG[1] = _mm_shuffle_epi8(g[0], gmask2);
+				shuffledResultG[2] = _mm_shuffle_epi8(g[0], gmask3);
+				shuffledResultB[0] = _mm_shuffle_epi8(b[0], bmask1);
+				shuffledResultB[1] = _mm_shuffle_epi8(b[0], bmask2);
+				shuffledResultB[2] = _mm_shuffle_epi8(b[0], bmask3);
 
-				// Write the result data
-				for (int j = 0; j < 16; ++j) {
-					rgb[resultOffset + j * 3 + 0 + i * width * 3] = result_r[j];
-					rgb[resultOffset + j * 3 + 1 + i * width * 3] = result_g[j];
-					rgb[resultOffset + j * 3 + 2 + i * width * 3] = result_b[j];
-				}
+				shuffledResult[0] = _mm_or_si128(shuffledResultR[0], _mm_or_si128(shuffledResultB[0], shuffledResultG[0]));
+				shuffledResult[1] = _mm_or_si128(shuffledResultR[1], _mm_or_si128(shuffledResultB[1], shuffledResultG[1]));
+				shuffledResult[2] = _mm_or_si128(shuffledResultR[2], _mm_or_si128(shuffledResultB[2], shuffledResultG[2]));
+
+				std::memcpy(reinterpret_cast<void *>(rgb + resultOffset + i * width * 3), shuffledResult, sizeof(shuffledResult));
 			}
 		}
 	}

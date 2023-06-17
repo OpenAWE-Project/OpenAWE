@@ -38,14 +38,14 @@ namespace Codecs {
 void convertYUV2RGB(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height);
 
 /*!
- * Convert the data from an ycbcr buffer to the rgb space of an array by utilizing SSE2. The result array is assumed to
+ * Convert the data from an ycbcr buffer to the rgb space of an array by utilizing SSSE3. The result array is assumed to
  * have the necessary size
  * \param ycbcr The input ycbcr buffer to convert
  * \param rgb The output rgb buffer to write the results into
  * \param width The width of the video frame
  * \param height The height of the video frame
  */
-void convertYUV2RGB_SSE2(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height);
+void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height);
 
 } // End of namespace Codecs
 

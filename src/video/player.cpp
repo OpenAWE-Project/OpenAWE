@@ -41,9 +41,9 @@
 namespace Video {
 
 Player::Player() :
-	_sse2(Common::hasSSE2()),
-	_playing(false),
-	_proxyTexture(GfxMan.createProxyTexture()) {
+		_ssse3(Common::hasSSSE3()),
+		_playing(false),
+		_proxyTexture(GfxMan.createProxyTexture()) {
 
 }
 
@@ -199,12 +199,12 @@ void Player::prepareSurfaces() {
 		_video->readNextFrame(_ycbcr);
 		auto surface = _availableSurfaces.front();
 		_availableSurfaces.pop_front();
-		if (_sse2) {
-			Codecs::convertYUV2RGB_SSE2(
-				_ycbcr,
-				reinterpret_cast<byte *>(surface->getData()),
-				_video->getWidth(),
-				_video->getHeight()
+		if (_ssse3) {
+			Codecs::convertYUV2RGB_SSSE3(
+					_ycbcr,
+					reinterpret_cast<byte *>(surface->getData()),
+					_video->getWidth(),
+					_video->getHeight()
 			);
 		} else {
 			Codecs::convertYUV2RGB(

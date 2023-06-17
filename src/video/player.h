@@ -61,7 +61,7 @@ private:
 
 	void preloadLoop();
 
-	const bool _sse2;
+	const bool _ssse3;
 
 	std::chrono::milliseconds _frameDuration;
 	std::chrono::time_point<std::chrono::system_clock> _lastFrame;
