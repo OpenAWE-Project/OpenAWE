@@ -33,6 +33,33 @@
 #include "src/common/cpuinfo.h"
 #include "src/common/strutil.h"
 
+static bool cpuinfoRetrieved = false;
+
+static bool has_mmx   = false;
+static bool has_sse   = false;
+static bool has_sse2  = false;
+static bool has_sse3  = false;
+static bool has_ssse3 = false;
+
+void retrieveCPUInfo() {
+	if (cpuinfoRetrieved)
+		return;
+
+	cpuinfoRetrieved = true;
+
+#if HAS_CPUID_H
+	uint32_t data[4];
+
+	__cpuid(1, data[0], data[1], data[2], data[3]);
+
+	has_mmx   = data[3] & bit_MMX;
+	has_sse   = data[3] & bit_SSE;
+	has_sse2  = data[3] & bit_SSE2;
+	has_sse3  = data[2] & bit_SSE3;
+	has_ssse3 = data[2] & bit_SSSE3;
+#endif
+}
+
 namespace Common {
 
 std::string getCPUVendor() {
@@ -70,16 +97,29 @@ std::string getCPUName() {
 #endif
 }
 
+bool hasMMX() {
+	retrieveCPUInfo();
+	return has_mmx;
+}
+
+bool hasSSE() {
+	retrieveCPUInfo();
+	return has_sse;
+}
+
 bool hasSSE2() {
-#if HAS_CPUID_H
-	uint32_t data[4];
+	retrieveCPUInfo();
+	return has_sse2;
+}
 
-	__cpuid(1, data[0], data[1], data[2], data[3]);
+bool hasSSE3() {
+	retrieveCPUInfo();
+	return has_sse3;
+}
 
-	return data[3] & bit_SSE2;
-#else
-	return false;
-#endif
+bool hasSSSE3() {
+	retrieveCPUInfo();
+	return has_ssse3;
 }
 
 bool hasNEON() {

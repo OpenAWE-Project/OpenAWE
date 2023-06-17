@@ -35,10 +35,34 @@ std::string getCPUVendor();
 std::string getCPUName();
 
 /*!
+ * Return if the cpu supports MMX instructions
+ * \return If the cpu supports MMX instructions
+ */
+bool hasMMX();
+
+/*!
+ * Return if the cpu supports SSE instructions
+ * \return If the cpu supports SSE instructions
+ */
+bool hasSSE();
+
+/*!
  * Return if the cpu supports SSE2 instructions
  * \return If the cpu supports SSE2 instructions
  */
 bool hasSSE2();
+
+/*!
+ * Return if the cpu supports SSE3 instructions
+ * \return If the cpu supports SSE3 instructions
+ */
+bool hasSSE3();
+
+/*!
+ * Return if the cpu supports supplemental SSE3 instructions
+ * \return If the cpu supports supplemental SSE3 instructions
+ */
+bool hasSSSE3();
 
 /*!
  * Return if the cpu supports NEON instructions
