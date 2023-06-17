@@ -344,8 +344,20 @@ void Renderer::drawWorld(const std::string &stage) {
 		const std::optional<GLint> localToClip = currentShader->getUniformLocation("g_mLocalToClip");
 		const std::optional<GLint> viewToClip = currentShader->getUniformLocation("g_mViewToClip");
 		const std::optional<GLint> viewToWorld = currentShader->getUniformLocation("g_mViewToWorld");
+		const std::optional<GLint> screenRes = currentShader->getUniformLocation("g_vScreenRes");
+		const std::optional<GLint> lightBuffer = currentShader->getUniformLocation("g_sLightBuffer");
 
 		const std::optional<GLint> skinningMatrices = currentShader->getUniformLocation("GPU_skinning_matrices");
+
+		if (screenRes)
+			currentShader->setUniform2f(*screenRes, screenResolution);
+
+		GLuint textureSlotShader = 0;
+		if (lightBuffer) {
+			glActiveTexture(getTextureSlot(textureSlotShader));
+			_lightBufferTexture->bind();
+			currentShader->setUniformSampler(*lightBuffer, textureSlotShader++);
+		}
 
 		for (const auto &task: pass.renderTasks) {
 			glm::mat4 m = mirrorZ * task.model->getTransform();
@@ -388,7 +400,7 @@ void Renderer::drawWorld(const std::string &stage) {
 				if (indices)
 					indices->bind();
 
-				GLuint textureSlot = 0;
+				GLuint textureSlot = textureSlotShader;
 				for (const auto &attribute : partmesh.material.getAttributes(stage)) {
 					switch (attribute.type) {
 						case Material::kVec1: {
