@@ -26,20 +26,74 @@
 
 namespace Graphics::OpenGL {
 
+class Renderbuffer;
+
+/*!
+ * \brief An implementation for handling opengl framebuffers
+ *
+ * This class encapsulates a framebuffer object from opengl allowing it to be bound and allows to attach textures and
+ * renderbuffers to it. It also allows the framebuffer to be labeled to allow graphics debuggers to better identify this
+ * framebuffer
+ */
 class Framebuffer {
 public:
+	/*!
+	 * Initialize the framebuffer with an optional label
+	 * \param label The label for the framebuffer
+	 */
 	Framebuffer(const std::string &label = "");
 	~Framebuffer();
 
+	/*!
+	 * Attach a texture to this framebuffer
+	 * \param texture The texture to attach
+	 * \param attachmentType The attachment type using a GL_*_ATTACHMENT_* variable
+	 */
 	void attachTexture(const Texture &texture, GLenum attachmentType);
-	void attachRenderBuffer(GLsizei width, GLsizei height, GLenum format, GLenum attachmentType);
 
+	/*!
+	 * Attach a renderbuffer to this framebuffer
+	 * \param renderbuffer The renderbuffer to attach
+	 * \param attachmentType The attachment type using a GL_*_ATTACHMENT_* variable
+	 */
+	void attachRenderBuffer(const Renderbuffer &renderbuffer, GLenum attachmentType);
+
+	/*!
+	 * Bind the framebuffer as the current
+	 */
 	void bind();
+
+	/*!
+	 * Bind the framebuffer in read only mode as the current
+	 */
 	void bindRead();
 
 private:
-	std::vector<GLuint> _renderbuffers;
 	std::vector<GLenum> _attachments;
+	GLuint _id;
+};
+
+/*!
+ * \brief An implementation for handling opengl renderbuffers
+ *
+ * This class encapsulates a renderbuffer object from opengl. It allows the renderbuffer to be created with multiple
+ * parameters and an optional label
+ */
+class Renderbuffer {
+public:
+	/*!
+	 * Create the renderbuffer with size and its format and an optional label
+	 * @param width The width of the renderbuffer to create
+	 * @param height The height of the renderbuffer to create
+	 * @param format The format of the renderbuffer to create
+	 * @param label An optional label to attach for graphics debuggers
+	 */
+	Renderbuffer(GLsizei width, GLsizei height, GLenum format, const std::string &label = "");
+	~Renderbuffer();
+
+private:
+	friend class Framebuffer;
+
 	GLuint _id;
 };
 

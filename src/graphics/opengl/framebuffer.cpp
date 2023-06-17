@@ -36,7 +36,6 @@ Framebuffer::Framebuffer(const std::string &label) {
 }
 
 Framebuffer::~Framebuffer() {
-	glDeleteRenderbuffers(_renderbuffers.size(), _renderbuffers.data());
 	glDeleteFramebuffers(1, &_id);
 }
 
@@ -55,13 +54,13 @@ void Framebuffer::attachTexture(const Texture &texture, GLenum attachmentType) {
 	_attachments.emplace_back(attachmentType);
 }
 
-void Framebuffer::attachRenderBuffer(GLsizei width, GLsizei height, GLenum format, GLenum attachmentType) {
-	GLuint rbo;
-	glCreateRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-
-	glRenderbufferStorage(GL_RENDERBUFFER, format, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentType, GL_RENDERBUFFER, rbo);
+void Framebuffer::attachRenderBuffer(const Renderbuffer &renderbuffer, GLenum attachmentType) {
+	glFramebufferRenderbuffer(
+			GL_FRAMEBUFFER,
+			attachmentType,
+			GL_RENDERBUFFER,
+			renderbuffer._id
+	);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		throw CreateException("Failed to attach renderbuffer tot exture");
@@ -74,6 +73,20 @@ void Framebuffer::bind() {
 
 void Framebuffer::bindRead() {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
+}
+
+Renderbuffer::Renderbuffer(GLsizei width, GLsizei height, GLenum format, const std::string &label) {
+	glGenRenderbuffers(1, &_id);
+	glBindRenderbuffer(GL_RENDERBUFFER, _id);
+
+	glRenderbufferStorage(GL_RENDERBUFFER, format, width, height);
+
+	if (GLEW_KHR_debug && !label.empty())
+		glObjectLabel(GL_RENDERBUFFER, _id, label.size(), label.c_str());
+}
+
+Renderbuffer::~Renderbuffer() {
+	glDeleteRenderbuffers(1, &_id);
 }
 
 }

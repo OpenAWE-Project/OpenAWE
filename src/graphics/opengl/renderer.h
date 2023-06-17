@@ -79,6 +79,8 @@ private:
 
 	bool _hasDebug;
 
+	std::unique_ptr<Renderbuffer> _depthstencilBuffer;
+
 	std::unique_ptr<Texture> _lightBufferTexture;
 	std::unique_ptr<Framebuffer> _lightBuffer;
 
