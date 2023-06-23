@@ -123,8 +123,8 @@ void ControlledFreeCamera::handleMovement(const Events::Event &event) {
 	} else if (axisEvent) {
 		_clearDirection = true;
 		if (event.action == kMoveGamepad) {
-			_movementDirection.x = axisEvent->delta.x;
-			_movementDirection.y = axisEvent->delta.y;
+			_movementDirection.x = axisEvent->absolute.x;
+			_movementDirection.y = axisEvent->absolute.y;
 		}
 	}
 }
@@ -159,8 +159,8 @@ void ControlledFreeCamera::handleRotation(const Events::Event &event) {
 			_movementRotation.x = axisEvent->delta.x;
 			_movementRotation.y = axisEvent->delta.y;
 		} else if (event.action == kRotateGamepad) {
-			_movementRotation.x = axisEvent->delta.x;
-			_movementRotation.y = axisEvent->delta.y;
+			_movementRotation.x = axisEvent->absolute.x;
+			_movementRotation.y = axisEvent->absolute.y;
 		}
 	}
 }
