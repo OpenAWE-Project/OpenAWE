@@ -40,6 +40,7 @@ enum kArchiveVersion {
 	kVersionAlanWake = 2,
 	kVersionNightmare = 7,
 	kVersionQuantumBreak = 8,
+	kVersionControl = 9
 };
 
 namespace AWE {
@@ -59,6 +60,10 @@ RMDPArchive::RMDPArchive(Common::ReadStream *bin, Common::ReadStream *rmdp) : _r
 			break;
 		case kVersionQuantumBreak:
 			loadHeaderV8(bin, end);
+			break;
+		case kVersionControl:
+			loadHeaderV8(bin, end);
+			_pathPrefix = false;
 			break;
 		default:
 			throw CreateException("Unknown RMDP Archive version {}", _version);
@@ -417,7 +422,7 @@ void RMDPArchive::loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream
 	bin->skip(8);
 
 	const uint32_t nameSize = end.readUint32();
-	const std::string pathPrefix = bin->readNullTerminatedString();
+	const std::string pathPrefix = bin->readFixedSizeString(8, true);
 
 	bin->skip(120);
 
