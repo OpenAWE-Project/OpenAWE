@@ -53,64 +53,57 @@ void GamepadManager::pollGamepadEvents() {
     
     GLFWgamepadstate state;
     glfwGetGamepadState(_activeGamepadId.value(), &state);
-    for (auto &window_pair: _windows) {
-        GLFWwindow *window = window_pair.first;
-        windowGamepadInfo *wInfo = &(window_pair.second);
 
-        for (int i = 0; i < GLFW_GAMEPAD_BUTTON_LAST; i++) {
-            if (state.buttons[i] == GLFW_PRESS) {
-                if (wInfo->gamepadButtonsHeld.count(i) == 0) {
-                    wInfo->gamepadButtonsHeld.insert(i);
+    for (int i = 0; i < GLFW_GAMEPAD_BUTTON_LAST; i++) {
+        if (state.buttons[i] == GLFW_PRESS) {
+            if (gamepadButtonsHeld.count(i) == 0) {
+                gamepadButtonsHeld.insert(i);
 
-                    if (wInfo->gamepadButtonCallback) {
-                        InputGamepadButtonCallback callback = wInfo->gamepadButtonCallback.value();
-                        callback(window, i, GLFW_PRESS);
-                    }
+                if (gamepadButtonCallback) {
+                    InputGamepadButtonCallback callback = gamepadButtonCallback.value();
+                    callback(i, GLFW_PRESS);
                 }
-            } else if (state.buttons[i] == GLFW_RELEASE) {
-                if (wInfo->gamepadButtonsHeld.count(i)) {
-                    wInfo->gamepadButtonsHeld.erase(i);
+            }
+        } else if (state.buttons[i] == GLFW_RELEASE) {
+            if (gamepadButtonsHeld.count(i)) {
+                gamepadButtonsHeld.erase(i);
 
-                    if (wInfo->gamepadButtonCallback) {
-                        InputGamepadButtonCallback callback = wInfo->gamepadButtonCallback.value();
-                        callback(window, i, GLFW_RELEASE);
-                    }
+                if (gamepadButtonCallback) {
+                    InputGamepadButtonCallback callback = gamepadButtonCallback.value();
+                    callback(i, GLFW_RELEASE);
                 }
             }
         }
-        if (wInfo->gamepadStickCallback) {
-            static constexpr int GLFW_GAMEPAD_AXIS_LEFT = GLFW_GAMEPAD_AXIS_LEFT_X | GLFW_GAMEPAD_AXIS_LEFT_Y;
-            static constexpr int GLFW_GAMEPAD_AXIS_RIGHT = GLFW_GAMEPAD_AXIS_RIGHT_X | GLFW_GAMEPAD_AXIS_RIGHT_Y;
+    }
+    if (gamepadStickCallback) {
+        static constexpr int GLFW_GAMEPAD_AXIS_LEFT = GLFW_GAMEPAD_AXIS_LEFT_X | GLFW_GAMEPAD_AXIS_LEFT_Y;
+        static constexpr int GLFW_GAMEPAD_AXIS_RIGHT = GLFW_GAMEPAD_AXIS_RIGHT_X | GLFW_GAMEPAD_AXIS_RIGHT_Y;
 
-            InputGamepadStickCallback callback = wInfo->gamepadStickCallback.value();
-            if (state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] != 0.0f && state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] != 0.0f)
-                callback(window, GLFW_GAMEPAD_AXIS_LEFT, state.axes[GLFW_GAMEPAD_AXIS_LEFT_X], state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]);
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] != 0.0f && state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] != 0.0f)
-                callback(window, GLFW_GAMEPAD_AXIS_RIGHT, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
-        }
-        if (wInfo->gamepadTriggerCallback) {
-            InputGamepadTriggerCallback callback = wInfo->gamepadTriggerCallback.value();
-            if (state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] != 0.0f)
-                callback(window, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER]);
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] != 0.0f)
-                callback(window, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]);
-        }
+        InputGamepadStickCallback callback = gamepadStickCallback.value();
+        if (state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] != 0.0f && state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] != 0.0f)
+            callback(GLFW_GAMEPAD_AXIS_LEFT, state.axes[GLFW_GAMEPAD_AXIS_LEFT_X], state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]);
+        if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] != 0.0f && state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] != 0.0f)
+            callback(GLFW_GAMEPAD_AXIS_RIGHT, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+    }
+    if (gamepadTriggerCallback) {
+        InputGamepadTriggerCallback callback = gamepadTriggerCallback.value();
+        if (state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] != 0.0f)
+            callback(GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER]);
+        if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] != 0.0f)
+            callback(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]);
     }
 }
 
-void GamepadManager::setGamepadButtonCallback(GLFWwindow *window, InputGamepadButtonCallback function) {
-    windowGamepadInfo *wInfo = &(_windows.find(window)->second);
-    wInfo->gamepadButtonCallback = function;
+void GamepadManager::setGamepadButtonCallback(InputGamepadButtonCallback function) {
+    gamepadButtonCallback = function;
 }
 
-void GamepadManager::setGamepadStickCallback(GLFWwindow *window, InputGamepadStickCallback function) {
-    windowGamepadInfo *wInfo = &(_windows.find(window)->second);
-    wInfo->gamepadStickCallback = function;
+void GamepadManager::setGamepadStickCallback(InputGamepadStickCallback function) {
+    gamepadStickCallback = function;
 }
 
-void GamepadManager::setGamepadTriggerCallback(GLFWwindow *window, InputGamepadTriggerCallback function) {
-    windowGamepadInfo *wInfo = &(_windows.find(window)->second);
-    wInfo->gamepadTriggerCallback = function;
+void GamepadManager::setGamepadTriggerCallback(InputGamepadTriggerCallback function) {
+    gamepadTriggerCallback = function;
 }
 
 bool GamepadManager::hasActiveGamepad() {

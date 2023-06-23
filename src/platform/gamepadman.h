@@ -23,6 +23,7 @@
 
 #include <set>
 #include <map>
+#include <string>
 #include <optional>
 #include <functional>
 
@@ -32,16 +33,10 @@
 
 namespace Platform {
 
-typedef std::function<void (GLFWwindow *window, int button, int action)> InputGamepadButtonCallback;
-typedef std::function<void (GLFWwindow *window, int trigger, double pos)> InputGamepadTriggerCallback;
-typedef std::function<void (GLFWwindow *window, int stick, double xpos, double ypos)> InputGamepadStickCallback;
+typedef std::function<void (int button, int action)> InputGamepadButtonCallback;
+typedef std::function<void (int trigger, double pos)> InputGamepadTriggerCallback;
+typedef std::function<void (int stick, double xpos, double ypos)> InputGamepadStickCallback;
 
-typedef struct {
-	std::set<int> gamepadButtonsHeld;
-	std::optional<InputGamepadButtonCallback> gamepadButtonCallback;
-	std::optional<InputGamepadTriggerCallback> gamepadTriggerCallback;
-	std::optional<InputGamepadStickCallback> gamepadStickCallback;
-} windowGamepadInfo;
 
 /*!
  * \brief Class for supplementing gamepad input callbacks
@@ -54,17 +49,20 @@ public:
 	GamepadManager();
 
 	void pollGamepadEvents();
-	void setGamepadButtonCallback(GLFWwindow *window, InputGamepadButtonCallback function);
-	void setGamepadTriggerCallback(GLFWwindow *window, InputGamepadTriggerCallback function);
-	void setGamepadStickCallback(GLFWwindow *window, InputGamepadStickCallback function);
+	void setGamepadButtonCallback(InputGamepadButtonCallback function);
+	void setGamepadTriggerCallback(InputGamepadTriggerCallback function);
+	void setGamepadStickCallback(InputGamepadStickCallback function);
 	bool hasActiveGamepad();
 	std::optional<std::string> getActiveGamepadName();
 
 private:
 	static void callbackJoystickConnectionChanged(int jid, int event);
 
-	std::map<GLFWwindow *, windowGamepadInfo> _windows;
 	std::optional<int> _activeGamepadId;
+	std::set<int> gamepadButtonsHeld;
+	std::optional<InputGamepadButtonCallback> gamepadButtonCallback;
+	std::optional<InputGamepadTriggerCallback> gamepadTriggerCallback;
+	std::optional<InputGamepadStickCallback> gamepadStickCallback;
 };
 
 } // End of namespace Platform
