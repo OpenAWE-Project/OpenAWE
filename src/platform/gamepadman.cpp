@@ -18,8 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
+#include <glm/glm.hpp>
 
 #include "gamepadman.h"
 
@@ -27,22 +27,42 @@ namespace Platform {
 
 GamepadManager::GamepadManager() {
     glfwSetJoystickCallback(&GamepadManager::callbackJoystickConnectionChanged);
+
+    // see if there are any connected gamepads already
+    searchForActiveGamepad();
 }
 
 void GamepadManager::callbackJoystickConnectionChanged(int jid, int event) {
     if (event == GLFW_CONNECTED) {
         if (!GamepadMan._activeGamepadId && glfwJoystickIsGamepad(jid)) {
-            GamepadMan._activeGamepadId = jid;
+            GamepadMan.setActiveGamepad(jid);
+            spdlog::debug("Gamepad {} with id {} has been connected", GamepadMan.getActiveGamepadName().value(), jid);
         }
     } else if (event == GLFW_DISCONNECTED) {
         if (GamepadMan._activeGamepadId == jid) {
             GamepadMan._activeGamepadId = {};
-            for (int gid = 0; gid < GLFW_JOYSTICK_LAST; gid++) {
-                if (glfwJoystickIsGamepad(gid)) {
-                    GamepadMan._activeGamepadId = gid;
-                    break;
-                }
-            }
+            spdlog::debug("Gamepad with id {} has been disconnected", jid);
+            GamepadMan.searchForActiveGamepad();
+        }
+    }
+}
+
+void GamepadManager::setActiveGamepad(int id) {
+    _activeGamepadId = id;
+
+    // set default last axis/trigger values
+    stickLastValues[GLFW_GAMEPAD_AXIS_LEFT] = glm::vec2(0, 0);
+    stickLastValues[GLFW_GAMEPAD_AXIS_RIGHT] = glm::vec2(0, 0);
+    triggerLastValues[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] = 0.0;
+    triggerLastValues[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] = 0.0;
+}
+
+void GamepadManager::searchForActiveGamepad() {
+    for (int gid = 0; gid < GLFW_JOYSTICK_LAST; gid++) {
+        if (glfwJoystickIsGamepad(gid)) {
+            setActiveGamepad(gid);
+            spdlog::debug("Found connected gamepad {} with id {} to use", getActiveGamepadName().value(), gid);
+            break;
         }
     }
 }
@@ -56,54 +76,83 @@ void GamepadManager::pollGamepadEvents() {
 
     for (int i = 0; i < GLFW_GAMEPAD_BUTTON_LAST; i++) {
         if (state.buttons[i] == GLFW_PRESS) {
-            if (gamepadButtonsHeld.count(i) == 0) {
-                gamepadButtonsHeld.insert(i);
+            if (buttonsHeld.count(i) == 0) {
+                buttonsHeld.insert(i);
 
-                if (gamepadButtonCallback) {
-                    InputGamepadButtonCallback callback = gamepadButtonCallback.value();
+                if (buttonCallback) {
+                    InputGamepadButtonCallback callback = buttonCallback.value();
                     callback(i, GLFW_PRESS);
                 }
             }
         } else if (state.buttons[i] == GLFW_RELEASE) {
-            if (gamepadButtonsHeld.count(i)) {
-                gamepadButtonsHeld.erase(i);
+            if (buttonsHeld.count(i)) {
+                buttonsHeld.erase(i);
 
-                if (gamepadButtonCallback) {
-                    InputGamepadButtonCallback callback = gamepadButtonCallback.value();
+                if (buttonCallback) {
+                    InputGamepadButtonCallback callback = buttonCallback.value();
                     callback(i, GLFW_RELEASE);
                 }
             }
         }
     }
-    if (gamepadStickCallback) {
-        static constexpr int GLFW_GAMEPAD_AXIS_LEFT = GLFW_GAMEPAD_AXIS_LEFT_X | GLFW_GAMEPAD_AXIS_LEFT_Y;
-        static constexpr int GLFW_GAMEPAD_AXIS_RIGHT = GLFW_GAMEPAD_AXIS_RIGHT_X | GLFW_GAMEPAD_AXIS_RIGHT_Y;
+    if (stickCallback) {
+        InputGamepadStickCallback callback = stickCallback.value();
 
-        InputGamepadStickCallback callback = gamepadStickCallback.value();
-        if (state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] != 0.0f && state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] != 0.0f)
-            callback(GLFW_GAMEPAD_AXIS_LEFT, state.axes[GLFW_GAMEPAD_AXIS_LEFT_X], state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]);
-        if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] != 0.0f && state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] != 0.0f)
-            callback(GLFW_GAMEPAD_AXIS_RIGHT, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+        glm::vec2 axisNew = glm::vec2(state.axes[GLFW_GAMEPAD_AXIS_LEFT_X], state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]);
+        glm::vec2 axisLast = stickLastValues.find(GLFW_GAMEPAD_AXIS_LEFT)->second;
+        if (axisNew.x != 0.0f && axisNew.y != 0.0f) {
+            glm::vec2 delta = axisNew - axisLast;
+            callback(GLFW_GAMEPAD_AXIS_LEFT, axisNew, delta);
+            stickLastValues[GLFW_GAMEPAD_AXIS_LEFT] = axisNew;
+        }
+        else if (axisLast != axisNew) // where axisNew is presumably a zero vector
+            stickLastValues[GLFW_GAMEPAD_AXIS_LEFT] = axisNew;
+        
+        axisNew = glm::vec2(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+        axisLast = stickLastValues.find(GLFW_GAMEPAD_AXIS_RIGHT)->second;
+        if (axisNew.x != 0.0f && axisNew.y != 0.0f) {
+            glm::vec2 delta = axisNew - axisLast;
+            callback(GLFW_GAMEPAD_AXIS_RIGHT, axisNew, delta);
+            stickLastValues[GLFW_GAMEPAD_AXIS_RIGHT] = axisNew;
+        }
+        else if (axisLast != axisNew) // where axisNew is presumably a zero vector
+            stickLastValues[GLFW_GAMEPAD_AXIS_RIGHT] = axisNew;
     }
-    if (gamepadTriggerCallback) {
-        InputGamepadTriggerCallback callback = gamepadTriggerCallback.value();
-        if (state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] != 0.0f)
-            callback(GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER]);
-        if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] != 0.0f)
-            callback(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]);
+    if (triggerCallback) {
+        InputGamepadTriggerCallback callback = triggerCallback.value();
+
+        double triggerNew = state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER];
+        double triggerLast = triggerLastValues.find(GLFW_GAMEPAD_AXIS_LEFT_TRIGGER)->second;
+        if (triggerNew != 0.0f) {
+            double delta = triggerNew - triggerLast;
+            callback(GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, triggerNew, delta);
+            triggerLastValues[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] = triggerNew;
+        }
+        else if (triggerLast != triggerNew) // where triggerNew is presumably a zero
+            triggerLastValues[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] = triggerNew;
+
+        triggerNew = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER];
+        triggerLast = triggerLastValues.find(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER)->second;
+        if (triggerNew != 0.0f) {
+            double delta = triggerNew - triggerLast;
+            callback(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, triggerNew, delta);
+            triggerLastValues[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] = triggerNew;
+        }
+        else if (triggerLast != triggerNew) // where triggerNew is presumably a zero
+            triggerLastValues[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] = triggerNew;
     }
 }
 
 void GamepadManager::setGamepadButtonCallback(InputGamepadButtonCallback function) {
-    gamepadButtonCallback = function;
+    buttonCallback = function;
 }
 
 void GamepadManager::setGamepadStickCallback(InputGamepadStickCallback function) {
-    gamepadStickCallback = function;
+    stickCallback = function;
 }
 
 void GamepadManager::setGamepadTriggerCallback(InputGamepadTriggerCallback function) {
-    gamepadTriggerCallback = function;
+    triggerCallback = function;
 }
 
 bool GamepadManager::hasActiveGamepad() {
