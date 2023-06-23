@@ -279,6 +279,8 @@ void Window::setFullscreen(bool fullscreen) {
 	unsigned int width, height;
 	getSize(width, height);
 	glfwSetWindowMonitor(_window, fullscreen ? glfwGetPrimaryMonitor() : NULL, 0, 0, width, height, GLFW_DONT_CARE);
+	// set size again (because Wayland...)
+	glfwSetWindowSize(_window, width, height);
 }
 
 }
