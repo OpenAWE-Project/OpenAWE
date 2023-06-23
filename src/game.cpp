@@ -275,22 +275,19 @@ void Game::start() {
 		EventMan.injectMouse1DAxisInput(Events::kMouseScrollVertical, absolute.y, delta.y);
 	});
 
-	_window->setGamepadButtonCallback([&](int button, int action){
+	// Set callbacks for the gamepad
+	GamepadMan.setGamepadButtonCallback([&](int button, int action){
 		EventMan.injectGamepadButtonInput(static_cast<Events::GamepadButton>(button), action == GLFW_RELEASE? Events::kRelease : Events::kPress);
 	});
 
-	_window->setGamepadStickCallback([&](int stick, glm::vec2 absolute, glm::vec2 delta){
-		EventMan.injectGamepad2DAxisInput(Platform::convertGLFW2GamepadStick(stick), absolute, delta);
+	GamepadMan.setGamepadStickCallback([&](int stick, double xpos, double ypos){
+		glm::vec2 pos = glm::vec2(xpos, ypos);
+		EventMan.injectGamepad2DAxisInput(Platform::convertGLFW2GamepadStick(stick), pos, pos);
 	});
 
-	_window->setGamepadTriggerCallback([&](int trigger, double absolute, double delta){
-		EventMan.injectGamepad1DAxisInput(Platform::convertGLFW2GamepadTrigger(trigger), absolute, delta);
+	GamepadMan.setGamepadTriggerCallback([&](int trigger, double pos){
+		EventMan.injectGamepad1DAxisInput(Platform::convertGLFW2GamepadTrigger(trigger), pos, pos);
 	});
-
-	// Set callbacks for the gamepad
-	GamepadMan.setGamepadButtonCallback(_window->getWindowHandle(), &Platform::Window::callbackGamepadButton);
-	GamepadMan.setGamepadTriggerCallback(_window->getWindowHandle(), &Platform::Window::callbackGamepadTrigger);
-	GamepadMan.setGamepadStickCallback(_window->getWindowHandle(), &Platform::Window::callbackGamepadStick);
 	
 	entt::observer transformModelObserver{
 		_registry,

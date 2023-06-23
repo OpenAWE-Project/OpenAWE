@@ -64,8 +64,6 @@ Window::Window(ContextType type) {
 
 	_window = glfwCreateWindow(1920, 1080, "", nullptr, nullptr);
 
-	glfwSetCursorPos(_window, 960, 540);
-
 	glfwSetInputMode(_window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
 	glfwSetWindowUserPointer(_window, this);
@@ -158,31 +156,6 @@ void Window::callbackMouseButton(GLFWwindow *window, int button, int action, int
 	w->_mouseButtonCallback(button, action, mods);
 }
 
-void Window::callbackGamepadButton(GLFWwindow *window, int button, int action) {
-	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
-	if (!w->_gamepadButtonCallback)
-		return;
-
-	w->_gamepadButtonCallback(button, action);
-}
-
-void Window::callbackGamepadTrigger(GLFWwindow *window, int trigger, double pos) {
-	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
-	if (!w->_gamepadTriggerCallback)
-		return;
-	
-	w->_gamepadTriggerCallback(trigger, pos, pos);
-}
-
-void Window::callbackGamepadStick(GLFWwindow *window, int stick, double xpos, double ypos) {
-	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
-	if (!w->_gamepadTriggerCallback)
-		return;
-	
-	glm::vec2 vec(xpos, ypos);
-	w->_gamepadStickCallback(stick, vec, vec);
-}
-
 void Window::callbackFramebufferSize(GLFWwindow *window, int width, int height) {
 	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
 }
@@ -207,18 +180,6 @@ void Window::setMouseEnterCallback(const MouseEnterCallback &mouseEnterCallback)
 	_mouseEnterCallback = mouseEnterCallback;
 }
 
-void Window::setGamepadButtonCallback(const GamepadButtonCallback &gamepadButtonCallback) {
-	_gamepadButtonCallback = gamepadButtonCallback;
-}
-
-void Window::setGamepadStickCallback(const GamepadStickCallback &gamepadStickCallback) {
-	_gamepadStickCallback = gamepadStickCallback;
-}
-
-void Window::setGamepadTriggerCallback(const GamepadTriggerCallback &GamepadTriggerCallback) {
-	_gamepadTriggerCallback = GamepadTriggerCallback;
-}
-
 bool Window::isMouseCursorVisible() {
 	return glfwGetInputMode(_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 }
@@ -230,7 +191,7 @@ void Window::setMouseCursorVisible(bool visible) {
 		glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-void Window::useRawMouseMotion(bool enabled) {
+void Window::setRawMouseMotion(bool enabled) {
 	if (!glfwRawMouseMotionSupported()) {
 		spdlog::warn("Raw mouse motion is not supported");
 		return;

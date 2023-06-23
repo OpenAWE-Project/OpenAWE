@@ -39,10 +39,7 @@ namespace Platform {
 
 typedef std::function<void (int key, int scancode, int action, int mods)> KeyCallback;
 typedef std::function<void (int button, int action, int mods)> MouseButtonCallback;
-typedef std::function<void (int button, int action)> GamepadButtonCallback;
 typedef std::function<void (glm::vec2 absolute, glm::vec2 delta)> Axis2DCallback;
-typedef std::function<void (int stick, glm::vec2 absolute, glm::vec2 delta)> GamepadStickCallback;
-typedef std::function<void (int trigger, double absolute, double delta)> GamepadTriggerCallback;
 typedef std::function<void (int entered)> MouseEnterCallback;
 
 class Window : public GLContext, public VulkanContext {
@@ -63,7 +60,7 @@ public:
 
 	bool isMouseCursorVisible();
 	void setMouseCursorVisible(bool visible);
-	void useRawMouseMotion(bool enabled);
+	void setRawMouseMotion(bool enabled);
 
 #ifdef WITH_VULKAN
 	const char **getInstanceExtensions(unsigned int &numExtensions) override;
@@ -78,12 +75,6 @@ public:
 	void setMousePositionCallback(const Axis2DCallback &mousePositionCallback);
 	void setMouseScrollCallback(const Axis2DCallback &mouseScrollCallback);
 	void setMouseEnterCallback(const MouseEnterCallback &mouseEnterCallback);
-	void setGamepadButtonCallback(const GamepadButtonCallback &gamepadButtonCallback);
-	void setGamepadStickCallback(const GamepadStickCallback &gamepadStickCallback);
-	void setGamepadTriggerCallback(const GamepadTriggerCallback &gamepadTriggerCallback);
-	static void callbackGamepadButton(GLFWwindow *window, int button, int action);
-	static void callbackGamepadTrigger(GLFWwindow *window, int trigger, double pos);
-	static void callbackGamepadStick(GLFWwindow *window, int stick, double xpos, double ypos);
 
 	GLFWwindow * getWindowHandle();
 
@@ -104,9 +95,6 @@ private:
 	Axis2DCallback _mouseScrollCallback;
 	MouseEnterCallback _mouseEnterCallback;
 	std::optional<glm::vec2> _lastMousePosition;
-	GamepadButtonCallback _gamepadButtonCallback;
-	GamepadStickCallback _gamepadStickCallback;
-	GamepadTriggerCallback _gamepadTriggerCallback;
 };
 
 } // End of namespace Graphics
