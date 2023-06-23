@@ -27,6 +27,7 @@
 #include <optional>
 #include <functional>
 
+#include <glm/vec2.hpp>
 #include <GLFW/glfw3.h>
 
 #include "src/common/singleton.h"
@@ -34,8 +35,8 @@
 namespace Platform {
 
 typedef std::function<void (int button, int action)> InputGamepadButtonCallback;
-typedef std::function<void (int trigger, double pos)> InputGamepadTriggerCallback;
-typedef std::function<void (int stick, double xpos, double ypos)> InputGamepadStickCallback;
+typedef std::function<void (int trigger, double pos, double delta)> InputGamepadTriggerCallback;
+typedef std::function<void (int stick, glm::vec2 pos, glm::vec2 delta)> InputGamepadStickCallback;
 
 
 /*!
@@ -56,13 +57,21 @@ public:
 	std::optional<std::string> getActiveGamepadName();
 
 private:
+	void searchForActiveGamepad();
+	void setActiveGamepad(int id);
+
 	static void callbackJoystickConnectionChanged(int jid, int event);
 
 	std::optional<int> _activeGamepadId;
-	std::set<int> gamepadButtonsHeld;
-	std::optional<InputGamepadButtonCallback> gamepadButtonCallback;
-	std::optional<InputGamepadTriggerCallback> gamepadTriggerCallback;
-	std::optional<InputGamepadStickCallback> gamepadStickCallback;
+	std::set<int> buttonsHeld;
+	std::map<int, double> triggerLastValues;
+	std::map<int, glm::vec2> stickLastValues;
+	std::optional<InputGamepadButtonCallback> buttonCallback;
+	std::optional<InputGamepadTriggerCallback> triggerCallback;
+	std::optional<InputGamepadStickCallback> stickCallback;
+
+    static constexpr int GLFW_GAMEPAD_AXIS_LEFT = GLFW_GAMEPAD_AXIS_LEFT_X | GLFW_GAMEPAD_AXIS_LEFT_Y;
+    static constexpr int GLFW_GAMEPAD_AXIS_RIGHT = GLFW_GAMEPAD_AXIS_RIGHT_X | GLFW_GAMEPAD_AXIS_RIGHT_Y;
 };
 
 } // End of namespace Platform
