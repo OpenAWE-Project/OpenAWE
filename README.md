@@ -78,6 +78,22 @@ $ ./awe -p /path/to/the/alan/wake/data/directory
 ```
 
 
+Controls
+--------
+OpenAWE features a free camera that can be controlled with keyboard and mouse. Current mappings stand as follows:
+```markdown
+# Movement
+- [WASD] to move forwards/backwards/left/right
+- [RF] to move up/down
+- [TG] to increase/decrease movement speed
+# Camera
+- [←→↑↓] to look left/right/up/down
+- [YH] to increase/decrease camera speed
+- [Q] to switch between controlling camera with keyboard and mouse
+- [Alt] + [L] to show or hide the mouse cursor 
+```
+
+
 Screenshots
 -----------
 ![Alan Wakes American Nightmare 1](screenshots/awan1.png)
