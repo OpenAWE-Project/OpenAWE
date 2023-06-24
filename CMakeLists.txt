@@ -82,6 +82,7 @@ endmacro()
 check_and_set_compiler_flag("-Werror=vla")
 check_and_set_compiler_flag("-Wswitch")
 check_and_set_compiler_flag("-Wsign-compare")
+check_and_set_compiler_flag("-mssse3")
 check_and_set_compiler_flag_cxx("-Wreorder")
 
 # ------------------------------------
