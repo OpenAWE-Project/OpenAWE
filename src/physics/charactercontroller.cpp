@@ -29,6 +29,7 @@ CharacterController::CharacterController(float capsuleHeight, float capsuleRadiu
 	_ghostObject(new btPairCachingGhostObject),
 	_shape(std::make_unique<btCapsuleShape>(capsuleRadius, capsuleHeight)) {
 	_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+	_ghostObject->setCollisionShape(_shape.get());
 	setCollisionObject(_ghostObject);
 
 	btTransform offset;
@@ -37,8 +38,6 @@ CharacterController::CharacterController(float capsuleHeight, float capsuleRadiu
 	setOffset(offset);
 
 	_groundOffset = capsuleHeight / 2.0f + capsuleRadius;
-
-	setCollisionShape(_shape.get());
 
 	_characterController = new btKinematicCharacterController(
 		_ghostObject,
