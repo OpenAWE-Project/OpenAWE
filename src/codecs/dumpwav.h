@@ -23,10 +23,12 @@
 
 #include "src/common/writestream.h"
 
-namespace Sound {
+#include "src/codecs/audiostream.h"
 
-void dumpWAV(Common::WriteStream &wav, void* data, size_t size, unsigned int sampleRate, unsigned int bitsPerSample, unsigned int numChannels);
+namespace Codecs {
 
-}
+void dumpWAV(Codecs::SeekableAudioStream &audio, Common::WriteStream &wav);
+
+} // End of namespace Codecs
 
 #endif //AWE_DUMPWAV_H

@@ -28,8 +28,9 @@
 #include "src/common/readfile.h"
 #include "src/common/writefile.h"
 
+#include "src/codecs/dumpwav.h"
+
 #include "src/sound/fsbfile.h"
-#include "src/sound/dumpwav.h"
 
 int main(int argc, char** argv) {
 	CLI::App app("Convert FMOD fsb file to wav file", "fsb2wav");
@@ -54,7 +55,7 @@ int main(int argc, char** argv) {
 		const auto data = resourceStream->readAll();
 
 		Common::WriteFile wav(path);
-		Sound::dumpWAV(wav, (void *) data.data(), data.size(), 48000, 16, 2);
+		Codecs::dumpWAV(*resourceStream, wav);
 	}
 
 	return EXIT_SUCCESS;

@@ -18,18 +18,19 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "src/sound/dumpwav.h"
+#include "src/codecs/dumpwav.h"
 
 namespace Sound {
 
 void dumpWAV(
-	Common::WriteStream &wav,
-	void *data,
-	size_t size,
-	unsigned int sampleRate,
-	unsigned int bitsPerSample,
-	unsigned int numChannels
+	Codecs::SeekableAudioStream &audio,
+	Common::WriteStream &wav
 ) {
+	const auto data = audio.readAll();
+	const auto size = audio.getTotalSamples();
+	const auto numChannels = audio.getChannelCount();
+	const auto sampleRate = audio.getSampleRate();
+	const auto bitsPerSample = audio.getBitsPerSample();
 	unsigned int riffSize = 4 + 24 + 8 + size;
 
 	// Write RIFF header
@@ -50,7 +51,7 @@ void dumpWAV(
 	// Write data chunk
 	wav.writeUint32BE(MKTAG('d', 'a', 't', 'a'));
 	wav.writeUint32LE(size);
-	wav.write(data, size);
+	wav.write(data.data(), size);
 }
 
 }
