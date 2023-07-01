@@ -40,12 +40,17 @@ int main(int argc, char** argv) {
 		->check(CLI::ExistingFile)
 		->required();
 
+	app.add_option("-o,--output", ddsFile, "The file to output");
+
 	CLI11_PARSE(app, argc, argv);
+
+	if (ddsFile.empty())
+		ddsFile = std::filesystem::path(texFile).replace_extension( "dds");
 
 	std::unique_ptr<Common::ReadStream> texStream = std::make_unique<Common::ReadFile>(texFile);
 	Graphics::TEX tex(*texStream);
 
-	Common::WriteFile dds("test.dds");
+	Common::WriteFile dds(ddsFile);
 	Graphics::dumpDDS(dds, tex);
 	dds.close();
 
