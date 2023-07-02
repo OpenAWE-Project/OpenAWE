@@ -138,8 +138,10 @@ const std::string &Light::getLabel() const {
 }
 
 void Light::setLabel(const std::string &label) {
-    assert(!label.empty());
-	_label = label;
+	if (label.empty())
+		_label = "<Light>";
+	else
+		_label = label;
 }
 
 void Light::setRangeClip(float rangeClip) {
