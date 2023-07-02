@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 	CLI11_PARSE(app, argc, argv);
 
 	if (ddsFile.empty())
-		ddsFile = std::filesystem::path(texFile).replace_extension( "dds");
+		ddsFile = std::filesystem::path(texFile).replace_extension( "dds").string();
 
 	std::unique_ptr<Common::ReadStream> texStream = std::make_unique<Common::ReadFile>(texFile);
 	Graphics::TEX tex(*texStream);
