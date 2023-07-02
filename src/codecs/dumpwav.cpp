@@ -20,7 +20,7 @@
 
 #include "src/codecs/dumpwav.h"
 
-namespace Sound {
+namespace Codecs {
 
 void dumpWAV(
 	Codecs::SeekableAudioStream &audio,
@@ -54,4 +54,4 @@ void dumpWAV(
 	wav.write(data.data(), size);
 }
 
-}
+} // End of namespace Codecs

@@ -27,6 +27,13 @@
 
 namespace Codecs {
 
+/*!
+ * Writes an audio stream to a standard wav file into a given write
+ * stream. The audio parameters for the wav file are taken from the
+ * audio stream
+ * \param audio the audio stream to write into a wav file
+ * \param wav The write stream to write the wav file into
+ */
 void dumpWAV(Codecs::SeekableAudioStream &audio, Common::WriteStream &wav);
 
 } // End of namespace Codecs
