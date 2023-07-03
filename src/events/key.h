@@ -165,16 +165,17 @@ enum Key {
 
 /*!
  * An enum representing keyboard key modifiers. 
- * The list is mirrored with the modifier macros from glfw.
+ * The list is mirrored with the modifier macros from glfw,
+ * with the addition of kNoModifier for key combination handling.
  */
 enum KeyModifier {
-	kModifierShift,
-	kModifierControl,
-	kModifierAlt,
-	kModifierSuper,
-	kModifierCapsLock,
-	kModifierNumLock,
-	kModifierCount
+	kNoModifier = 0x0,
+	kModifierShift = 0x1,
+	kModifierControl = 0x2,
+	kModifierAlt = 0x4,
+	kModifierSuper = 0x8,
+	kModifierCapsLock = 0x10,
+	kModifierNumLock = 0x20
 };
 
 } // End of namespace Key

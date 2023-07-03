@@ -244,21 +244,14 @@ void Game::start() {
 	text.setText(u"OpenAWE - v0.0.1");
 	text.show();
 
-	_window->setMouseCursorVisible(false);
 	// Allow locking and unlocking the mouse
 	EventMan.setActionCallback({ kLockMouse }, [&](Events::Event event){
 		Events::KeyEvent key = std::get<Events::KeyEvent>(event.data);
-		if (!key.modifiers.has_value())
-			return;
-		if(key.modifiers.value().test(Events::kModifierAlt) && key.state == Events::kPress) {
-			if (_window->isMouseCursorVisible()) {
-				_window->setMouseCursorVisible(false); 
-			} else {
-				_window->setMouseCursorVisible(true);}}});
-	EventMan.addBinding(kLockMouse, Events::kKeyL);
+		if(key.state == Events::kPress) {
+				_window->setMouseCursorVisible(!_window->isMouseCursorVisible());}});
+	EventMan.addBinding(kLockMouse, Events::kKeyL, Events::kModifierAlt);
 
-	_window->setKeyCallback([&](int key, int scancode, int action, int mods){
-		std::bitset<Events::kModifierCount> modifiers(mods);
+	_window->setKeyCallback([&](int key, int scancode, int action, int modifiers){
 		EventMan.injectKeyboardInput(Platform::convertGLFW2Key(key), action == GLFW_RELEASE ? Events::kRelease : Events::kPress, modifiers);
 	});
 
