@@ -46,7 +46,6 @@ struct AxisEvent {
 
 struct KeyEvent {
 	KeyState state;
-	std::optional<std::bitset<kModifierCount>> modifiers;
 };
 
 typedef std::variant<

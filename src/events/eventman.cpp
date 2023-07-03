@@ -24,10 +24,11 @@
 
 namespace Events {
 
-void EventManager::injectKeyboardInput(Events::Key key, Events::KeyState state, std::bitset<kModifierCount> modifiers) {
-	const auto actions = _keyBindings.equal_range(key);
+void EventManager::injectKeyboardInput(Events::Key key, Events::KeyState state, uint32_t modifiers) {
+	KeyCombination combination = std::make_pair(key, modifiers);
+	const auto actions = _keyBindings.equal_range(combination);
 
-	KeyEvent keyEvent{state, modifiers};
+	KeyEvent keyEvent{state};
 	Event event;
 	event.data = keyEvent;
 
@@ -154,7 +155,11 @@ void EventManager::setActionCallback(std::initializer_list<uint32_t> actions, Ev
 }
 
 void EventManager::addBinding(uint32_t action, Key key) {
-	_keyBindings.insert(std::make_pair(key, action));
+	_keyBindings.insert(std::make_pair(std::make_pair(key, kNoModifier), action));
+}
+
+void EventManager::addBinding(uint32_t action, Key key, uint32_t modifiers) {
+	_keyBindings.insert(std::make_pair(std::make_pair(key, modifiers), action));
 }
 
 void EventManager::addBinding(uint32_t action, MouseButton mouse) {

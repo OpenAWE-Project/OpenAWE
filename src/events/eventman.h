@@ -36,6 +36,7 @@
 namespace Events {
 
 typedef std::function<void(const Event &event)> EventCallback;
+typedef std::pair<Key, uint32_t> KeyCombination;
 
 /*!
  * \brief Class for exchanging input
@@ -56,7 +57,7 @@ public:
 	 * \param key The key for the event
 	 * \param state If the key is pressed or released
 	 */
-	void injectKeyboardInput(Key key, KeyState state, std::bitset<kModifierCount> modifiers);
+	void injectKeyboardInput(Key key, KeyState state, uint32_t modifiers);
 
 	/*!
 	 * Inject a mouse button event to the event system
@@ -115,6 +116,13 @@ public:
 	void addBinding(uint32_t action, Key key);
 
 	/*!
+	 * Associate an action with a specific keyboard key combination
+	 * \param action The action for association with the key
+	 * \param key The key for association with the action
+	 */
+	void addBinding(uint32_t action, Key key, uint32_t modifiers);
+
+	/*!
 	 * Associate an action with a specific mouse key
 	 * \param action The action for association with the key
 	 * \param key The key for association with the action
@@ -159,7 +167,7 @@ public:
 private:
 	std::map<uint32_t, EventCallback> _actionCallbacks;
 
-	std::multimap<Key, uint32_t> _keyBindings;
+	std::multimap<KeyCombination, uint32_t> _keyBindings;
 	std::multimap<MouseButton, uint32_t> _mouseBindings;
 	std::multimap<GamepadButton, uint32_t> _gamepadBindings;
 	std::multimap<Mouse2DAxis, uint32_t> _mouse2DAxisBindings;
