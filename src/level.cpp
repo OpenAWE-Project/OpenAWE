@@ -35,6 +35,8 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 	spdlog::info("Loading level {}", id);
 	std::string levelFolder = fmt::format("worlds/{}/levels/{}", world, id);
 
+	_terrain->setLabel(fmt::format("terrain_{}", _id));
+
 	loadGIDRegistry(ResMan.getResource(fmt::format("{}/GIDRegistry.txt", levelFolder)));
 
 	std::unique_ptr<Common::ReadStream> globalStream(ResMan.getResource(fmt::format("{}/Global.bin", levelFolder)));
