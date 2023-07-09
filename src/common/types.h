@@ -22,6 +22,7 @@
 #define SRC_COMMON_TYPES_H
 
 #include <glm/glm.hpp>
+#include <fmt/format.h>
 
 #define OS_LINUX linux || __linux
 #define OS_ANDROID __ANDROID__
