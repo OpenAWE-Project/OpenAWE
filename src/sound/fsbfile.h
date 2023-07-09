@@ -78,8 +78,14 @@ public:
 	std::string getFileName(size_t index);
 
 private:
+	enum SoundFormat {
+		kIMAADPCM,
+		kFmodADPCM
+	};
+
 	struct Entry {
 		std::string fileName;
+		SoundFormat format;
 		uint32_t sampleRate;
 		uint32_t totalSamples;
 		uint16_t numChannels;
