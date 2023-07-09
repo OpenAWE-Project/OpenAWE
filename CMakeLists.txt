@@ -158,6 +158,9 @@ if (MSVC)
     add_definitions(-D_USE_MATH_DEFINES)
 endif ()
 
+# Enable glm swizzling
+add_definitions(-DGLM_FORCE_SWIZZLE)
+
 # ------------------------------------
 # Third party libraries
 
