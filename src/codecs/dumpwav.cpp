@@ -27,7 +27,7 @@ void dumpWAV(
 	Common::WriteStream &wav
 ) {
 	const auto data = audio.readAll();
-	const auto size = audio.getTotalSamples();
+	const auto size = data.size();
 	const auto numChannels = audio.getChannelCount();
 	const auto sampleRate = audio.getSampleRate();
 	const auto bitsPerSample = audio.getBitsPerSample();
