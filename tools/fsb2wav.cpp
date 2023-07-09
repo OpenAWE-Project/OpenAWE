@@ -52,7 +52,6 @@ int main(int argc, char** argv) {
 		fmt::print("{}/{} {}\n", i + 1, fsb.getNumEntries(), path);
 
 		std::unique_ptr<Codecs::SeekableAudioStream> resourceStream(fsb.getStream(i));
-		const auto data = resourceStream->readAll();
 
 		Common::WriteFile wav(path);
 		Codecs::dumpWAV(*resourceStream, wav);
