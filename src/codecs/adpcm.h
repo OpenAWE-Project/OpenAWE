@@ -47,6 +47,33 @@ protected:
 };
 
 /*!
+ * \brief Variant of adpcm used by the fmod engine
+ *
+ * This adpcm variant class implements a scheme used by the fmod engine for audio contained in their fsb container
+ * files.
+ * The scheme builds up on blocks of 140 bytes which contain 256 samples. In the case of stereo streams the audio is
+ * interleaved on the layer of the blocks, maning the.
+ */
+class FmodAdpcmStream : public AdpcmStream {
+public:
+	FmodAdpcmStream(
+		Common::ReadStream *stream,
+		unsigned int sampleRate,
+		unsigned short channelCount,
+		unsigned int totalSamples
+	);
+
+	size_t pos() const override;
+
+	std::vector<byte> read(size_t numSamples) override;
+
+	void seek(ptrdiff_t samples, SeekType type) override;
+
+private:
+	void decodeBlock();
+};
+
+/*!
  * \brief Base class for ima adpcm variant decoding
  *
  * This class is a base for decoding ima adpcm schemes. It offers basic methods for decoding ima adpcm samples

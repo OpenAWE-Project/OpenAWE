@@ -42,6 +42,14 @@ static const int kIMAStepTable[89] = {
 	15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
 };
 
+static const int kFmodADPCMCoefficients[8][2] = {
+	{0, 0},
+	{60, 0},
+	{122, 60},
+	{115, 52},
+	{98, 55}
+};
+
 namespace Codecs {
 
 AdpcmStream::AdpcmStream(
@@ -56,6 +64,142 @@ AdpcmStream::AdpcmStream(
 
 bool AdpcmStream::eos() const {
 	return _adpcm->eos();
+}
+
+FmodAdpcmStream::FmodAdpcmStream(
+	Common::ReadStream *stream,
+	unsigned int sampleRate,
+	unsigned short channelCount,
+	unsigned int totalSamples
+) :
+	AdpcmStream(stream, sampleRate, channelCount, totalSamples) {
+
+	if (channelCount != 1 && channelCount != 2)
+		throw CreateException("Invalid number of channels {}, only mono and stereo supported", channelCount);
+
+	decodeBlock();
+}
+
+size_t FmodAdpcmStream::pos() const {
+	const unsigned int bytesPerBlock = 140 * getChannelCount();
+	const unsigned int samplesPerBlock = 256;
+	return
+		// a full block multplied by the
+		(_adpcm->pos() / bytesPerBlock) * samplesPerBlock +
+		// The sample position in the current block
+		(samplesPerBlock - _remainder) % samplesPerBlock;
+}
+
+std::vector<byte> FmodAdpcmStream::read(size_t numSamples) {
+	std::vector<byte> data(numSamples * sizeof(int16_t) * getChannelCount());
+
+	const auto blockSamples = 256;
+
+	size_t remainingSamples = numSamples;
+	while (remainingSamples > 0) {
+		const auto samplesToRead = std::min<size_t>(_remainder, remainingSamples);
+		const auto bytesToRead = samplesToRead * sizeof(int16_t) * getChannelCount();
+		const auto bytesRead = (numSamples - remainingSamples) * sizeof(int16_t) * getChannelCount();
+		std::memcpy(
+			data.data() + bytesRead,
+			_buffer.data() + (blockSamples - _remainder) * sizeof(int16_t) * getChannelCount(),
+			bytesToRead
+		);
+		_remainder -= samplesToRead;
+		remainingSamples -= samplesToRead;
+		if (_adpcm->eos()) {
+			std::vector<byte> oldData = data;
+			data.resize((numSamples - remainingSamples) * sizeof(int16_t) * getChannelCount());
+			std::memcpy(data.data(), oldData.data(), (numSamples - remainingSamples) * sizeof(int16_t) * getChannelCount());
+			break;
+		}
+		decodeBlock();
+	}
+
+	return data;
+}
+
+void FmodAdpcmStream::seek(ptrdiff_t samples, SeekableAudioStream::SeekType type) {
+	Common::ReadStream::SeekOrigin seekOrigin;
+	switch (type) {
+		case SeekableAudioStream::kBegin:
+			seekOrigin = Common::ReadStream::BEGIN;
+			_remainder = 0;
+			break;
+
+		case SeekableAudioStream::kEnd:
+			seekOrigin = Common::ReadStream::END;
+			_remainder = 0;
+			break;
+
+		case SeekableAudioStream::kCurrent:
+			seekOrigin = Common::ReadStream::CURRENT;
+			break;
+	}
+
+	// Calculate how many bytes to seek pat the full blocks
+	const int bytesPerBlock = 140 * getChannelCount();
+	const int samplesPerBlock = 256;
+	const int blocksToSkip = ((samplesPerBlock - _remainder) % samplesPerBlock + samples) / samplesPerBlock;
+	const int bytesToSkip = blocksToSkip * bytesPerBlock;
+
+	if (samples < 0)
+		_adpcm->seek(bytesToSkip - bytesPerBlock, seekOrigin);
+	else
+		_adpcm->seek(bytesToSkip, seekOrigin);
+
+	decodeBlock();
+	if (samples < 0)
+		_remainder -= samplesPerBlock - std::abs(samples) % samplesPerBlock;
+	else
+		_remainder -= samples % samplesPerBlock;
+}
+
+void FmodAdpcmStream::decodeBlock() {
+	/*
+	 * Based on the fadpcm decoding code from here:
+	 * https://github.com/vgmstream/vgmstream/blob/master/src/coding/fadpcm_decoder.c
+	 */
+	_buffer.resize(256 * getChannelCount());
+
+	const auto channelCount = getChannelCount();
+
+	for (int c = 0; c < channelCount; ++c) {
+		const uint32_t coefficients = _adpcm->readUint32LE();
+		const uint32_t shifts       = _adpcm->readUint32LE();
+		int16_t hist1 = _adpcm->readSint16LE();
+		int16_t hist2 = _adpcm->readSint16LE();
+
+		for (int i = 0; i < 8; ++i) {
+			int index, shift, coef1, coef2;
+
+			index = ((coefficients >> i * 4) & 0x0F) % 0x07;
+			shift = (shifts >> i * 4) & 0x0F;
+			shift = 22 - shift;
+
+			coef1 = kFmodADPCMCoefficients[index][0];
+			coef2 = kFmodADPCMCoefficients[index][1];
+
+			for (int j = 0; j < 4; ++j) {
+				const auto nibbles = _adpcm->readUint32LE();
+
+				for (int k = 0; k < 8; ++k) {
+					int32_t sample;
+					sample = (nibbles >> k * 4) & 0x0F;
+					sample = (sample << 28) >> shift;
+					sample = (sample - hist2 * coef2 + hist1 * coef1) >> 6;
+					sample = std::clamp(sample, -32768, 32767);
+
+					_buffer[(i * 4 * 8 + j * 8 + k) * channelCount + c] = static_cast<int16_t>(sample);
+
+					hist2 = hist1;
+					hist1 = static_cast<int16_t>(sample);
+				}
+			}
+		}
+	}
+
+	_remainder = 256;
 }
 
 ImaAdpcmStream::ImaAdpcmStream(
