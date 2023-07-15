@@ -86,6 +86,38 @@ btCollisionShape *HavokShape::getShape(AWE::HavokFile &havok, const AWE::HavokFi
             break;
         }
 
+		case AWE::HavokFile::kCapsule: {
+			const auto capsuleShape = std::get<AWE::HavokFile::hkpCapsuleShape>(shape.shape);
+
+			shapeObject = new btCapsuleShape(
+				shape.radius,
+				glm::distance(capsuleShape.p1.xyz(), capsuleShape.p2.xyz())
+			);
+
+			const auto midPoint = glm::mix(capsuleShape.p1.xyz(), capsuleShape.p2.xyz(), 0.5f);
+			shapeOffset.setOrigin(btVector3(midPoint.x, midPoint.y, midPoint.z));
+
+			break;
+		}
+
+		case AWE::HavokFile::kSimpleMesh: {
+			const auto simpleMeshShape = std::get<AWE::HavokFile::hkpSimpleMeshShape>(shape.shape);
+
+			btTriangleMesh triangleMesh;
+
+			for (const auto &vertex: simpleMeshShape.vertices) {
+				triangleMesh.findOrAddVertex(btVector3(vertex.x, vertex.y, vertex.z), true);
+			}
+
+			for (const auto &index: simpleMeshShape.indices) {
+				triangleMesh.addIndex(index);
+			}
+
+			shapeObject = new btBvhTriangleMeshShape(&triangleMesh, true);
+
+			break;
+		}
+
         case AWE::HavokFile::kList: {
             const auto listShape = std::get<AWE::HavokFile::hkpListShape>(shape.shape);
             btCompoundShape *compoundShape = new btCompoundShape();

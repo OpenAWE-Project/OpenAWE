@@ -214,6 +214,10 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 			object = readHkpConvexTransformShape(binhkx, contentsSectionIndex);
 		else if (name == "hkpListShape")
 			object = readHkpListShape(binhkx, contentsSectionIndex);
+		else if (name == "hkpSimpleMeshShape")
+			object = readHkpSimpleMeshShape(binhkx, contentsSectionIndex);
+		else if (name == "hkpCapsuleShape")
+			object = readHkpCapsuleShape(binhkx);
 		else
 			spdlog::warn("TODO: Implement havok class {}", name);
 
@@ -1010,6 +1014,36 @@ HavokFile::hkpShape HavokFile::readHkpCylinderShape(Common::ReadStream &binhkx) 
 	return shape;
 }
 
+HavokFile::hkpShape HavokFile::readHkpCapsuleShape(Common::ReadStream &binhkx) {
+	HavokFile::hkpShape shape{};
+	hkpCapsuleShape capsuleShape{};
+
+	binhkx.skip(8); // hkReferencedObject
+	shape.userData = binhkx.readUint64LE(); // hkpShape
+	shape.radius = binhkx.readIEEEFloatLE(); // hkpConvexShape
+	binhkx.skip(12);
+
+	capsuleShape.p1.x = binhkx.readIEEEFloatLE();
+	capsuleShape.p1.y = binhkx.readIEEEFloatLE();
+	capsuleShape.p1.z = binhkx.readIEEEFloatLE();
+	capsuleShape.p1.w = binhkx.readIEEEFloatLE();
+
+	capsuleShape.p2.x = binhkx.readIEEEFloatLE();
+	capsuleShape.p2.y = binhkx.readIEEEFloatLE();
+	capsuleShape.p2.z = binhkx.readIEEEFloatLE();
+	capsuleShape.p2.w = binhkx.readIEEEFloatLE();
+
+	// The w coordinate seems to be always the radius
+	assert(capsuleShape.p1.w == shape.radius);
+	assert(capsuleShape.p2.w == shape.radius);
+	assert(capsuleShape.p1.w == capsuleShape.p2.w);
+
+	shape.type = kCapsule;
+	shape.shape = capsuleShape;
+
+	return shape;
+}
+
 HavokFile::hkpShape HavokFile::readHkpConvexTranslateShape(Common::ReadStream &binhkx, uint32_t section) {
 	hkpShape shape{};
 	hkpConvexTranslateShape convexTranslateShape{};
@@ -1082,6 +1116,38 @@ HavokFile::hkpShape HavokFile::readHkpListShape(Common::ReadStream &binhkx, uint
 	}
 
 	shape.shape = listShape;
+
+	return shape;
+}
+
+HavokFile::hkpShape HavokFile::readHkpSimpleMeshShape(Common::ReadStream &binhkx, uint32_t section) {
+	hkpShape shape{};
+	hkpSimpleMeshShape meshShape{};
+
+	binhkx.skip(24);
+	hkArray verticesArray = readHkArray(binhkx, section);
+	hkArray trianglesArray = readHkArray(binhkx, section);
+
+	binhkx.seek(verticesArray.offset);
+	meshShape.vertices.resize(verticesArray.count);
+	for (auto &vertex: meshShape.vertices) {
+		vertex.x = binhkx.readIEEEFloatLE();
+		vertex.y = binhkx.readIEEEFloatLE();
+		vertex.z = binhkx.readIEEEFloatLE();
+		vertex.w = binhkx.readIEEEFloatLE();
+	}
+
+	binhkx.seek(trianglesArray.offset);
+	meshShape.indices.resize(trianglesArray.count * 3);
+	for (unsigned int i = 0; i < trianglesArray.count; ++i) {
+		meshShape.indices[i * 3]     = binhkx.readUint32LE();
+		meshShape.indices[i * 3 + 1] = binhkx.readUint32LE();
+		meshShape.indices[i * 3 + 2] = binhkx.readUint32LE();
+		binhkx.skip(4); // Welding Info
+	}
+
+	shape.type = kSimpleMesh;
+	shape.shape = meshShape;
 
 	return shape;
 }

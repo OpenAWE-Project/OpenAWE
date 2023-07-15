@@ -43,9 +43,11 @@ public:
 	enum ShapeType {
 		kBox,
 		kCylinder,
+		kCapsule,
 		kConvexTranslate,
 		kConvexTransform,
-		kList
+		kList,
+		kSimpleMesh
 	};
 
 	struct hkNamedVariant {
@@ -112,6 +114,10 @@ public:
 		glm::vec4 p1, p2;
 	};
 
+	struct hkpCapsuleShape {
+		glm::vec4 p1, p2;
+	};
+
 	struct hkpConvexTranslateShape {
 		uint32_t shape;
 		glm::vec4 translation;
@@ -127,15 +133,22 @@ public:
 		std::vector<uint32_t> shapes;
 	};
 
+	struct hkpSimpleMeshShape {
+		std::vector<uint32_t> indices;
+		std::vector<glm::vec4> vertices;
+	};
+
 	struct hkpShape {
 		uint64_t userData;
 		float radius;
 		std::variant<
 			hkpBoxShape,
 			hkpCylinderShape,
+			hkpCapsuleShape,
 			hkpConvexTranslateShape,
 			hkpConvexTransformShape,
-			hkpListShape
+			hkpListShape,
+			hkpSimpleMeshShape
 		> shape;
 		ShapeType type;
 	};
@@ -200,9 +213,11 @@ private:
 	hkpRigidBody readHkpRigidBody(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpBoxShape(Common::ReadStream &binhkx);
 	HavokFile::hkpShape readHkpCylinderShape(Common::ReadStream &binhkx);
+	HavokFile::hkpShape readHkpCapsuleShape(Common::ReadStream &binhkx);
 	HavokFile::hkpShape readHkpConvexTranslateShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpConvexTransformShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpListShape(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpShape readHkpSimpleMeshShape(Common::ReadStream &binhkx, uint32_t section);
 
 	RmdPhysicsSystem readRmdPhysicsSystem(Common::ReadStream &binhkx, uint32_t section);
 
