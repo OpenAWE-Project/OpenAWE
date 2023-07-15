@@ -80,6 +80,8 @@ macro(check_and_set_compiler_flag flag)
 endmacro()
 
 check_and_set_compiler_flag("-Werror=vla")
+check_and_set_compiler_flag("-Wmisleading-indentation")
+check_and_set_compiler_flag("-Wparentheses")
 check_and_set_compiler_flag("-Wswitch")
 check_and_set_compiler_flag("-Wsign-compare")
 check_and_set_compiler_flag("-mssse3")
