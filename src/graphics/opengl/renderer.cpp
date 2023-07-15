@@ -64,7 +64,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	//
 
 	const std::string vendor       = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-	const std::string renderer     = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+	const std::string renderer     = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 	const std::string version      = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 	const std::string glslVersion  = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
 	spdlog::info("OpenGL Vendor: {}", vendor);
