@@ -21,6 +21,8 @@
 #include <cstring>
 #include <cstdint>
 
+#include <fmt/format.h>
+
 #if HAS_CPUID_H
 #	include <cpuid.h>
 #endif
@@ -32,6 +34,7 @@
 
 #include "src/common/cpuinfo.h"
 #include "src/common/strutil.h"
+#include "src/common/readfile.h"
 
 static bool cpuinfoRetrieved = false;
 
@@ -60,6 +63,52 @@ void retrieveCPUInfo() {
 #endif
 }
 
+std::string getARMVendorName(unsigned int id) {
+	switch (id) {
+		case 0x41: return "ARM";
+		case 0x42: return "Broadcom";
+		case 0x43: return "Cavium";
+		case 0x44: return "DEC";
+		case 0x46: return "Fujitsu";
+		case 0x48: return "HiSilicon";
+		case 0x49: return "Infineon";
+		case 0x4D: return "Motorola/Freescale";
+		case 0x4E: return "Nvidia";
+		case 0x50: return "APM";
+		case 0x51: return "Qualcomm";
+		case 0x53: return "Samsung";
+		case 0x54: return "Texas Instruments";
+		case 0x56: return "Marvell";
+		case 0x61: return "Apple";
+		case 0x66: return "Faraday";
+		case 0x69: return "Intel";
+		case 0x70: return "Phytium";
+		case 0xC0: return "Ampere";
+		default:
+			return fmt::format("Unknown Vendor 0x{:x}", id);
+	}
+}
+
+std::string getCPUInfoParameter(const std::string key) {
+	Common::ReadFile cpuinfo("/proc/cpuinfo");
+
+	const auto keyRegex = std::regex(fmt::format("{}\t*: .*", key));
+
+	while (!cpuinfo.eos()) {
+		const auto cpuinfoLine = cpuinfo.readLine();
+
+		if (std::regex_match(cpuinfoLine, keyRegex)) {
+			const auto splitLine = Common::split(cpuinfoLine, std::regex(": "));
+			const auto key = splitLine[0];
+			const auto value = splitLine[1];
+
+			return value;
+		}
+	}
+
+	return "";
+}
+
 namespace Common {
 
 std::string getCPUVendor() {
@@ -76,8 +125,11 @@ std::string getCPUVendor() {
 	std::memcpy(name.data() + 8, &data[2], 4);
 
 	return name;
+#elif ARCH_ARM && OS_LINUX
+	const auto implementerID = std::stoi(getCPUInfoParameter("CPU implementer"), 0, 16);
+	return getARMVendorName(implementerID);
 #else
-	return "";
+	return "<unknown>";
 #endif
 }
 
@@ -93,7 +145,7 @@ std::string getCPUName() {
 
 	return name;
 #else
-	return "";
+	return "<unknown>";
 #endif
 }
 
