@@ -218,6 +218,10 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 			object = readHkpSimpleMeshShape(binhkx, contentsSectionIndex);
 		else if (name == "hkpCapsuleShape")
 			object = readHkpCapsuleShape(binhkx);
+		else if (name == "hkpConvexVerticesShape")
+			object = readHkpConvexVerticesShape(binhkx, contentsSectionIndex);
+		else if (name == "hkpConvexVerticesConnectivity")
+			object = readHkpConvexVerticesConnectivity(binhkx, contentsSectionIndex);
 		else
 			spdlog::warn("TODO: Implement havok class {}", name);
 
@@ -254,6 +258,13 @@ HavokFile::hkpShape HavokFile::getShape(uint32_t address) {
 	if (_objects.find(address) == _objects.end())
 		throw Common::Exception("Couldn't find shape for address {}", address);
 	auto shape = std::any_cast<hkpShape>(_objects[address]);
+	return shape;
+}
+
+HavokFile::hkpConvexVerticesConnectivity HavokFile::getConvexVerticesConnectivity(uint32_t address) {
+	if (_objects.find(address) == _objects.end())
+		throw Common::Exception("Couldn't find convex vertices connectivity for address {}", address);
+	auto shape = std::any_cast<hkpConvexVerticesConnectivity>(_objects[address]);
 	return shape;
 }
 
@@ -1150,6 +1161,65 @@ HavokFile::hkpShape HavokFile::readHkpSimpleMeshShape(Common::ReadStream &binhkx
 	shape.shape = meshShape;
 
 	return shape;
+}
+
+HavokFile::hkpShape HavokFile::readHkpConvexVerticesShape(Common::ReadStream &binhkx, uint32_t section) {
+	HavokFile::hkpShape shape{};
+	hkpConvexVerticesShape verticesShape{};
+
+	binhkx.skip(8); // hkReferencedObject
+	shape.userData = binhkx.readUint64LE(); // hkpShape
+	shape.radius = binhkx.readIEEEFloatLE(); // hkpConvexShape
+	binhkx.skip(12);
+
+	verticesShape.aabbHalfExtents = binhkx.read<glm::vec4>();
+	verticesShape.aabbCenter      = binhkx.read<glm::vec4>();
+
+	hkArray verticesArray = readHkArray(binhkx, section);
+
+	verticesShape.numVertices = binhkx.readUint32LE();
+	binhkx.skip(8);
+
+	hkArray planeEquations = readHkArray(binhkx, section);
+	verticesShape.connectivity = readFixup(binhkx, section);
+
+	binhkx.seek(planeEquations.offset);
+	verticesShape.planeEquations.resize(planeEquations.count);
+	for (auto &planeEquation: verticesShape.planeEquations) {
+		planeEquation = binhkx.read<glm::vec4>();
+	}
+
+	binhkx.seek(verticesArray.offset);
+	verticesShape.rotatedVertices.resize(verticesArray.count);
+	for (auto &rotatedVertex: verticesShape.rotatedVertices) {
+		rotatedVertex = glm::transpose(binhkx.read<glm::mat3x4>());
+	}
+
+	shape.type = kConvexVerticesShape;
+	shape.shape = verticesShape;
+
+	return shape;
+}
+
+HavokFile::hkpConvexVerticesConnectivity HavokFile::readHkpConvexVerticesConnectivity(Common::ReadStream &binhkx, uint32_t section) {
+	hkpConvexVerticesConnectivity connectivity{};
+
+	binhkx.skip(8); // hkReferencedObject
+
+	const auto indicesArray = readHkArray(binhkx, section);
+	const auto verticesPerFaceArray = readHkArray(binhkx, section);
+
+	binhkx.seek(indicesArray.offset);
+	connectivity.indices.resize(indicesArray.count);
+	for (auto &index: connectivity.indices)
+		index = binhkx.readUint16LE();
+
+	binhkx.seek(verticesPerFaceArray.offset);
+	connectivity.verticesPerFace.resize(verticesPerFaceArray.count);
+	for (auto &index: connectivity.indices)
+		index = binhkx.readByte();
+
+	return connectivity;
 }
 
 void HavokFile::setHeader(std::string headerVersion) {

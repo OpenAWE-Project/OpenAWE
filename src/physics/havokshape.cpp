@@ -148,6 +148,34 @@ btCollisionShape *HavokShape::getShape(AWE::HavokFile &havok, const AWE::HavokFi
             break;
         }
 
+		case AWE::HavokFile::kConvexVerticesShape: {
+			const auto convexVerticesShape = std::get<AWE::HavokFile::hkpConvexVerticesShape>(shape.shape);
+
+			Common::BoundBox aabb(
+				convexVerticesShape.aabbCenter + convexVerticesShape.aabbHalfExtents,
+				convexVerticesShape.aabbCenter - convexVerticesShape.aabbHalfExtents
+			);
+			for (const auto &vertices: convexVerticesShape.rotatedVertices) {
+				assert(aabb.isInside(vertices[0]));
+				assert(aabb.isInside(vertices[1]));
+				assert(aabb.isInside(vertices[2]));
+				assert(aabb.isInside(vertices[3]));
+			}
+
+			auto *hullShape = new btConvexHullShape(
+				reinterpret_cast<const btScalar*>(convexVerticesShape.rotatedVertices.data()),
+				convexVerticesShape.numVertices,
+				sizeof(glm::vec3)
+			);
+
+			hullShape->optimizeConvexHull();
+			hullShape->initializePolyhedralFeatures();
+
+			shapeObject = hullShape;
+
+			break;
+		}
+
         case AWE::HavokFile::kConvexTransform: {
             const auto convexTransformShape = std::get<AWE::HavokFile::hkpConvexTransformShape>(shape.shape);
 

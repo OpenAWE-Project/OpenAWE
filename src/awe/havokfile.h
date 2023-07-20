@@ -44,6 +44,7 @@ public:
 		kBox,
 		kCylinder,
 		kCapsule,
+		kConvexVerticesShape,
 		kConvexTranslate,
 		kConvexTransform,
 		kList,
@@ -138,6 +139,20 @@ public:
 		std::vector<glm::vec4> vertices;
 	};
 
+	struct hkpConvexVerticesShape {
+		glm::vec4 aabbHalfExtents;
+		glm::vec4 aabbCenter;
+		std::vector<glm::mat4x3> rotatedVertices;
+		std::vector<glm::vec4> planeEquations;
+		uint32_t numVertices;
+		uint32_t connectivity;
+	};
+
+	struct hkpConvexVerticesConnectivity {
+		std::vector<uint16_t> indices;
+		std::vector<uint8_t> verticesPerFace;
+	};
+
 	struct hkpShape {
 		uint64_t userData;
 		float radius;
@@ -145,6 +160,7 @@ public:
 			hkpBoxShape,
 			hkpCylinderShape,
 			hkpCapsuleShape,
+			hkpConvexVerticesShape,
 			hkpConvexTranslateShape,
 			hkpConvexTransformShape,
 			hkpListShape,
@@ -167,6 +183,7 @@ public:
 
 	hkpRigidBody getRigidBody(uint32_t address);
 	hkpShape getShape(uint32_t address);
+	hkpConvexVerticesConnectivity getConvexVerticesConnectivity(uint32_t address);
 
 private:
 	struct Fixup {
@@ -218,6 +235,8 @@ private:
 	HavokFile::hkpShape readHkpConvexTransformShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpListShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpSimpleMeshShape(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpShape readHkpConvexVerticesShape(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpConvexVerticesConnectivity readHkpConvexVerticesConnectivity(Common::ReadStream &binhkx, uint32_t section);
 
 	RmdPhysicsSystem readRmdPhysicsSystem(Common::ReadStream &binhkx, uint32_t section);
 
