@@ -174,6 +174,17 @@ public:
 	void skip(ptrdiff_t offset);
 
 	/*!
+	 * Read a generic type object by its size and return it
+	 * \tparam T The type to read
+	 * \return The value read
+	 */
+	template<typename T> T read() {
+		T t;
+		read(&t, sizeof(T));
+		return t;
+	}
+
+	/*!
 	 * Read a generic chunk of data into the data pointer
 	 * with length specified in length
 	 * \param data the data pointer in which to write the read data
