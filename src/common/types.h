@@ -49,9 +49,33 @@ private:
 	Noncopyable &operator=(const Noncopyable &) = delete;
 };
 
+/*!
+ * \brief Util class for representing a axis aligned bounding box
+ *
+ * This class represents an axis aligned bounding box and has helper functions to test if
+ * a point is contained in the box
+ */
 struct BoundBox {
 	float xmin, ymin, zmin;
 	float xmax, ymax, zmax;
+
+	BoundBox() {}
+
+	BoundBox(const glm::vec3 &v1, const glm::vec3 &v2) {
+		xmin = std::min(v1.x, v2.x);
+		ymin = std::min(v1.y, v2.y);
+		zmin = std::min(v1.z, v2.z);
+		xmax = std::max(v1.x, v2.x);
+		ymax = std::max(v1.y, v2.y);
+		zmax = std::max(v1.z, v2.z);
+	}
+
+	inline bool isInside(const glm::vec3 &p, float margin = 0.00001) {
+		return
+			xmin - margin <= p.x && p.x <= xmax + margin &&
+			ymin - margin <= p.y && p.y <= ymax + margin &&
+			zmin - margin <= p.z && p.z <= zmax + margin;
+	}
 };
 
 struct BoundSphere {
