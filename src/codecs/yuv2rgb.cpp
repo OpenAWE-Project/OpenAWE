@@ -63,7 +63,6 @@ void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int widt
 		y1[2], cr, cb, cr0, cr1, cb0, cb1,
 		y2[4], r_cr[2], g_cb[2], g_cr[2], b_cb[2],
 		r[2], g[2], b[2];
-	byte result_r[16], result_g[16], result_b[16];
 
 	assert(width % 16 == 0);
 	assert(height % 2 == 0);
