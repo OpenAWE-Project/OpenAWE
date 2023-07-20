@@ -97,6 +97,21 @@ btCollisionShape *HavokShape::getShape(AWE::HavokFile &havok, const AWE::HavokFi
 			const auto midPoint = glm::mix(capsuleShape.p1.xyz(), capsuleShape.p2.xyz(), 0.5f);
 			shapeOffset.setOrigin(btVector3(midPoint.x, midPoint.y, midPoint.z));
 
+			const auto rotationAxis = glm::cross(
+				glm::normalize(capsuleShape.p1.xyz()),
+				glm::vec3(0.0, 1.0, 0.0)
+			);
+
+			const auto rotationAngle = std::acos(glm::dot(
+				glm::normalize(capsuleShape.p1.xyz()),
+				glm::vec3(0.0, 1.0, 0.0)
+			));
+
+			shapeOffset.setRotation(btQuaternion(
+				btVector3(rotationAxis.x, rotationAxis.y, rotationAxis.z).normalize(),
+				rotationAngle
+			).normalize());
+
 			break;
 		}
 
