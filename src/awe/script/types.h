@@ -39,7 +39,11 @@ enum Opcode {
 	kCallGlobal   = 0x03,
 	kCallObject   = 0x04,
 	kMulFloat     = 0x05, // ?
+	kDivFloat     = 0x06, // ?
+	kAddFloat     = 0x07, // ?
+	kSubFloat     = 0x08, // ?
 	kMulInt       = 0x09,
+	kDivInt       = 0x0A, // ?
 	kAddInt       = 0x0B, // ?
 	kSubInt       = 0x0C, // ?
 	kRet          = 0x0D,
