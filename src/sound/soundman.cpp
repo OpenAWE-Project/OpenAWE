@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <spdlog/spdlog.h>
+
 #include <assert.h>
 
 #include "src/codecs/audiostream.h"
@@ -54,6 +56,22 @@ void SoundManager::init() {
 	_context = alcCreateContext(_device, nullptr);
 
 	alcMakeContextCurrent(_context);
+
+	ALCenum major, minor;
+	alcGetIntegerv(_device, ALC_MAJOR_VERSION, 1, &major);
+	alcGetIntegerv(_device, ALC_MINOR_VERSION, 1, &minor);
+
+	ALCenum monoSources, stereoSources;
+	alcGetIntegerv(_device, ALC_MONO_SOURCES, 1, &monoSources);
+	alcGetIntegerv(_device, ALC_STEREO_SOURCES, 1, &stereoSources);
+
+	spdlog::info("OpenAL Vendor: {}", alGetString(AL_VENDOR));
+	spdlog::info("OpenAL Renderer: {}", alGetString(AL_RENDERER));
+	spdlog::info("OpenAL Version: {}.{}", major, minor);
+	spdlog::info("OpenAL Version String: {}", alGetString(AL_VERSION));
+	spdlog::info("OpenAL Mono Sources: {}", monoSources);
+	spdlog::info("OpenAL Stereo Sources: {}", stereoSources);
+	spdlog::info("OpenAL Extensions: {}", alcGetString(_device, ALC_EXTENSIONS));
 
 	_sourcePool.resize(16);
 	alGenSources(16, _sourcePool.data());
