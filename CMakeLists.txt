@@ -20,7 +20,6 @@
 cmake_minimum_required(VERSION 3.19)
 project(OpenAWE VERSION 0.0.1)
 
-include(TestBigEndian)
 include(GoogleTest)
 include(ExternalProject)
 include(CTest)
@@ -33,13 +32,6 @@ include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
-
-test_big_endian(BIG_ENDIAN)
-if (BIG_ENDIAN)
-    add_definitions(-DBIG_ENDIAN_SYSTEM)
-else ()
-    add_definitions(-DLITTLE_ENDIAN_SYSTEM)
-endif ()
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
