@@ -37,7 +37,7 @@ jobs:
             extra_cmake_args: |
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
           - name: MacOS Clang
-            os: macos-11
+            os: macos-12
             compiler: clang
             extra_cmake_args: | 
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
