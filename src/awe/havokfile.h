@@ -48,7 +48,8 @@ public:
 		kConvexTranslate,
 		kConvexTransform,
 		kList,
-		kSimpleMesh
+		kSimpleMesh,
+		kMoppBvTreeShape
 	};
 
 	struct hkNamedVariant {
@@ -153,6 +154,15 @@ public:
 		std::vector<uint8_t> verticesPerFace;
 	};
 
+	struct hkpMoppBvTreeShape {
+		uint32_t moppCode;
+		uint32_t childShape;
+	};
+
+	struct hkpMoppCode {
+		glm::vec4 offset;
+	};
+
 	struct hkpShape {
 		uint64_t userData;
 		float radius;
@@ -164,7 +174,8 @@ public:
 			hkpConvexTranslateShape,
 			hkpConvexTransformShape,
 			hkpListShape,
-			hkpSimpleMeshShape
+			hkpSimpleMeshShape,
+			hkpMoppBvTreeShape
 		> shape;
 		ShapeType type;
 	};
@@ -236,7 +247,9 @@ private:
 	HavokFile::hkpShape readHkpListShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpSimpleMeshShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpConvexVerticesShape(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpShape readHkpMoppBvTreeShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpConvexVerticesConnectivity readHkpConvexVerticesConnectivity(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpMoppCode readHkpMoppCode(Common::ReadStream &binhkx, uint32_t section);
 
 	RmdPhysicsSystem readRmdPhysicsSystem(Common::ReadStream &binhkx, uint32_t section);
 

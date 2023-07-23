@@ -220,8 +220,12 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 			object = readHkpCapsuleShape(binhkx);
 		else if (name == "hkpConvexVerticesShape")
 			object = readHkpConvexVerticesShape(binhkx, contentsSectionIndex);
+		else if (name == "hkpMoppBvTreeShape")
+			object = readHkpMoppBvTreeShape(binhkx, contentsSectionIndex);
 		else if (name == "hkpConvexVerticesConnectivity")
 			object = readHkpConvexVerticesConnectivity(binhkx, contentsSectionIndex);
+		else if (name == "hkpMoppCode")
+			object = readHkpMoppCode(binhkx, contentsSectionIndex);
 		else
 			spdlog::warn("TODO: Implement havok class {}", name);
 
@@ -1201,6 +1205,26 @@ HavokFile::hkpShape HavokFile::readHkpConvexVerticesShape(Common::ReadStream &bi
 	return shape;
 }
 
+HavokFile::hkpShape HavokFile::readHkpMoppBvTreeShape(Common::ReadStream &binhkx, uint32_t section) {
+	HavokFile::hkpShape shape{};
+	hkpMoppBvTreeShape moppShape{};
+
+	binhkx.skip(8); // hkReferencedObject
+	shape.userData = binhkx.readUint64LE(); // hkpShape
+	binhkx.skip(4);
+
+	moppShape.moppCode = readFixup(binhkx, section);
+
+	binhkx.skip(28);
+
+	moppShape.childShape = readFixup(binhkx, section);
+
+	shape.shape = moppShape;
+	shape.type = kMoppBvTreeShape;
+
+	return shape;
+}
+
 HavokFile::hkpConvexVerticesConnectivity HavokFile::readHkpConvexVerticesConnectivity(Common::ReadStream &binhkx, uint32_t section) {
 	hkpConvexVerticesConnectivity connectivity{};
 
@@ -1220,6 +1244,21 @@ HavokFile::hkpConvexVerticesConnectivity HavokFile::readHkpConvexVerticesConnect
 		index = binhkx.readByte();
 
 	return connectivity;
+}
+
+HavokFile::hkpMoppCode HavokFile::readHkpMoppCode(Common::ReadStream &binhkx, uint32_t section) {
+	HavokFile::hkpMoppCode moppCode{};
+
+	binhkx.skip(8); // hkReferencedObject
+
+	binhkx.skip(8);
+	moppCode.offset = binhkx.read<glm::vec4>();
+
+	const auto dataArray = readHkArray(binhkx, section);
+
+	binhkx.seek(dataArray.offset);
+
+	return moppCode;
 }
 
 void HavokFile::setHeader(std::string headerVersion) {

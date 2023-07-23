@@ -148,6 +148,14 @@ btCollisionShape *HavokShape::getShape(AWE::HavokFile &havok, const AWE::HavokFi
             break;
         }
 
+		case AWE::HavokFile::kMoppBvTreeShape: {
+			// TODO: It is currently just taking the child shape. It should generate a BVH and give it to the child mesh
+			const auto moppTreeShape = std::get<AWE::HavokFile::hkpMoppBvTreeShape>(shape.shape);
+
+			shapeObject = getShape(havok, havok.getShape(moppTreeShape.childShape), shapeOffset);
+			break;
+		}
+
 		case AWE::HavokFile::kConvexVerticesShape: {
 			const auto convexVerticesShape = std::get<AWE::HavokFile::hkpConvexVerticesShape>(shape.shape);
 
