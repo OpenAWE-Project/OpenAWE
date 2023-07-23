@@ -20,6 +20,7 @@
 
 #include <cstring>
 
+#include <bit>
 #include <iostream>
 #include <regex>
 

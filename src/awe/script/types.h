@@ -21,10 +21,11 @@
 #ifndef OPENAWE_AWE_SCRIPT_TYPES_H
 #define OPENAWE_AWE_SCRIPT_TYPES_H
 
+#include <bit>
+#include <variant>
+
 #include <entt/entt.hpp>
 #include <fmt/format.h>
-
-#include <variant>
 
 #include "src/awe/script/float.h"
 
