@@ -30,14 +30,14 @@ jobs:
             extra_cmake_args: |
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-              -DCMAKE_C_COMPILER=clang-15 \
-              -DCMAKE_CXX_COMPILER=clang++-15 \
+              -DCMAKE_C_COMPILER=clang \
+              -DCMAKE_CXX_COMPILER=clang++ \
           - name: Windows MSVC
             os: windows-2019
             extra_cmake_args: |
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
           - name: MacOS Clang
-            os: macos-13
+            os: macos-12
             compiler: clang
             extra_cmake_args: | 
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
@@ -60,7 +60,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y install \
-            clang-15 \
             libtinyxml2-dev \
             zlib1g-dev \
             libgl-dev \
@@ -105,7 +104,7 @@ jobs:
           vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl shaderc
 
       - name: Install dependencies with brew
-        if: ${{ matrix.os == 'macos-13' }}
+        if: ${{ matrix.os == 'macos-11' }}
         run: |
           brew update
           brew install zlib glfw libogg libvorbis theora spdlog glew openal-soft bullet fmt googletest tinyxml2 glm ccache shaderc
