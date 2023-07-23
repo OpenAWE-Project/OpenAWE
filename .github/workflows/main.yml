@@ -30,8 +30,8 @@ jobs:
             extra_cmake_args: |
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-              -DCMAKE_C_COMPILER=clang \
-              -DCMAKE_CXX_COMPILER=clang++ \
+              -DCMAKE_C_COMPILER=clang-15 \
+              -DCMAKE_CXX_COMPILER=clang++-15 \
           - name: Windows MSVC
             os: windows-2019
             extra_cmake_args: |
@@ -60,6 +60,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y install \
+            clang-15 \
             libtinyxml2-dev \
             zlib1g-dev \
             libgl-dev \
