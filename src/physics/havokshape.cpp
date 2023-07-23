@@ -118,17 +118,20 @@ btCollisionShape *HavokShape::getShape(AWE::HavokFile &havok, const AWE::HavokFi
 		case AWE::HavokFile::kSimpleMesh: {
 			const auto simpleMeshShape = std::get<AWE::HavokFile::hkpSimpleMeshShape>(shape.shape);
 
-			btTriangleMesh triangleMesh;
+			btTriangleMesh *triangleMesh = _meshes.emplace_back(new btTriangleMesh);
 
-			for (const auto &vertex: simpleMeshShape.vertices) {
-				triangleMesh.findOrAddVertex(btVector3(vertex.x, vertex.y, vertex.z), true);
+			for (unsigned int i = 0; i < simpleMeshShape.indices.size(); i+=3) {
+				const auto v1 = simpleMeshShape.vertices[simpleMeshShape.indices[i]];
+				const auto v2 = simpleMeshShape.vertices[simpleMeshShape.indices[i + 1]];
+				const auto v3 = simpleMeshShape.vertices[simpleMeshShape.indices[i + 2]];
+				triangleMesh->addTriangle(
+					btVector3(v1.x, v1.y, v1.z),
+					btVector3(v2.x, v2.y, v2.z),
+					btVector3(v3.x, v3.y, v3.z)
+				);
 			}
 
-			for (const auto &index: simpleMeshShape.indices) {
-				triangleMesh.addIndex(index);
-			}
-
-			shapeObject = new btBvhTriangleMeshShape(&triangleMesh, true);
+			shapeObject = new btBvhTriangleMeshShape(triangleMesh, true);
 
 			break;
 		}

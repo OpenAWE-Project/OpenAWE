@@ -45,6 +45,7 @@ protected:
 	btTransform _offset;
 	btCollisionShape *_rootShape;
     std::vector<btCollisionShape *> _additionalShapes;
+	std::vector<btTriangleMesh *> _meshes;
 };
 
 } // End of namespace Physics
