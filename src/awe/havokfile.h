@@ -49,7 +49,8 @@ public:
 		kConvexTransform,
 		kList,
 		kSimpleMesh,
-		kMoppBvTreeShape
+		kMoppBvTreeShape,
+		kStorageExtendedMeshShape
 	};
 
 	struct hkNamedVariant {
@@ -159,8 +160,25 @@ public:
 		uint32_t childShape;
 	};
 
+	struct hkpStorageExtendedMeshShape {
+		std::vector<uint32_t> meshStorage;
+		std::vector<uint32_t> shapeStorage;
+	};
+
 	struct hkpMoppCode {
 		glm::vec4 offset;
+	};
+
+	struct hkpStorageExtendedMeshShapeMeshSubpartStorage {
+		std::vector<glm::vec4> vertices;
+		std::vector<uint8_t> indices8;
+		std::vector<uint16_t> indices16;
+		std::vector<uint32_t> indices32;
+	};
+
+	struct hkpStorageExtendedMeshShapeShapeSubpartStorage {
+		std::vector<uint8_t> materialIndices;
+		std::vector<uint16_t> materialIndices16;
 	};
 
 	struct hkpShape {
@@ -175,7 +193,8 @@ public:
 			hkpConvexTransformShape,
 			hkpListShape,
 			hkpSimpleMeshShape,
-			hkpMoppBvTreeShape
+			hkpMoppBvTreeShape,
+			hkpStorageExtendedMeshShape
 		> shape;
 		ShapeType type;
 	};
@@ -195,6 +214,7 @@ public:
 	hkpRigidBody getRigidBody(uint32_t address);
 	hkpShape getShape(uint32_t address);
 	hkpConvexVerticesConnectivity getConvexVerticesConnectivity(uint32_t address);
+	hkpStorageExtendedMeshShapeMeshSubpartStorage getMeshSubpartStorage(uint32_t address);
 
 private:
 	struct Fixup {
@@ -248,8 +268,11 @@ private:
 	HavokFile::hkpShape readHkpSimpleMeshShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpConvexVerticesShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpMoppBvTreeShape(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpShape readHkpStorageExtendedMeshShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpConvexVerticesConnectivity readHkpConvexVerticesConnectivity(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpMoppCode readHkpMoppCode(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpStorageExtendedMeshShapeMeshSubpartStorage readHkpMeshSubpartStorage(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpStorageExtendedMeshShapeShapeSubpartStorage readHkpShapeSubpartStorage(Common::ReadStream &binhkx, uint32_t section);
 
 	RmdPhysicsSystem readRmdPhysicsSystem(Common::ReadStream &binhkx, uint32_t section);
 

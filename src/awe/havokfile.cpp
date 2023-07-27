@@ -222,10 +222,16 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 			object = readHkpConvexVerticesShape(binhkx, contentsSectionIndex);
 		else if (name == "hkpMoppBvTreeShape")
 			object = readHkpMoppBvTreeShape(binhkx, contentsSectionIndex);
+		else if (name == "hkpStorageExtendedMeshShape")
+			object = readHkpStorageExtendedMeshShape(binhkx, contentsSectionIndex);
 		else if (name == "hkpConvexVerticesConnectivity")
 			object = readHkpConvexVerticesConnectivity(binhkx, contentsSectionIndex);
 		else if (name == "hkpMoppCode")
 			object = readHkpMoppCode(binhkx, contentsSectionIndex);
+		else if (name == "hkpStorageExtendedMeshShapeMeshSubpartStorage")
+			object = readHkpMeshSubpartStorage(binhkx, contentsSectionIndex);
+		else if (name == "hkpStorageExtendedMeshShapeShapeSubpartStorage")
+			object = readHkpShapeSubpartStorage(binhkx, contentsSectionIndex);
 		else
 			spdlog::warn("TODO: Implement havok class {}", name);
 
@@ -269,6 +275,13 @@ HavokFile::hkpConvexVerticesConnectivity HavokFile::getConvexVerticesConnectivit
 	if (_objects.find(address) == _objects.end())
 		throw Common::Exception("Couldn't find convex vertices connectivity for address {}", address);
 	auto shape = std::any_cast<hkpConvexVerticesConnectivity>(_objects[address]);
+	return shape;
+}
+
+HavokFile::hkpStorageExtendedMeshShapeMeshSubpartStorage HavokFile::getMeshSubpartStorage(uint32_t address) {
+	if (_objects.find(address) == _objects.end())
+		throw Common::Exception("Couldn't find mesh subpart storage for address {}", address);
+	auto shape = std::any_cast<hkpStorageExtendedMeshShapeMeshSubpartStorage>(_objects[address]);
 	return shape;
 }
 
@@ -1225,6 +1238,40 @@ HavokFile::hkpShape HavokFile::readHkpMoppBvTreeShape(Common::ReadStream &binhkx
 	return shape;
 }
 
+HavokFile::hkpShape HavokFile::readHkpStorageExtendedMeshShape(Common::ReadStream &binhkx, uint32_t section) {
+	HavokFile::hkpShape shape{};
+	hkpStorageExtendedMeshShape meshShape{};
+
+	binhkx.skip(8); // hkReferencedObject
+	shape.userData = binhkx.readUint64LE(); // hkpShape
+	binhkx.skip(4);
+
+	const bool disableWelding = binhkx.readByte() != 0;
+	const auto type = binhkx.readByte();
+
+	binhkx.skip(218);
+
+	const auto meshArray = readHkArray(binhkx, section);
+	const auto shapeArray = readHkArray(binhkx, section);
+
+	binhkx.seek(meshArray.offset);
+	meshShape.meshStorage.resize(meshArray.count);
+	for (auto &meshStorage: meshShape.meshStorage)
+		meshStorage = readFixup(binhkx, section);
+
+	if (shapeArray.offset != 0xFFFFFFFF) {
+		binhkx.seek(shapeArray.offset);
+		meshShape.shapeStorage.resize(shapeArray.count);
+		for (auto &shapeStorage: meshShape.shapeStorage)
+			shapeStorage = readFixup(binhkx, section);
+	}
+
+	shape.type = kStorageExtendedMeshShape;
+	shape.shape = meshShape;
+
+	return shape;
+}
+
 HavokFile::hkpConvexVerticesConnectivity HavokFile::readHkpConvexVerticesConnectivity(Common::ReadStream &binhkx, uint32_t section) {
 	hkpConvexVerticesConnectivity connectivity{};
 
@@ -1259,6 +1306,62 @@ HavokFile::hkpMoppCode HavokFile::readHkpMoppCode(Common::ReadStream &binhkx, ui
 	binhkx.seek(dataArray.offset);
 
 	return moppCode;
+}
+
+HavokFile::hkpStorageExtendedMeshShapeMeshSubpartStorage
+HavokFile::readHkpMeshSubpartStorage(Common::ReadStream &binhkx, uint32_t section) {
+	HavokFile::hkpStorageExtendedMeshShapeMeshSubpartStorage meshSubpartStorage{};
+
+	binhkx.skip(8); // hkReferencedObject
+
+	const auto verticesArray = readHkArray(binhkx, section);
+	const auto indices8Array = readHkArray(binhkx, section);
+	const auto indices16Array = readHkArray(binhkx, section);
+	const auto indices32Array = readHkArray(binhkx, section);
+
+	meshSubpartStorage.vertices.resize(verticesArray.count);
+	binhkx.seek(verticesArray.offset);
+	for (auto &vertex: meshSubpartStorage.vertices)
+		vertex = binhkx.read<glm::vec4>();
+
+	if (indices8Array.offset != 0xFFFFFFFF) {
+		binhkx.seek(indices8Array.offset);
+		meshSubpartStorage.indices8.resize(indices8Array.count);
+		for (auto &index: meshSubpartStorage.indices8) {
+			index = binhkx.readByte();
+		}
+	}
+
+	if (indices16Array.offset != 0xFFFFFFFF) {
+		binhkx.seek(indices16Array.offset);
+		meshSubpartStorage.indices16.resize(indices16Array.count);
+		for (auto &index: meshSubpartStorage.indices16) {
+			index = binhkx.readUint16LE();
+		}
+	}
+
+	if (indices32Array.offset != 0xFFFFFFFF) {
+		binhkx.seek(indices32Array.offset);
+		meshSubpartStorage.indices32.resize(indices32Array.count);
+		for (auto &index: meshSubpartStorage.indices32) {
+			index = binhkx.readUint32LE();
+		}
+	}
+
+	return meshSubpartStorage;
+}
+
+HavokFile::hkpStorageExtendedMeshShapeShapeSubpartStorage
+HavokFile::readHkpShapeSubpartStorage(Common::ReadStream &binhkx, uint32_t section) {
+	HavokFile::hkpStorageExtendedMeshShapeShapeSubpartStorage shapeSubpartStorage{};
+
+	binhkx.skip(8); // hkReferencedObject
+
+	const auto materialIndicesArray = readHkArray(binhkx, section);
+	const auto materialsArray = readHkArray(binhkx, section);
+	const auto materialIndicesArray16 = readHkArray(binhkx, section);
+
+	return shapeSubpartStorage;
 }
 
 void HavokFile::setHeader(std::string headerVersion) {

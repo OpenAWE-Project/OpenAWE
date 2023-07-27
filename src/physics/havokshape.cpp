@@ -159,6 +159,39 @@ btCollisionShape *HavokShape::getShape(AWE::HavokFile &havok, const AWE::HavokFi
 			break;
 		}
 
+		case AWE::HavokFile::kStorageExtendedMeshShape: {
+			const auto storageMeshShape = std::get<AWE::HavokFile::hkpStorageExtendedMeshShape>(shape.shape);
+
+			btTriangleMesh *fullMesh = _meshes.emplace_back(new btTriangleMesh);
+
+			for (const auto &meshStorage: storageMeshShape.meshStorage) {
+				const auto meshSubpartStorage = havok.getMeshSubpartStorage(meshStorage);
+
+				const auto &vertices = meshSubpartStorage.vertices;
+				std::vector<uint32_t> indices;
+				indices.insert(indices.end(), meshSubpartStorage.indices8.begin(), meshSubpartStorage.indices8.end());
+				indices.insert(indices.end(), meshSubpartStorage.indices16.begin(), meshSubpartStorage.indices16.end());
+				indices.insert(indices.end(), meshSubpartStorage.indices32.begin(), meshSubpartStorage.indices32.end());
+
+				for (unsigned int i = 0; i < indices.size(); i+=4) {
+					const auto v1 = vertices[indices[i]];
+					const auto v2 = vertices[indices[i + 1]];
+					const auto v3 = vertices[indices[i + 2]];
+
+					fullMesh->addTriangle(
+						btVector3(v1.x, v1.y, v1.z),
+						btVector3(v2.x, v2.y, v2.z),
+						btVector3(v3.x, v3.y, v3.z)
+					);
+				}
+			}
+
+			btBvhTriangleMeshShape *meshShape = new btBvhTriangleMeshShape(fullMesh, true);
+			shapeObject = meshShape;
+
+			break;
+		}
+
 		case AWE::HavokFile::kConvexVerticesShape: {
 			const auto convexVerticesShape = std::get<AWE::HavokFile::hkpConvexVerticesShape>(shape.shape);
 
