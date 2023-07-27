@@ -56,10 +56,6 @@ TEX::TEX(Common::ReadStream &tex) {
 	}
 
 	switch (format) {
-		case 1:
-			_format = kR8;
-			break;
-
 		// RGBA8 LUT
 		// RGBA8
 		case 4:
@@ -69,6 +65,7 @@ TEX::TEX(Common::ReadStream &tex) {
 			break;
 
 		// DXT1
+		case 1:
 		case 5:
 			_format = kBC1;
 			_compressed = true;
@@ -104,10 +101,7 @@ TEX::TEX(Common::ReadStream &tex) {
 
 		for (auto &datum : mipmap.data) {
 			datum = new byte[imageSize];
-			if (format == 1)
-				tex.read(datum, imageSize / 2);
-			else
-				tex.read(datum, imageSize);
+			tex.read(datum, imageSize);
 		}
 
 
