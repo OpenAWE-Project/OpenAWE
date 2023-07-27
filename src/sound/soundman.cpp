@@ -71,7 +71,9 @@ void SoundManager::init() {
 	spdlog::info("OpenAL Version String: {}", alGetString(AL_VERSION));
 	spdlog::info("OpenAL Mono Sources: {}", monoSources);
 	spdlog::info("OpenAL Stereo Sources: {}", stereoSources);
-	spdlog::info("OpenAL Extensions: {}", alcGetString(_device, ALC_EXTENSIONS));
+	spdlog::info("OpenAL Context Extensions: {}", alcGetString(_device, ALC_EXTENSIONS));
+	spdlog::info("OpenAL Extensions: {}", alGetString(AL_EXTENSIONS));
+
 
 	_sourcePool.resize(16);
 	alGenSources(16, _sourcePool.data());
