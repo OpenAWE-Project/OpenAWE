@@ -59,25 +59,32 @@ public:
 		Node &addNewNode(const std::string &name);
 
 		/*!
+		 * Check if a given property is available in the node
+		 * @param attribute The attribute name to check for its presence
+		 * @return If the property exists
+		 */
+		bool hasProperty(const std::string &attribute) const;
+
+		/*!
 		 * Get an attribute of the node as string
 		 * @param attribute the attribute to search for
 		 * @return the searched attribute or empty string if it doesn't exist
 		 */
-		const std::string &getString(const std::string &attribute);
+		const std::string &getString(const std::string &attribute) const;
 
 		/*!
 		 * Get an attribute of the node as integer
 		 * @param attribute the attribute to search for
 		 * @return The searched attribute as int
 		 */
-		int getInt(const std::string &attribute);
+		int getInt(const std::string &attribute) const;
 
 		/*!
 		 * Get an attribute of the node as float
 		 * @param attribute the attribute to search for
 		 * @return The searched attribute as float
 		 */
-		float getFloat(const std::string &attribute);
+		float getFloat(const std::string &attribute) const;
 	};
 
 	/*!

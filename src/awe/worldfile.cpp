@@ -58,8 +58,8 @@ void WorldFile::readEpisode(Common::XML::Node &node) {
 		level.presence = child.getInt("presence");
 
 		std::string startupVideo1 = child.getString("startupVideo");
-		std::string startupVideo2 = child.getString("startupVideo2");
-		std::string startupVideo3 = child.getString("startupVideo3");
+		std::string startupVideo2 = child.hasProperty("startupVideo2") ? child.getString("startupVideo2") : "";
+		std::string startupVideo3 = child.hasProperty("startupVideo3") ? child.getString("startupVideo3") : "";
 
 		if (!startupVideo1.empty())
 			level.startupVideos.emplace_back(startupVideo1);
