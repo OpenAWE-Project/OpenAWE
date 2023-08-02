@@ -73,8 +73,8 @@ public:
 private:
 	void push();
 	void pushGID(Context &ctx);
-	void callGlobal(Context &ctx, const entt::entity &caller, byte numArgs, byte retType);
-	void callObject(Context &ctx, byte numArgs, byte retType);
+	void callGlobal(Context &ctx, const entt::entity &caller, byte argsBytes, byte retType);
+	void callObject(Context &ctx, byte argsBytes, byte retType);
 	void mulFloat();
 	void mulInt();
 	void ret();

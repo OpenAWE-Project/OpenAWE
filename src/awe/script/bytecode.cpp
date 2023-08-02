@@ -118,20 +118,29 @@ void Bytecode::pushGID(Context &ctx) {
 	_stack.push(ctx.getEntityByGID(gid));
 }
 
-void Bytecode::callGlobal(Context &ctx, const entt::entity &caller, byte numArgs, byte retType) {
+void Bytecode::callGlobal(Context &ctx, const entt::entity &caller, byte argsBytes, byte retType) {
 	std::string object = std::get<std::string>(_stack.top());
 	_stack.pop();
 	std::string method = std::get<std::string>(_stack.top());
 	_stack.pop();
 
-	std::vector<Variable> arguments(numArgs);
-	for (auto &argument : arguments) {
+	std::vector<Variable> arguments;
+	arguments.reserve(argsBytes);
+	int bytesRemaining = argsBytes;
+	while (bytesRemaining > 0) {
 		if (_stack.empty())
 			break;
+		
+		if (std::get_if<entt::entity>(&_stack.top())) {
+			bytesRemaining -= 2;
+		} else {
+			bytesRemaining--;
+		}
 
-		argument = _stack.top();
+		arguments.push_back(_stack.top());
 		_stack.pop();
 	}
+	arguments.shrink_to_fit();
 
 	std::optional<Variable> ret;
 	// Call caller object when "this" is used
@@ -148,28 +157,38 @@ void Bytecode::callGlobal(Context &ctx, const entt::entity &caller, byte numArgs
 		_stack.push(0);
 	}
 
-	spdlog::trace("call_global {} {}", numArgs, retType);
+	spdlog::trace("call_global {} {}", argsBytes, retType);
 }
 
-void Bytecode::callObject(Context &ctx, byte numArgs, byte retType) {
+void Bytecode::callObject(Context &ctx, byte argsBytes, byte retType) {
 	entt::entity entity = std::get<entt::entity>(_stack.top());
 	_stack.pop();
 	std::string method = std::get<std::string>(_stack.top());
 	_stack.pop();
 
-	std::vector<Variable> arguments(numArgs);
-	for (auto &argument : arguments) {
+	std::vector<Variable> arguments;
+	arguments.reserve(argsBytes);
+	int bytesRemaining = argsBytes;
+	while (bytesRemaining > 0) {
 		if (_stack.empty())
 			break;
-		argument = _stack.top();
+		
+		if (std::get_if<entt::entity>(&_stack.top())) {
+			bytesRemaining -= 2;
+		} else {
+			bytesRemaining--;
+		}
+
+		arguments.push_back(_stack.top());
 		_stack.pop();
 	}
+	arguments.shrink_to_fit();
 
 	auto ret = ctx.getFunctions().callObject(entity, method, arguments);
 	if (ret)
 		_stack.push(*ret);
 
-	spdlog::trace("call_object {} {}", numArgs, retType);
+	spdlog::trace("call_object {} {}", argsBytes, retType);
 }
 
 void Bytecode::mulFloat() {
