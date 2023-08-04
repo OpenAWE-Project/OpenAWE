@@ -304,7 +304,7 @@ inline std::vector<Variable> Bytecode::extractParameters(byte argsBytes) {
 		if (_stack.empty())
 			break;
 		
-		if (std::get_if<entt::entity>(&_stack.top())) {
+		if (std::holds_alternative<entt::entity>(_stack.top())) {
 			bytesRemaining -= 2;
 		} else {
 			bytesRemaining--;
@@ -316,7 +316,7 @@ inline std::vector<Variable> Bytecode::extractParameters(byte argsBytes) {
 	arguments.shrink_to_fit();
 
 	if (bytesRemaining < 0)
-		throw CreateException("Parameter mismatch: expected to get {} values from stack but got {}", argsBytes, argsBytes - bytesRemaining);
+		throw CreateException("Parameter mismatch: expected to get {} data blocks from stack, got {}", argsBytes, argsBytes - bytesRemaining);
 	return arguments;
 }
 
