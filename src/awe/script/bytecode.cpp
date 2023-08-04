@@ -124,23 +124,7 @@ void Bytecode::callGlobal(Context &ctx, const entt::entity &caller, byte argsByt
 	std::string method = std::get<std::string>(_stack.top());
 	_stack.pop();
 
-	std::vector<Variable> arguments;
-	arguments.reserve(argsBytes);
-	int bytesRemaining = argsBytes;
-	while (bytesRemaining > 0) {
-		if (_stack.empty())
-			break;
-		
-		if (std::get_if<entt::entity>(&_stack.top())) {
-			bytesRemaining -= 2;
-		} else {
-			bytesRemaining--;
-		}
-
-		arguments.push_back(_stack.top());
-		_stack.pop();
-	}
-	arguments.shrink_to_fit();
+	std::vector<Variable> arguments = extractParameters(argsBytes);
 
 	std::optional<Variable> ret;
 	// Call caller object when "this" is used
@@ -166,23 +150,7 @@ void Bytecode::callObject(Context &ctx, byte argsBytes, byte retType) {
 	std::string method = std::get<std::string>(_stack.top());
 	_stack.pop();
 
-	std::vector<Variable> arguments;
-	arguments.reserve(argsBytes);
-	int bytesRemaining = argsBytes;
-	while (bytesRemaining > 0) {
-		if (_stack.empty())
-			break;
-		
-		if (std::get_if<entt::entity>(&_stack.top())) {
-			bytesRemaining -= 2;
-		} else {
-			bytesRemaining--;
-		}
-
-		arguments.push_back(_stack.top());
-		_stack.pop();
-	}
-	arguments.shrink_to_fit();
+	std::vector<Variable> arguments = extractParameters(argsBytes);
 
 	auto ret = ctx.getFunctions().callObject(entity, method, arguments);
 	if (ret)
@@ -326,6 +294,30 @@ void Bytecode::eq() {
 	_stack.push(_eq);
 
 	spdlog::trace("eq");
+}
+
+inline std::vector<Variable> Bytecode::extractParameters(byte argsBytes) {
+	std::vector<Variable> arguments;
+	arguments.reserve(argsBytes);
+	signed short bytesRemaining = argsBytes;
+	while (bytesRemaining > 0) {
+		if (_stack.empty())
+			break;
+		
+		if (std::get_if<entt::entity>(&_stack.top())) {
+			bytesRemaining -= 2;
+		} else {
+			bytesRemaining--;
+		}
+
+		arguments.push_back(_stack.top());
+		_stack.pop();
+	}
+	arguments.shrink_to_fit();
+
+	if (bytesRemaining < 0)
+		throw CreateException("Parameter mismatch: expected to get {} values from stack but got {}", argsBytes, argsBytes - bytesRemaining);
+	return arguments;
 }
 
 }

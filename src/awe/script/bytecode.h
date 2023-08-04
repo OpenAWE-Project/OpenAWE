@@ -90,6 +90,8 @@ private:
 	void neq();
 	void eq();
 
+	inline std::vector<Variable> extractParameters(byte argsBytes);
+
 	bool _gt, _lt, _eq;
 
 	bool _stop;
