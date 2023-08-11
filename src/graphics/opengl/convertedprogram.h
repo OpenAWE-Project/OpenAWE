@@ -27,6 +27,13 @@ namespace Graphics::OpenGL {
 
 class ConvertedProgram : public Program {
 public:
+	/*!
+	 * Create a new converted program with an optional label for the
+	 * program object
+	 * \param label The label for the program object
+	 */
+	ConvertedProgram(const std::string &label = "");
+
 	void setAttributeMappings(const std::map<AttributeType, std::string> &mappings);
 	void addSamplerMappings(const std::map<std::string, std::string> &mappings);
 

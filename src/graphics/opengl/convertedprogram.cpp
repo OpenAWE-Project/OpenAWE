@@ -25,6 +25,9 @@
 
 namespace Graphics::OpenGL {
 
+ConvertedProgram::ConvertedProgram(const std::string &label) : Program(label) {
+}
+
 std::optional<GLint> ConvertedProgram::getAttributeLocation(const AttributeType &type) {
 	const auto attributeIndexMapped = Program::getAttributeLocation(_attributeMappings[type]);
 	if (attributeIndexMapped)
