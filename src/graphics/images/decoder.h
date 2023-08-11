@@ -46,7 +46,14 @@ public:
 	TextureType getType() const;
 
 protected:
-	size_t getImageSize(unsigned int width, unsigned int height);
+	/*!
+	 * Get the size of the image in bytes
+	 * \param width The width of the image
+	 * \param height The height of the image
+	 * \param depth The depth of the image
+	 * \return The size in bytes of the bytes
+	 */
+	size_t getImageSize(unsigned int width, unsigned int height, unsigned int depth = 1);
 
 	std::vector<Mipmap> _layers;
 	TextureFormat _format;

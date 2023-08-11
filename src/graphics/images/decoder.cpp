@@ -55,21 +55,21 @@ TextureType ImageDecoder::getType() const {
 	return _type;
 }
 
-size_t ImageDecoder::getImageSize(unsigned int width, unsigned int height) {
+size_t ImageDecoder::getImageSize(unsigned int width, unsigned int height, unsigned int depth) {
 	switch (_format) {
 		case kR8:
-			return width * height;
+			return width * height * depth;
 
 		case kRG8:
 		case kA1RGB5:
-			return width * height * 2;
+			return width * height * depth * 2;
 
 		case kRGB8:
-			return width * height * 3;
+			return width * height * depth * 3;
 
 		case kRG16:
 		case kRGBA8:
-			return width * height * 4;
+			return width * height * depth * 4;
 
 		case kBC1:
 			return std::max(8u, ((width + 3) / 4) * ((height + 3) / 4) * 8);
