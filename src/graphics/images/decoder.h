@@ -36,7 +36,7 @@ public:
 		unsigned int dataSize, width, height, depth;
 	};
 
-	ImageDecoder();
+	ImageDecoder(TextureType type = kTexture2D);
 	virtual ~ImageDecoder();
 
 	size_t getNumMipMaps() const;
