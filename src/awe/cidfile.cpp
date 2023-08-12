@@ -19,8 +19,6 @@
  */
 
 #include <memory>
-#include <stdexcept>
-#include <zlib.h>
 
 #include "src/common/strutil.h"
 #include "src/common/exception.h"
@@ -34,7 +32,7 @@ static const uint32_t kDeadBeefV2 = 0xD34DB33F;
 
 namespace AWE {
 
-CIDFile::CIDFile(Common::ReadStream &cid, ObjectType type, std::shared_ptr<DPFile> dp) : _dp(dp) {
+CIDFile::CIDFile(Common::ReadStream &cid, ObjectType type, std::shared_ptr<DPFile> dp) : _format(kSimple), _dp(dp) {
 	_version = cid.readUint32LE();
 	uint32_t contentType = cid.readUint32LE(); // ?
 	uint32_t numElements = cid.readUint32LE();
@@ -67,7 +65,7 @@ const std::vector<Object> &CIDFile::getContainers() const {
 
 void CIDFile::testFormat(Common::ReadStream &cid) {
 	// Simple test for determining the format of the file
-	uint32_t deadbeefTest = cid.readUint32LE();
+	const uint32_t deadbeefTest = cid.readUint32LE();
 	switch (deadbeefTest) {
 		case kDeadBeef:
 			_format = kStructured;
