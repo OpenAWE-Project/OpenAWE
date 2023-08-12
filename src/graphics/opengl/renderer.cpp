@@ -401,10 +401,10 @@ void Renderer::drawWorld(const std::string &stage) {
 					indices->bind();
 
 				GLuint textureSlot = textureSlotShader;
-				for (const auto &attribute : partmesh.material.getAttributes(stage)) {
+				for (const auto &attribute : partmesh.material.getUniforms(stage)) {
 					switch (attribute.type) {
-						case Material::kVec1: {
-							glm::vec1 value = std::get<glm::vec1>(attribute.data);
+						case Material::kFloat: {
+							float value = std::get<float>(attribute.data);
 							currentShader->setUniform1f(attribute.index, value);
 							break;
 						}

@@ -53,7 +53,7 @@ public:
 	// ,--- Uniform access
 	virtual std::optional<GLint> getUniformLocation(const std::string &name) const;
 
-	virtual void setUniform1f(GLint id, const glm::vec1 &value) const;
+	virtual void setUniform1f(GLint id, float value) const;
 	virtual void setUniform2f(GLint id, const glm::vec2 &value) const;
 	virtual void setUniform3f(GLint id, const glm::vec3 &value) const;
 	void setUniform4f(GLint id, const glm::vec4 &value) const;

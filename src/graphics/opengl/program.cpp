@@ -170,8 +170,8 @@ std::optional<GLint> Program::getAttributeLocation(const AttributeType &type) {
 	return std::optional<GLint>();
 }
 
-void Program::setUniform1f(GLint id, const glm::vec1 &value) const {
-	glUniform1f(id, value.x);
+void Program::setUniform1f(GLint id, float value) const {
+	glUniform1f(id, value);
 }
 
 void Program::setUniform2f(GLint id, const glm::vec2 &value) const {

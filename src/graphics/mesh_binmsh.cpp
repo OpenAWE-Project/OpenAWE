@@ -151,7 +151,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 		const bool specular = f[2];
 
 		const uint32_t numAttributes = binmsh->readUint32LE();
-		std::vector<Material::Attribute> attributes;
+		std::vector<Material::Uniform> attributes;
 		for (unsigned int j = 0; j < numAttributes; ++j) {
 			uint32_t attributeNameLength = binmsh->readUint32LE();
 			std::string attributeName = binmsh->readFixedSizeString(attributeNameLength, true);
@@ -159,9 +159,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 			uint32_t dataType = binmsh->readUint32LE();
 			switch (dataType) {
 				case 0: {
-					const float v1 = binmsh->readIEEEFloatLE();
-
-					attributes.emplace_back(attributeName, glm::vec1(v1));
+					attributes.emplace_back(attributeName, binmsh->readIEEEFloatLE());
 					break;
 				}
 				case 1: {

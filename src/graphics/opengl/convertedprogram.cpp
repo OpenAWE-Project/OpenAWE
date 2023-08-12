@@ -80,7 +80,7 @@ std::optional<GLint> ConvertedProgram::getUniformArraySymbolLocation(const Shade
 	return uniformArrayLocation;
 }
 
-void ConvertedProgram::setUniform1f(GLint id, const glm::vec1 &value) const {
+void ConvertedProgram::setUniform1f(GLint id, float value) const {
 	glm::vec4 alignedValue(value, 0.0f, 0.0f, 0.0f);
 	Program::setUniform4f(id, alignedValue);
 }

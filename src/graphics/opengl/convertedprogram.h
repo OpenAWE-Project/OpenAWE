@@ -43,7 +43,7 @@ public:
 
 	std::optional<GLint> getUniformLocation(const std::string &name) const override;
 
-	void setUniform1f(GLint id, const glm::vec1 &value) const override;
+	void setUniform1f(GLint id, float value) const override;
 
 	void setUniform2f(GLint id, const glm::vec2 &value) const override;
 
