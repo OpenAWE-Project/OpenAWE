@@ -32,18 +32,35 @@
 namespace Common {
 
 /*!
- * \brief
+ * \brief Class for parsing ini files
+ *
+ * This class helps parsing the ini file format and retrieving specific information from it. The ini file format is a
+ * simple text format mainly used for configuration files. This variant specifies a section which groups values together
+ * and single parameters which are specified by an equal sign. Furthermore it allows comments with the character #
+ * \code{.ini}
+ * # This is a comment
+ *
+ * [Section1]
+ * parameter1=value1 # This is another comment
+ *
+ * [Section2]
+ * parameter1=1.0
+ * parameter2=1.0 2.0 3.0
+ * \endcode
  */
 class INIFile {
 public:
 	INIFile(Common::ReadStream &ini);
 
-	template<typename T> T get(const std::string &section, const std::string &parameters) const;
-
-	int getInt(const std::string &section, const std::string &parameter) const;
-	float getFloat(const std::string &section, const std::string &parameter) const;
-	std::string getString(const std::string &section, const std::string &parameter) const;
-	glm::vec3 getVec3(const std::string &section, const std::string &parameter) const;
+	/*!
+	 * Get a certain value from the ini file into a specific type, given by the template T. It throws an exception if
+	 * the specific parameter is unavailable or for some reason not convertable to the requested type.
+	 * \tparam T The type of the value to return
+	 * \param section The section from which to get the value
+	 * \param parameter The parameter name of the value
+	 * \return The requested value in the type T
+	 */
+	template<typename T> T get(const std::string &section, const std::string &parameter) const;
 
 private:
 	typedef std::tuple<std::string, std::string> Id;
@@ -51,28 +68,37 @@ private:
 	std::map<Id, std::string> _data;
 };
 
-/*template<> double INIFile::get<double>(const std::string &s, const std::string &p) const {
-	return std::stod(_data.at(Id(s, p)));
-}
+/*!
+ * Template specialization to load string values
+ * \param s The section of the value
+ * \param p The parameter name of the value
+ * \return A string containing the value
+ */
+template<> std::string INIFile::get(const std::string &s, const std::string &p) const;
 
-template<> long INIFile::get<long>(const std::string &s, const std::string &p) const {
-	return std::stol(_data.at(Id(s, p)));
-}*/
+/*!
+ * Template specialization to load int values
+ * \param s The section of the value
+ * \param p The parameter name of the value
+ * \return An int variable containing the value
+ */
+template<> int INIFile::get(const std::string &s, const std::string &p) const;
 
-/*template<size_t L> glm::vec<L, float> INIFile::get(const std::string &s, const std::string &p) const {
-	const auto vecString = _data.at(Id(s, p));
-	const auto vecStrings = Common::split(vecString, std::regex(" "));
+/*!
+ * Template specialization to load float values
+ * \param s The section of the value
+ * \param p The parameter name of the value
+ * \return An int variable containing the value
+ */
+template<> float INIFile::get(const std::string &s, const std::string &p) const;
 
-	if (vecStrings.size() != L)
-		throw CreateException("Invalid vector string, expected {} values, got {}", L, vecStrings.size());
-
-	glm::vec<L, float> vec;
-	for (int i = 0; i < L; ++i) {
-		vec[i] = std::stof(vecStrings[i]);
-	}
-
-	return vec;
-}*/
+/*!
+ * Template specialization to load vec3 values
+ * \param s The section of the value
+ * \param p The parameter name of the value
+ * \return A vec3 variable containing the values
+ */
+template<> glm::vec3 INIFile::get(const std::string &s, const std::string &p) const;
 
 } // End of namespace Common
 

@@ -55,27 +55,8 @@ INIFile::INIFile(ReadStream &ini) {
 	}
 }
 
-int INIFile::getInt(const std::string &section, const std::string &parameter) const {
-	const auto id = Id(section, parameter);
-
-	const auto iter = _data.find(id);
-	if (iter == _data.cend())
-		throw CreateException("Parameter {}.{} unavailable", section, parameter);
-
-	return std::stoi(iter->second);
-}
-
-float INIFile::getFloat(const std::string &section, const std::string &parameter) const {
-	const auto id = Id(section, parameter);
-
-	const auto iter = _data.find(id);
-	if (iter == _data.cend())
-		throw CreateException("Parameter {}.{} unavailable", section, parameter);
-
-	return std::stof(iter->second);
-}
-
-std::string INIFile::getString(const std::string &section, const std::string &parameter) const {
+template<>
+std::string INIFile::get(const std::string &section, const std::string &parameter) const {
 	const auto id = Id(section, parameter);
 
 	const auto iter = _data.find(id);
@@ -85,24 +66,30 @@ std::string INIFile::getString(const std::string &section, const std::string &pa
 	return iter->second;
 }
 
-glm::vec3 INIFile::getVec3(const std::string &section, const std::string &parameter) const {
-	const auto id = Id(section, parameter);
+template<>
+int INIFile::get(const std::string &s, const std::string &p) const {
+	return std::stoi(get<std::string>(s, p));
+}
 
-	const auto iter = _data.find(id);
-	if (iter == _data.cend())
-		throw CreateException("Parameter {}.{} unavailable", section, parameter);
+template<>
+float INIFile::get(const std::string &s, const std::string &p) const {
+	return std::stof(get<std::string>(s, p));
+}
 
-	const auto vecStrings = Common::split(iter->second, std::regex(" "));
+template<>
+glm::vec3 INIFile::get(const std::string &s, const std::string &p) const {
+	const auto vecString = get<std::string>(s, p);
+	const auto vecStrings = Common::split(vecString, std::regex(" "));
 
 	if (vecStrings.size() != 3)
-		throw CreateException("Invalid vec3 string {}", iter->second);
+		throw CreateException("Invalid vector string, expected {} values, got {}", 3, vecStrings.size());
 
-	glm::vec3 v;
-	v.x = std::stof(vecStrings[0]);
-	v.y = std::stof(vecStrings[1]);
-	v.z = std::stof(vecStrings[2]);
+	glm::vec3 vec;
+	vec.x = std::stof(vecStrings[0]);
+	vec.y = std::stof(vecStrings[1]);
+	vec.z = std::stof(vecStrings[2]);
 
-	return v;
+	return vec;
 }
 
 } // End of namespace Common

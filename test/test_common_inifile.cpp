@@ -43,48 +43,50 @@ TEST(INIFile, parseInt) {
 	Common::MemoryReadStream iniStream(kINISample, std::strlen(kINISample));
 	Common::INIFile ini(iniStream);
 
-	EXPECT_EQ(ini.getInt("test1", "test_param1"), 1);
-	EXPECT_EQ(ini.getInt("test1", "test_param2"), 2);
-	EXPECT_EQ(ini.getInt("test2", "test_param1"), -1);
-	EXPECT_ANY_THROW(ini.getInt("test2", "test_param2"));
-	EXPECT_EQ(ini.getInt("test2", "test_param3"), 2);
-	EXPECT_ANY_THROW(ini.getInt("test2", "test_param6"));
+	EXPECT_EQ(ini.get<int>("test1", "test_param1"), 1);
+	EXPECT_EQ(ini.get<int>("test1", "test_param2"), 2);
+	EXPECT_EQ(ini.get<int>("test2", "test_param1"), -1);
+	EXPECT_ANY_THROW(ini.get<int>("test2", "test_param2"));
+	EXPECT_EQ(ini.get<int>("test2", "test_param3"), 2);
+	EXPECT_ANY_THROW(ini.get<int>("test2", "test_param6"));
 }
 
 TEST(INIFile, parseString) {
 	Common::MemoryReadStream iniStream(kINISample, std::strlen(kINISample));
 	Common::INIFile ini(iniStream);
 
-	EXPECT_EQ(ini.getString("test1", "test_param1"), "1");
-	EXPECT_EQ(ini.getString("test1", "test_param2"), "2");
-	EXPECT_EQ(ini.getString("test2", "test_param1"), "-1");
-	EXPECT_EQ(ini.getString("test2", "test_param2"), "Test?$%");
-	EXPECT_EQ(ini.getString("test2", "test_param3"), "2.75");
-	EXPECT_EQ(ini.getString("test2", "test_param4"), "2.75 1.0 3.4");
-	EXPECT_EQ(ini.getString("test2", "test_param5"), "2 1.0 3");
+	EXPECT_EQ(ini.get<std::string>("test1", "test_param1"), "1");
+	EXPECT_EQ(ini.get<std::string>("test1", "test_param2"), "2");
+	EXPECT_EQ(ini.get<std::string>("test2", "test_param1"), "-1");
+	EXPECT_EQ(ini.get<std::string>("test2", "test_param2"), "Test?$%");
+	EXPECT_EQ(ini.get<std::string>("test2", "test_param3"), "2.75");
+	EXPECT_EQ(ini.get<std::string>("test2", "test_param4"), "2.75 1.0 3.4");
+	EXPECT_EQ(ini.get<std::string>("test2", "test_param5"), "2 1.0 3");
+
+	EXPECT_ANY_THROW(ini.get<std::string>("test2", "test_param7"));
 }
 
 TEST(INIFile, parseFloat) {
 	Common::MemoryReadStream iniStream(kINISample, std::strlen(kINISample));
 	Common::INIFile ini(iniStream);
 
-	EXPECT_EQ(ini.getFloat("test1", "test_param1"), 1.0);
-	EXPECT_EQ(ini.getFloat("test1", "test_param2"), 2.0);
-	EXPECT_EQ(ini.getFloat("test2", "test_param1"), -1.0);
-	EXPECT_ANY_THROW(ini.getFloat("test2", "test_param2"));
-	EXPECT_EQ(ini.getFloat("test2", "test_param3"), 2.75);
-	EXPECT_ANY_THROW(ini.getFloat("test2", "test_param6"));
+	EXPECT_EQ(ini.get<float>("test1", "test_param1"), 1.0);
+	EXPECT_EQ(ini.get<float>("test1", "test_param2"), 2.0);
+	EXPECT_EQ(ini.get<float>("test2", "test_param1"), -1.0);
+	EXPECT_ANY_THROW(ini.get<float>("test2", "test_param2"));
+	EXPECT_EQ(ini.get<float>("test2", "test_param3"), 2.75);
+	EXPECT_ANY_THROW(ini.get<float>("test2", "test_param6"));
 }
 
 TEST(INIFile, parseVec3) {
 	Common::MemoryReadStream iniStream(kINISample, std::strlen(kINISample));
 	Common::INIFile ini(iniStream);
 
-	EXPECT_ANY_THROW(ini.getVec3("test1", "test_param1"));
-	EXPECT_ANY_THROW(ini.getVec3("test1", "test_param2"));
-	EXPECT_ANY_THROW(ini.getVec3("test2", "test_param1"));
-	EXPECT_ANY_THROW(ini.getVec3("test2", "test_param2"));
-	EXPECT_EQ(ini.getVec3("test2", "test_param4"), glm::vec3(2.75, 1.0, 3.4));
-	EXPECT_EQ(ini.getVec3("test2", "test_param5"), glm::vec3(2.0, 1.0, 3.0));
-	EXPECT_ANY_THROW(ini.getVec3("test2", "test_param6"));
+	EXPECT_ANY_THROW(ini.get<glm::vec3>("test1", "test_param1"));
+	EXPECT_ANY_THROW(ini.get<glm::vec3>("test1", "test_param2"));
+	EXPECT_ANY_THROW(ini.get<glm::vec3>("test2", "test_param1"));
+	EXPECT_ANY_THROW(ini.get<glm::vec3>("test2", "test_param2"));
+	EXPECT_EQ(ini.get<glm::vec3>("test2", "test_param4"), glm::vec3(2.75, 1.0, 3.4));
+	EXPECT_EQ(ini.get<glm::vec3>("test2", "test_param5"), glm::vec3(2.0, 1.0, 3.0));
+	EXPECT_ANY_THROW(ini.get<glm::vec3>("test2", "test_param6"));
 }
