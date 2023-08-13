@@ -178,24 +178,19 @@ void Texture::load(unsigned int xoffset, unsigned int yoffset, const ImageDecode
 }
 
 void Texture::load(const ImageDecoder &decoder) {
-	bool layered = decoder.getMipMap().data.size() > 1;
-
 	switch (decoder.getType()) {
-		case kTextureCube:
-			_type = GL_TEXTURE_CUBE_MAP;
-			break;
 		case kTexture2D:
-			if (layered)
-				_type = GL_TEXTURE_2D_ARRAY;
-			else
-				_type = GL_TEXTURE_2D;
+			_type = GL_TEXTURE_2D;
 			break;
 		case kTexture3D:
 			_type = GL_TEXTURE_3D;
 			break;
+		case kTextureCube:
+			_type = GL_TEXTURE_CUBE_MAP;
+			break;
 
 		default:
-			throw Common::Exception("Invalid image type", fmt::underlying(decoder.getType()));
+			throw Common::Exception("Invalid image type {}", fmt::underlying(decoder.getType()));
 	}
 
 	bind();
@@ -206,15 +201,75 @@ void Texture::load(const ImageDecoder &decoder) {
 	glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	if (decoder.getType() == kTexture3D)
+		glTexParameteri(_type, GL_TEXTURE_WRAP_R, GL_REPEAT);
+
 	GLenum format, internalFormat = 0, type = 0;
 	getParameters(decoder.getFormat(), format, internalFormat, type);
 
 	GLuint level = 0;
 	for (unsigned int i = 0; i < decoder.getNumMipMaps(); ++i) {
 		const auto &mipmap = decoder.getMipMap(i);
-			assert(mipmap.width != 0 && mipmap.height != 0);
+		assert(mipmap.width != 0 && mipmap.height != 0);
 
-			if (decoder.getType() == kTextureCube) {
+		switch (decoder.getType()) {
+			case kTexture2D:
+				if (decoder.isCompressed()) {
+					glCompressedTexImage2D(
+						_type,
+						level,
+						format,
+						mipmap.width,
+						mipmap.height,
+						0,
+						mipmap.dataSize,
+						mipmap.data[0]
+					);
+				} else {
+					glTexImage2D(
+						_type,
+						level,
+						internalFormat,
+						mipmap.width,
+						mipmap.height,
+						0,
+						format,
+						type,
+						mipmap.data[0]
+					);
+				}
+				break;
+
+			case kTexture3D:
+				if (decoder.isCompressed()) {
+					glCompressedTexImage3D(
+						_type,
+						level,
+						format,
+						mipmap.width,
+						mipmap.height,
+						mipmap.depth,
+						0,
+						mipmap.dataSize,
+						mipmap.data[0]
+					);
+				} else {
+					glTexImage3D(
+						_type,
+						level,
+						internalFormat,
+						mipmap.width,
+						mipmap.height,
+						mipmap.depth,
+						0,
+						format,
+						type,
+						mipmap.data[0]
+					);
+				}
+				break;
+			
+			case kTextureCube:
 				if (decoder.isCompressed()) {
 					glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, level, format, mipmap.width, mipmap.height, 0,
 										   mipmap.dataSize, mipmap.data[0]);
@@ -242,50 +297,10 @@ void Texture::load(const ImageDecoder &decoder) {
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, level, internalFormat, mipmap.width, mipmap.height, 0,
 								 format, type, mipmap.data[5]);
 				}
-			} else {
-				if (decoder.isCompressed()) {
-					glCompressedTexImage2D(
-							_type,
-							level,
-							format,
-							mipmap.width,
-							mipmap.height,
-							0,
-							mipmap.dataSize,
-							mipmap.data[0]
-					);
-				} else {
-					if (layered) {
-						glTexSubImage3D(
-								_type,
-								level,
-								0,
-								0,
-								0,
-								mipmap.width,
-								mipmap.height,
-								i,
-								format,
-								type,
-								mipmap.data[0]
-						);
-					} else {
-						glTexImage2D(
-								_type,
-								level,
-								internalFormat,
-								mipmap.width,
-								mipmap.height,
-								0,
-								format,
-								type,
-								mipmap.data[0]
-						);
-					}
-				}
-			}
+				break;
+		}
 
-			level += 1;
+		level += 1;
 	}
 
 	assert(glGetError() == GL_NO_ERROR);
