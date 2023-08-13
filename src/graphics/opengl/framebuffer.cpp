@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "src/common/exception.h"
 
 #include "src/graphics/opengl/framebuffer.h"
@@ -66,6 +68,12 @@ void Framebuffer::attachRenderBuffer(const Renderbuffer &renderbuffer, GLenum at
 		throw CreateException("Failed to attach renderbuffer tot exture");
 }
 
+void Framebuffer::clear() {
+	for (size_t i = 0; i < _attachments.size(); ++i) {
+		glClearBufferfv(GL_COLOR, i, glm::value_ptr(_clearColor));
+	}
+}
+
 void Framebuffer::bind() {
 	glBindFramebuffer(GL_FRAMEBUFFER, _id);
 	glDrawBuffers(_attachments.size(), _attachments.data());
@@ -73,6 +81,10 @@ void Framebuffer::bind() {
 
 void Framebuffer::bindRead() {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
+}
+
+void Framebuffer::setClearColor(const glm::vec4 &clearColor) {
+	_clearColor = clearColor;
 }
 
 Renderbuffer::Renderbuffer(GLsizei width, GLsizei height, GLenum format, const std::string &label) {
