@@ -27,6 +27,7 @@ namespace Graphics {
 
 Surface::Surface(unsigned int width, unsigned int height, TextureFormat format) {
 	_format = format;
+	_type = kTexture2D;
 
 	_layers.resize(1);
 	auto &mipmaps = _layers;
@@ -36,7 +37,28 @@ Surface::Surface(unsigned int width, unsigned int height, TextureFormat format) 
 
 	mipmap.width = width;
 	mipmap.height = height;
+	mipmap.depth = 1;
 	mipmap.dataSize = getImageSize(width, height);
+	mipmap.data.resize(1);
+	mipmap.data[0] = new byte[mipmap.dataSize];
+
+	std::memset(mipmap.data[0], 0, mipmap.dataSize);
+}
+
+Surface::Surface(unsigned int width, unsigned int height, unsigned int depth, TextureFormat format) {
+	_format = format;
+	_type = kTexture3D;
+
+	_layers.resize(1);
+	auto &mipmaps = _layers;
+	mipmaps.resize(1);
+
+	Mipmap &mipmap = mipmaps[0];
+
+	mipmap.width = width;
+	mipmap.height = height;
+	mipmap.depth = depth;
+	mipmap.dataSize = getImageSize(width, height, depth);
 	mipmap.data.resize(1);
 	mipmap.data[0] = new byte[mipmap.dataSize];
 
