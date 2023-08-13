@@ -427,6 +427,25 @@ TEST(MemoryReadStream, readStream) {
 	EXPECT_EQ(stream2->readUint32BE(), 0x31323334);
 }
 
+TEST(MemoryReadStream, readLine) {
+	Common::MemoryReadStream stream(reinterpret_cast<const byte*>(::kLipsum), strlen(::kLipsum));
+
+	static const auto kParagraph1 =
+		"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec urna ex. Duis eu "
+		"facilisis ipsum. Phasellus ultricies et enim vitae scelerisque. Maecenas faucibus sem "
+		"nec neque fermentum pretium. Sed sed aliquam ligula, at tincidunt velit. Curabitur sit "
+		"amet tellus sed arcu varius egestas. Vivamus eu mi nec leo accumsan consectetur sit amet "
+		"a arcu. Vivamus auctor dui a ex sodales, vitae sagittis elit euismod. Sed posuere luctus "
+		"rutrum. Morbi nunc nisl, faucibus sed varius ut, volutpat vel turpis. Phasellus "
+		"dignissim, purus id pretium mattis, purus ante auctor metus, sit amet ornare dolor diam "
+		"sit amet metus. Donec hendrerit venenatis enim, nec cursus nibh pharetra et.";
+
+	EXPECT_EQ(stream.readLine(), kParagraph1);
+	EXPECT_EQ(stream.readLine(), "");
+	EXPECT_EQ(stream.readLine(' '), "Cras");
+	EXPECT_EQ(stream.readLine(' '), "tortor");
+}
+
 TEST(MemoryReadStream, size) {
 	static const byte data1[42] = {0};
 	static const byte data2[46] = {0};

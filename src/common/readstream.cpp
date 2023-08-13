@@ -169,7 +169,8 @@ std::string ReadStream::readLine(char delimiter) {
 	char data;
 	do {
 		read(&data, sizeof(char));
-		ss << data;
+		if (data != delimiter)
+			ss << data;
 	} while (data != delimiter && !eos());
 
 	return ss.str();
