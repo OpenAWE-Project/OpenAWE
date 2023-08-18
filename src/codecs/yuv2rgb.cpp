@@ -24,6 +24,9 @@
 #if __SSSE3__
 #	include <tmmintrin.h>
 #endif
+#if __ARM_NEON
+#	include <arm_neon.h>
+#endif
 
 #include "src/common/exception.h"
 
@@ -178,6 +181,69 @@ void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int widt
 	}
 #else
 	throw CreateException("OpenAWE was not compiled with SSE2 support");
+#endif
+}
+
+void convertYUV2RGB_NEON(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height) {
+#if __ARM_NEON
+	uint8x16_t y1[2], cb, cr;
+	uint16x8_t y2[4], cb2[2], cr2[2];
+	uint16x8_t r_cr[2], g_cb[2], g_cr[2], b_cb[2];
+	uint16x8_t r[2], g[2], b[2];
+
+	uint16x8_t fac_r_cr = vmovq_n_u16(90);
+	uint16x8_t fac_g_cb = vmovq_n_u16(22);
+	uint16x8_t fac_g_cr = vmovq_n_u16(46);
+	uint16x8_t fac_b_cb = vmovq_n_u16(114);
+
+	for (unsigned int y = 0; y < height; y+=2) {
+		for (unsigned int x = 0; x < width; x+=16) {
+			y1[0] = vld1q_u8(ycbcr.y.data() + y * width + x);
+			y1[1] = vld1q_u8(ycbcr.y.data() + (y + 1) * width + x);
+
+			cb = vld1q_u8(ycbcr.cb.data() + (y / 2) * (width / 2) + x / 2);
+			cr = vld1q_u8(ycbcr.cr.data() + (y / 2) * (width / 2) + x / 2);
+
+			y2[0] = vshlq_n_u16(vmovl_u8(vget_low_u8(y1[0])), 6);
+			y2[1] = vshlq_n_u16(vmovl_u8(vget_high_u8(y1[0])), 6);
+			y2[2] = vshlq_n_u16(vmovl_u8(vget_low_u8(y1[1])), 6);
+			y2[3] = vshlq_n_u16(vmovl_u8(vget_high_u8(y1[1])), 6);
+
+			cr2[0] = vmovl_u8(vget_low_u8(cr));
+			cr2[1] = vmovl_u8(vget_high_u8(cr));
+			cb2[0] = vmovl_u8(vget_low_u8(cb));
+			cb2[1] = vmovl_u8(vget_high_u8(cb));
+
+			r_cr[0] = vmulq_u16(fac_r_cr, cr2[0]);
+			r_cr[1] = vmulq_u16(fac_r_cr, cr2[1]);
+			g_cb[0] = vmulq_u16(fac_g_cb, cb2[0]);
+			g_cb[1] = vmulq_u16(fac_g_cb, cb2[1]);
+			g_cr[0] = vmulq_u16(fac_g_cr, cb2[0]);
+			g_cr[1] = vmulq_u16(fac_g_cr, cb2[1]);
+			b_cb[0] = vmulq_u16(fac_b_cb, cr2[0]);
+			b_cb[1] = vmulq_u16(fac_b_cb, cr2[1]);
+
+			// Convert two rows of values after each other
+			for (int i = 0; i < 2; ++i) {
+				// Convert two ycbcr vectors two rgb
+				for (int j = 0; j < 2; ++j) {
+					r[j] = vshrq_n_u16(vaddq_u16(y2[i * 2 + j], r_cr[j]), 6);
+					g[j] = vshrq_n_u16(vsubq_u16(vsubq_u16(y2[i * 2 + j], g_cr[j]), g_cb[j]), 6);
+					b[j] = vshrq_n_u16(vaddq_u16(y2[i * 2 + j], b_cb[j]), 6);
+				}
+
+				uint8x16_t result_r = vcombine_u8(vmovn_u16(r[0]), vmovn_u16(r[1]));
+				uint8x16_t result_g = vcombine_u8(vmovn_u16(g[0]), vmovn_u16(g[1]));
+				uint8x16_t result_b = vcombine_u8(vmovn_u16(b[0]), vmovn_u16(b[1]));
+
+				uint8x16x3_t result{result_r, result_g, result_b};
+
+				vst3q_u8(rgb + (y * width + x) * 3 + i * width * 3, result);
+			}
+		}
+	}
+#else
+	throw CreateException("OpenAWE was not compiled with NEON support");
 #endif
 }
 
