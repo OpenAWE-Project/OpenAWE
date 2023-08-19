@@ -41,13 +41,16 @@ public:
 	~ThreadPool();
 
 	void add(Runnable runnable);
+	bool empty() const;
+	size_t getQueuedTasks() const;
+	size_t getNumWorkerThreads() const;
 
 private:
 	void run();
 
 	std::atomic_bool _finished;
 	std::condition_variable _taskCond;
-	std::mutex _taskAccess;
+	mutable std::mutex _taskAccess;
 	std::queue<Runnable> _tasks;
 	std::vector<std::thread> _threads;
 };

@@ -26,7 +26,7 @@
 
 namespace Common {
 
-ThreadPool::ThreadPool() : _threads(std::max<int>(std::thread::hardware_concurrency() - 1, 0)) {
+ThreadPool::ThreadPool() : _threads(std::max<int>(std::thread::hardware_concurrency() - 1, 1)) {
 	_finished.store(false);
 
 	for (auto &thread : _threads) {
@@ -46,6 +46,20 @@ ThreadPool::~ThreadPool() {
 void ThreadPool::add(Runnable runnable) {
 	std::lock_guard<std::mutex> l(_taskAccess);
 	_tasks.push(runnable);
+}
+
+bool ThreadPool::empty() const {
+	std::lock_guard<std::mutex> l(_taskAccess);
+	return _tasks.empty();
+}
+
+size_t ThreadPool::getQueuedTasks() const {
+	std::lock_guard<std::mutex> l(_taskAccess);
+	return _tasks.size();
+}
+
+size_t ThreadPool::getNumWorkerThreads() const {
+	return _threads.size();
 }
 
 void ThreadPool::run() {
