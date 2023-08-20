@@ -51,6 +51,7 @@ option(USE_SYSTEM_ENTT "Use the system entt" OFF)
 option(WITH_TOOLS "Compile with command line tool" ON)
 option(WITH_VULKAN "Compile with support for vulkan" OFF)
 option(WITH_COMPILED_SHADERS "Compile shader permutations during" ON)
+option(WITH_SPIRV_CROSS "Compile with support for cross compiling shaders" ON)
 
 # ------------------------------------
 # Compiler flags
@@ -204,6 +205,12 @@ find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(spdlog REQUIRED)
 
+if (WITH_SPIRV_CROSS)
+    find_package(spirv_cross_core REQUIRED)
+    find_package(spirv_cross_glsl REQUIRED)
+    add_definitions(-DWITH_SPIRV_CROSS)
+endif ()
+
 if (WITH_VULKAN)
     # Vulkan is necessary since the graphics part has some stubs for future vulkan support, even if it doesn't work at the
     # moment. For this reason the awe executable is not linked to vulkan currently
@@ -334,6 +341,9 @@ target_link_libraries(
         awe_common
         awe_lib
         awe_platform
+
+        spirv-cross-core
+        spirv-cross-glsl
 
         GLEW::GLEW
         OpenGL::GL
