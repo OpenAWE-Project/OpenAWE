@@ -342,13 +342,19 @@ target_link_libraries(
         awe_lib
         awe_platform
 
-        spirv-cross-core
-        spirv-cross-glsl
-
         GLEW::GLEW
         OpenGL::GL
         ${MOJOSHADER_LIBRARIES}
 )
+
+if (WITH_SPIRV_CROSS)
+    target_link_libraries(
+            awe_graphics
+
+            spirv-cross-core
+            spirv-cross-glsl
+    )
+endif ()
 
 file(GLOB_RECURSE SOURCE_FILES src/sound/*.cpp src/sound/*.h)
 add_library(awe_sound ${SOURCE_FILES})
