@@ -51,7 +51,7 @@ option(USE_SYSTEM_ENTT "Use the system entt" OFF)
 option(WITH_TOOLS "Compile with command line tool" ON)
 option(WITH_VULKAN "Compile with support for vulkan" OFF)
 option(WITH_COMPILED_SHADERS "Compile shader permutations during" ON)
-option(WITH_SPIRV_CROSS "Compile with support for cross compiling shaders" ON)
+option(WITH_SPIRV_CROSS "Compile with support for cross compiling shaders" OFF)
 
 # ------------------------------------
 # Compiler flags
