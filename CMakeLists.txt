@@ -178,6 +178,11 @@ file(
 )
 add_library(mojoshader ${MOJOSHADER_SOURCE_FILES})
 target_include_directories(mojoshader PUBLIC 3rdparty/mojoshader)
+
+if (hasC-Wsign-compare)
+    set_target_properties(mojoshader PROPERTIES COMPILE_FLAGS "-Wno-sign-compare")
+endif ()
+
 set(MOJOSHADER_LIBRARIES mojoshader)
 set(MOJOSHADER_INCLUDE_DIRS 3rdparty/mojoshader)
 add_definitions(-DMOJOSHADER_NO_VERSION_INCLUDE)
