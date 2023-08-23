@@ -27,9 +27,9 @@
 namespace Common {
 
 INIFile::INIFile(ReadStream &ini) {
-	const auto emptyRegex = std::regex(" *(#.*)?", std::regex::ECMAScript);
-	const auto sectionRegex = std::regex(" *\\[.+\\] *(#.*)?", std::regex::ECMAScript);
-	const auto parameterRegex = std::regex("[a-zA-Z0-9\\_]+\\=.* *(#.*)?", std::regex::ECMAScript);
+	const auto emptyRegex = std::regex(R"(\s*(#.*)?)", std::regex::ECMAScript);
+	const auto sectionRegex = std::regex(R"(\s*\[.+\] *(#.*)?)", std::regex::ECMAScript);
+	const auto parameterRegex = std::regex(R"([a-zA-Z0-9\_]+\=.*\s*(#.*)?)", std::regex::ECMAScript);
 
 	std::string currentSection;
 	while (!ini.eos()) {
@@ -44,7 +44,7 @@ INIFile::INIFile(ReadStream &ini) {
 			assert(parameters.size() >= 2);
 
 			// Remove trailing whitespaces
-			const auto value = std::regex_replace(parameters[1], std::regex(" +$", std::regex::ECMAScript), "");
+			const auto value = std::regex_replace(parameters[1], std::regex("\\s+$", std::regex::ECMAScript), "");
 
 			_data[Id(currentSection, parameters[0])] = value;
 		} else if (std::regex_match(line, emptyRegex)) {
