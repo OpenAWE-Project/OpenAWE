@@ -107,6 +107,15 @@ jobs:
         if: ${{ matrix.os == 'macos-11' }}
         run: |
           rm /usr/local/bin/2to3
+          rm /usr/local/bin/2to3-3.11
+          rm /usr/local/bin/idle3
+          rm /usr/local/bin/idle3-3.11
+          rm /usr/local/bin/pydoc3
+          rm /usr/local/bin/pydoc3-config
+          rm /usr/local/bin/python3
+          rm /usr/local/bin/python3-config
+          rm /usr/local/bin/python3.11
+          rm /usr/local/bin/python3.11-config
           brew update
           brew install zlib glfw libogg libvorbis theora spdlog glew openal-soft bullet fmt googletest tinyxml2 glm ccache shaderc
 
