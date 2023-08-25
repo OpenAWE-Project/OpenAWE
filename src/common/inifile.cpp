@@ -29,7 +29,7 @@ namespace Common {
 INIFile::INIFile(ReadStream &ini) {
 	const auto emptyRegex = std::regex(R"(\s*(#.*)?)", std::regex::ECMAScript);
 	const auto sectionRegex = std::regex(R"(\s*\[.+\] *(#.*)?)", std::regex::ECMAScript);
-	const auto parameterRegex = std::regex(R"([a-zA-Z0-9\_]+\=.*\s*(#.*)?)", std::regex::ECMAScript);
+	const auto parameterRegex = std::regex(R"([a-zA-Z0-9_]+\=.*\s*(#.*)?)", std::regex::ECMAScript);
 
 	std::string currentSection;
 	while (!ini.eos()) {
