@@ -107,6 +107,7 @@ jobs:
         if: ${{ matrix.os == 'macos-11' }}
         run: |
           brew update
+          brew unlink python@2 
           brew install zlib glfw libogg libvorbis theora spdlog glew openal-soft bullet fmt googletest tinyxml2 glm ccache shaderc
 
       - name: Cache non-Windows build with ccache
