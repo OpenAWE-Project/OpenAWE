@@ -20,9 +20,11 @@
 
 #include <iostream>
 #include <functional>
+
 #include <fmt/format.h>
 
 #include "src/common/threadpool.h"
+#include "src/common/exception.h"
 
 namespace Common {
 
@@ -53,7 +55,11 @@ ThreadPool::~ThreadPool() {
 
 void ThreadPool::add(Runnable runnable) {
 	std::lock_guard<std::mutex> l(_taskAccess);
+	if (!runnable)
+		throw CreateException("Invalid runnable object given");
+
 	_tasks.push(runnable);
+	_taskCond.notify_one();
 }
 
 bool ThreadPool::empty() const {
@@ -71,17 +77,19 @@ size_t ThreadPool::getNumWorkerThreads() const {
 }
 
 void ThreadPool::run() {
-	while (!_finished) {
-		_taskAccess.lock();
-		if (_tasks.empty()) {
-			_taskAccess.unlock();
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			continue;
-		}
+	while (true) {
+		std::unique_lock<std::mutex> lock(_taskAccess);
+		if (_tasks.empty())
+			_taskCond.wait(lock, [&] {return !_tasks.empty() || _finished; });
+
+		if (_finished)
+			return;
 
 		Runnable runnable = _tasks.front();
+		if (!runnable)
+			throw CreateException("Invalid runnable object given");
 		_tasks.pop();
-		_taskAccess.unlock();
+		lock.unlock();
 
 		runnable();
 	}
