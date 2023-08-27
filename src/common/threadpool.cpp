@@ -29,8 +29,16 @@ namespace Common {
 ThreadPool::ThreadPool() : _threads(std::max<int>(std::thread::hardware_concurrency() - 1, 1)) {
 	_finished.store(false);
 
+	unsigned int i = 0;
 	for (auto &thread : _threads) {
 		thread = std::thread(std::bind(&ThreadPool::run, this));
+
+#ifdef OS_LINUX
+		pthread_setname_np(
+				thread.native_handle(),
+				fmt::format("Worker Thread {}", i++).c_str()
+		);
+#endif
 	}
 }
 
