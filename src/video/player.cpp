@@ -158,6 +158,7 @@ void Player::update() {
 			prepareTextures();
 
 			for (unsigned int i = 0; i < std::min<unsigned int>(std::max(framesProgressed - 1 - framesDeleted, 0u), _preparedTextures.size()); ++i) {
+				_availableTextures.emplace_back(_preparedTextures.front());
 				_preparedTextures.pop_front();
 				framesDeleted++;
 			}
