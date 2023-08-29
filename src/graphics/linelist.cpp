@@ -31,7 +31,7 @@ LineList::LineList() {
 			{kColor0,   kVec3F}
 	};
 
-	const std::vector<Material::Attribute> materialAttributes{
+	const std::vector<Material::Uniform> materialAttributes{
 	};
 
 	Mesh::PartMesh partMesh;

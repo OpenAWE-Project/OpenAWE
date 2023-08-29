@@ -27,7 +27,7 @@
 #include "src/common/readstream.h"
 #include "src/common/memreadstream.h"
 #include "src/common/memwritestream.h"
-#include "bit_cast.h"
+#include "src/common/bit_cast.h"
 
 namespace Common {
 
@@ -169,7 +169,8 @@ std::string ReadStream::readLine(char delimiter) {
 	char data;
 	do {
 		read(&data, sizeof(char));
-		ss << data;
+		if (data != delimiter)
+			ss << data;
 	} while (data != delimiter && !eos());
 
 	return ss.str();

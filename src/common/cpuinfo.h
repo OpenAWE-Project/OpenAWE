@@ -32,6 +32,10 @@ namespace Common {
  */
 std::string getCPUVendor();
 
+/*!
+ * Get the name of the current cpu or <unknown> if it is not recognizable
+ * \return The name of the current cpu
+ */
 std::string getCPUName();
 
 /*!

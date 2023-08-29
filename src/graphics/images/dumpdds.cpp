@@ -96,6 +96,16 @@ void dumpDDS(Common::WriteStream &dds, ImageDecoder &imageDecoder) {
 			dds.writeUint32LE(0x8000);
 			break;
 
+		case kRGBA8:
+			dds.writeUint32LE(kAlphaPixels | kRGB);
+			dds.writeUint32LE(kEmpty);
+			dds.writeUint32LE(32);
+			dds.writeUint32LE(0xFF000000);
+			dds.writeUint32LE(0x00FF0000);
+			dds.writeUint32LE(0x0000FF00);
+			dds.writeUint32LE(0x000000FF);
+			break;
+
 		case kBC1:
 			dds.writeUint32LE(kFourCC);
 			dds.writeUint32BE(kDXT1);

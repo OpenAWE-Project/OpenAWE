@@ -133,7 +133,7 @@ glm::mat4 Animation::calculateTransformation(const std::string &name, float time
 	for (const auto &keyframe : keyframes) {
 		if (time < keyframe.time) {
 			const float factor = (time - lastKeyframe.time) / (keyframe.time - lastKeyframe.time);
-			assert(0.0 <= factor <= 1.0f);
+			assert(0.0 <= factor && factor <= 1.0f);
 
 			transform = glm::identity<glm::mat4>();
 			transform *= glm::translate(

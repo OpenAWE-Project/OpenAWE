@@ -163,16 +163,16 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 			_indices.emplace_back(index);
 		}
 
-		const std::vector<Material::Attribute> materialAttributes = {
-			Material::Attribute("g_sColorMaps[0]",  localTextures[tileset.colorTiles[0]]),
-			Material::Attribute("g_sColorMaps[1]",  localTextures[tileset.colorTiles[1]]),
-			Material::Attribute("g_sColorMaps[2]",  localTextures[tileset.colorTiles[2]]),
-			Material::Attribute("g_sNormalMaps[0]", localTextures[tileset.normalTiles[0]]),
-			Material::Attribute("g_sNormalMaps[1]", localTextures[tileset.normalTiles[1]]),
-			Material::Attribute("g_sNormalMaps[2]", localTextures[tileset.normalTiles[2]]),
-			Material::Attribute("g_sBlendMap",      _blendMap),
-			Material::Attribute("g_vTexCoordScale1",glm::vec4(16.0)),
-			Material::Attribute("g_vTexCoordScale2",glm::vec4(glm::vec2(16.0), glm::vec2(_blendScale)))
+		const std::vector<Material::Uniform> materialAttributes = {
+			Material::Uniform("g_sColorMaps[0]",   localTextures[tileset.colorTiles[0]]),
+			Material::Uniform("g_sColorMaps[1]",   localTextures[tileset.colorTiles[1]]),
+			Material::Uniform("g_sColorMaps[2]",   localTextures[tileset.colorTiles[2]]),
+			Material::Uniform("g_sNormalMaps[0]",  localTextures[tileset.normalTiles[0]]),
+			Material::Uniform("g_sNormalMaps[1]",  localTextures[tileset.normalTiles[1]]),
+			Material::Uniform("g_sNormalMaps[2]",  localTextures[tileset.normalTiles[2]]),
+			Material::Uniform("g_sBlendMap",       _blendMap),
+			Material::Uniform("g_vTexCoordScale1", glm::vec4(16.0)),
+			Material::Uniform("g_vTexCoordScale2", glm::vec4(glm::vec2(16.0), glm::vec2(_blendScale)))
 		};
 
 		const std::vector<VertexAttribute> attributes = {

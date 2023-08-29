@@ -81,6 +81,14 @@ std::string replace(const std::string &str, const std::string &what, const std::
  * \return a vector of split strings
  */
 std::vector<std::string> split(const std::string &str, const std::regex &split);
+
+/*!
+ * Extract a certain pattern from a string
+ * \param str The string to search for a pattern
+ * \param pattern The pattern to search for
+ * \return The extracted pattern string
+ */
+std::string extract(const std::string &str, const std::regex &pattern);
 }
 
 #endif //AWE_STRUTIL_H

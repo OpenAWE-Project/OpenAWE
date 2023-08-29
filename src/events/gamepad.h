@@ -46,30 +46,20 @@ enum GamepadButton {
     kGamepadButtonLast = kGamepadButtonDPadLeft
 };
 
-/*
- * Axis values follow the underlying logic:
- * - If first two bits of a value are both zeroes - we're dealing with a 2D axis
- * - If the first bit is one - we use a horizontal 1D part of a 2D axis
- * - If the second bit is one - we use a vertical 1D part of a 2D axis
+/*!
+ * An enum representing the one dimensional trigger axis on gamepads
  */
-
-enum Gamepad2DAxis {
-    kGamepadAxisLeft = 4,
-    kGamepadAxisRight = 8
-};
-
-enum AxisSlice {
-    kSliceHorizontal = 1,
-    kSliceVertical = 2
-};
-
 enum Gamepad1DAxis {
-    kGamepadAxisLeftTrigger = 0,
-    kGamepadAxisRightTrigger = 1,
-    kGamepadAxisLeftX = kGamepadAxisLeft | kSliceHorizontal,
-    kGamepadAxisLeftY = kGamepadAxisLeft | kSliceVertical,
-    kGamepadAxisRightX = kGamepadAxisRight | kSliceHorizontal,
-    kGamepadAxisRightY = kGamepadAxisRight | kSliceVertical
+	kGamepadAxisLeftTrigger,
+	kGamepadAxisRightTrigger
+};
+
+/*!
+ * An enum representing the two dimensional stick axis on gamepads
+ */
+enum Gamepad2DAxis {
+    kGamepadAxisLeft,
+    kGamepadAxisRight
 };
 
 } // End of namespace Events

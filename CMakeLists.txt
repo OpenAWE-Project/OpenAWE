@@ -51,6 +51,7 @@ option(USE_SYSTEM_ENTT "Use the system entt" OFF)
 option(WITH_TOOLS "Compile with command line tool" ON)
 option(WITH_VULKAN "Compile with support for vulkan" OFF)
 option(WITH_COMPILED_SHADERS "Compile shader permutations during" ON)
+option(WITH_SPIRV_CROSS "Compile with support for cross compiling shaders" OFF)
 
 # ------------------------------------
 # Compiler flags
@@ -80,6 +81,8 @@ macro(check_and_set_compiler_flag flag)
 endmacro()
 
 check_and_set_compiler_flag("-Werror=vla")
+check_and_set_compiler_flag("-Wmisleading-indentation")
+check_and_set_compiler_flag("-Wparentheses")
 check_and_set_compiler_flag("-Wswitch")
 check_and_set_compiler_flag("-Wsign-compare")
 check_and_set_compiler_flag("-mssse3")
@@ -175,6 +178,11 @@ file(
 )
 add_library(mojoshader ${MOJOSHADER_SOURCE_FILES})
 target_include_directories(mojoshader PUBLIC 3rdparty/mojoshader)
+
+if (hasC-Wsign-compare)
+    set_target_properties(mojoshader PROPERTIES COMPILE_FLAGS "-Wno-sign-compare")
+endif ()
+
 set(MOJOSHADER_LIBRARIES mojoshader)
 set(MOJOSHADER_INCLUDE_DIRS 3rdparty/mojoshader)
 add_definitions(-DMOJOSHADER_NO_VERSION_INCLUDE)
@@ -201,6 +209,12 @@ find_package(Ogg REQUIRED)
 find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(spdlog REQUIRED)
+
+if (WITH_SPIRV_CROSS)
+    find_package(spirv_cross_core REQUIRED)
+    find_package(spirv_cross_glsl REQUIRED)
+    add_definitions(-DWITH_SPIRV_CROSS)
+endif ()
 
 if (WITH_VULKAN)
     # Vulkan is necessary since the graphics part has some stubs for future vulkan support, even if it doesn't work at the
@@ -337,6 +351,15 @@ target_link_libraries(
         OpenGL::GL
         ${MOJOSHADER_LIBRARIES}
 )
+
+if (WITH_SPIRV_CROSS)
+    target_link_libraries(
+            awe_graphics
+
+            spirv-cross-core
+            spirv-cross-glsl
+    )
+endif ()
 
 file(GLOB_RECURSE SOURCE_FILES src/sound/*.cpp src/sound/*.h)
 add_library(awe_sound ${SOURCE_FILES})

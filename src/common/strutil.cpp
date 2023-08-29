@@ -20,6 +20,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <regex>
 
 #include <zlib.h>
 
@@ -84,6 +85,14 @@ std::vector<std::string> split(const std::string &str, const std::regex &split) 
 	);
 
 	return result;
+}
+
+std::string extract(const std::string &str, const std::regex &pattern) {
+	std::smatch match;
+	if(std::regex_search(str, match, pattern))
+		return match[0];
+	else
+		return "";
 }
 
 }

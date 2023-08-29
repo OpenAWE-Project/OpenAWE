@@ -63,7 +63,7 @@ size_t ReadFile::pos() const {
 
     const auto pos = _in.tellg();
     if (pos == std::istream::pos_type(-1))
-        throw Common::Exception("Invalid file stream position");
+		throw Common::Exception("Invalid file stream position");
 
 	return _in.tellg();
 }

@@ -84,23 +84,23 @@ BillboardSet::BillboardSet(
 		{kColor0,      kUByte}
 	};
 
-	std::vector<Material::Attribute> materialAttributes;
+	std::vector<Material::Uniform> materialAttributes;
 	for (unsigned int i = 0; i < types.size(); ++i) {
-		materialAttributes.emplace_back(Material::Attribute(
+		materialAttributes.emplace_back(Material::Uniform(
 			fmt::format("g_foliageMeshTable[{}].vAtlasPosition", i),
 			types[i].atlasPosition
 		));
-		materialAttributes.emplace_back(Material::Attribute(
+		materialAttributes.emplace_back(Material::Uniform(
 			fmt::format("g_foliageMeshTable[{}].vAtlasSize", i),
 			types[i].atlasSize
 		));
-		materialAttributes.emplace_back(Material::Attribute(
+		materialAttributes.emplace_back(Material::Uniform(
 			fmt::format("g_foliageMeshTable[{}].vBillboardSize", i),
 			types[i].billboardSize
 		));
 	}
 
-	materialAttributes.emplace_back(Material::Attribute("g_sColorMap", _colorAtlas));
+	materialAttributes.emplace_back(Material::Uniform("g_sColorMap", _colorAtlas));
 
 	Mesh::PartMesh partMesh;
 	partMesh.vertexData = GfxMan.createBuffer(

@@ -18,36 +18,28 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_SHAPE_H
-#define OPENAWE_SHAPE_H
+#include <string>
 
-#include <memory>
-#include <vector>
+#include <gtest/gtest.h>
 
-#include <btBulletCollisionCommon.h>
+#include "src/common/threadpool.h"
 
-namespace Physics {
+TEST(ThreadPool, multipleJobs) {
+	std::atomic_int test(0), test2(0);
+	for (int i = 0; i < 100; i++)
+		Threads.add([&](){test++;});
+	for (int i = 0; i < 120; i++)
+		Threads.add([&](){test2++;});
 
-class Shape;
+	EXPECT_LE(Threads.getQueuedTasks(), 220);
 
-typedef std::shared_ptr<Shape> ShapePtr;
+	while (!Threads.empty())
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-class Shape {
-public:
-	Shape();
-    ~Shape();
+	EXPECT_EQ(test.load(), 100);
+	EXPECT_EQ(test2.load(), 120);
+}
 
-	btCollisionShape *getRootShape() const;
-
-	const btTransform &getOffset() const;
-
-protected:
-	btTransform _offset;
-	btCollisionShape *_rootShape;
-    std::vector<btCollisionShape *> _additionalShapes;
-	std::vector<btTriangleMesh *> _meshes;
-};
-
-} // End of namespace Physics
-
-#endif //OPENAWE_SHAPE_H
+TEST(ThreadPool, numThreads) {
+	EXPECT_EQ(Threads.getNumWorkerThreads(), std::max<size_t>(std::thread::hardware_concurrency() - 1, 1));
+}

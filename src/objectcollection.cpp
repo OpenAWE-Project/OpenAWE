@@ -80,7 +80,7 @@ void ObjectCollection::load(Common::ReadStream *stream, ObjectType type) {
 
 void ObjectCollection::load(Common::ReadStream *stream, ObjectType type, std::shared_ptr<DPFile> dp) {
     if (!stream)
-        return;
+		return;
 
 	std::unique_ptr<Common::ReadStream> cidStream(stream);
 	AWE::CIDFile cid(*cidStream, type, dp);
@@ -206,6 +206,7 @@ void ObjectCollection::loadStaticObject(const AWE::Object &container) {
 			);
 
 			collisionObject->setTransform(staticObject.position, staticObject.rotation);
+			collisionObject->setActive(true);
 
 			_registry.emplace<Physics::CollisionObjectPtr>(staticObjectEntity) = collisionObject;
 		} catch (Common::Exception &e) {

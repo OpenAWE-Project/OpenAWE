@@ -33,16 +33,32 @@ XML::Node &XML::Node::addNewNode(const std::string &name) {
 	return children.emplace_back(newNode);
 }
 
-const std::string &XML::Node::getString(const std::string &attribute) {
-	return properties[attribute];
+bool XML::Node::hasProperty(const std::string &attribute) const {
+	return properties.find(attribute) != properties.end();
 }
 
-int XML::Node::getInt(const std::string &attribute) {
-	return std::stoi(properties[attribute]);
+const std::string &XML::Node::getString(const std::string &attribute) const {
+	const auto iter = properties.find(attribute);
+	if (iter == properties.end())
+		throw CreateException("Property {} not found in tag", attribute);
+
+	return iter->second;
 }
 
-float XML::Node::getFloat(const std::string &attribute) {
-	return std::stof(properties[attribute]);
+int XML::Node::getInt(const std::string &attribute) const {
+	const auto iter = properties.find(attribute);
+	if (iter == properties.end())
+		throw CreateException("Property {} not found in tag", attribute);
+
+	return std::stoi(iter->second);
+}
+
+float XML::Node::getFloat(const std::string &attribute) const {
+	const auto iter = properties.find(attribute);
+	if (iter == properties.end())
+		throw CreateException("Property {} not found in tag", attribute);
+
+	return std::stof(iter->second);
 }
 
 XML::Node &XML::getRootNode() {

@@ -86,6 +86,56 @@ btCollisionShape *HavokShape::getShape(AWE::HavokFile &havok, const AWE::HavokFi
             break;
         }
 
+		case AWE::HavokFile::kCapsule: {
+			const auto capsuleShape = std::get<AWE::HavokFile::hkpCapsuleShape>(shape.shape);
+
+			shapeObject = new btCapsuleShape(
+				shape.radius,
+				glm::distance(capsuleShape.p1.xyz(), capsuleShape.p2.xyz())
+			);
+
+			const auto midPoint = glm::mix(capsuleShape.p1.xyz(), capsuleShape.p2.xyz(), 0.5f);
+			shapeOffset.setOrigin(btVector3(midPoint.x, midPoint.y, midPoint.z));
+
+			const auto rotationAxis = glm::cross(
+				glm::normalize(capsuleShape.p1.xyz()),
+				glm::vec3(0.0, 1.0, 0.0)
+			);
+
+			const auto rotationAngle = std::acos(glm::dot(
+				glm::normalize(capsuleShape.p1.xyz()),
+				glm::vec3(0.0, 1.0, 0.0)
+			));
+
+			shapeOffset.setRotation(btQuaternion(
+				btVector3(rotationAxis.x, rotationAxis.y, rotationAxis.z).normalize(),
+				rotationAngle
+			).normalize());
+
+			break;
+		}
+
+		case AWE::HavokFile::kSimpleMesh: {
+			const auto simpleMeshShape = std::get<AWE::HavokFile::hkpSimpleMeshShape>(shape.shape);
+
+			btTriangleMesh *triangleMesh = _meshes.emplace_back(new btTriangleMesh);
+
+			for (unsigned int i = 0; i < simpleMeshShape.indices.size(); i+=3) {
+				const auto v1 = simpleMeshShape.vertices[simpleMeshShape.indices[i]];
+				const auto v2 = simpleMeshShape.vertices[simpleMeshShape.indices[i + 1]];
+				const auto v3 = simpleMeshShape.vertices[simpleMeshShape.indices[i + 2]];
+				triangleMesh->addTriangle(
+					btVector3(v1.x, v1.y, v1.z),
+					btVector3(v2.x, v2.y, v2.z),
+					btVector3(v3.x, v3.y, v3.z)
+				);
+			}
+
+			shapeObject = new btBvhTriangleMeshShape(triangleMesh, true);
+
+			break;
+		}
+
         case AWE::HavokFile::kList: {
             const auto listShape = std::get<AWE::HavokFile::hkpListShape>(shape.shape);
             btCompoundShape *compoundShape = new btCompoundShape();
@@ -100,6 +150,75 @@ btCollisionShape *HavokShape::getShape(AWE::HavokFile &havok, const AWE::HavokFi
             shapeObject = compoundShape;
             break;
         }
+
+		case AWE::HavokFile::kMoppBvTreeShape: {
+			// TODO: It is currently just taking the child shape. It should generate a BVH and give it to the child mesh
+			const auto moppTreeShape = std::get<AWE::HavokFile::hkpMoppBvTreeShape>(shape.shape);
+
+			shapeObject = getShape(havok, havok.getShape(moppTreeShape.childShape), shapeOffset);
+			break;
+		}
+
+		case AWE::HavokFile::kStorageExtendedMeshShape: {
+			const auto storageMeshShape = std::get<AWE::HavokFile::hkpStorageExtendedMeshShape>(shape.shape);
+
+			btTriangleMesh *fullMesh = _meshes.emplace_back(new btTriangleMesh);
+
+			for (const auto &meshStorage: storageMeshShape.meshStorage) {
+				const auto meshSubpartStorage = havok.getMeshSubpartStorage(meshStorage);
+
+				const auto &vertices = meshSubpartStorage.vertices;
+				std::vector<uint32_t> indices;
+				indices.insert(indices.end(), meshSubpartStorage.indices8.begin(), meshSubpartStorage.indices8.end());
+				indices.insert(indices.end(), meshSubpartStorage.indices16.begin(), meshSubpartStorage.indices16.end());
+				indices.insert(indices.end(), meshSubpartStorage.indices32.begin(), meshSubpartStorage.indices32.end());
+
+				for (unsigned int i = 0; i < indices.size(); i+=4) {
+					const auto v1 = vertices[indices[i]];
+					const auto v2 = vertices[indices[i + 1]];
+					const auto v3 = vertices[indices[i + 2]];
+
+					fullMesh->addTriangle(
+						btVector3(v1.x, v1.y, v1.z),
+						btVector3(v2.x, v2.y, v2.z),
+						btVector3(v3.x, v3.y, v3.z)
+					);
+				}
+			}
+
+			btBvhTriangleMeshShape *meshShape = new btBvhTriangleMeshShape(fullMesh, true);
+			shapeObject = meshShape;
+
+			break;
+		}
+
+		case AWE::HavokFile::kConvexVerticesShape: {
+			const auto convexVerticesShape = std::get<AWE::HavokFile::hkpConvexVerticesShape>(shape.shape);
+
+			Common::BoundBox aabb(
+				convexVerticesShape.aabbCenter + convexVerticesShape.aabbHalfExtents,
+				convexVerticesShape.aabbCenter - convexVerticesShape.aabbHalfExtents
+			);
+			for (const auto &vertices: convexVerticesShape.rotatedVertices) {
+				assert(aabb.isInside(vertices[0]));
+				assert(aabb.isInside(vertices[1]));
+				assert(aabb.isInside(vertices[2]));
+				assert(aabb.isInside(vertices[3]));
+			}
+
+			auto *hullShape = new btConvexHullShape(
+				reinterpret_cast<const btScalar*>(convexVerticesShape.rotatedVertices.data()),
+				convexVerticesShape.numVertices,
+				sizeof(glm::vec3)
+			);
+
+			hullShape->optimizeConvexHull();
+			hullShape->initializePolyhedralFeatures();
+
+			shapeObject = hullShape;
+
+			break;
+		}
 
         case AWE::HavokFile::kConvexTransform: {
             const auto convexTransformShape = std::get<AWE::HavokFile::hkpConvexTransformShape>(shape.shape);

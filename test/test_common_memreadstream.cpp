@@ -178,6 +178,66 @@ TEST(MemoryReadStream, readUint64BE) {
 	EXPECT_TRUE(stream.eos());
 }
 
+TEST(MemoryReadStream, readSint64LE) {
+	static const byte data[32] = {
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+			0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x82, 0x00, 0x34, 0x00, 0x00, 0x56, 0x00, 0x78,
+			0x78, 0x00, 0x56, 0x00, 0x00, 0x34, 0x00, 0x82
+	};
+
+	Common::MemoryReadStream stream(data, 32);
+
+	EXPECT_EQ(stream.pos(), 0);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint64LE(), 72057594037927936);
+	EXPECT_EQ(stream.pos(), 8);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint64LE(), 1);
+	EXPECT_EQ(stream.pos(), 16);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint64LE(), 8647005842554749058);
+	EXPECT_EQ(stream.pos(), 24);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint64LE(), -9079199674168639368);
+	EXPECT_EQ(stream.pos(), 32);
+	EXPECT_TRUE(stream.eos());
+}
+
+TEST(MemoryReadStream, readSint64BE) {
+	static const byte data[32] = {
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+			0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x82, 0x00, 0x34, 0x00, 0x00, 0x56, 0x00, 0x78,
+			0x78, 0x00, 0x56, 0x00, 0x00, 0x34, 0x00, 0x82
+	};
+
+	Common::MemoryReadStream stream(data, 32);
+
+	EXPECT_EQ(stream.pos(), 0);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint64BE(), 1);
+	EXPECT_EQ(stream.pos(), 8);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint64BE(), 72057594037927936);
+	EXPECT_EQ(stream.pos(), 16);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint64BE(), -9079199674168639368);
+	EXPECT_EQ(stream.pos(), 24);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint64BE(), 8647005842554749058);
+	EXPECT_EQ(stream.pos(), 32);
+	EXPECT_TRUE(stream.eos());
+}
+
 TEST(MemoryReadStream, readUint32LE) {
 	static const byte data[16] = {
 			0x00, 0x00, 0x00, 0x01,
@@ -238,6 +298,66 @@ TEST(MemoryReadStream, readUint32BE) {
 	EXPECT_TRUE(stream.eos());
 }
 
+TEST(MemoryReadStream, readSint32LE) {
+	static const byte data[16] = {
+			0x00, 0x00, 0x00, 0x01,
+			0x01, 0x00, 0x00, 0x00,
+			0x12, 0x34, 0x56, 0x88,
+			0x88, 0x56, 0x34, 0x12
+	};
+
+	Common::MemoryReadStream stream(data, 16);
+
+	EXPECT_EQ(stream.pos(), 0);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint32LE(), 16777216);
+	EXPECT_EQ(stream.pos(), 4);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint32LE(), 1);
+	EXPECT_EQ(stream.pos(), 8);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint32LE(), -2007616494);
+	EXPECT_EQ(stream.pos(), 12);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint32LE(), 305419912);
+	EXPECT_EQ(stream.pos(), 16);
+	EXPECT_TRUE(stream.eos());
+}
+
+TEST(MemoryReadStream, readSint32BE) {
+	static const byte data[16] = {
+			0x00, 0x00, 0x00, 0x01,
+			0x01, 0x00, 0x00, 0x00,
+			0x12, 0x34, 0x56, 0x88,
+			0x88, 0x56, 0x34, 0x12
+	};
+
+	Common::MemoryReadStream stream(data, 16);
+
+	EXPECT_EQ(stream.pos(), 0);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint32BE(), 1);
+	EXPECT_EQ(stream.pos(), 4);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint32BE(), 16777216);
+	EXPECT_EQ(stream.pos(), 8);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint32BE(), 305419912);
+	EXPECT_EQ(stream.pos(), 12);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint32BE(), -2007616494);
+	EXPECT_EQ(stream.pos(), 16);
+	EXPECT_TRUE(stream.eos());
+}
+
 TEST(MemoryReadStream, readUint16LE) {
 	static const byte data[8] = {
 			0x00, 0x01,
@@ -294,6 +414,66 @@ TEST(MemoryReadStream, readUint16BE) {
 	EXPECT_FALSE(stream.eos());
 
 	EXPECT_EQ(stream.readUint16BE(), 0x7812);
+	EXPECT_EQ(stream.pos(), 8);
+	EXPECT_TRUE(stream.eos());
+}
+
+TEST(MemoryReadStream, readSint16LE) {
+	static const byte data[8] = {
+			0x00, 0x01,
+			0x01, 0x00,
+			0x12, 0x88,
+			0x88, 0x12
+	};
+
+	Common::MemoryReadStream stream(data, 8);
+
+	EXPECT_EQ(stream.pos(), 0);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint16LE(), 256);
+	EXPECT_EQ(stream.pos(), 2);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint16LE(), 1);
+	EXPECT_EQ(stream.pos(), 4);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint16LE(), -30702);
+	EXPECT_EQ(stream.pos(), 6);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint16LE(), 4744);
+	EXPECT_EQ(stream.pos(), 8);
+	EXPECT_TRUE(stream.eos());
+}
+
+TEST(MemoryReadStream, readSint16BE) {
+	static const byte data[8] = {
+			0x00, 0x01,
+			0x01, 0x00,
+			0x12, 0x88,
+			0x88, 0x12
+	};
+
+	Common::MemoryReadStream stream(data, 8);
+
+	EXPECT_EQ(stream.pos(), 0);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint16BE(), 1);
+	EXPECT_EQ(stream.pos(), 2);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint16BE(),256);
+	EXPECT_EQ(stream.pos(), 4);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint16BE(), 4744);
+	EXPECT_EQ(stream.pos(), 6);
+	EXPECT_FALSE(stream.eos());
+
+	EXPECT_EQ(stream.readSint16BE(), -30702);
 	EXPECT_EQ(stream.pos(), 8);
 	EXPECT_TRUE(stream.eos());
 }
@@ -425,6 +605,25 @@ TEST(MemoryReadStream, readStream) {
 	EXPECT_EQ(stream2->readUint32BE(), 0x11121314);
 	EXPECT_EQ(stream2->readUint32BE(), 0x21222324);
 	EXPECT_EQ(stream2->readUint32BE(), 0x31323334);
+}
+
+TEST(MemoryReadStream, readLine) {
+	Common::MemoryReadStream stream(reinterpret_cast<const byte*>(::kLipsum), strlen(::kLipsum));
+
+	static const auto kParagraph1 =
+		"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec urna ex. Duis eu "
+		"facilisis ipsum. Phasellus ultricies et enim vitae scelerisque. Maecenas faucibus sem "
+		"nec neque fermentum pretium. Sed sed aliquam ligula, at tincidunt velit. Curabitur sit "
+		"amet tellus sed arcu varius egestas. Vivamus eu mi nec leo accumsan consectetur sit amet "
+		"a arcu. Vivamus auctor dui a ex sodales, vitae sagittis elit euismod. Sed posuere luctus "
+		"rutrum. Morbi nunc nisl, faucibus sed varius ut, volutpat vel turpis. Phasellus "
+		"dignissim, purus id pretium mattis, purus ante auctor metus, sit amet ornare dolor diam "
+		"sit amet metus. Donec hendrerit venenatis enim, nec cursus nibh pharetra et.";
+
+	EXPECT_EQ(stream.readLine(), kParagraph1);
+	EXPECT_EQ(stream.readLine(), "");
+	EXPECT_EQ(stream.readLine(' '), "Cras");
+	EXPECT_EQ(stream.readLine(' '), "tortor");
 }
 
 TEST(MemoryReadStream, size) {

@@ -47,7 +47,7 @@ private:
 
 template<typename FormatString, typename... Args>
 Exception::Exception(const FormatString &fmt, Args &&... args) {
-	_message = fmt::format(fmt, std::forward<Args>(args)...);
+	_message = fmt::format(fmt::runtime(fmt), args...);
 }
 
 } // End of namespace Common

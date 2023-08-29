@@ -22,6 +22,12 @@
 
 #include <fmt/format.h>
 
+#if WITH_SPIRV_CROSS
+#	include <spirv_cross/spirv_glsl.hpp>
+#	include <spdlog/spdlog.h>
+#endif // WITH_SPIRV_CROSS
+
+#include "src/common/strutil.h"
 #include "src/common/exception.h"
 
 #include "src/graphics/opengl/shader.h"
@@ -31,23 +37,63 @@ namespace Graphics::OpenGL {
 ShaderPtr Shader::fromSPIRV(GLuint type, const std::vector<byte> &bytecode, const std::string &label) {
 	ShaderPtr shader(new Shader(type, label));
 
-	if (!GLEW_ARB_gl_spirv || !GLEW_ARB_spirv_extensions)
+	if (!GLEW_ARB_gl_spirv || !GLEW_ARB_spirv_extensions) {
+#if WITH_SPIRV_CROSS
+		spirv_cross::CompilerGLSL glsl(
+			reinterpret_cast<const uint32_t *>(bytecode.data()),
+			bytecode.size() / 4
+		);
+
+		const std::string glslVersion(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+		const std::string versionOnly = Common::replace(
+				Common::extract(
+					glslVersion,
+					std::regex("[1-4]\\.[0-6]\\.?0")
+				),
+				".", ""
+		);
+
+		spirv_cross::CompilerGLSL::Options options;
+		options.es = false;
+		options.version = std::stoul(versionOnly);
+
+		glsl.set_common_options(options);
+		const auto shaderCode = glsl.compile();
+
+		return fromGLSL(type, shaderCode, label);
+#else // WITH_SPIRV_CROSS
 		throw CreateException("Cannot create spirv shader without spirv extension");
+#endif // WITH_SPIRV_CROSS
+	}
 
 	glShaderBinary(
-			1,
-			&shader->_id,
-			GL_SPIR_V_BINARY_ARB,
-			bytecode.data(),
-			bytecode.size()
+		1,
+		&shader->_id,
+		GL_SHADER_BINARY_FORMAT_SPIR_V_ARB,
+		bytecode.data(),
+		bytecode.size()
 	);
 
-	glSpecializeShader(shader->_id, "main", 0, nullptr, nullptr);
+	glSpecializeShaderARB(
+		shader->_id,
+		"main",
+		0,
+		nullptr,
+		nullptr
+	);
 
-	GLint status;
-	glGetShaderiv(shader->_id, GL_COMPILE_STATUS, &status);
-	if (!status)
-		throw CreateException("Failed to compile spirv shader with {}", status);
+	GLint result, infoLogLength;
+	glGetShaderiv(shader->_id, GL_COMPILE_STATUS, &result);
+	glGetShaderiv(shader->_id, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+	if (result != GL_TRUE) {
+		std::string log;
+		log.resize(infoLogLength);
+
+		glGetShaderInfoLog(shader->_id, infoLogLength, nullptr, log.data());
+
+		throw std::runtime_error(fmt::format("Error while compiling shader:\n{}", log));
+	}
 
 	return shader;
 }

@@ -25,7 +25,7 @@ uniform sampler2D g_sNormalMap;
 
 in vec4 pass_ClipPosition;
 in vec4 pass_ViewPosition;
-in vec4 pass_Normal;
+in vec3 pass_Normal;
 in vec3 pass_Tangent;
 in vec3 pass_Bitangent;
 in vec2 pass_UV;

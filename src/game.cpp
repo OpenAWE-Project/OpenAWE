@@ -31,6 +31,7 @@
 #include "src/common/strutil.h"
 #include "src/common/exception.h"
 #include "src/common/platform.h"
+#include "src/common/cpuinfo.h"
 
 #include "src/platform/keyconversion.h"
 #include "src/platform/gamepadconversion.h"
@@ -101,6 +102,15 @@ bool Game::parseArguments(int argc, char **argv) {
 }
 
 void Game::init() {
+	spdlog::debug("CPU Vendor: {}", Common::getCPUVendor());
+	spdlog::debug("CPU Name: {}",   Common::getCPUName());
+	spdlog::debug("MMX: {}",    Common::hasMMX());
+	spdlog::debug("SSE: {}",    Common::hasSSE());
+	spdlog::debug("SSE2: {}",   Common::hasSSE2());
+	spdlog::debug("SSE3: {}",   Common::hasSSE3());
+	spdlog::debug("SSSE3: {}",  Common::hasSSSE3());
+	spdlog::debug("NEON: {}",   Common::hasNEON());
+
 	spdlog::info("Initializing AWE...");
 
 	if (_path.empty()) {

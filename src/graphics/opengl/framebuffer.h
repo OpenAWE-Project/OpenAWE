@@ -59,6 +59,17 @@ public:
 	void attachRenderBuffer(const Renderbuffer &renderbuffer, GLenum attachmentType);
 
 	/*!
+	 * Set the color, the framebuffer should be cleared with
+	 * \param clearColor The clear color for the buffer to be cleared
+	 */
+	void setClearColor(const glm::vec4 &clearColor);
+
+	/*!
+	 * Clear the framebuffers color attachments with a specified clear color
+	 */
+	void clear();
+
+	/*!
 	 * Bind the framebuffer as the current
 	 */
 	void bind();
@@ -70,6 +81,7 @@ public:
 
 private:
 	std::vector<GLenum> _attachments;
+	glm::vec4 _clearColor;
 	GLuint _id;
 };
 

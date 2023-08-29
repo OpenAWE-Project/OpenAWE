@@ -88,3 +88,13 @@ TEST(StringUtil, replace) {
 	testResult = Common::replace(testString, "sentence.", "phrase!");
 	EXPECT_STREQ(testResult.c_str(), "This is a cool and awesome phrase!");
 }
+
+TEST(StringUtil, extract) {
+	const std::string testString1 = "This is a cooool and awesome sentence.";
+	const std::string testString2 = "This is a not a cool and awesome sentence.";
+
+	const auto testResult1 = Common::extract(testString1, std::regex("co+l", std::regex::ECMAScript));
+	const auto testResult2 = Common::extract(testString2, std::regex("good", std::regex::ECMAScript));
+	EXPECT_STREQ(testResult1.c_str(), "cooool");
+	EXPECT_TRUE(testResult2.empty());
+}

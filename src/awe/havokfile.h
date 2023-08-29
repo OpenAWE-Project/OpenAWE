@@ -43,9 +43,14 @@ public:
 	enum ShapeType {
 		kBox,
 		kCylinder,
+		kCapsule,
+		kConvexVerticesShape,
 		kConvexTranslate,
 		kConvexTransform,
-		kList
+		kList,
+		kSimpleMesh,
+		kMoppBvTreeShape,
+		kStorageExtendedMeshShape
 	};
 
 	struct hkNamedVariant {
@@ -112,6 +117,10 @@ public:
 		glm::vec4 p1, p2;
 	};
 
+	struct hkpCapsuleShape {
+		glm::vec4 p1, p2;
+	};
+
 	struct hkpConvexTranslateShape {
 		uint32_t shape;
 		glm::vec4 translation;
@@ -127,15 +136,65 @@ public:
 		std::vector<uint32_t> shapes;
 	};
 
+	struct hkpSimpleMeshShape {
+		std::vector<uint32_t> indices;
+		std::vector<glm::vec4> vertices;
+	};
+
+	struct hkpConvexVerticesShape {
+		glm::vec4 aabbHalfExtents;
+		glm::vec4 aabbCenter;
+		std::vector<glm::mat4x3> rotatedVertices;
+		std::vector<glm::vec4> planeEquations;
+		uint32_t numVertices;
+		uint32_t connectivity;
+	};
+
+	struct hkpConvexVerticesConnectivity {
+		std::vector<uint16_t> indices;
+		std::vector<uint8_t> verticesPerFace;
+	};
+
+	struct hkpMoppBvTreeShape {
+		uint32_t moppCode;
+		uint32_t childShape;
+	};
+
+	struct hkpStorageExtendedMeshShape {
+		std::vector<uint32_t> meshStorage;
+		std::vector<uint32_t> shapeStorage;
+	};
+
+	struct hkpMoppCode {
+		glm::vec4 offset;
+	};
+
+	struct hkpStorageExtendedMeshShapeMeshSubpartStorage {
+		std::vector<glm::vec4> vertices;
+		std::vector<uint8_t> indices8;
+		std::vector<uint16_t> indices16;
+		std::vector<uint32_t> indices32;
+	};
+
+	struct hkpStorageExtendedMeshShapeShapeSubpartStorage {
+		std::vector<uint8_t> materialIndices;
+		std::vector<uint16_t> materialIndices16;
+	};
+
 	struct hkpShape {
 		uint64_t userData;
 		float radius;
 		std::variant<
 			hkpBoxShape,
 			hkpCylinderShape,
+			hkpCapsuleShape,
+			hkpConvexVerticesShape,
 			hkpConvexTranslateShape,
 			hkpConvexTransformShape,
-			hkpListShape
+			hkpListShape,
+			hkpSimpleMeshShape,
+			hkpMoppBvTreeShape,
+			hkpStorageExtendedMeshShape
 		> shape;
 		ShapeType type;
 	};
@@ -154,6 +213,8 @@ public:
 
 	hkpRigidBody getRigidBody(uint32_t address);
 	hkpShape getShape(uint32_t address);
+	hkpConvexVerticesConnectivity getConvexVerticesConnectivity(uint32_t address);
+	hkpStorageExtendedMeshShapeMeshSubpartStorage getMeshSubpartStorage(uint32_t address);
 
 private:
 	struct Fixup {
@@ -200,9 +261,18 @@ private:
 	hkpRigidBody readHkpRigidBody(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpBoxShape(Common::ReadStream &binhkx);
 	HavokFile::hkpShape readHkpCylinderShape(Common::ReadStream &binhkx);
+	HavokFile::hkpShape readHkpCapsuleShape(Common::ReadStream &binhkx);
 	HavokFile::hkpShape readHkpConvexTranslateShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpConvexTransformShape(Common::ReadStream &binhkx, uint32_t section);
 	HavokFile::hkpShape readHkpListShape(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpShape readHkpSimpleMeshShape(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpShape readHkpConvexVerticesShape(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpShape readHkpMoppBvTreeShape(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpShape readHkpStorageExtendedMeshShape(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpConvexVerticesConnectivity readHkpConvexVerticesConnectivity(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpMoppCode readHkpMoppCode(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpStorageExtendedMeshShapeMeshSubpartStorage readHkpMeshSubpartStorage(Common::ReadStream &binhkx, uint32_t section);
+	HavokFile::hkpStorageExtendedMeshShapeShapeSubpartStorage readHkpShapeSubpartStorage(Common::ReadStream &binhkx, uint32_t section);
 
 	RmdPhysicsSystem readRmdPhysicsSystem(Common::ReadStream &binhkx, uint32_t section);
 

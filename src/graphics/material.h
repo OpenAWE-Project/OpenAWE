@@ -36,8 +36,8 @@ namespace Graphics {
 
 class Material {
 public:
-	enum AttributeType {
-		kVec1, kVec2, kVec3, kVec4, kTexture
+	enum UniformType {
+		kFloat, kVec2, kVec3, kVec4, kTexture
 	};
 
 	enum CullMode {
@@ -45,35 +45,35 @@ public:
 	};
 
 	typedef std::variant<
-			glm::vec1,
+			float,
 			glm::vec2,
 			glm::vec3,
 			glm::vec4,
 			TexturePtr
-	> AttributeData;
+	> UniformData;
 
-	struct Attribute {
+	struct Uniform {
 		std::string id;
-		AttributeData data;
-		AttributeType type;
+		UniformData data;
+		UniformType type;
 		int index;
 
-		Attribute(const std::string &id, glm::vec1 value) : id(id), data(value), type(kVec1), index(-1) {}
-		Attribute(const std::string &id, glm::vec2 value) : id(id), data(value), type(kVec2), index(-1) {}
-		Attribute(const std::string &id, glm::vec3 value) : id(id), data(value), type(kVec3), index(-1) {}
-		Attribute(const std::string &id, glm::vec4 value) : id(id), data(value), type(kVec4), index(-1) {}
-		Attribute(const std::string &id, TexturePtr value) : id(id), data(value), type(kTexture), index(-1) {}
+		Uniform(const std::string &id, float value) : id(id), data(value), type(kFloat), index(-1) {}
+		Uniform(const std::string &id, glm::vec2 value) : id(id), data(value), type(kVec2), index(-1) {}
+		Uniform(const std::string &id, glm::vec3 value) : id(id), data(value), type(kVec3), index(-1) {}
+		Uniform(const std::string &id, glm::vec4 value) : id(id), data(value), type(kVec4), index(-1) {}
+		Uniform(const std::string &id, TexturePtr value) : id(id), data(value), type(kTexture), index(-1) {}
 	};
 
 	Material();
 	Material(
 		const std::string &shaderName,
 		std::initializer_list<std::string> stages,
-		std::vector<Attribute> attributes,
+		std::vector<Uniform> attributes,
 		uint32_t properties = 0
 	);
 
-	const std::vector<Attribute> &getAttributes(const std::string &stage) const;
+	const std::vector<Uniform> &getUniforms(const std::string &stage) const;
 	const std::string &getShaderName() const;
 
 	void setCullMode(CullMode cullMode);
@@ -91,7 +91,7 @@ private:
 	BlendMode _blendMode;
 	bool _refractive, _specular, _castShadow;
 	uint32_t _properties;
-	std::map<std::string, std::vector<Attribute>> _attributes;
+	std::map<std::string, std::vector<Uniform>> _attributes;
 	std::vector<std::string> _stages;
 	std::string _shaderName;
 };

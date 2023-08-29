@@ -29,7 +29,7 @@ Material::Material() {
 Material::Material(
 	const std::string &shaderName,
 	std::initializer_list<std::string> stages,
-	std::vector<Attribute> attributes,
+	std::vector<Uniform> attributes,
 	uint32_t properties) :
 	_blendMode(BlendMode::kNone),
 	_properties(properties),
@@ -48,7 +48,7 @@ Material::Material(
 	}
 }
 
-const std::vector<Material::Attribute> &Material::getAttributes(const std::string &stage) const {
+const std::vector<Material::Uniform> &Material::getUniforms(const std::string &stage) const {
 	return _attributes.at(stage);
 }
 

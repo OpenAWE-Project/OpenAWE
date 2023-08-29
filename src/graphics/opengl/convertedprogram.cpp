@@ -25,6 +25,9 @@
 
 namespace Graphics::OpenGL {
 
+ConvertedProgram::ConvertedProgram(const std::string &label) : Program(label) {
+}
+
 std::optional<GLint> ConvertedProgram::getAttributeLocation(const AttributeType &type) {
 	const auto attributeIndexMapped = Program::getAttributeLocation(_attributeMappings[type]);
 	if (attributeIndexMapped)
@@ -77,7 +80,7 @@ std::optional<GLint> ConvertedProgram::getUniformArraySymbolLocation(const Shade
 	return uniformArrayLocation;
 }
 
-void ConvertedProgram::setUniform1f(GLint id, const glm::vec1 &value) const {
+void ConvertedProgram::setUniform1f(GLint id, float value) const {
 	glm::vec4 alignedValue(value, 0.0f, 0.0f, 0.0f);
 	Program::setUniform4f(id, alignedValue);
 }

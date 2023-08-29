@@ -47,6 +47,16 @@ void convertYUV2RGB(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, uns
  */
 void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height);
 
+/*!
+ * Convert the data from an ycbcr buffer to the rgb space of an array by utilizing NEON. The result array is assumed to
+ * have the necessary size
+ * \param ycbcr The input ycbcr buffer to convert
+ * \param rgb The output rgb buffer to write the results into
+ * \param width The width of the video frame
+ * \param height The height of the video frame
+ */
+void convertYUV2RGB_NEON(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height);
+
 } // End of namespace Codecs
 
 #endif //OPENAWE_YUV2RGB_H
