@@ -63,6 +63,12 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	if (result != GLEW_OK)
 		throw std::runtime_error(reinterpret_cast<const char *>(glewGetErrorString(result)));
 
+	// Initialize debug output if possible
+	if (GLEW_ARB_debug_output) {
+		glEnable(GL_DEBUG_OUTPUT);
+		glDebugMessageCallbackARB(reinterpret_cast<GLDEBUGPROC>(&Renderer::debugMessageCallback), nullptr);
+	}
+
 	// Dump OpenGL Information
 	//
 
@@ -149,11 +155,6 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-
-	if (GLEW_ARB_debug_output) {
-		glEnable(GL_DEBUG_OUTPUT);
-		glDebugMessageCallbackARB(reinterpret_cast<GLDEBUGPROC>(&Renderer::debugMessageCallback), nullptr);
-	}
 
 	// Read and initialize shaders
 	//
