@@ -75,9 +75,12 @@ private:
 
 	static void debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, void *userParam);
 
+	void rebuildShaders();
+
 	Platform::Window &_window;
 
 	bool _hasDebug;
+	const std::string _shaderDirectory;
 
 	std::unique_ptr<Renderbuffer> _depthstencilBuffer;
 
