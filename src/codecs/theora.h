@@ -42,6 +42,8 @@ public:
 
 	bool eos() const override;
 
+	void skipNextFrames(size_t numFrames) override;
+
 private:
 	th_dec_ctx *_decoder;
 };

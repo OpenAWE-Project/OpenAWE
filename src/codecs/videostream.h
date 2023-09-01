@@ -90,6 +90,12 @@ public:
 	 */
 	virtual void readNextFrame(YCbCrBuffer &ycbcrBuffer) = 0;
 
+	/*!
+	 * Skip a number of frames from this video stream
+	 * \param numFrames The number of frames to skip
+	 */
+	virtual void skipNextFrames(size_t numFrames) = 0;
+
 private:
 	const float _fps;
 	const unsigned int _width, _height;
