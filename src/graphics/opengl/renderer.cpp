@@ -37,6 +37,7 @@
 #include "src/common/writefile.h"
 #include "src/common/exception.h"
 #include "src/common/strutil.h"
+#include "src/common/readfile.h"
 
 #include "src/awe/resman.h"
 #include "src/awe/objfile.h"
