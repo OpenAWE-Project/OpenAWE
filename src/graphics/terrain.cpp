@@ -179,6 +179,7 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 			Material::Uniform("g_sNormalMaps[1]",  localTextures[tileset.normalTiles[1]]),
 			Material::Uniform("g_sNormalMaps[2]",  localTextures[tileset.normalTiles[2]]),
 			Material::Uniform("g_sBlendMap",       _blendMap),
+			Material::Uniform("g_sGeoNormalMap",   _geoNormalMap),
 			Material::Uniform("g_vTexCoordScale1", glm::vec4(16.0)),
 			Material::Uniform("g_vTexCoordScale2", glm::vec4(glm::vec2(16.0), glm::vec2(_blendScale)))
 		};
@@ -229,6 +230,23 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 			blendMap.data.size() * sizeof(uint16_t)
 		);
 		_blendMap->load(xoffset, yoffset, blendSurface);
+	}
+
+	for (const auto &geonormalMap: terrainData.getGeonormalMaps()) {
+		const auto mapCoord = mapCoords[geonormalMap.id];
+
+		const auto xoffset = static_cast<unsigned int>(mapCoord.s * _potTextureSize);
+		const auto yoffset = static_cast<unsigned int>(mapCoord.t * _potTextureSize);
+
+		assert(xoffset % geonormalMap.size == 0 && yoffset % geonormalMap.size == 0);
+
+		Surface blendSurface(geonormalMap.size, geonormalMap.size, kA1RGB5);
+		std::memcpy(
+				blendSurface.getData(),
+				geonormalMap.data.data(),
+				geonormalMap.data.size() * sizeof(uint16_t)
+		);
+		_geoNormalMap->load(xoffset, yoffset, blendSurface);
 	}
 }
 
