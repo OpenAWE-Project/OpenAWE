@@ -147,6 +147,18 @@ std::optional<GLint> Program::getAttributeLocation(const AttributeType &type) {
 		case kDisplacementFactor:
 			attributeName = "in_DisplacementFactor";
 			break;
+		case kTangent0:
+			attributeName = "in_Tangent0";
+			break;
+		case kTangent1:
+			attributeName = "in_Tangent1";
+			break;
+		case kTangent2:
+			attributeName = "in_Tangent2";
+			break;
+		case kTangent3:
+			attributeName = "in_Tangent3";
+			break;
 		case kTexCoord0:
 			attributeName = "in_UV0";
 			break;
