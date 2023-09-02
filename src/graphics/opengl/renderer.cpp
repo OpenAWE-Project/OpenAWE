@@ -235,6 +235,7 @@ void Renderer::drawWorld(const std::string &stage) {
 		const std::optional<GLint> localToClip = currentShader->getUniformLocation("g_mLocalToClip");
 		const std::optional<GLint> viewToClip = currentShader->getUniformLocation("g_mViewToClip");
 		const std::optional<GLint> viewToWorld = currentShader->getUniformLocation("g_mViewToWorld");
+		const std::optional<GLint> worldToView = currentShader->getUniformLocation("g_mWorldToView");
 		const std::optional<GLint> screenRes = currentShader->getUniformLocation("g_vScreenRes");
 		const std::optional<GLint> lightBuffer = currentShader->getUniformLocation("g_sLightBuffer");
 
@@ -280,6 +281,8 @@ void Renderer::drawWorld(const std::string &stage) {
 				currentShader->setUniformMatrix4f(*viewToClip, _projection);
 			if (viewToWorld)
 				currentShader->setUniformMatrix4f(*viewToWorld, vm);
+			if (worldToView)
+				currentShader->setUniformMatrix4f(*worldToView, _view);
 
 			for (const auto &meshToRender: task.partMeshsToRender) {
 				const auto &partmesh = partMeshs[meshToRender];
