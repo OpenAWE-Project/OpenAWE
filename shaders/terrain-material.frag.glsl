@@ -40,8 +40,8 @@ void main() {
 	float fBlendFactor1 = 1.0 - clamp((vColor1.a - vBlendFactor.r) * 32.0, 0.0, 1.0);
 	float fBlendFactor2 = 1.0 - clamp((vColor2.a - vBlendFactor.g) * 32.0, 0.0, 1.0);
 
-	vec3 vColor = fBlendFactor1 * (vColor1.rgb - vColor0.rgb) + vColor0.rgb;
-	vColor = fBlendFactor2 * (vColor2.rgb - vColor.rgb) + vColor.rgb;
+	vec3 vColor = mix(vColor0.rgb, vColor1.rgb, fBlendFactor1);
+	vColor      = mix(vColor,      vColor2.rgb, fBlendFactor2);
 
 	out_Color = vec4(vColor.rgb, 1.0);
 }
