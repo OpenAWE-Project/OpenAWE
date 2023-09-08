@@ -35,7 +35,7 @@ namespace Graphics {
  * This class has all data necessary for representing a light in the scene. It is build up of a 3d shape representing
  * the area of effect and various parameters like the color.
  *
- * The falloff function for pointlights is defined as \f$2^{\delta\cdot ln(d)\cdot}\f$ with \f$\delta\f$ being the
+ * The falloff function for pointlights is defined as \f$2^{\delta\cdot ln(d)}-f\f$ with \f$\delta\f$ being the
  * distance to the pointlights center and \f$d\f$ being the decay of the light
  */
 class Light {
@@ -143,11 +143,24 @@ public:
 	 */
 	float getRange() const;
 
+	/*!
+	 * Check if this light is enabled. If it si not, it won't be rendered
+	 * \return If the light is enabled
+	 */
+	bool isEnabled() const;
+
+	/*!
+	 * Set if this light should be enabled.
+	 * \param enabled If the light should be enabled or not
+	 */
+	void setEnabled(bool enabled);
+
 private:
 	std::string _label;
 
     std::optional<float> _rangeClip;
 
+	bool _enabled;
 	float _decay;
 	float _intensity;
 	float _directionalFalloff;

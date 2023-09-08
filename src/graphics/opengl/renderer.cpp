@@ -442,6 +442,9 @@ void Renderer::drawLights() {
     glDisable(GL_DEPTH_TEST);
 
 	for (const auto &light: _lights) {
+		if (!light->isEnabled())
+			continue;
+
 		if (!_frustrum.test(Common::BoundSphere {mirrorZ * light->getTransform()[3], light->getRange() * 1.075f}))
 			continue;
 

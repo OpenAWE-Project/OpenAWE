@@ -33,7 +33,7 @@ enum PointLightPropertyFlags {
 
 namespace Graphics {
 
-Light::Light() : _label("<No Label>") {
+Light::Light() : _label("<No Label>"), _enabled(true) {
 	auto shape = Common::generateIcoSphere(1.075, 1);
 	Common::reverseTriangles(shape);
 	_shape = GfxMan.createBuffer(
@@ -153,6 +153,14 @@ float Light::getRange() const {
 		return *_rangeClip;
 	else
 		return 16.0f;
+}
+
+bool Light::isEnabled() const {
+	return _enabled;
+}
+
+void Light::setEnabled(bool enabled) {
+	_enabled = enabled;
 }
 
 } // End of namespace Graphics
