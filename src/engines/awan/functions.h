@@ -60,6 +60,9 @@ private:
 	void startTimer(Context &ctx);
 	void startTimerWithDuration(Context &ctx);
 
+	// functions_light.cpp
+	void enablePointLight(Context &ctx);
+
 	static const std::map<std::string, NativeFunction> _functions;
 
 	Engine &_engine;

@@ -27,6 +27,7 @@ const std::map<std::string, Functions::NativeFunction> Functions::_functions = {
 		{"Animate"                      , &Functions::animate                 },
 		{"StartTimer"                   , &Functions::startTimer              },
 		{"StartTimerWithDuration"       , &Functions::startTimerWithDuration  },
+		{"EnablePointLight"             , &Functions::enablePointLight        },
 		{"GAME.ActivateTask"            , &Functions::activateTask            },
 		{"GAME.PlayMusic"               , &Functions::playMusic               },
 		{"GAME.GetActiveEnemyCount"     , nullptr                             },
