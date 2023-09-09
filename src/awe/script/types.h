@@ -44,8 +44,8 @@ enum Opcode {
 	kSubFloat     = 0x08, // ?
 	kMulInt       = 0x09,
 	kDivInt       = 0x0A, // ?
-	kAddInt       = 0x0B, // ?
-	kSubInt       = 0x0C, // ?
+	kAddInt       = 0x0B,
+	kSubInt       = 0x0C,
 	kRet          = 0x0D,
 	kIntToFloat   = 0x0E,
 	kSetMember    = 0x0F,

@@ -65,6 +65,8 @@ void Bytecode::run(Context &context, uint32_t offset, const entt::entity &caller
 			case kCallObject: callObject(context, param1, param2); break;
 			case kMulFloat:   mulFloat(); break;
 			case kMulInt:     mulInt(); break;
+			case kAddInt:     addInt(); break;
+			case kSubInt:     subInt(); break;
 			case kRet:        ret(); break;
 			case kIntToFloat: intToFloat(); break;
 			case kSetMember:  setMember(context, param1); break;
@@ -178,6 +180,28 @@ void Bytecode::mulInt() {
 	_stack.push(value1 * value2);
 
 	spdlog::trace("mul_int");
+}
+
+void Bytecode::addInt() {
+	const int32_t value1 = std::get<Number>(_stack.top()).integer;
+	_stack.pop();
+	const int32_t value2 = std::get<Number>(_stack.top()).integer;
+	_stack.pop();
+
+	_stack.push(value2 + value1);
+
+	spdlog::trace("add_int");
+}
+
+void Bytecode::subInt() {
+	const int32_t value1 = std::get<Number>(_stack.top()).integer;
+	_stack.pop();
+	const int32_t value2 = std::get<Number>(_stack.top()).integer;
+	_stack.pop();
+
+	_stack.push(value2 - value1);
+
+	spdlog::trace("sub_int");
 }
 
 void Bytecode::ret() {

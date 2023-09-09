@@ -77,6 +77,8 @@ private:
 	void callObject(Context &ctx, byte argsBytes, byte retType);
 	void mulFloat();
 	void mulInt();
+	void addInt();
+	void subInt();
 	void ret();
 	void intToFloat();
 	void setMember(Context &ctx, byte id);
