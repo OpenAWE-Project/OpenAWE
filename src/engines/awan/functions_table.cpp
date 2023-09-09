@@ -25,8 +25,8 @@ namespace Engines::AlanWakesAmericanNightmare {
 const std::map<std::string, Functions::NativeFunction<AlanWakesAmericanNightmare::Functions>> Functions::_functions = {
 		{"Hide"                         , {&Functions::hide                    , {kEntity}}},
 		{"Animate"                      , {&Functions::animate                 , {}}},
-		{"StartTimer"                   , {&Functions::startTimer              , {kEntity}}},
-		{"StartTimerWithDuration"       , {&Functions::startTimerWithDuration  , {kEntity, kFloat}}},
+		{"StartTimer"                   , {&Functions::startTimer              , {kInt, kFloat, kInt}}},
+		{"StartTimerWithDuration"       , {&Functions::startTimerWithDuration  , {kInt, kFloat, kInt, kFloat}}},
 		{"EnablePointLight"             , {&Functions::enablePointLight        , {kBool}}},
 		{"EnableTrigger"                , {nullptr                             , {kBool}}},
 		{"GAME.ActivateTask"            , {&Functions::activateTask            , {kEntity}}},
