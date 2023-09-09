@@ -24,12 +24,12 @@ namespace Engines::AlanWakesAmericanNightmare {
 
 void Functions::callFunction(const std::string &name, Context &ctx) {
 	auto func = _functions.find(name);
-	if (func == _functions.end()) {
+	if (func == _functions.end() || !func->second.func) {
 		AWE::Script::Functions::callFunction(name, ctx);
 		return;
 	}
 
-	auto fun =  (*func).second;
+	auto fun =  (*func).second.func;
 	fun(this, ctx);
 }
 

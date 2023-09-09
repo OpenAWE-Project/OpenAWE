@@ -22,20 +22,21 @@
 
 namespace Engines::AlanWakesAmericanNightmare {
 
-const std::map<std::string, Functions::NativeFunction> Functions::_functions = {
-		{"Hide"                         , &Functions::hide                    },
-		{"Animate"                      , &Functions::animate                 },
-		{"StartTimer"                   , &Functions::startTimer              },
-		{"StartTimerWithDuration"       , &Functions::startTimerWithDuration  },
-		{"EnablePointLight"             , &Functions::enablePointLight        },
-		{"GAME.ActivateTask"            , &Functions::activateTask            },
-		{"GAME.PlayMusic"               , &Functions::playMusic               },
-		{"GAME.GetActiveEnemyCount"     , nullptr                             },
-		{"GAME.GetStoryModeRound"       , &Functions::getStoryModeRound       },
-		{"GAME.UnlockManuscriptPage"    , nullptr                             },
-		{"GAME.IsTrial"                 , &Functions::isTrial                 },
-		{"GAME.IsTrialModeB"            , &Functions::isTrialModeB            },
-		{"GAME.IsManuscriptPageUnlocked", &Functions::isManuscriptPageUnlocked},
+const std::map<std::string, Functions::NativeFunction<AlanWakesAmericanNightmare::Functions>> Functions::_functions = {
+		{"Hide"                         , {&Functions::hide                    , {kEntity}}},
+		{"Animate"                      , {&Functions::animate                 , {}}},
+		{"StartTimer"                   , {&Functions::startTimer              , {kEntity}}},
+		{"StartTimerWithDuration"       , {&Functions::startTimerWithDuration  , {kEntity, kFloat}}},
+		{"EnablePointLight"             , {&Functions::enablePointLight        , {kBool}}},
+		{"EnableTrigger"                , {nullptr                             , {kBool}}},
+		{"GAME.ActivateTask"            , {&Functions::activateTask            , {kEntity}}},
+		{"GAME.PlayMusic"               , {&Functions::playMusic               , {kEntity}}},
+		{"GAME.GetActiveEnemyCount"     , {nullptr                             , {}}},
+		{"GAME.GetStoryModeRound"       , {&Functions::getStoryModeRound       , {}}},
+		{"GAME.UnlockManuscriptPage"    , {nullptr                             , {}}},
+		{"GAME.IsTrial"                 , {&Functions::isTrial                 , {}}},
+		{"GAME.IsTrialModeB"            , {&Functions::isTrialModeB            , {}}},
+		{"GAME.IsManuscriptPageUnlocked", {&Functions::isManuscriptPageUnlocked, {kEntity}}},
 };
 
 }

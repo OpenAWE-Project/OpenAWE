@@ -100,9 +100,7 @@ template<> struct fmt::formatter<AWE::Script::Variable> {
 					return fmt::format_to(ctx.out(), "{:f}", Common::bit_cast<float>(intValue));
 				return fmt::format_to(ctx.out(), "{}", intValue);
 			}
-			case 1:
-				return fmt::format_to(ctx.out(), "\"{}\"", std::get<std::string>(variable));
-			case 2: {
+			case 1: {
 				entt::entity entity = std::get<entt::entity>(variable);
 				if (entity == entt::null)
 					return fmt::format_to(ctx.out(), "<null>");

@@ -22,11 +22,11 @@
 
 namespace AWE::Script {
 
-const std::map<std::string, Functions::NativeFunction> Functions::_functions = {
-		{"SendCustomEvent", &Functions::sendCustomEvent},
-        {"GAME.GetRand01" , &Functions::getRand01      },
-        {"GAME.GetRand"   , &Functions::getRand        },
-        {"GAME.GetRandInt", &Functions::getRandInt     }
+const std::map<std::string, Functions::NativeFunction<Functions>> Functions::_functions = {
+		{"SendCustomEvent", {&Functions::sendCustomEvent, {kString}}},
+        {"GAME.GetRand01" , {&Functions::getRand01      , {}}},
+        {"GAME.GetRand"   , {&Functions::getRand        , {kFloat, kFloat}}},
+        {"GAME.GetRandInt", {&Functions::getRandInt     , {kInt, kInt}}}
 };
 
 }
