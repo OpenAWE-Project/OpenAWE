@@ -186,7 +186,7 @@ struct AreaTrigger {
 };
 
 struct ScriptInstance {
-	GID gid, gid2;
+	GID gid, attachmentGid;
 	glm::vec3 position;
 	glm::mat3 rotation;
 };
@@ -248,8 +248,8 @@ struct TextureMetadata {
 };
 
 struct PointLight {
+	GID attachmentGid;
 	GID gid;
-	GID gid2;
 	glm::mat3x3 rotation;
 	glm::vec3 position;
 	glm::vec3 color;
@@ -279,7 +279,7 @@ struct AmbientLightInstance {
 };
 
 struct Trigger {
-	GID gid, gid2;
+	GID gid, attachmentGid;
 	std::string localeString, identifier;
 };
 

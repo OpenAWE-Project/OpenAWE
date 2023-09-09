@@ -410,7 +410,7 @@ void ObjectCollection::loadPointLight(const AWE::Object &container) {
 	const auto pointLight = std::any_cast<AWE::Templates::PointLight>(container);
 
 	auto pointLightEntity = _registry.create();
-	_registry.emplace<GID>(pointLightEntity) = pointLight.gid2;
+	_registry.emplace<GID>(pointLightEntity) = pointLight.gid;
 	const auto &transform = _registry.emplace<Transform>(pointLightEntity) = Transform(pointLight.position, pointLight.rotation);
 	auto &light = _registry.emplace<Graphics::Light>(pointLightEntity);
 
@@ -421,7 +421,7 @@ void ObjectCollection::loadPointLight(const AWE::Object &container) {
 	light.setTransform(transform.getTransformation());
 	if (pointLight.enableRangeClip)
 		light.setRangeClip(pointLight.rangeClip);
-	light.setLabel(_gid->getString(pointLight.gid2));
+	light.setLabel(_gid->getString(pointLight.gid));
 	light.show();
 
 	spdlog::debug("Loading point light {}", _gid->getString(pointLight.gid));
