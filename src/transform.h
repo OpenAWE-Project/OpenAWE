@@ -45,6 +45,8 @@ public:
 
 	glm::mat4 getTransformation() const;
 
+	void setParentTransform(const glm::mat4 &parentTransform);
+
 	glm::vec3 getTranslation() const;
 	glm::mat3 getRotation() const;
 
@@ -52,6 +54,8 @@ private:
 	glm::vec3 _translation;
 	glm::vec3 _scale;
 	glm::mat3 _rotation;
+
+	glm::mat4 _parentTransform;
 
 	bool _absoluteKeyFramer;
 	glm::mat4 _keyFramerTransform;

@@ -26,6 +26,7 @@
 Transform::Transform(glm::vec3 translation, glm::mat3 rotation) :
 	_translation(translation),
 	_rotation(rotation),
+	_parentTransform(glm::identity<glm::mat4>()),
 	_absoluteKeyFramer(false),
 	_keyFramerTransform(glm::identity<glm::mat4>()) {
 }
@@ -62,11 +63,15 @@ void Transform::setKeyFramerTransform(const glm::mat4 &keyFramerTransform, bool 
 }
 
 glm::mat4 Transform::getTransformation() const {
-	auto transform = glm::identity<glm::mat4>();
+	auto transform = _parentTransform;
 
 	if (!_absoluteKeyFramer)
 		transform *= glm::translate(transform, _translation) * glm::mat4(_rotation);
 	transform *= _keyFramerTransform;
 
 	return transform;
+}
+
+void Transform::setParentTransform(const glm::mat4 &parentTransform) {
+	_parentTransform = parentTransform;
 }

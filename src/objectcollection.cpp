@@ -144,6 +144,7 @@ void ObjectCollection::load(const AWE::Object &container, ObjectType type) {
 		case kAmbientLight:	loadAmbientLightInstance(container); break;
 		case kPointLight: loadPointLight(container); break;
 		case kWeapon: loadWeapon(container); break;
+		case kAttachmentContainer: loadAttachmentContainer(container); break;
 		default:
 			break; // If the object is currently not addable to the collection, skip it.
 	}
@@ -232,6 +233,17 @@ void ObjectCollection::loadDynamicObject(const AWE::Object &container) {
 	// TODO: Physics Resource
 
 	model->setTransform(transform.getTransformation());
+
+	if (!_localObjects[kAttachmentContainerID].empty()) {
+		const auto attachmentContainer = _registry.get<AWE::Templates::AttachmentContainer>(
+			_localObjects[kAttachmentContainerID][dynamicObject.attachmentContainer.getID()]
+		);
+
+		applyAttachmentContainer(
+			dynamicObjectEntity,
+			attachmentContainer
+		);
+	}
 
 	_entities.emplace_back(dynamicObjectEntity);
 
@@ -424,6 +436,8 @@ void ObjectCollection::loadPointLight(const AWE::Object &container) {
 	light.setLabel(_gid->getString(pointLight.gid));
 	light.show();
 
+	_attachmentMappings[pointLight.attachmentGid] = pointLight.gid;
+
 	spdlog::debug("Loading point light {}", _gid->getString(pointLight.gid));
 }
 
@@ -493,6 +507,8 @@ void ObjectCollection::loadTrigger(const AWE::Object &container) {
 	_registry.emplace<GID>(triggerEntity) = trigger.gid;
 
 	_entities.emplace_back(triggerEntity);
+
+	_attachmentMappings[trigger.attachmentGid] = trigger.gid;
 
 	spdlog::debug("Loading trigger {}", _gid->getString(trigger.gid));
 }
@@ -566,6 +582,44 @@ void ObjectCollection::loadKeyFramer(const AWE::Object &container) {
 	_localObjects[kKeyframerID].emplace_back(keyFramerEntity);
 
 	spdlog::debug("Loading keyframer {}", _gid->getString(keyFramer.gid));
+}
+
+void ObjectCollection::loadAttachmentContainer(const AWE::Object &container) {
+	const auto attachmentContainer = std::any_cast<AWE::Templates::AttachmentContainer>(container);
+
+	const auto attachmentContainerEntity = _registry.create();
+	_registry.emplace<AWE::Templates::AttachmentContainer>(attachmentContainerEntity) = attachmentContainer;
+
+	_localObjects[kAttachmentContainerID].emplace_back(attachmentContainerEntity);
+
+	_entities.emplace_back(attachmentContainerEntity);
+}
+
+void ObjectCollection::applyAttachmentContainer(
+		const entt::entity &parent,
+		const AWE::Templates::AttachmentContainer &attachmentContainer
+) {
+	const auto transform = _registry.get<Transform>(parent);
+	auto &relationship = _registry.get_or_emplace<Relationship>(parent);
+
+	for (const auto &pointLight: attachmentContainer.pointLights) {
+		if (_attachmentMappings.find(pointLight) == _attachmentMappings.end())
+			throw CreateException("Couldn't find point light {}:{:x}", pointLight.type, pointLight.id);
+
+		const auto pointlightEntity = getEntityByGID(_registry, _attachmentMappings.at(pointLight));
+		relationship.children.emplace_back(pointlightEntity);
+
+		_registry.get<Transform>(pointlightEntity).setParentTransform(transform.getTransformation());
+		_registry.get<Graphics::Light>(pointlightEntity).setTransform(
+				_registry.get<Transform>(pointlightEntity).getTransformation()
+		);
+
+		auto childRelationship = _registry.get_or_emplace<Relationship>(parent);
+		assert(childRelationship.parent == entt::null);
+		childRelationship.parent = parent;
+	}
+
+	// TODO: Attach more entity types
 }
 
 void ObjectCollection::loadKeyFrameAnimation(const AWE::Object &container) {

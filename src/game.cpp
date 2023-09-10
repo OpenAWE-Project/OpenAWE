@@ -58,6 +58,7 @@
 #include "src/timerprocess.h"
 #include "src/transform.h"
 #include "src/probe.h"
+#include "src/utils.h"
 
 static constexpr uint32_t kLockMouse = Common::crc32("MOUSE_LOCK");
 
@@ -289,10 +290,18 @@ void Game::start() {
 	GamepadMan.setGamepadTriggerCallback([&](int trigger, double pos, double delta){
 		EventMan.injectGamepad1DAxisInput(Platform::convertGLFW2GamepadTrigger(trigger), pos, delta);
 	});
-	
+
+	entt::observer transformRelationshipObserver {
+		_registry,
+		entt::collector.update<Transform>().where<Relationship>()
+	};
 	entt::observer transformModelObserver{
 		_registry,
 		entt::collector.update<Transform>().where<Graphics::ModelPtr>()
+	};
+	entt::observer transformLightObserver{
+		_registry,
+		entt::collector.update<Transform>().where<Graphics::Light>()
 	};
 
 	double lastTime = _platform.getTime();
@@ -304,11 +313,36 @@ void Game::start() {
 		_engine->update(time);
 		_engine->getScheduler().update(time);
 
+		/*
+		 * Update child transforms if a parent transform is changed
+		 */
+		for (const auto &transformEntity: transformRelationshipObserver) {
+			const auto &transform = _registry.get<Transform>(transformEntity);
+			const auto &relationship = _registry.get<Relationship>(transformEntity);
+
+			for (const auto &child : relationship.children) {
+				_registry.get<Transform>(child).setParentTransform(transform.getTransformation());
+
+				// TODO: Go into the deep structure
+			}
+		}
+
+		/*
+		 * Change a models transform when the entities transform has changed
+		 */
 		for (const auto &transformEntity : transformModelObserver) {
 			const Transform &transform = _registry.get<Transform>(transformEntity);
 			Graphics::ModelPtr model = _registry.get<Graphics::ModelPtr>(transformEntity);
 
 			model->setTransform(transform.getTransformation());
+		}
+
+		/*
+		 * Change a lights transform when the entities transform has changed
+		 */
+		for (const auto &lightEntity: transformLightObserver) {
+			const Transform &transform = _registry.get<Transform>(lightEntity);
+			_registry.get<Graphics::Light>(lightEntity).setTransform(transform.getTransformation());
 		}
 
 		freeCamera.update(time - lastTime);

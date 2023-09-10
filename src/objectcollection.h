@@ -31,6 +31,8 @@
 #include "src/awe/gidregistryfile.h"
 #include "src/awe/cidfile.h"
 
+#include "src/transform.h"
+
 class ObjectCollection {
 public:
 	virtual ~ObjectCollection();
@@ -76,12 +78,16 @@ private:
 	void loadKeyFrameAnimation(const AWE::Object &container);
 	void loadKeyFrame(const AWE::Object &container);
 	void loadWeapon(const AWE::Object &container);
+	void loadAttachmentContainer(const AWE::Object &container);
+
+	void applyAttachmentContainer(const entt::entity &parent, const AWE::Templates::AttachmentContainer &attachmentContainer);
 
 	std::vector<entt::entity> _entities;
 	static std::map<ObjectIDType, std::vector<entt::entity>> _globalObjects;
 	std::map<ObjectIDType, std::vector<entt::entity>> _localObjects;
 	std::unique_ptr<AWE::GIDRegistryFile> _gid;
 	std::unique_ptr<AWE::Script::Collection> _bytecode;
+	std::map<GID, GID> _attachmentMappings;
 };
 
 
