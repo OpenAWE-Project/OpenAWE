@@ -646,21 +646,28 @@ GLenum Renderer::getTextureSlot(unsigned int slot) {
 
 void Renderer::debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
 									const GLchar *message, void *userParam) {
+	const std::string msg(message, length);
+
 	switch (type) {
 		case GL_DEBUG_TYPE_ERROR:
-			spdlog::error(message);
+			spdlog::error(msg);
 			return;
+
+		case GL_DEBUG_TYPE_PUSH_GROUP:
+		case GL_DEBUG_TYPE_POP_GROUP:
+			return;
+
 		default:
 			switch (severity) {
 				case GL_DEBUG_SEVERITY_HIGH:
-					spdlog::info(message);
+					spdlog::info(msg);
 					break;
 				case GL_DEBUG_SEVERITY_MEDIUM:
-					spdlog::debug(message);
+					spdlog::debug(msg);
 					break;
                 default:
 				case GL_DEBUG_SEVERITY_LOW:
-					spdlog::trace(message);
+					spdlog::trace(msg);
 					break;
 			}
 			return;
