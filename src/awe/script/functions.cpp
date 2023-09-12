@@ -22,6 +22,7 @@
 #include <spdlog/spdlog.h>
 
 #include "src/common/strutil.h"
+#include "src/common/exception.h"
 
 #include "functions.h"
 
@@ -31,7 +32,12 @@ Functions::Functions(entt::registry &registry, entt::scheduler<double> &schedule
 
 }
 
-std::optional<Variable> Functions::callObject(entt::entity object, const std::string &functionName, std::vector<Variable> parameters) {
+std::optional<Variable> Functions::callObject(
+		entt::entity object,
+		const std::string &functionName,
+		std::vector<Variable> parameters,
+		const std::shared_ptr<DPFile> &dp
+) {
 	if (object == entt::null) {
 		spdlog::error("Cannot call object function {} with invalid object, skipping", functionName);
 		return 0;
@@ -39,6 +45,7 @@ std::optional<Variable> Functions::callObject(entt::entity object, const std::st
 
 	Context ctx{
 		object,
+		dp,
 		std::move(parameters)
 	};
 
@@ -47,9 +54,15 @@ std::optional<Variable> Functions::callObject(entt::entity object, const std::st
 	return ctx.ret;
 }
 
-std::optional<Variable> Functions::callGlobal(const std::string &name,const std::string &functionName, std::vector<Variable> parameters) {
+std::optional<Variable> Functions::callGlobal(
+		const std::string &name,
+		const std::string &functionName,
+		std::vector<Variable> parameters,
+		const std::shared_ptr<DPFile> &dp
+) {
 	Context ctx{
 			entt::null,
+			dp,
 			std::move(parameters)
 	};
 
@@ -63,29 +76,65 @@ void Functions::setTime(float time) {
 	_time = time;
 }
 
+std::string Functions::getFunctionString(
+		const std::string &name,
+		const std::vector<ParameterType> &signature,
+		const std::vector<Variable> &parameters,
+		const std::shared_ptr<DPFile> &dp
+) const {
+	std::vector<std::string> parameterValues;
+	for (size_t i = 0; i < parameters.size(); ++i) {
+		std::string valueString;
+
+		switch (signature[i]) {
+			case kFloat:
+				valueString = fmt::format("{:f}", std::get<Number>(parameters[i]).floatingPoint);
+				break;
+
+			case kInt:
+				valueString = fmt::format("{}", std::get<Number>(parameters[i]).integer);
+				break;
+
+			case kBool:
+				valueString = fmt::format("{}", static_cast<bool>(std::get<Number>(parameters[i]).integer));
+				break;
+
+			case kString:
+				valueString = fmt::format("\"{}\"", dp->getString(std::get<Number>(parameters[i]).integer));
+				break;
+
+			case kEntity:
+				valueString = fmt::format("<{}>", static_cast<unsigned int>(std::get<entt::entity>(parameters[i])));
+				break;
+
+			default:
+				valueString = "<invalid>";
+				break;
+		}
+
+		parameterValues.emplace_back(valueString);
+	}
+
+	return fmt::format("{}({})", name, fmt::join(parameterValues, ", "));
+}
+
 void Functions::callFunction(const std::string &name, Context &ctx) {
 	auto func = _functions.find(name);
 	if (func == _functions.end()) {
 		std::reverse(ctx.parameters.begin(), ctx.parameters.end());
+		spdlog::warn("TODO: Implement script functions {}", name);
+		return;
+	} else if (!func->second.func) {
+		std::reverse(ctx.parameters.begin(), ctx.parameters.end());
 		spdlog::warn(
-			"TODO: Implement script functions {}({})",
-			name,
-			fmt::join(ctx.parameters, ", ")
+				"TODO: Implement script functions {}", getFunctionString(name, func->second.signature, ctx.parameters, ctx.dp)
 		);
 		return;
 	}
 
-	auto fun = (*func).second;
-	if (fun)
-		fun(this, ctx);
-	else {
-		std::reverse(ctx.parameters.begin(), ctx.parameters.end());
-		spdlog::warn(
-				"TODO: Implement script functions {}({})",
-				name,
-				fmt::join(ctx.parameters, ", ")
-		);
-	}
+	auto fun = (*func).second.func;
+	assert(fun);
+	fun(this, ctx);
 }
 
 }

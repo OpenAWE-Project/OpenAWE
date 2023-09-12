@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <spdlog/spdlog.h>
+
 #include "src/engines/awan/functions.h"
 
 namespace Engines::AlanWakesAmericanNightmare {
@@ -27,9 +29,15 @@ void Functions::callFunction(const std::string &name, Context &ctx) {
 	if (func == _functions.end()) {
 		AWE::Script::Functions::callFunction(name, ctx);
 		return;
+	} else if (!func->second.func) {
+		std::reverse(ctx.parameters.begin(), ctx.parameters.end());
+		spdlog::warn(
+				"TODO: Implement script functions {}", getFunctionString(name, func->second.signature, ctx.parameters, ctx.dp)
+		);
+		return;
 	}
 
-	auto fun =  (*func).second;
+	auto fun =  (*func).second.func;
 	fun(this, ctx);
 }
 

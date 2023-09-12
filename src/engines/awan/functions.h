@@ -39,8 +39,6 @@ public:
 protected:
 	void callFunction(const std::string &name, Context &ctx) override;
 
-	typedef std::function<void(Functions *, class Context &)> NativeFunction;
-
 private:
 	// functions_game.cpp
 	void activateTask(Context &ctx);
@@ -60,7 +58,10 @@ private:
 	void startTimer(Context &ctx);
 	void startTimerWithDuration(Context &ctx);
 
-	static const std::map<std::string, NativeFunction> _functions;
+	// functions_light.cpp
+	void enablePointLight(Context &ctx);
+
+	static const std::map<std::string, NativeFunction<Functions>> _functions;
 
 	Engine &_engine;
 };

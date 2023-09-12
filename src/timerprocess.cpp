@@ -41,7 +41,7 @@ void TimerProcess::update(double delta, void *) {
 		_timer->setState(Timer::kStarted);
 	} else if (delta - created >= duration + startTime && _timer->getState() == Timer::kStarted) {
 		if (endBytecodeOffset) {
-			_ctx.getFunctions().setTime(startTime + duration);
+			_ctx.getFunctions().setTime(created + startTime + duration);
 			_bytecode->run(_ctx, *endBytecodeOffset, _timerEntity);
 		}
 		_timer->setState(Timer::kStopped);

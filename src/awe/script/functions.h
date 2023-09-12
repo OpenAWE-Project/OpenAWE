@@ -27,6 +27,7 @@
 #include <random>
 
 #include "types.h"
+#include "src/awe/dpfile.h"
 
 namespace AWE::Script {
 
@@ -45,21 +46,23 @@ public:
 	std::optional<Variable> callObject(
 			entt::entity object,
 			const std::string &functionName,
-			std::vector<Variable> parameters
+			std::vector<Variable> parameters,
+			const std::shared_ptr<DPFile> &dp
 	);
 
 	/*!
 	 * Call a global object method
 	 *
-	 * \param className
+	 * \param name
 	 * \param functionName
 	 * \param parameters
 	 * \return
 	 */
 	std::optional<Variable> callGlobal(
-			const std::string &className,
+			const std::string &name,
 			const std::string &functionName,
-			std::vector<Variable> parameters
+			std::vector<Variable> parameters,
+			const std::shared_ptr<DPFile> &dp
 	);
 
 	void setTime(float time);
@@ -67,6 +70,7 @@ public:
 protected:
 	struct Context {
 		entt::entity thisEntity;
+		std::shared_ptr<DPFile> dp;
 		std::vector<Variable> parameters;
 		std::optional<Variable> ret;
 
@@ -83,11 +87,30 @@ protected:
 		}
 
 		std::string getString(size_t index) {
-			return std::get<std::string>(parameters[index]);
+			return dp->getString(std::get<Number>(parameters[index]).integer);
 		}
 	};
 
-	typedef std::function<void(Functions *, class Context &)> NativeFunction;
+	enum ParameterType {
+		kInt,
+		kFloat,
+		kBool,
+		kString,
+		kEntity
+	};
+
+	template<typename F>
+	struct NativeFunction {
+		std::function<void(F *, class Context &)> func;
+		std::vector<ParameterType> signature;
+	};
+
+	std::string getFunctionString(
+			const std::string &name,
+			const std::vector<ParameterType> &signature,
+			const std::vector<Variable> &parameters,
+			const std::shared_ptr<DPFile> &dp
+	) const;
 
 	virtual void callFunction(const std::string &name, Context &ctx);
 
@@ -104,7 +127,7 @@ private:
     void getRand(Context &ctx);
     void getRandInt(Context &ctx);
 
-	static const std::map<std::string, NativeFunction> _functions;
+	static const std::map<std::string, NativeFunction<Functions>> _functions;
 };
 
 } // End of namespace AWE::Script

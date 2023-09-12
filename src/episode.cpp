@@ -70,17 +70,10 @@ Episode::Episode(entt::registry &registry, const std::string &world, const std::
 				dp = std::make_shared<DPFile>(tasks.getResource(filename));
 		}
 
-		spdlog::info("Loading static objects for {}", id);
-		load(tasks.getResource("cid_staticobject.bin"), kStaticObject, dp);
+		spdlog::info("Loading attachment containers for {}", id);
+		load(tasks.getResource("cid_attachmentcontainer.bin"), kAttachmentContainer, dp);
 
-		spdlog::info("Loading dynamic objects for {}", id);
-		load(tasks.getResource("cid_dynamicobject.bin"), kDynamicObject, dp);
-		load(tasks.getResource("cid_dynamicobjectscript.bin"), kDynamicObjectScript, dp);
-
-		spdlog::info("Loading characters for {}", id);
-		load(tasks.getResource("cid_character.bin"), kCharacter, dp);
-		load(tasks.getResource("cid_characterscript.bin"), kCharacterScript, dp);
-
+		// ,--- Load Possible attachment container entities
 		spdlog::info("Loading script instances for {}", id);
 		load(tasks.getResource("cid_scriptinstance.bin"), kScriptInstance, dp);
 		load(tasks.getResource("cid_scriptinstancescript.bin"), kScript, dp);
@@ -92,12 +85,27 @@ Episode::Episode(entt::registry &registry, const std::string &world, const std::
 		load(tasks.getResource("cid_ambientlight.bin"), kAmbientLight, dp);
 		load(tasks.getResource("cid_ambientlightscript.bin"), kScript, dp);
 
-		spdlog::info("Loading Floating Scripts for {}", id);
-		load(tasks.getResource("cid_floatingscript.bin"), kFloatingScript, dp);
-
 		spdlog::info("Loading Triggers for {}", id);
 		load(tasks.getResource("cid_trigger.bin"), kTrigger, dp);
 		load(tasks.getResource("cid_triggerscript.bin"), kScript, dp);
+		// '---
+
+		spdlog::info("Loading static objects for {}", id);
+		load(tasks.getResource("cid_staticobject.bin"), kStaticObject, dp);
+
+		spdlog::info("Loading dynamic objects for {}", id);
+		load(tasks.getResource("cid_dynamicobject.bin"), kDynamicObject, dp);
+		load(tasks.getResource("cid_dynamicobjectscript.bin"), kDynamicObjectScript, dp);
+
+		spdlog::info("Loading characters for {}", id);
+		load(tasks.getResource("cid_character.bin"), kCharacter, dp);
+		load(tasks.getResource("cid_characterscript.bin"), kCharacterScript, dp);
+
+		spdlog::info("Loading Spot Lights for {}", id);
+		load(tasks.getResource("cid_spotlight.bin"), kSpotLight, dp);
+
+		spdlog::info("Loading Floating Scripts for {}", id);
+		load(tasks.getResource("cid_floatingscript.bin"), kFloatingScript, dp);
 
 		spdlog::info("Loading area triggers for {}", id);
 		load(tasks.getResource("cid_areatrigger.bin"), kAreaTrigger, dp);

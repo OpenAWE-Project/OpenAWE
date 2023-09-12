@@ -26,6 +26,14 @@
 #include "src/awe/types.h"
 
 /*!
+ * Simple relationship component for entt as sggested by: https://skypjack.github.io/2019-06-25-ecs-baf-part-4/
+ */
+struct Relationship {
+	entt::entity parent{entt::null};
+	std::vector<entt::entity> children;
+};
+
+/*!
  * Get the entity associated with a specific global id
  * \param registry The registry from which to search for the entity
  * \param gid The global id to search for

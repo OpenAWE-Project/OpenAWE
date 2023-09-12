@@ -65,6 +65,8 @@ void Bytecode::run(Context &context, uint32_t offset, const entt::entity &caller
 			case kCallObject: callObject(context, param1, param2); break;
 			case kMulFloat:   mulFloat(); break;
 			case kMulInt:     mulInt(); break;
+			case kAddInt:     addInt(); break;
+			case kSubInt:     subInt(); break;
 			case kRet:        ret(); break;
 			case kIntToFloat: intToFloat(); break;
 			case kSetMember:  setMember(context, param1); break;
@@ -99,11 +101,10 @@ void Bytecode::run(Context &context, const std::string &entryPoint, const entt::
 void Bytecode::push() {
 	int32_t data = _bytecode->readSint32LE();
 
+	_stack.push(data);
 	if (_parameters->hasString(data)) {
-		_stack.push(_parameters->getString(data));
 		spdlog::trace("push \"{}\"", _parameters->getString(data));
 	} else {
-		_stack.push(data);
 		spdlog::trace("push {}", data);
 	}
 }
@@ -119,9 +120,9 @@ void Bytecode::pushGID(Context &ctx) {
 }
 
 void Bytecode::callGlobal(Context &ctx, const entt::entity &caller, byte argsBytes, byte retType) {
-	std::string object = std::get<std::string>(_stack.top());
+	std::string object = _parameters->getString(std::get<Number>(_stack.top()).integer);
 	_stack.pop();
-	std::string method = std::get<std::string>(_stack.top());
+	std::string method = _parameters->getString(std::get<Number>(_stack.top()).integer);
 	_stack.pop();
 
 	std::vector<Variable> arguments = extractParameters(argsBytes);
@@ -129,10 +130,10 @@ void Bytecode::callGlobal(Context &ctx, const entt::entity &caller, byte argsByt
 	std::optional<Variable> ret;
 	// Call caller object when "this" is used
 	if (object == "this")
-		ret = ctx.getFunctions().callObject(caller, method, arguments);
+		ret = ctx.getFunctions().callObject(caller, method, arguments, _parameters);
 	// If not call global object
 	else
-		ret = ctx.getFunctions().callGlobal(object, method, arguments);
+		ret = ctx.getFunctions().callGlobal(object, method, arguments, _parameters);
 
 	// Return variable if there is any
 	if (ret) {
@@ -147,12 +148,12 @@ void Bytecode::callGlobal(Context &ctx, const entt::entity &caller, byte argsByt
 void Bytecode::callObject(Context &ctx, byte argsBytes, byte retType) {
 	entt::entity entity = std::get<entt::entity>(_stack.top());
 	_stack.pop();
-	std::string method = std::get<std::string>(_stack.top());
+	std::string method = _parameters->getString(std::get<Number>(_stack.top()).integer);
 	_stack.pop();
 
 	std::vector<Variable> arguments = extractParameters(argsBytes);
 
-	auto ret = ctx.getFunctions().callObject(entity, method, arguments);
+	auto ret = ctx.getFunctions().callObject(entity, method, arguments, _parameters);
 	if (ret)
 		_stack.push(*ret);
 
@@ -179,6 +180,28 @@ void Bytecode::mulInt() {
 	_stack.push(value1 * value2);
 
 	spdlog::trace("mul_int");
+}
+
+void Bytecode::addInt() {
+	const int32_t value1 = std::get<Number>(_stack.top()).integer;
+	_stack.pop();
+	const int32_t value2 = std::get<Number>(_stack.top()).integer;
+	_stack.pop();
+
+	_stack.push(value2 + value1);
+
+	spdlog::trace("add_int");
+}
+
+void Bytecode::subInt() {
+	const int32_t value1 = std::get<Number>(_stack.top()).integer;
+	_stack.pop();
+	const int32_t value2 = std::get<Number>(_stack.top()).integer;
+	_stack.pop();
+
+	_stack.push(value2 - value1);
+
+	spdlog::trace("sub_int");
 }
 
 void Bytecode::ret() {

@@ -144,6 +144,7 @@ void ObjectCollection::load(const AWE::Object &container, ObjectType type) {
 		case kAmbientLight:	loadAmbientLightInstance(container); break;
 		case kPointLight: loadPointLight(container); break;
 		case kWeapon: loadWeapon(container); break;
+		case kAttachmentContainer: loadAttachmentContainer(container); break;
 		default:
 			break; // If the object is currently not addable to the collection, skip it.
 	}
@@ -173,7 +174,7 @@ void ObjectCollection::loadAnimation(const AWE::Object &container) {
 		spdlog::error(exception.what());
 	}
 
-	_objects[kAnimationID].emplace_back(animationEntity);
+	_globalObjects[kAnimationID].emplace_back(animationEntity);
 
 	spdlog::debug("Loading animation {} for skeleton {}", animation.name, _gid->getString(animation.skeletonGid));
 }
@@ -232,6 +233,17 @@ void ObjectCollection::loadDynamicObject(const AWE::Object &container) {
 	// TODO: Physics Resource
 
 	model->setTransform(transform.getTransformation());
+
+	if (!_localObjects[kAttachmentContainerID].empty()) {
+		const auto attachmentContainer = _registry.get<AWE::Templates::AttachmentContainer>(
+			_localObjects[kAttachmentContainerID][dynamicObject.attachmentContainer.getID()]
+		);
+
+		applyAttachmentContainer(
+			dynamicObjectEntity,
+			attachmentContainer
+		);
+	}
 
 	_entities.emplace_back(dynamicObjectEntity);
 
@@ -293,7 +305,7 @@ void ObjectCollection::loadCharacter(const AWE::Object &container) {
 
 	auto animationView = _registry.view<Graphics::AnimationPtr>();
 	for (const auto &animation: characterClass.animations) {
-		const auto animationEntity = _objects[kAnimationID][animation.getID()];
+		const auto animationEntity = _globalObjects[kAnimationID][animation.getID()];
 		const auto anim = _registry.try_get<Graphics::AnimationPtr>(animationEntity);
 		if (!anim)
 			continue;
@@ -410,7 +422,7 @@ void ObjectCollection::loadPointLight(const AWE::Object &container) {
 	const auto pointLight = std::any_cast<AWE::Templates::PointLight>(container);
 
 	auto pointLightEntity = _registry.create();
-	_registry.emplace<GID>(pointLightEntity) = pointLight.gid2;
+	_registry.emplace<GID>(pointLightEntity) = pointLight.gid;
 	const auto &transform = _registry.emplace<Transform>(pointLightEntity) = Transform(pointLight.position, pointLight.rotation);
 	auto &light = _registry.emplace<Graphics::Light>(pointLightEntity);
 
@@ -421,8 +433,10 @@ void ObjectCollection::loadPointLight(const AWE::Object &container) {
 	light.setTransform(transform.getTransformation());
 	if (pointLight.enableRangeClip)
 		light.setRangeClip(pointLight.rangeClip);
-	light.setLabel(_gid->getString(pointLight.gid2));
+	light.setLabel(_gid->getString(pointLight.gid));
 	light.show();
+
+	_attachmentMappings[pointLight.attachmentGid] = pointLight.gid;
 
 	spdlog::debug("Loading point light {}", _gid->getString(pointLight.gid));
 }
@@ -494,6 +508,8 @@ void ObjectCollection::loadTrigger(const AWE::Object &container) {
 
 	_entities.emplace_back(triggerEntity);
 
+	_attachmentMappings[trigger.attachmentGid] = trigger.gid;
+
 	spdlog::debug("Loading trigger {}", _gid->getString(trigger.gid));
 }
 
@@ -505,7 +521,7 @@ void ObjectCollection::loadCharacterClass(const AWE::Object &container) {
 	_registry.emplace<AWE::Templates::CharacterClass>(characterClassEntity) = characterClass;
 
 	for (const auto &animation : characterClass.animations) {
-		const auto animationEntity = _objects[kAnimationID][animation.getID()];
+		const auto animationEntity = _globalObjects[kAnimationID][animation.getID()];
 	}
 
 	_entities.emplace_back(characterClassEntity);
@@ -526,9 +542,9 @@ void ObjectCollection::loadKeyFramedObject(const AWE::Object &container) {
     model->setLabel(_gid->getString(keyFramedObject.gid));
 
 	const auto &keyFramer = _registry.get<KeyFramerPtr>(
-		_objects[kKeyframerID][keyFramedObject.keyFramer.getID()]
+		_localObjects[kKeyframerID][keyFramedObject.keyFramer.getID()]
 	);
-	const auto &keyFramerEntity = _objects[kKeyframerID][keyFramedObject.keyFramer.getID()];
+	const auto &keyFramerEntity = _localObjects[kKeyframerID][keyFramedObject.keyFramer.getID()];
 
 	transform.setKeyFrameOffset(keyFramedObject.position, keyFramedObject.rotation);
 
@@ -548,10 +564,10 @@ void ObjectCollection::loadKeyFramer(const AWE::Object &container) {
 	std::vector<KeyFrame> keyFrames;
 	std::map<GID, KeyFrameAnimation> keyFrameAnimations;
 	for (const auto &keyFrame : keyFramer.keyFrames) {
-		keyFrames.emplace_back(_registry.get<KeyFrame>(_objects[kKeyframeID][keyFrame.getID()]));
+		keyFrames.emplace_back(_registry.get<KeyFrame>(_localObjects[kKeyframeID][keyFrame.getID()]));
 	}
 	for (const auto &keyFrameAnimation : keyFramer.keyFrameAnimations) {
-		const auto keyFrameAnimationEntity = _objects[kKeyframeAnimationID][keyFrameAnimation.getID()];
+		const auto keyFrameAnimationEntity = _localObjects[kKeyframeAnimationID][keyFrameAnimation.getID()];
 		const auto gid = _registry.get<GID>(keyFrameAnimationEntity);
 		keyFrameAnimations[gid] = _registry.get<KeyFrameAnimation>(keyFrameAnimationEntity);
 	}
@@ -559,13 +575,51 @@ void ObjectCollection::loadKeyFramer(const AWE::Object &container) {
 	auto keyframer = _registry.emplace<KeyFramerPtr>(keyFramerEntity) = std::make_shared<KeyFramer>(keyFrames, keyFrameAnimations, keyFramer.initialKeyframe);
 
 	if (keyFramer.parentKeyFramer) {
-		const auto parentKeyFramer = _registry.get<KeyFramerPtr>(_objects[kKeyframerID][keyFramer.parentKeyFramer.getID()]);
+		const auto parentKeyFramer = _registry.get<KeyFramerPtr>(_localObjects[kKeyframerID][keyFramer.parentKeyFramer.getID()]);
 		keyframer->setParentKeyFramer(parentKeyFramer);
 	}
 
-	_objects[kKeyframerID].emplace_back(keyFramerEntity);
+	_localObjects[kKeyframerID].emplace_back(keyFramerEntity);
 
 	spdlog::debug("Loading keyframer {}", _gid->getString(keyFramer.gid));
+}
+
+void ObjectCollection::loadAttachmentContainer(const AWE::Object &container) {
+	const auto attachmentContainer = std::any_cast<AWE::Templates::AttachmentContainer>(container);
+
+	const auto attachmentContainerEntity = _registry.create();
+	_registry.emplace<AWE::Templates::AttachmentContainer>(attachmentContainerEntity) = attachmentContainer;
+
+	_localObjects[kAttachmentContainerID].emplace_back(attachmentContainerEntity);
+
+	_entities.emplace_back(attachmentContainerEntity);
+}
+
+void ObjectCollection::applyAttachmentContainer(
+		const entt::entity &parent,
+		const AWE::Templates::AttachmentContainer &attachmentContainer
+) {
+	const auto transform = _registry.get<Transform>(parent);
+	auto &relationship = _registry.get_or_emplace<Relationship>(parent);
+
+	for (const auto &pointLight: attachmentContainer.pointLights) {
+		if (_attachmentMappings.find(pointLight) == _attachmentMappings.end())
+			throw CreateException("Couldn't find point light {}:{:x}", pointLight.type, pointLight.id);
+
+		const auto pointlightEntity = getEntityByGID(_registry, _attachmentMappings.at(pointLight));
+		relationship.children.emplace_back(pointlightEntity);
+
+		_registry.get<Transform>(pointlightEntity).setParentTransform(transform.getTransformation());
+		_registry.get<Graphics::Light>(pointlightEntity).setTransform(
+				_registry.get<Transform>(pointlightEntity).getTransformation()
+		);
+
+		auto childRelationship = _registry.get_or_emplace<Relationship>(parent);
+		assert(childRelationship.parent == entt::null);
+		childRelationship.parent = parent;
+	}
+
+	// TODO: Attach more entity types
 }
 
 void ObjectCollection::loadKeyFrameAnimation(const AWE::Object &container) {
@@ -593,7 +647,7 @@ void ObjectCollection::loadKeyFrameAnimation(const AWE::Object &container) {
 
 	_registry.emplace<KeyFrameAnimation>(keyFrameAnimationEntity) = keyFrameAnimationObject;
 
-	_objects[kKeyframeAnimationID].emplace_back(keyFrameAnimationEntity);
+	_localObjects[kKeyframeAnimationID].emplace_back(keyFrameAnimationEntity);
 
 	spdlog::debug("Loading keyframe animation {}", _gid->getString(keyFrameAnimation.gid));
 }
@@ -609,7 +663,7 @@ void ObjectCollection::loadKeyFrame(const AWE::Object &container) {
 	auto keyFrameEntity = _registry.create();
 	_registry.emplace<KeyFrame>(keyFrameEntity) = keyFrameObject;
 
-	_objects[kKeyframeID].emplace_back(keyFrameEntity);
+	_localObjects[kKeyframeID].emplace_back(keyFrameEntity);
 
 	_entities.emplace_back(keyFrameEntity);
 }
@@ -626,4 +680,4 @@ void ObjectCollection::loadWeapon(const AWE::Object &container) {
 	spdlog::debug("Loading Weapon {}", _gid->getString(weapon.gid));
 }
 
-std::map<ObjectIDType, std::vector<entt::entity>> ObjectCollection::_objects = std::map<ObjectIDType, std::vector<entt::entity>>();
+std::map<ObjectIDType, std::vector<entt::entity>> ObjectCollection::_globalObjects = std::map<ObjectIDType, std::vector<entt::entity>>();

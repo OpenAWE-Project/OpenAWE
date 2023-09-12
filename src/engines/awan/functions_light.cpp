@@ -18,36 +18,22 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_THEORA_H
-#define OPENAWE_THEORA_H
+#include <spdlog/spdlog.h>
 
-#include <theora/theoradec.h>
+#include "src/keyframer.h"
+#include "src/keyframerprocess.h"
 
-#include "src/codecs/videostream.h"
-#include "src/codecs/oggcontainer.h"
+#include "src/graphics/light.h"
 
-namespace Codecs {
+#include "src/engines/awan/functions.h"
 
-class TheoraStream : public VideoStream, protected OggStream {
-public:
-	TheoraStream(
-		const th_info &info,
-		th_setup_info *setupInfo,
-		ogg_stream_state &stream,
-		OggContainer &container
-	);
-	~TheoraStream();
+namespace Engines::AlanWakesAmericanNightmare {
 
-	void readNextFrame(YCbCrBuffer &ycbcrBuffer) override;
+void Functions::enablePointLight(Context &ctx) {
+	const auto pointlightEntity = ctx.thisEntity;
+	const bool enable = ctx.getInt(0) != 0;
 
-	bool eos() const override;
+	_registry.get<Graphics::Light>(pointlightEntity).setEnabled(enable);
+}
 
-	void skipNextFrames(size_t numFrames) override;
-
-private:
-	th_dec_ctx *_decoder;
-};
-
-} // End of namespace Codecs
-
-#endif //OPENAWE_THEORA_H
+} // End of namespace Engines::AlanWakesAmericanNightmare

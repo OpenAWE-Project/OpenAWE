@@ -37,6 +37,7 @@
 #include "src/common/writefile.h"
 #include "src/common/exception.h"
 #include "src/common/strutil.h"
+#include "src/common/readfile.h"
 
 #include "src/platform/window.h"
 
@@ -54,7 +55,10 @@
 
 namespace Graphics::OpenGL {
 
-Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory) : Graphics::Renderer(window.getSize()), _window(window) {
+Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory) : Graphics::Renderer(window.getSize()),
+	_window(window),
+	_shaderDirectory(shaderDirectory)
+{
 	_window.makeCurrent();
 
 	// Initialize GLEW
@@ -62,6 +66,12 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	GLenum result = glewInit();
 	if (result != GLEW_OK)
 		throw std::runtime_error(reinterpret_cast<const char *>(glewGetErrorString(result)));
+
+	// Initialize debug output if possible
+	if (GLEW_ARB_debug_output) {
+		glEnable(GL_DEBUG_OUTPUT);
+		glDebugMessageCallbackARB(reinterpret_cast<GLDEBUGPROC>(&Renderer::debugMessageCallback), nullptr);
+	}
 
 	// Dump OpenGL Information
 	//
@@ -150,128 +160,9 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
-	if (GLEW_ARB_debug_output) {
-		glEnable(GL_DEBUG_OUTPUT);
-		glDebugMessageCallbackARB(reinterpret_cast<GLDEBUGPROC>(&Renderer::debugMessageCallback), nullptr);
-	}
-
 	// Read and initialize shaders
 	//
-	const std::regex objFile("^[a-z0-9]+\\.obj$");
-	for (const auto &item : std::filesystem::directory_iterator(shaderDirectory)) {
-		std::string filename = item.path().filename().string();
-		if (!item.is_regular_file())
-			continue;
-
-		if (!std::regex_match(Common::toLower(filename), objFile))
-			continue;
-
-		AWE::OBJFile obj(ResMan.getResource(item.path().string()));
-
-		for (auto &program : obj.getPrograms()) {
-			const auto &vertexShaderStream = *program.shaders.front().vertexShader;
-			const auto &pixelShaderStream = *program.shaders.front().pixelShader;
-
-			if (vertexShaderStream.eos() || pixelShaderStream.eos())
-				continue;
-
-			Graphics::ShaderConverter vertexConverter(*program.shaders.front().vertexShader);
-			Graphics::ShaderConverter pixelConverter(*program.shaders.front().pixelShader);
-			ShaderPtr vertexShader   = Shader::fromGLSL(GL_VERTEX_SHADER, vertexConverter.convertToGLSL());
-			ShaderPtr fragmentShader = Shader::fromGLSL(GL_FRAGMENT_SHADER, pixelConverter.convertToGLSL());
-
-			if (program.name == "albedo_only") {
-				auto p = std::make_unique<ConvertedProgram>();
-				p->attach(*vertexShader);
-				p->attach(*fragmentShader);
-				p->link();
-				p->setSymbols(vertexConverter.getSymbols());
-				p->setAttributeMappings(vertexConverter.getAttributeMappings());
-				p->addSamplerMappings(vertexConverter.getSamplerMappings());
-				p->addSamplerMappings(pixelConverter.getSamplerMappings());
-
-				_programs[RenderPassId(obj.getName(), program.shaders.front().flags)]->setProgram("material", std::move(p));
-			}
-		}
-
-	}
-	assert(glGetError() == GL_NO_ERROR);
-
-	const std::regex shaderFile("^[a-z]+-[a-z\\_]+-0x[0-9a-c]+\\.(vert|frag|tesc|tese)\\.(glsl|spv)$");
-	std::map<std::tuple<std::string, std::string, uint32_t>, ProgramPtr> programs;
-	std::vector<ShaderPtr> shaders;
-	for (const auto &item : std::filesystem::directory_iterator(shaderDirectory)) {
-		std::string filename = item.path().filename().string();
-
-		if (!std::regex_match(filename, shaderFile))
-			continue;
-
-		spdlog::info("Loading shader {}", filename);
-
-		std::string name, stage, type, propertiesString;
-		std::stringstream ss(filename);
-		std::getline(ss, name, '-');
-		std::getline(ss, stage, '-');
-		std::getline(ss, propertiesString, '.');
-		std::getline(ss, type, '.');
-
-		const uint32_t properties = std::stoul(propertiesString, nullptr, 16);
-
-		std::ifstream in(item.path());
-		std::string source((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-
-		GLenum shaderType;
-		if (type == "frag")
-			shaderType = GL_FRAGMENT_SHADER;
-		else if (type == "vert")
-			shaderType = GL_VERTEX_SHADER;
-		else if (type == "tesc")
-			shaderType = GL_TESS_CONTROL_SHADER;
-		else if (type == "tese")
-			shaderType = GL_TESS_EVALUATION_SHADER;
-		else
-			throw std::runtime_error("Unknown or unsupported shader");
-
-		auto &shader = shaders.emplace_back(Shader::fromGLSL(
-			shaderType,
-			source,
-			fmt::format("{}-{}-0x{:0>8x}-{}", name, stage, properties, type)
-		));
-
-		const auto identifier = std::make_tuple(name, stage, properties);
-		if (programs.find(identifier) == programs.end())
-			programs[identifier] = std::make_shared<Program>(
-				fmt::format("{}-{}-0x{:0>8x}", name, stage, properties)
-			);
-
-		programs[identifier]->attach(*shader);
-	}
-
-	for (const auto &program: programs) {
-		const auto &[name, stage, properties] = program.first;
-		spdlog::info("Linking Program {} in stage {} with properties {:x}", name, stage, properties);
-
-		const auto id = RenderPassId(name, properties);
-
-		program.second->link();
-
-		if (_programs.find(id) == _programs.end())
-			_programs[id] = std::make_unique<ProgramCollection>();
-
-		_programs[id]->setProgram(stage, program.second);
-	}
-
-	for (auto &item : _programs) {
-		// If this render pass name already exists, skip it
-		if (std::find_if(
-			_renderPasses.begin(),
-			_renderPasses.end(),
-			[&](const auto &v){ return v.id == item.first; })
-			!= _renderPasses.end()
-		)
-			continue;
-		_renderPasses.emplace_back(RenderPass(item.first.programName, item.first.properties));
-	}
+	rebuildShaders();
 
 	_deferredBuffer = std::make_unique<Framebuffer>();
 	setRenderPlane(_window.getSize());
@@ -363,6 +254,7 @@ void Renderer::drawWorld(const std::string &stage) {
 		const std::optional<GLint> localToClip = currentShader->getUniformLocation("g_mLocalToClip");
 		const std::optional<GLint> viewToClip = currentShader->getUniformLocation("g_mViewToClip");
 		const std::optional<GLint> viewToWorld = currentShader->getUniformLocation("g_mViewToWorld");
+		const std::optional<GLint> worldToView = currentShader->getUniformLocation("g_mWorldToView");
 		const std::optional<GLint> screenRes = currentShader->getUniformLocation("g_vScreenRes");
 		const std::optional<GLint> lightBuffer = currentShader->getUniformLocation("g_sLightBuffer");
 
@@ -408,6 +300,8 @@ void Renderer::drawWorld(const std::string &stage) {
 				currentShader->setUniformMatrix4f(*viewToClip, _projection);
 			if (viewToWorld)
 				currentShader->setUniformMatrix4f(*viewToWorld, vm);
+			if (worldToView)
+				currentShader->setUniformMatrix4f(*worldToView, _view);
 
 			for (const auto &meshToRender: task.partMeshsToRender) {
 				const auto &partmesh = partMeshs[meshToRender];
@@ -567,6 +461,9 @@ void Renderer::drawLights() {
     glDisable(GL_DEPTH_TEST);
 
 	for (const auto &light: _lights) {
+		if (!light->isEnabled())
+			continue;
+
 		if (!_frustrum.test(Common::BoundSphere {mirrorZ * light->getTransform()[3], light->getRange() * 1.075f}))
 			continue;
 
@@ -979,6 +876,149 @@ Renderer::createAttributeObject(
 	glBindVertexArray(0);
 
 	return vao;
+}
+
+void Renderer::rebuildShaders() {
+	// Clear all previously created programs
+	_programs.clear();
+
+	const std::regex objFile("^[a-z0-9]+\\.obj$");
+	for (const auto &item : std::filesystem::directory_iterator(_shaderDirectory)) {
+		const std::string filename = item.path().filename().string();
+		if (!item.is_regular_file())
+			continue;
+
+		if (!std::regex_match(Common::toLower(filename), objFile))
+			continue;
+
+		auto *objStream = new Common::ReadFile(item.path().string());
+		AWE::OBJFile obj(objStream);
+
+		spdlog::info("Loading shader archive {}", filename);
+
+		for (auto &program : obj.getPrograms()) {
+			spdlog::info("Loading shader progran {}", program.name);
+			const auto &vertexShaderStream = *program.shaders.front().vertexShader;
+			const auto &pixelShaderStream = *program.shaders.front().pixelShader;
+
+			if (vertexShaderStream.eos() || pixelShaderStream.eos())
+				continue;
+
+			const auto identifier = fmt::format(
+				"{}-{}-0x{:0>8x}",
+				obj.getName(),
+				program.name,
+				program.shaders.front().flags
+			);
+
+			Graphics::ShaderConverter vertexConverter(*program.shaders.front().vertexShader);
+			Graphics::ShaderConverter pixelConverter(*program.shaders.front().pixelShader);
+			ShaderPtr vertexShader   = Shader::fromGLSL(
+				GL_VERTEX_SHADER,
+				vertexConverter.convertToGLSL(),
+				fmt::format("{}-vert", identifier)
+			);
+			ShaderPtr fragmentShader = Shader::fromGLSL(
+				GL_FRAGMENT_SHADER,
+				pixelConverter.convertToGLSL(),
+				fmt::format("{}-frag", identifier)
+			);
+
+			auto p = std::make_unique<ConvertedProgram>(identifier);
+			p->attach(*vertexShader);
+			p->attach(*fragmentShader);
+			p->link();
+			p->setSymbols(vertexConverter.getSymbols());
+			p->setAttributeMappings(vertexConverter.getAttributeMappings());
+			p->addSamplerMappings(vertexConverter.getSamplerMappings());
+			p->addSamplerMappings(pixelConverter.getSamplerMappings());
+
+			const auto passId = RenderPassId(obj.getName(), program.shaders.front().flags);
+			if (_programs.find(passId) == _programs.end())
+				_programs[passId] = std::make_unique<ProgramCollection>();
+
+			_programs[passId]->setProgram(
+				program.name,
+				std::move(p)
+			);
+		}
+	}
+	assert(glGetError() == GL_NO_ERROR);
+
+	const std::regex shaderFile("^[a-z]+-[a-z\\_]+-0x[0-9a-c]+\\.(vert|frag|tesc|tese)\\.(glsl|spv)$");
+	std::map<std::tuple<std::string, std::string, uint32_t>, ProgramPtr> programs;
+	std::vector<ShaderPtr> shaders;
+	for (const auto &item : std::filesystem::directory_iterator(_shaderDirectory)) {
+		std::string filename = item.path().filename().string();
+
+		if (!std::regex_match(filename, shaderFile))
+			continue;
+
+		spdlog::info("Loading shader {}", filename);
+
+		std::string name, stage, type, propertiesString;
+		std::stringstream ss(filename);
+		std::getline(ss, name, '-');
+		std::getline(ss, stage, '-');
+		std::getline(ss, propertiesString, '.');
+		std::getline(ss, type, '.');
+
+		const uint32_t properties = std::stoul(propertiesString, nullptr, 16);
+
+		std::ifstream in(item.path());
+		std::string source((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+		GLenum shaderType;
+		if (type == "frag")
+			shaderType = GL_FRAGMENT_SHADER;
+		else if (type == "vert")
+			shaderType = GL_VERTEX_SHADER;
+		else if (type == "tesc")
+			shaderType = GL_TESS_CONTROL_SHADER;
+		else if (type == "tese")
+			shaderType = GL_TESS_EVALUATION_SHADER;
+		else
+			throw std::runtime_error("Unknown or unsupported shader");
+
+		auto &shader = shaders.emplace_back(Shader::fromGLSL(
+				shaderType,
+				source,
+				fmt::format("{}-{}-0x{:0>8x}-{}", name, stage, properties, type)
+		));
+
+		const auto identifier = std::make_tuple(name, stage, properties);
+		if (programs.find(identifier) == programs.end())
+			programs[identifier] = std::make_shared<Program>(
+					fmt::format("{}-{}-0x{:0>8x}", name, stage, properties)
+			);
+
+		programs[identifier]->attach(*shader);
+	}
+
+	for (const auto &program: programs) {
+		const auto &[name, stage, properties] = program.first;
+		spdlog::info("Linking Program {} in stage {} with properties {:0>8x}", name, stage, properties);
+
+		const auto id = RenderPassId(name, properties);
+
+		program.second->link();
+
+		if (_programs.find(id) == _programs.end())
+			_programs[id] = std::make_unique<ProgramCollection>();
+
+		_programs[id]->setProgram(stage, program.second);
+	}
+
+	for (auto &item : _programs) {
+		// If this render pass name already exists, skip it
+		if (std::find_if(
+				_renderPasses.begin(),
+				_renderPasses.end(),
+				[&](const auto &v){ return v.id == item.first; })
+			!= _renderPasses.end()
+				)
+			continue;
+		_renderPasses.emplace_back(RenderPass(item.first.programName, item.first.properties));
+	}
 }
 
 }

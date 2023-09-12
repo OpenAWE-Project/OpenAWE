@@ -44,8 +44,8 @@ enum Opcode {
 	kSubFloat     = 0x08, // ?
 	kMulInt       = 0x09,
 	kDivInt       = 0x0A, // ?
-	kAddInt       = 0x0B, // ?
-	kSubInt       = 0x0C, // ?
+	kAddInt       = 0x0B,
+	kSubInt       = 0x0C,
 	kRet          = 0x0D,
 	kIntToFloat   = 0x0E,
 	kSetMember    = 0x0F,
@@ -100,9 +100,7 @@ template<> struct fmt::formatter<AWE::Script::Variable> {
 					return fmt::format_to(ctx.out(), "{:f}", Common::bit_cast<float>(intValue));
 				return fmt::format_to(ctx.out(), "{}", intValue);
 			}
-			case 1:
-				return fmt::format_to(ctx.out(), "\"{}\"", std::get<std::string>(variable));
-			case 2: {
+			case 1: {
 				entt::entity entity = std::get<entt::entity>(variable);
 				if (entity == entt::null)
 					return fmt::format_to(ctx.out(), "<null>");

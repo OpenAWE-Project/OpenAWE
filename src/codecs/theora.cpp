@@ -95,6 +95,33 @@ void TheoraStream::readNextFrame(YCbCrBuffer &ycbcrBuffer) {
 	}
 }
 
+void TheoraStream::skipNextFrames(size_t numFrames) {
+	std::vector<ogg_packet> packets;
+
+	for (size_t i = 0; i < numFrames; ++i) {
+		ogg_packet packet;
+		readNextPacket(packet);
+
+		// Get always the packets starting from the last keyframe to reduce the amount of decoding work
+		if (th_packet_iskeyframe(&packet))
+			packets.clear();
+
+		packets.emplace_back(packet);
+	}
+
+	for (auto &packet: packets) {
+		if (packet.granulepos)
+			th_decode_ctl(
+					_decoder,
+					TH_DECCTL_SET_GRANPOS,
+					&packet.granulepos,
+					sizeof(packet.granulepos)
+			);
+
+		th_decode_packetin(_decoder, &packet, nullptr);
+	}
+}
+
 bool TheoraStream::eos() const {
 	return OggStream::eos();
 }

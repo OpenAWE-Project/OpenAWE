@@ -360,7 +360,7 @@ void ObjectStream::script(Templates::Script &script) {
 }
 
 void ObjectStream::scriptInstance(Templates::ScriptInstance &scriptInstance) {
-	variable("gid2", scriptInstance.gid2);
+	variable("attachmentGid", scriptInstance.attachmentGid);
 	variable("gid", scriptInstance.gid);
 
 	variable("rotation", scriptInstance.rotation);
@@ -373,10 +373,10 @@ void ObjectStream::pointLight(Templates::PointLight &pointLight, unsigned int ve
      * Alan Wake: 11
      * Alan Wakes American Nightmare: 13
      */
-	variable("gid", pointLight.gid);
+	variable("attachmentGid", pointLight.attachmentGid);
 
 	if (version == 13) {
-		variable("gid2", pointLight.gid2);
+		variable("gid", pointLight.gid);
 
 		variable("rotation", pointLight.rotation);
 		variable("position", pointLight.position);
@@ -430,7 +430,7 @@ void ObjectStream::trigger(Templates::Trigger &trigger, unsigned int version) {
      * Alan Wake: 18
      * Alan Wakes American Nightmare: 20
      */
-	variable("gid2", trigger.gid2);
+	variable("attachmentGid", trigger.attachmentGid);
 	variable("gid", trigger.gid);
 
 	skip(4); // Priority?

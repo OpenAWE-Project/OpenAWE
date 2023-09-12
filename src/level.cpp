@@ -42,8 +42,6 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 	std::unique_ptr<Common::ReadStream> globalStream(ResMan.getResource(fmt::format("{}/Global.bin", levelFolder)));
 	AWE::BINArchive global(*globalStream);
 
-	load(global.getResource("cid_staticobject.bin"), kStaticObject);
-
 	std::unique_ptr<Common::ReadStream> persistentStream(ResMan.getResource(fmt::format("{}/Persistent.bin", levelFolder)));
 	AWE::BINArchive persistent(*persistentStream);
 
@@ -53,6 +51,29 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 	);
 
 	auto dp = std::make_shared<DPFile>(persistent.getResource("dp_persistent.bin"));
+
+	spdlog::info("Loading attachment containers for {}", id);
+	load(persistent.getResource("cid_attachmentcontainer.bin"), kAttachmentContainer, dp);
+
+	// ,--- Load Possible attachment container resources
+	spdlog::info("Loading script instances for {}", id);
+	load(persistent.getResource("cid_scriptinstance.bin"), kScriptInstance, dp);
+	load(persistent.getResource("cid_scriptinstancescript.bin"), kScript, dp);
+
+	spdlog::info("Loading Point Lights for {}", id);
+	load(persistent.getResource("cid_pointlight.bin"), kPointLight, dp);
+
+	spdlog::info("Loading ambient lights for {}", id);
+	load(persistent.getResource("cid_ambientlight.bin"), kAmbientLight, dp);
+	load(persistent.getResource("cid_ambientlightscript.bin"), kScript, dp);
+
+	spdlog::info("Loading Triggers for {}", id);
+	load(persistent.getResource("cid_trigger.bin"), kTrigger, dp);
+	load(persistent.getResource("cid_triggerscript.bin"), kScript, dp);
+	// '---
+
+	spdlog::info("Loading static objects for {}", id);
+	load(global.getResource("cid_staticobject.bin"), kStaticObject);
 
 	spdlog::info("Loading dynamic objects for {}", id);
 	load(persistent.getResource("cid_dynamicobject.bin"), kDynamicObject, dp);
@@ -64,6 +85,20 @@ Level::Level(entt::registry &registry, const std::string &id, const std::string 
 
 	spdlog::info("Loading floating scripts for {}", id);
 	load(persistent.getResource("cid_floatingscript.bin"), kFloatingScript, dp);
+
+	spdlog::info("Loading key frames for {}", id);
+	load(persistent.getResource("cid_keyframe.bin"), kKeyframe, dp);
+
+	spdlog::info("Loading key frame animations for {}", id);
+	load(persistent.getResource("cid_keyframeanimation.bin"), kKeyframeAnimation, dp);
+
+	spdlog::info("Loading key framers for {}", id);
+	load(persistent.getResource("cid_keyframer.bin"), kKeyframer, dp);
+	load(persistent.getResource("cid_keyframerscript.bin"), kScript, dp);
+
+	spdlog::info("Loading key framed objects for {}", id);
+	load(persistent.getResource("cid_keyframedobject.bin"), kKeyframedObject, dp);
+	load(persistent.getResource("cid_keyframedobjectscript.bin"), kDynamicObjectScript, dp);
 
 	const auto cellInfo = loadCellInfo(global.getResource("cid_cellinfo.bin"));
 	for (const auto &info : cellInfo) {
