@@ -138,16 +138,4 @@ std::string getUserDataDirectory() {
 	return userData;
 }
 
-VideoMode getPrimaryMonitorVideoMode() {
-	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-	if (!monitor)
-		throw CreateException("Failed to get primary monitor");
-	const GLFWvidmode *mode = glfwGetVideoMode(monitor);
-	return VideoMode{
-		mode->width, 
-		mode->height, 
-		mode->redBits + mode->greenBits + mode->blueBits,
-		mode->refreshRate};
-}
-
 } // End of namespace Common

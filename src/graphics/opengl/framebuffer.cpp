@@ -30,8 +30,10 @@ namespace Graphics::OpenGL {
 Framebuffer::Framebuffer(const std::string &label) {
 	glGenFramebuffers(1, &_id);
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		throw CreateException("Failed to initialize framebuffer");
+	const GLenum framebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+	if (framebufferStatus != GL_FRAMEBUFFER_COMPLETE)
+		throw CreateException("Failed to initialize framebuffer: {}", framebufferStatus);
 
 	bind();
 	if (GLAD_GL_KHR_debug && !label.empty())
@@ -43,17 +45,6 @@ Framebuffer::~Framebuffer() {
 }
 
 void Framebuffer::attachTexture(const Texture &texture, GLenum attachmentType) {
-	auto hasAttachment = std::find(_attachments.begin(), _attachments.end(), attachmentType);
-	if (hasAttachment != _attachments.end()) {
-		glFramebufferTexture2D(
-			GL_FRAMEBUFFER,
-			attachmentType,
-			texture._type,
-			0,
-			0
-		);
-		_attachments.erase(hasAttachment);	
-	}
 	glFramebufferTexture2D(
 			GL_FRAMEBUFFER,
 			attachmentType,
@@ -75,6 +66,11 @@ void Framebuffer::attachRenderBuffer(const Renderbuffer &renderbuffer, GLenum at
 			GL_RENDERBUFFER,
 			renderbuffer._id
 	);
+
+	const GLenum framebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+	if (framebufferStatus != GL_FRAMEBUFFER_COMPLETE)
+		throw CreateException("Failed to render buffer to texture: {}", framebufferStatus);
 }
 
 void Framebuffer::clear() {

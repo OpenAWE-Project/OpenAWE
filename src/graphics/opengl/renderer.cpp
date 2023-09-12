@@ -198,7 +198,6 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	//
 	rebuildShaders();
 
-	_deferredBuffer = std::make_unique<Framebuffer>();
 	setRenderPlane(_window.getSize());
 
 	// Check for errors
@@ -216,7 +215,7 @@ void Renderer::setRenderPlane(const glm::vec2 size) {
 	//
 	_depthTexture = std::make_unique<Texture>(_loadingTasks, size.x, size.y, kRGBA16F, "depth_buffer");
 	_normalTexture = std::make_unique<Texture>(_loadingTasks, size.x, size.y, kRGBA16F, "normal_buffer");
-	_depthstencilBuffer = std::make_unique<Renderbuffer>(width, height, GL_DEPTH24_STENCIL8,
+	_depthstencilBuffer = std::make_unique<Renderbuffer>(size.x, size.y, GL_DEPTH24_STENCIL8,
 														 "depthstencil_renderbuffer");
 
 	_deferredBuffer = std::make_unique<Framebuffer>("Deferred Buffer");
@@ -258,6 +257,12 @@ void Renderer::setRenderPlane(const glm::vec2 size) {
 
 	// Check for errors
 	assert(glGetError() == GL_NO_ERROR);
+}
+
+void Renderer::setContentScale(glm::vec2 scale) {
+	Graphics::Renderer::setContentScale(scale);
+	glm::vec2 scaledResolution = _viewportSize * _contentScale;
+	glViewport(0, 0, scaledResolution.x, scaledResolution.y);
 }
 
 Renderer::~Renderer() {
@@ -311,8 +316,6 @@ void Renderer::drawWorld(const std::string &stage) {
 	const auto &defaultShader = getProgram("standardmaterial", stage, 0);
 	static const glm::mat4 mirrorZ = glm::scale(glm::vec3(1, 1, -1));
 
-	const auto screenResolution = glm::vec2(1920, 1080);
-
 	bool wireframe = false;
 	Material::CullMode cullMode = Material::kNone;
 
@@ -343,7 +346,7 @@ void Renderer::drawWorld(const std::string &stage) {
 		const std::optional<GLint> skinningMatrices = currentShader->getUniformLocation("GPU_skinning_matrices");
 
 		if (screenRes)
-			currentShader->setUniform2f(*screenRes, screenResolution);
+			currentShader->setUniform2f(*screenRes, _viewportSize);
 
 		GLuint textureSlotShader = 0;
 		if (lightBuffer) {
@@ -594,7 +597,7 @@ void Renderer::drawLights() {
 
 		const auto cameraLightPositionView = _view * mirrorZ * light->getTransform()[3];
 
-		pointlightProgram->setUniform2f(screenResIndex, glm::vec2(1920, 1080));
+		pointlightProgram->setUniform2f(screenResIndex, _viewportSize);
 		pointlightProgram->setUniformMatrix4f(localToClipIndex, vp * mirrorZ * light->getTransform());
 		pointlightProgram->setUniformMatrix4f(clipToViewIndex, clipToView);
 		pointlightProgram->setUniform3f(lightPositionIndex, cameraLightPositionView);
@@ -619,7 +622,7 @@ void Renderer::drawLights() {
 }
 
 void Renderer::drawGUI() {
-	glm::mat4 vp = glm::ortho(0.0f, _renderPlane.x, 0.0f, _renderPlane.y, -1000.0f, 1000.0f);
+	glm::mat4 vp = glm::ortho(0.0f, _viewportSize.x, 0.0f, _viewportSize.y, -1000.0f, 1000.0f);
 
 	pushDebug("Draw GUI");
 
@@ -635,14 +638,14 @@ void Renderer::drawGUI() {
 	for (const auto &element: _guiElements) {
 		glm::mat4 m = glm::translate(glm::vec3(
 				element->getAbsolutePosition() +
-				element->getRelativePosition() * _renderPlane,
+				element->getRelativePosition() * _viewportSize,
 				0.0f
 		));
 		std::static_pointer_cast<Graphics::OpenGL::VAO>(element->getVertexAttributes())->bind();
 
 		for (const auto &part: element->getParts()) {
 			glm::mat4 m2 = m *
-						   glm::scale(glm::vec3(part.absoluteSize + part.relativeSize * _renderPlane, 1.0f)) *
+						   glm::scale(glm::vec3(part.absoluteSize + part.relativeSize * _viewportSize, 1.0f)) *
 						   glm::translate(glm::vec3(part.position, 1.0f));
 			std::static_pointer_cast<Graphics::OpenGL::VBO>(part.indices)->bind();
 

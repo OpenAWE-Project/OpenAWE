@@ -200,6 +200,10 @@ void GraphicsManager::setScreenSize(unsigned int width, unsigned int height) {
 	_renderer->setRenderPlane(width, height);
 }
 
+void GraphicsManager::setContentScale(glm::vec2 scale) {
+	_renderer->setContentScale(scale);
+}
+
 void GraphicsManager::setAmbianceState(const std::string &id) {
 	if (!_renderer)
 		return;
