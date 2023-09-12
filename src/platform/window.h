@@ -58,8 +58,9 @@ public:
 
 	void getSize(unsigned int &width, unsigned int &height) override;
 	glm::vec2 getSize() override;
-	void setSize(unsigned int width, unsigned int height) override;
-	void setFullscreen(bool fullscreen) override;
+	void setSize(unsigned int width, unsigned int height);
+	void setFullscreen(bool fullscreen);
+	glm::vec2 getContentScale();
 
 	bool isMouseCursorVisible();
 	void setMouseCursorVisible(bool visible);
@@ -91,6 +92,8 @@ private:
 	static void callbackFramebufferSize(GLFWwindow *window, int width, int height);
 
 	GLFWwindow *_window;
+	glm::vec2 _desiredResolution;
+	glm::vec2 _contentScale;
 
 	KeyCallback _keyCallback;
 	MouseButtonCallback _mouseButtonCallback;

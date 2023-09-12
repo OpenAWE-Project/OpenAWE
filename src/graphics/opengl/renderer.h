@@ -46,6 +46,7 @@ public:
 
 	void setRenderPlane(unsigned int width, unsigned int height) override;
 	void setRenderPlane(glm::vec2 size) override;
+	void setContentScale(glm::vec2 scale) override;
 
 	TexturePtr createTexture(
             TextureType type,

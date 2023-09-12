@@ -24,6 +24,13 @@
 
 namespace Platform {
 
+struct VideoMode {
+	int width;
+	int height;
+	int bpp;
+	int refreshRate;
+};
+
 /*!
  * \brief class for handling platform specific stuff
  *
@@ -40,6 +47,13 @@ public:
 	double getTime();
 
 	void update();
+
+	/*!
+	* Get primary monitor's current video mode
+	* 
+	* \return The primary monitor's current video mode
+	*/
+	VideoMode getPrimaryMonitorVideoMode();
 
 private:
 	static void errorCallback(int code, const char *description);

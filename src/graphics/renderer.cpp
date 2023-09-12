@@ -36,11 +36,15 @@ void Graphics::Renderer::setRenderPlane(unsigned int width, unsigned int height)
 
 void Graphics::Renderer::setRenderPlane(glm::vec2 renderPlane) {
 	// Setup initial projection matrix
-	_renderPlane = renderPlane;
-	_projection = glm::perspectiveFov(45.0f, _renderPlane.x, _renderPlane.y, 1.0f, 10000.0f);
+	_viewportSize = renderPlane;
+	_projection = glm::perspectiveFov(45.0f, _viewportSize.x, _viewportSize.y, 1.0f, 10000.0f);
 
 	// Initialize frustrum with projection matrix
 	_frustrum.setProjectionMatrix(_projection);
+}
+
+void Graphics::Renderer::setContentScale(glm::vec2 scale) {
+	_contentScale = scale;
 }
 
 Graphics::Renderer::~Renderer() {

@@ -29,8 +29,6 @@ class Context {
 public:
 	virtual void getSize(unsigned int &width, unsigned int &height) = 0;
 	virtual glm::vec2 getSize() = 0;
-	virtual void setSize(unsigned int width, unsigned int height) = 0;
-	virtual void setFullscreen(bool fullscreen) = 0;
 };
 
 }
