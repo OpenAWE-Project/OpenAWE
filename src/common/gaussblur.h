@@ -29,6 +29,31 @@
 namespace Common {
 
 /*!
+ * Generate the full mirrored weights for a gauss blur filter using the standard formula: \f$G(x)=e^{-x^2\sigma^2}\f$
+ * The resulting values are normalized using the sum of all weights using the formula:
+ * \f$G'(x)=\frac{G(x)}{\sum_{x'} G(x')}\f$
+ * \tparam T The type of values to generate the weights for
+ * \param size The size of the kernel
+ * \param sigma The sigma value
+ * \return A vector containing the gauss weights
+ */
+template<typename T = float> std::vector<T> generateFullGaussBlurWeights(unsigned int size, T sigma) {
+	assert(size > 0);
+
+	std::vector<T> weights(size * 2 - 1);
+
+	for (int i = -static_cast<int>(size) + 1; i < static_cast<int>(size); ++i)
+		weights[i + size - 1] = std::exp(-(std::pow(i, 2) * std::pow(sigma, 2)));
+
+	float sum = std::reduce(weights.begin(), weights.end());
+
+	for (auto &weight : weights)
+		weight /= sum;
+
+	return weights;
+}
+
+/*!
  * Generate the weights for a gauss blur filter using the standard formula: \f$G(x)=e^{-x^2\sigma^2}\f$ The resulting
  * values are normalized using the sum of all weights using the formula: \f$G'(x)=\frac{G(x)}{\sum_{x'} G(x')}\f$
  * \tparam T The type of values to generate the weights for
@@ -36,7 +61,7 @@ namespace Common {
  * \param sigma The sigma value
  * \return A vector containing the gauss weights
  */
-template<typename T = float> std::vector<T> generateGaussBlurWeights(unsigned int size, T sigma) {
+template<typename T = float> std::vector<T> generateHalfGaussBlurWeights(unsigned int size, T sigma) {
 	assert(size > 0);
 
 	std::vector<T> weights(size);
@@ -46,7 +71,7 @@ template<typename T = float> std::vector<T> generateGaussBlurWeights(unsigned in
 
 	float sum = std::reduce(weights.begin(), weights.end());
 
-	for (auto &weight: weights)
+	for (auto &weight : weights)
 		weight /= sum;
 
 	return weights;
