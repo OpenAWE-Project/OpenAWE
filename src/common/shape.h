@@ -45,6 +45,25 @@ struct Shape {
 Shape generateIcoSphere(float radius, unsigned int numSubdivisions);
 
 /*!
+ * Generate a pyramid shape using a height and a tip angle
+ *
+ * \param height The height of the pyramid from ground to tip
+ * \param angle The angle of the pyramid at the tip in degree
+ * \return A newly generated pyramid shape
+ */
+Shape generatePyramid(float height, float angle);
+
+/*!
+ * Generate a frustrum shape using near and far values with near < far and a tip angle
+ *
+ * \param near The near and distance from the tip
+ * \param far The Full height of the frustrum to its hypothetical tip
+ * \param angle The hypothetical pit angle in degree
+ * \return A newly generated frustrum shape
+ */
+Shape generateFrustrum(float near, float far, float angle);
+
+/*!
  * Reverse the indices of the shape, assuming that the indices represent triangles. Throw an error if that cannot be
  * done because the number of indices doesn't match a multiple of three and therefore cannot be a triangle only mesh
  *

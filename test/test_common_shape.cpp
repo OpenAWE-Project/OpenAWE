@@ -65,6 +65,90 @@ TEST(Shape, generateIcoSphere) {
 	}
 }
 
+TEST(Shape, generatePyramid) {
+	const auto pyramid0 = Common::generatePyramid(10, 90.0f);
+	const auto pyramid1 = Common::generatePyramid(10, 45.0f);
+
+	EXPECT_EQ(pyramid0.positions.size(), 5);
+	EXPECT_EQ(pyramid0.indices.size(), 18);
+
+	EXPECT_EQ(pyramid1.positions.size(), 5);
+	EXPECT_EQ(pyramid1.indices.size(), 18);
+
+	for (const auto &position: pyramid0.positions) {
+		if (position.y == 0.0f) {
+			EXPECT_FLOAT_EQ(std::abs(position.x), 10.0f);
+			EXPECT_FLOAT_EQ(std::abs(position.z), 10.0f);
+		} else {
+			EXPECT_EQ(position.x, 0.0f);
+			EXPECT_EQ(position.z, 0.0f);
+			EXPECT_EQ(position.y, 10.0f);
+		}
+	}
+
+	for (const auto &position: pyramid1.positions) {
+		if (position.y == 0.0f) {
+			EXPECT_FLOAT_EQ(std::abs(position.x), 4.1421356);
+			EXPECT_FLOAT_EQ(std::abs(position.z), 4.1421356);
+		} else {
+			EXPECT_EQ(position.x, 0.0f);
+			EXPECT_EQ(position.z, 0.0f);
+			EXPECT_EQ(position.y, 10.0f);
+		}
+	}
+
+	for (const auto &index1: pyramid0.indices) {
+		EXPECT_LT(index1, pyramid0.positions.size());
+	}
+
+	for (const auto &index1: pyramid1.indices) {
+		EXPECT_LT(index1, pyramid1.positions.size());
+	}
+}
+
+TEST(Shape, generateFrustrum) {
+	const auto frustrum0 = Common::generateFrustrum(1, 10, 90.0f);
+	const auto frustrum1 = Common::generateFrustrum(1, 10, 45.0f);
+
+	EXPECT_EQ(frustrum0.positions.size(), 8);
+	EXPECT_EQ(frustrum0.indices.size(), 36);
+
+	EXPECT_EQ(frustrum1.positions.size(), 8);
+	EXPECT_EQ(frustrum1.indices.size(), 36);
+
+	for (const auto &position: frustrum0.positions) {
+		if (position.y == 0.0) {
+			EXPECT_FLOAT_EQ(std::abs(position.x), 10.0f);
+			EXPECT_FLOAT_EQ(std::abs(position.z), 10.0f);
+		} else if (position.y == 9.0) {
+			EXPECT_FLOAT_EQ(std::abs(position.x), 1.0f);
+			EXPECT_FLOAT_EQ(std::abs(position.z), 1.0f);
+		} else {
+			FAIL();
+		}
+	}
+
+	for (const auto &position: frustrum1.positions) {
+		if (position.y == 0.0) {
+			EXPECT_FLOAT_EQ(std::abs(position.x), 4.1421356);
+			EXPECT_FLOAT_EQ(std::abs(position.z), 4.1421356);
+		} else if (position.y == 9.0) {
+			EXPECT_FLOAT_EQ(std::abs(position.x), 0.41421357);
+			EXPECT_FLOAT_EQ(std::abs(position.z), 0.41421357);
+		} else {
+			FAIL();
+		}
+	}
+
+	for (const auto &index1: frustrum0.indices) {
+		EXPECT_LT(index1, frustrum0.positions.size());
+	}
+
+	for (const auto &index1: frustrum1.indices) {
+		EXPECT_LT(index1, frustrum1.positions.size());
+	}
+}
+
 TEST(Shape, reverseTriangles) {
 	Common::Shape icoSphere = Common::generateIcoSphere(5.0, 2);
 	const Common::Shape icoSphereOld = icoSphere;

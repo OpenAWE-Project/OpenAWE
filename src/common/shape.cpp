@@ -180,49 +180,86 @@ Shape generateIcoSphere(float radius, unsigned int numSubdivisions) {
 	return icoSphere;
 }
 
+Shape generatePyramid(float height, float angle) {
+	float width = std::tan(glm::radians(angle) / 2.0f) * height;
+
+	Shape shape{
+		{
+			{0.0, height, 0.0},
+			{width, 0.0, width},
+			{width, 0.0, -width},
+			{-width, 0.0, -width},
+			{-width, 0.0, width},
+		},
+		{
+			0, 1, 2,
+			0, 2, 3,
+			0, 3, 4,
+			0, 4, 1,
+
+			3, 2, 1,
+			4, 3, 1
+		}
+	};
+
+	return shape;
+}
+
+Shape generateFrustrum(float near, float far, float angle) {
+	assert(near < far);
+
+	float widthNear = std::tan(glm::radians(angle) / 2.0f) * near;
+	float widthFar = std::tan(glm::radians(angle) / 2.0f) * far;
+
+	Shape shape{
+			{
+				{ widthNear, far - near,  widthNear},
+				{ widthNear, far - near, -widthNear},
+				{-widthNear, far - near, -widthNear},
+				{-widthNear, far - near,  widthNear},
+
+				{ widthFar, 0.0f,  widthFar},
+				{ widthFar, 0.0f, -widthFar},
+				{-widthFar, 0.0f, -widthFar},
+				{-widthFar, 0.0f,  widthFar},
+			},
+			{
+				// Upper Layer
+				0, 1, 2,
+				0, 2, 3,
+
+				// Lower Layer
+				6, 5, 4,
+				7, 6, 4,
+
+				// Side Layers
+				0, 4, 1,
+				5, 1, 4,
+
+				1, 5, 2,
+				6, 2, 5,
+
+				2, 6, 3,
+				7, 3, 6,
+
+				3, 7, 0,
+				4, 0, 7,
+			}
+	};
+
+	return shape;
+}
+
 void reverseTriangles(Shape &shape) {
 	if (shape.indices.size() % 3 != 0)
 		throw CreateException("This shape does not contain valid triangles");
 
-	for (size_t i = 0; i < shape.indices.size(); i+=3) {
+	for (size_t i = 0; i < shape.indices.size() / 3; i++) {
 		std::reverse(
-			shape.indices.begin() + i,
-			shape.indices.begin() + i + 2
+			shape.indices.begin() + i * 3,
+			shape.indices.begin() + i * 3 + 3
 		);
 	}
-}
-
-Shape generateCone(float radius, float height, unsigned int resolution) {
-	Shape coneShape;
-
-	// Generate base vertices
-	for (unsigned int i = 0; i < resolution; ++i) {
-		const float ratio = static_cast<float>(i) / static_cast<float>(resolution);
-		const float r = ratio * (M_PI * 2.0f);
-		const float x = std::cos(r) * radius;
-		const float y = std::sin(r) * radius;
-		coneShape.positions.emplace_back(x, y, 0.0f);
-	}
-
-	// Generate base indices
-	for (unsigned int i = 1; i < resolution - 1; ++i) {
-		coneShape.indices.emplace_back(0);
-		coneShape.indices.emplace_back(i);
-		coneShape.indices.emplace_back(i + 1);
-	}
-	
-	// Generate top vertex
-	coneShape.positions.emplace_back(0.0, height, 0.0);
-	
-	// Generate base to top indices
-	const uint16_t topIndex = coneShape.positions.size() - 1;
-	for (unsigned int i = 0; i < resolution; ++i) {
-		coneShape.indices.emplace_back((i + 1) % resolution);
-		coneShape.indices.emplace_back(i);
-		coneShape.indices.emplace_back(topIndex);
-	}
-
-	return coneShape;
 }
 
 }
