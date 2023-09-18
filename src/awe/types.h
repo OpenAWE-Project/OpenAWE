@@ -25,6 +25,8 @@
 
 #include <tuple>
 
+#include <fmt/format.h>
+
 enum GameEngine {
 	kAlanWake,
 	kAlanWakesAmericanNightmare,
@@ -136,6 +138,19 @@ enum ObjectType {
 	kAttachmentContainer,
 	kSpotLight,
 	kWeapon
+};
+
+/*!
+ * Class for formatting a GIDs for logging
+ */
+template<> struct fmt::formatter<GID> {
+	constexpr auto parse(fmt::format_parse_context &ctx) {
+		return ctx.end();
+	}
+
+	template<typename FormatContext> auto format(const GID &gid, FormatContext& ctx) const {
+		return fmt::format_to(ctx.out(), "{}:{:x}", gid);
+	}
 };
 
 #endif //AWE_TYPES_H
