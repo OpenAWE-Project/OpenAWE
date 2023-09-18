@@ -21,6 +21,8 @@
 #include <algorithm>
 #include <utility>
 
+#include <glm/gtx/transform.hpp>
+
 #include "transform.h"
 
 Transform::Transform(glm::vec3 translation, glm::mat3 rotation) :
@@ -66,7 +68,7 @@ glm::mat4 Transform::getTransformation() const {
 	auto transform = _parentTransform;
 
 	if (!_absoluteKeyFramer)
-		transform *= glm::translate(transform, _translation) * glm::mat4(_rotation);
+		transform *= glm::translate(_translation) * glm::mat4(_rotation);
 	transform *= _keyFramerTransform;
 
 	return transform;
