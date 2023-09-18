@@ -64,3 +64,22 @@ TEST(Shape, generateIcoSphere) {
 		EXPECT_LE(std::count(icoSphere2.indices.begin(), icoSphere2.indices.end(), i), 6);
 	}
 }
+
+TEST(Shape, reverseTriangles) {
+	Common::Shape icoSphere = Common::generateIcoSphere(5.0, 2);
+	const Common::Shape icoSphereOld = icoSphere;
+
+	EXPECT_EQ(icoSphere.positions.size(), 162);
+	EXPECT_EQ(icoSphere.indices.size(), 960);
+
+	Common::reverseTriangles(icoSphere);
+
+	EXPECT_EQ(icoSphere.positions.size(), 162);
+	EXPECT_EQ(icoSphere.indices.size(), 960);
+
+	for (size_t i = 0; i < icoSphere.indices.size() / 3; i+=3) {
+		EXPECT_EQ(icoSphere.indices[i * 3]    , icoSphereOld.indices[i * 3 + 2]);
+		EXPECT_EQ(icoSphere.indices[i * 3 + 1], icoSphereOld.indices[i * 3 + 1]);
+		EXPECT_EQ(icoSphere.indices[i * 3 + 2], icoSphereOld.indices[i * 3]);
+	}
+}
