@@ -56,6 +56,7 @@ static constexpr uint32_t kCid_Weapon              = Common::crc32("cid_weapon")
 
 static constexpr uint32_t kCid_ScriptInstanceScript  = Common::crc32("cid_scriptinstancescript");
 static constexpr uint32_t kCid_AmbientLightScript    = Common::crc32("cid_ambientlightscript");
+static constexpr uint32_t kCid_PointLightScript      = Common::crc32("cid_pointlightscript");
 static constexpr uint32_t kCid_TriggerScript         = Common::crc32("cid_triggerscript");
 static constexpr uint32_t kCid_AreaTriggerScript     = Common::crc32("cid_areatriggerscript");
 static constexpr uint32_t kCid_TaskScript            = Common::crc32("cid_taskscript");
@@ -101,6 +102,7 @@ ObjectType determineObjectTypeByFilename(const std::string &fileName) {
 
 		case kCid_ScriptInstanceScript:
 		case kCid_AmbientLightScript:
+		case kCid_PointLightScript:
 		case kCid_TriggerScript:
 		case kCid_AreaTriggerScript:
 		case kCid_TaskScript:
