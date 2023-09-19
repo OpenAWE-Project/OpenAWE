@@ -80,12 +80,15 @@ void Graphics::Renderer::addModel(Graphics::Model *model) {
 
 void Graphics::Renderer::removeModel(Graphics::Model *model) {
 	for (auto &pass: _renderPasses) {
-		std::remove_if(
+		pass.renderTasks.erase(
+			std::remove_if(
 				pass.renderTasks.begin(),
 				pass.renderTasks.end(),
 				[&](const auto &renderTask) -> bool {
 					return renderTask.model == model;
 				}
+			),
+			pass.renderTasks.end()
 		);
 	}
 }
