@@ -65,6 +65,36 @@ Texture::Texture(unsigned int width, unsigned int height, const std::string &lab
 		glObjectLabel(GL_TEXTURE, _id, label.size(), label.c_str());
 }
 
+Texture::Texture(unsigned int width, unsigned int height, TextureFormat format, const std::string &label) : _type(GL_TEXTURE_2D) {
+	glGenTextures(1, &_id);
+
+	bind();
+
+	glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	GLenum texFormat, internalFormat = 0, type = 0;
+	getParameters(format, texFormat, internalFormat, type);
+
+	glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			internalFormat,
+			width,
+			height,
+			0,
+			texFormat,
+			type,
+			nullptr
+	);
+
+	if (GLEW_KHR_debug && !label.empty())
+		glObjectLabel(GL_TEXTURE, _id, label.size(), label.c_str());
+}
+
 Texture::~Texture() {
 	glDeleteTextures(1, &_id);
 }
