@@ -215,6 +215,16 @@ Renderer::~Renderer() {
 void Renderer::drawFrame() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	_deferredBuffer->bind();
+	_deferredBuffer->clear();
+	glClear(GL_DEPTH_BUFFER_BIT);
+	drawWorld("depth");
+
+	_lightBuffer->bind();
+	_lightBuffer->clear();
+	drawLights();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	drawWorld("material");
 	drawGUI();
 
