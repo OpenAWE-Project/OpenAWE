@@ -26,6 +26,7 @@
 
 #include "src/engines/awan/functions.h"
 
+#include "src/utils.h"
 #include "src/task.h"
 
 namespace Engines::AlanWakesAmericanNightmare {
@@ -38,13 +39,9 @@ void Functions::hide(Context &ctx) {
 		return;
 	}
 
-	Graphics::ModelPtr model = _registry.get<Graphics::ModelPtr>(caller);
+	const auto visible = ctx.getBool(0);
 
-	const bool hide = ctx.getInt(0) == 1;
-	if (hide)
-		model->hide();
-	else
-		model->show();
+	setVisible(_registry, caller, visible);
 }
 
 }

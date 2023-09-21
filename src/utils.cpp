@@ -18,7 +18,26 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "src/graphics/model.h"
+
 #include "src/utils.h"
+
+void setVisible(entt::registry &registry, entt::entity entity, bool visible) {
+	Graphics::ModelPtr model = registry.get<Graphics::ModelPtr>(entity);
+	const auto relationship = registry.try_get<Relationship>(entity);
+
+	if (visible)
+		model->show();
+	else
+		model->hide();
+
+	// TODO: Hide more elements
+
+	if (relationship)
+		for (const auto &child : (*relationship).children) {
+			setVisible(registry, child, visible);
+		}
+}
 
 entt::entity getEntityByGID(entt::registry &registry, GID gid) {
 	static const auto gidView = registry.view<GID>();

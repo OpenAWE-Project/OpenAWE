@@ -34,6 +34,14 @@ struct Relationship {
 };
 
 /*!
+ * Make all possible hideable components of an entity
+ * \param registry The registry where the ntity resides in
+ * \param entity The entity to hide or show
+ * \param visible If the entity should be shown or hidden
+ */
+void setVisible(entt::registry &registry, entt::entity entity, bool visible);
+
+/*!
  * Get the entity associated with a specific global id
  * \param registry The registry from which to search for the entity
  * \param gid The global id to search for
