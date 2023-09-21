@@ -28,6 +28,12 @@
 
 namespace Common {
 
+/*!
+ * \brief Class for writing to a binary stream
+ *
+ * This class is responsible for writing to a binary. It is an abstract interface, for implementing concrete
+ * stream writing to either files or memory
+ */
 class WriteStream {
 public:
 	enum SeekOrigin {
@@ -44,48 +50,84 @@ public:
 
 	/*!
 	 * Write the stream to this write stream
-	 * @param stream stream to write
+	 * \param stream stream to write
 	 */
 	void writeStream(Common::ReadStream *stream);
 
 	/*!
 	 * Write an ascii string to this write stream
-	 * @param string the string to write
+	 * \param string the string to write
 	 */
 	void writeString(std::string string);
 
+	/*!
+	 * Write a string using the fmt syntax
+	 * \tparam FormatString The type of the format string
+	 * \tparam Args The types of the format strings arguments
+	 * \param format The format string
+	 * \param args The arguments for the format string
+	 */
+	template<typename FormatString, typename ...Args>
+	void writeString(const FormatString &format, const Args &... args) {
+#if FMT_VERSION < 80000
+		_message = fmt::format(format, args...);
+#else
+		writeString(fmt::format(fmt::runtime(format), args...));
+#endif
+	}
+
+	/*!
+	 * Write a uint16 value as little endian to this stream
+	 * \param value The value to write
+	 */
 	void writeUint16LE(uint16_t value);
 
 	/*!
 	 * Write a uint16 value as big endian to this stream
-	 * @param value The value to write
+	 * \param value The value to write
 	 */
 	void writeUint16BE(uint16_t value);
 
+	/*!
+	 * Write uint32 value as little endian to this stream
+	 * \param value The value to write
+	 */
 	void writeUint32LE(uint32_t value);
 
+	/*!
+	 * Write uint32 value as big endian to this stream
+	 * \param value The value to write
+	 */
 	void writeUint32BE(uint32_t value);
 
+	/*!
+	 * Write uint64 value as little endian to this stream
+	 * \param value The value to write
+	 */
 	void writeUint64LE(uint64_t value);
 
+	/*!
+	 * Write uint64 value as big endian to this stream
+	 * \param value The value to write
+	 */
 	void writeUint64BE(uint64_t value);
 
 	/*!
 	 * Write a float value to this stream.
-	 * @param value the float
+	 * \param value the float
 	 */
 	void writeIEEEFloatLE(float value);
 
 	/*!
 	 * Write a specific value multiple times.
-	 * @param value the value to write
-	 * @param count how many times the value should be written
+	 * \param value the value to write
+	 * \param count how many times the value should be written
 	 */
 	void writeValues(byte value, size_t count);
 
 	/*!
 	 * Write a specified number of zeros.
-	 * @param count number of zeros to write
+	 * \param count number of zeros to write
 	 */
 	void writeZeros(size_t count);
 
@@ -103,6 +145,10 @@ public:
 	 */
 	virtual void seek(ptrdiff_t length, SeekOrigin origin = BEGIN) = 0;
 
+	/*!
+	 * Get the current position in the write stream in bytes
+	 * \return The current position in the write stream
+	 */
 	virtual size_t pos() = 0;
 };
 
