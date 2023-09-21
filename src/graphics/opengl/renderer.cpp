@@ -186,6 +186,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	_depthstencilBuffer = std::make_unique<Renderbuffer>(width, height, GL_DEPTH24_STENCIL8, "depthstencil_renderbuffer");
 
 	_deferredBuffer = std::make_unique<Framebuffer>("Deferred Buffer");
+	_deferredBuffer->setClearColor({0.0f, 0.0f, 0.0f, 0.0f});
 	_deferredBuffer->bind();
 
 	_deferredBuffer->attachRenderBuffer(*_depthstencilBuffer, GL_DEPTH_STENCIL_ATTACHMENT);
@@ -196,6 +197,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	_lightBufferTexture = std::make_unique<Texture>(width, height, "light_buffer");
 
 	_lightBuffer = std::make_unique<Framebuffer>("Light Buffer");
+	_lightBuffer->setClearColor({0.0f, 0.0f, 0.0f, 0.0f});
 	_lightBuffer->bind();
 
 	_lightBuffer->attachTexture(*_lightBufferTexture, GL_COLOR_ATTACHMENT0);
