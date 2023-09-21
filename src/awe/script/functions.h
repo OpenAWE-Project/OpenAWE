@@ -82,6 +82,10 @@ protected:
 			return std::get<Number>(parameters[index]).integer;
 		}
 
+		bool getBool(size_t index) {
+			return std::get<Number>(parameters[index]).integer != 0;
+		}
+
 		entt::entity getEntity(size_t index) {
 			return std::get<entt::entity>(parameters[index]);
 		}
