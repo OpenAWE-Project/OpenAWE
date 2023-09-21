@@ -83,6 +83,20 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	spdlog::info("GLSL Version: {}", glslVersion);
 	assert(glGetError() == GL_NO_ERROR);
 
+	if (GLEW_ATI_meminfo) {
+		GLint vboFreeMemory[4], textureFreeMemory[4], renderbufferFreeMemory[4];
+		glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, vboFreeMemory);
+		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, textureFreeMemory);
+		glGetIntegerv(GL_RENDERBUFFER_FREE_MEMORY_ATI, renderbufferFreeMemory);
+
+		spdlog::info("VBO free memory: {}", vboFreeMemory[0]);
+		spdlog::info("VBO free auxiliary memory: {}", vboFreeMemory[2]);
+		spdlog::info("Texture free memory: {}", textureFreeMemory[0]);
+		spdlog::info("Texture free auxiliary memory: {}", textureFreeMemory[2]);
+		spdlog::info("Renderbuffer free memory: {}", renderbufferFreeMemory[0]);
+		spdlog::info("Renderbuffer free auxiliary memory: {}", renderbufferFreeMemory[2]);
+	}
+
 	GLint maxTextureUnits, maxTextureCoords, maxVertexAttribs, maxUniformLocations, maxVertexUniformComponents, maxFragmentUniformComponents;
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
 	glGetIntegerv(GL_MAX_TEXTURE_COORDS, &maxTextureCoords);
