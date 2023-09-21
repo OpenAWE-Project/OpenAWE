@@ -436,6 +436,32 @@ void ObjectCollection::loadPointLight(const AWE::Object &container) {
 	light.setLabel(_gid->getString(pointLight.gid));
 	light.show();
 
+	if (pointLight.meshRid) {
+		const auto pointLightMeshEntity = _registry.create();
+
+		// Make pointlight mesh a child of the pointlight
+		_registry.emplace<Relationship>(pointLightMeshEntity) = {pointLightEntity, {}};
+		_registry.get_or_emplace<Relationship>(pointLightEntity).children.emplace_back(pointLightMeshEntity);
+
+		// Create pointlight mesh transform
+		auto &meshTransform
+			= _registry.emplace<Transform>(pointLightMeshEntity)
+			= Transform(
+			pointLight.meshPosition,
+			pointLight.meshRotation
+		);
+		meshTransform.setParentTransform(transform.getTransformation());
+
+		Graphics::ModelPtr model
+			= _registry.emplace<Graphics::ModelPtr>(pointLightMeshEntity)
+			= std::make_shared<Graphics::Model>(pointLight.meshRid);
+
+		model->setTransform(meshTransform.getTransformation());
+		model->setLabel(fmt::format("{}::mesh", _gid->getString(pointLight.gid)));
+
+		_entities.emplace_back(pointLightMeshEntity);
+	}
+
 	_attachmentMappings[pointLight.attachmentGid] = pointLight.gid;
 
 	spdlog::debug("Loading point light {}", _gid->getString(pointLight.gid));
