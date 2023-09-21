@@ -27,6 +27,8 @@
 
 #include "src/engines/awan/functions.h"
 
+#include "src/utils.h"
+
 namespace Engines::AlanWakesAmericanNightmare {
 
 void Functions::enablePointLight(Context &ctx) {
@@ -34,6 +36,13 @@ void Functions::enablePointLight(Context &ctx) {
 	const bool enable = ctx.getInt(0) != 0;
 
 	_registry.get<Graphics::Light>(pointlightEntity).setEnabled(enable);
+
+	const auto relationship = _registry.try_get<Relationship>(pointlightEntity);
+
+	if (relationship)
+		for (const auto &child : (*relationship).children) {
+			setVisible(_registry, child, enable);
+		}
 }
 
 } // End of namespace Engines::AlanWakesAmericanNightmare
