@@ -35,6 +35,7 @@ public:
 	~Texture();
 
 	void bind() override;
+	void bindImage(unsigned int unit = 0);
 
 	void allocate(TextureFormat textureFormat, unsigned int width, unsigned int height) override;
 

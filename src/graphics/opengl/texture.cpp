@@ -312,6 +312,18 @@ void Texture::bind() {
 	glBindTexture(_type, _id);
 }
 
+void Texture::bindImage(unsigned int unit) {
+	glBindImageTexture(
+		unit,
+		_id,
+		0,
+		GL_FALSE,
+		0,
+		GL_READ_WRITE,
+		GL_RGBA16F
+	);
+}
+
 void Texture::getParameters(
 	TextureFormat textureFormat,
 	GLenum &format,
