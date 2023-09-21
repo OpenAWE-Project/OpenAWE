@@ -186,6 +186,10 @@ void Program::setUniform1f(GLint id, float value) const {
 	glUniform1f(id, value);
 }
 
+void Program::setUniform1f(GLint id, const std::vector<float> &values) const {
+	glUniform1fv(id, values.size(), values.data());
+}
+
 void Program::setUniform2f(GLint id, const glm::vec2 &value) const {
 	glUniform2fv(id, 1, glm::value_ptr(value));
 }
