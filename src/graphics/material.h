@@ -37,7 +37,15 @@ namespace Graphics {
 class Material {
 public:
 	enum UniformType {
-		kFloat, kVec2, kVec3, kVec4, kTexture
+		kFloat,
+		kVec2,
+		kVec3,
+		kVec4,
+		kFloatArray,
+		kVec2Array,
+		kVec3Array,
+		kVec4Array,
+		kTexture
 	};
 
 	enum CullMode {
@@ -49,6 +57,10 @@ public:
 			glm::vec2,
 			glm::vec3,
 			glm::vec4,
+			std::vector<float>,
+			std::vector<glm::vec2>,
+			std::vector<glm::vec3>,
+			std::vector<glm::vec4>,
 			TexturePtr
 	> UniformData;
 
@@ -62,6 +74,10 @@ public:
 		Uniform(const std::string &id, glm::vec2 value) : id(id), data(value), type(kVec2), index(-1) {}
 		Uniform(const std::string &id, glm::vec3 value) : id(id), data(value), type(kVec3), index(-1) {}
 		Uniform(const std::string &id, glm::vec4 value) : id(id), data(value), type(kVec4), index(-1) {}
+		Uniform(const std::string &id, std::vector<float> value) : id(id), data(value), type(kFloatArray), index(-1) {}
+		Uniform(const std::string &id, std::vector<glm::vec2> value) : id(id), data(value), type(kVec2Array), index(-1) {}
+		Uniform(const std::string &id, std::vector<glm::vec3> value) : id(id), data(value), type(kVec3Array), index(-1) {}
+		Uniform(const std::string &id, std::vector<glm::vec4> value) : id(id), data(value), type(kVec4Array), index(-1) {}
 		Uniform(const std::string &id, TexturePtr value) : id(id), data(value), type(kTexture), index(-1) {}
 	};
 
