@@ -46,6 +46,18 @@ enum Language {
 };
 
 /*!
+ * Return if the current desktop environment (Not the application itself!) is running on X11
+ * \return If the current desktop envionment is running on X11
+ */
+bool isX11();
+
+/*!
+ * Return if the current desktop environment (Not the application itself!) is running on Wayland
+ * \return If the current desktop Environment is running on Wayland
+ */
+bool isWayland();
+
+/*!
  * Get the currently configured system language. If it is not supported or unrecognized, return
  * english as standard
  *

@@ -64,6 +64,14 @@ Language iso639ToLang(const std::string code) {
 	}
 }
 
+bool isX11() {
+	return std::string(std::getenv("XDG_SESSION_TYPE")) == "x11";
+}
+
+bool isWayland() {
+	return std::string(std::getenv("XDG_SESSION_TYPE")) == "wayland";
+}
+
 Language getSystemLanguage() {
 #if OS_LINUX || OS_MACOS
 	std::string lang = Common::toLower(std::locale("").name());
