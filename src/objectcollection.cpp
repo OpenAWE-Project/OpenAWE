@@ -95,18 +95,37 @@ void ObjectCollection::loadFoliageData(Common::ReadStream *foliageData) {
 	AWE::FoliageDataFile foliageDataFile(*foliageDataStream);
 
 	std::vector<Graphics::MeshPtr> foliageMeshs;
-	for (const auto &foliage : foliageDataFile.getFoliages()) {
-		foliageMeshs.emplace_back(MeshMan.getMesh(foliage));
-	}
+	for (size_t i = 0; i < foliageDataFile.getFoliages().size(); i++) {
+		const auto &foliage = foliageDataFile.getFoliages()[i];
+		std::vector<glm::vec3> positions;
 
-	for (const auto &instance : foliageDataFile.getInstances()) {
-		entt::entity foliage = _registry.create();
-		Graphics::ModelPtr model = _registry.emplace<Graphics::ModelPtr>(foliage) = std::make_shared<Graphics::Model>(foliageMeshs[instance.foliageId]);
+		entt::entity foliageEntity = _registry.create();
+		Graphics::ModelPtr model
+			= _registry.emplace<Graphics::ModelPtr>(foliageEntity)
+			= std::make_shared<Graphics::Model>(foliage);
 
-		model->setTransform(glm::translate(glm::identity<glm::mat4>(), instance.position));
+		Common::BoundSphere meshBoundSphere = model->getBoundSphere();
+
+		for (const auto &instance: foliageDataFile.getInstances()) {
+			if (instance.foliageId != i)
+				continue;
+
+			positions.emplace_back(instance.position);
+		}
+		
+		Common::BoundSphere finalBoundSphere = {positions.front() + meshBoundSphere.position, meshBoundSphere.radius};
+		for (const auto &position : positions) {
+			Common::combine(finalBoundSphere, {position + meshBoundSphere.position, meshBoundSphere.radius});
+		}
+
+		model->setBoundSphere(finalBoundSphere);
+
+		model->addModelUniform(Graphics::Material::Uniform("g_vPositions", positions));
+
+		assert(positions.size() <= 512);
+
+		model->setNumInstances(positions.size());
 		model->setLabel("<Foliage>");
-
-		_entities.emplace_back(foliage);
 	}
 }
 

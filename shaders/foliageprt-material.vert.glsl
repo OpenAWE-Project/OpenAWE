@@ -20,8 +20,9 @@
 
 #version 330 core
 
-uniform mat4 g_mLocalToView;
+uniform mat4 g_mWorldToView;
 uniform mat4 g_mViewToClip;
+uniform vec3 g_vPositions[512]; // TODO: Move this into attributes
 
 in vec3 in_Position;
 in vec2 in_UV0;
@@ -30,5 +31,12 @@ out vec2 pass_UV;
 
 void main() {
     pass_UV = in_UV0 * (1.0/4096.0);
-    gl_Position = g_mViewToClip * g_mLocalToView * vec4(in_Position, 1.0);
+    mat4 mTranslation = mat4(1.0);
+
+    vec3 vPosition = g_vPositions[gl_InstanceID];
+    vPosition.z = -vPosition.z;
+
+    mTranslation[3] = vec4(vPosition, 1.0);
+    mat4 mLocalToWorld = mTranslation;
+    gl_Position = g_mViewToClip * g_mWorldToView * mLocalToWorld * vec4(in_Position, 1.0);
 }

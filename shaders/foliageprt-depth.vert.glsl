@@ -20,8 +20,10 @@
 
 #version 330
 
-uniform mat4 g_mLocalToView;
+uniform mat4 g_mWorldToView;
 uniform mat4 g_mViewToClip;
+
+uniform vec3 g_vPositions[512];
 
 in vec3 in_Position;
 in vec4 in_Normal;
@@ -31,5 +33,8 @@ out vec2 pass_UV;
 
 void main() {
     pass_UV = in_UV0 * (1.0/4096.0);
-    gl_Position = g_mViewToClip * g_mLocalToView * vec4(in_Position, 1.0);
+    mat4 mTranslation = mat4(1.0);
+    mTranslation[3] = vec4(g_vPositions[gl_InstanceID], 1.0);
+    mat4 mLocalToWorld = mTranslation;
+    gl_Position = g_mViewToClip * g_mWorldToView * mLocalToWorld * vec4(in_Position, 1.0);
 }
