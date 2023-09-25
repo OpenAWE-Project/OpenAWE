@@ -29,7 +29,7 @@ RigidBody::RigidBody(rid_t rid) :
 
     const auto shape = ShapeMan.get(rid);
 
-    if (!shape)
+	if (!shape)
         return;
 
 	_rigidBody = new btRigidBody(
