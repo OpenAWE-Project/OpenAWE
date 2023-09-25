@@ -54,10 +54,13 @@ public:
 	virtual std::optional<GLint> getUniformLocation(const std::string &name) const;
 
 	virtual void setUniform1f(GLint id, float value) const;
-	void setUniform1f(GLint id, const std::vector<float> &values) const;
 	virtual void setUniform2f(GLint id, const glm::vec2 &value) const;
 	virtual void setUniform3f(GLint id, const glm::vec3 &value) const;
 	void setUniform4f(GLint id, const glm::vec4 &value) const;
+	void setUniform1fArray(GLint id, const std::vector<float> &values) const;
+	void setUniform2fArray(GLint id, const std::vector<glm::vec2> &values) const;
+	void setUniform3fArray(GLint id, const std::vector<glm::vec3> &values) const;
+	void setUniform4fArray(GLint id, const std::vector<glm::vec4> &values) const;
 	virtual void setUniformMatrix4f(GLint id, const glm::mat4 &value) const;
 	virtual void setUniformMatrix4x3fArray(GLint id, const std::vector<glm::mat4x3> &values) const;
 	void setUniformSampler(GLint id, const GLuint value) const;

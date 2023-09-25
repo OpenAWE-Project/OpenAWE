@@ -186,10 +186,6 @@ void Program::setUniform1f(GLint id, float value) const {
 	glUniform1f(id, value);
 }
 
-void Program::setUniform1f(GLint id, const std::vector<float> &values) const {
-	glUniform1fv(id, values.size(), values.data());
-}
-
 void Program::setUniform2f(GLint id, const glm::vec2 &value) const {
 	glUniform2fv(id, 1, glm::value_ptr(value));
 }
@@ -200,6 +196,22 @@ void Program::setUniform3f(GLint id, const glm::vec3 &value) const {
 
 void Program::setUniform4f(GLint id, const glm::vec4 &value) const {
 	glUniform4fv(id, 1, glm::value_ptr(value));
+}
+
+void Program::setUniform1fArray(GLint id, const std::vector<float> &values) const {
+	glUniform1fv(id, values.size(), values.data());
+}
+
+void Program::setUniform2fArray(GLint id, const std::vector<glm::vec2> &values) const {
+	glUniform2fv(id, values.size(), reinterpret_cast<const GLfloat *>(values.data()));
+}
+
+void Program::setUniform3fArray(GLint id, const std::vector<glm::vec3> &values) const {
+	glUniform3fv(id, values.size(), reinterpret_cast<const GLfloat *>(values.data()));
+}
+
+void Program::setUniform4fArray(GLint id, const std::vector<glm::vec4> &values) const {
+	glUniform4fv(id, values.size(), reinterpret_cast<const GLfloat *>(values.data()));
 }
 
 void Program::setUniformMatrix4f(GLint id, const glm::mat4 &value) const {
