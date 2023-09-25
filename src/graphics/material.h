@@ -89,6 +89,8 @@ public:
 		uint32_t properties = 0
 	);
 
+	const std::vector<std::string> &getStages() const;
+
 	const std::vector<Uniform> &getUniforms(const std::string &stage) const;
 	const std::string &getShaderName() const;
 

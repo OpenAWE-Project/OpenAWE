@@ -80,4 +80,8 @@ uint32_t Material::getProperties() const {
 	return _properties;
 }
 
+const std::vector<std::string> &Material::getStages() const {
+	return _stages;
+}
+
 }
