@@ -68,17 +68,73 @@ public:
 	glm::mat4 getTransform() const;
 	glm::mat4 getInverseTransform() const;
 
+	/*!
+	 * Get the number of instances, this model should be rendered. Defaults to 1
+	 * \return The number of instances, this model should be rendered
+	 */
+	unsigned int getNumInstances() const;
+
+	/*!
+	 * Set the number of instances, this model should be rendered
+	 * \param numInstances The number of instances, this model should be rendered
+	 */
+	void setNumInstances(unsigned int numInstances);
+
+	/*!
+	 * Get the uniforms associated with a certain tripel of stage shader and properties
+	 * \param stage The stage to search uniforms for
+	 * \param shader The shader to search uniforms for
+	 * \param properties The properties of the shader to search fro
+	 * \return The list of uniforms available for this specific render state
+	 */
+	std::vector<Material::Uniform> getUniforms(
+		const std::string &stage,
+		const std::string &shader,
+		uint32_t properties
+	) const;
+
+	/*!
+	 * Add a new model uniform which is shared across the complete model
+	 * \param uniform The uniform to add as model uniform
+	 */
+	void addModelUniform(Material::Uniform uniform);
+
 	MeshPtr getMesh() const;
 	void setSkeleton(const Skeleton &skeleton);
 	const Skeleton &getSkeleton() const;
 	bool hasSkeleton() const;
 
+	/*!
+	 * Return if the model contains a bounding sphere
+	 * \return if the model contains a bounding sphere
+	 */
+	bool hasBoundSphere() const;
+
+	/*!
+	 * Return the bounding sphere associated
+	 * \return The global bounding sphere
+	 */
+	const Common::BoundSphere &getBoundSphere() const;
+
+	/*!
+	 * Set the bounding sphere of the model
+	 * @param boundSphere
+	 */
+	void setBoundSphere(const Common::BoundSphere &boundSphere);
+
 protected:
 	Model();
 
+	unsigned int _numInstances;
 	std::string _label;
 
+	std::optional<Common::BoundSphere> _boundSphere;
+
 	MeshPtr _mesh;
+	std::map<
+		std::tuple<std::string, std::string, uint32_t>,
+		std::vector<Material::Uniform>
+	> _uniforms;
 	std::unique_ptr<Skeleton> _skeleton;
 
 	glm::mat4 _transform;

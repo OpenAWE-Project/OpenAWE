@@ -284,10 +284,10 @@ void Renderer::drawWorld(const std::string &stage) {
 			glm::mat4 mvp = vp * m;
 
 			const MeshPtr mesh = task.model->getMesh();
-			if (mesh->hasBoundingSphere()) {
-				auto boundSphere = mesh->getBoundingSphere();
-				boundSphere.position = m * glm::vec4(boundSphere.position, 1.0f);
-				if (!_frustrum.test(boundSphere))
+			if (task.model->hasBoundSphere()) {
+				auto boundingSphere = task.model->getBoundSphere();
+				boundingSphere.position = m * glm::vec4(boundingSphere.position, 1.0f);
+				if (!_frustrum.test(boundingSphere))
 					continue;
 			}
 
@@ -322,6 +322,13 @@ void Renderer::drawWorld(const std::string &stage) {
 
 				GLuint textureSlot = textureSlotShader;
 				applyUniforms(currentShader, partmesh.material.getUniforms(stage), textureSlot);
+
+				const auto uniforms = task.model->getUniforms(
+					stage,
+					pass.id.programName,
+					pass.id.properties
+				);
+				applyUniforms(currentShader, uniforms, textureSlot);
 
 				if (task.model->hasSkeleton() && skinningMatrices) {
 					const auto matrices =	task.model->getSkeleton().getSkinningMatrices(partmesh.boneMap);
@@ -384,19 +391,38 @@ void Renderer::drawWorld(const std::string &stage) {
 					wireframe = false;
 				}
 
-				if (!indices) {
-					glDrawArrays(
-							type,
-							0,
-							partmesh.length
-					);
+				if (task.model->getNumInstances() != 1) {
+					if (!indices) {
+						glDrawArraysInstanced(
+								type,
+								0,
+								partmesh.length,
+								task.model->getNumInstances()
+						);
+					} else {
+						glDrawElementsInstanced(
+								type,
+								partmesh.length,
+								GL_UNSIGNED_SHORT,
+								reinterpret_cast<void *>(partmesh.offset),
+								task.model->getNumInstances()
+						);
+					}
 				} else {
-					glDrawElements(
-							type,
-							partmesh.length,
-							GL_UNSIGNED_SHORT,
-							reinterpret_cast<void *>(partmesh.offset)
-					);
+					if (!indices) {
+						glDrawArrays(
+								type,
+								0,
+								partmesh.length
+						);
+					} else {
+						glDrawElements(
+								type,
+								partmesh.length,
+								GL_UNSIGNED_SHORT,
+								reinterpret_cast<void *>(partmesh.offset)
+						);
+					}
 				}
 			}
 

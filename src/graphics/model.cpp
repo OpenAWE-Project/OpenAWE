@@ -27,19 +27,19 @@
 
 namespace Graphics {
 
-Model::Model() : _label("<No Label>"), _mesh(new Mesh), _transform(glm::identity<glm::mat4>()) {
+Model::Model() : _numInstances(1), _label("<No Label>"), _mesh(new Mesh), _transform(glm::identity<glm::mat4>()) {
 
 }
 
-Model::Model(rid_t rid) : _label("<No Label>"), _mesh(MeshMan.getMesh(rid)), _transform(glm::identity<glm::mat4>()) {
+Model::Model(rid_t rid) : _numInstances(1), _label("<No Label>"), _mesh(MeshMan.getMesh(rid)), _transform(glm::identity<glm::mat4>()) {
 	show();
 }
 
-Model::Model(const std::string &path) : _label("<No Label>"),  _mesh(MeshMan.getMesh(path)), _transform(glm::identity<glm::mat4>()) {
+Model::Model(const std::string &path) : _numInstances(1), _label("<No Label>"),  _mesh(MeshMan.getMesh(path)), _transform(glm::identity<glm::mat4>()) {
 	show();
 }
 
-Model::Model(MeshPtr mesh) : _label("<No Label>"), _mesh(mesh) {
+Model::Model(MeshPtr mesh) : _numInstances(1), _label("<No Label>"), _mesh(mesh) {
 	show();
 }
 
@@ -91,6 +91,59 @@ void Model::setLabel(const std::string &label) {
 
 const std::string &Model::getLabel() const {
 	return _label;
+}
+
+unsigned int Model::getNumInstances() const {
+	return _numInstances;
+}
+
+void Model::setNumInstances(unsigned int numInstances) {
+	_numInstances = numInstances;
+}
+
+std::vector<Material::Uniform> Model::getUniforms(
+		const std::string &stage,
+		const std::string &shader,
+		uint32_t properties
+) const {
+	if (_uniforms.find({stage, shader, properties}) == _uniforms.end())
+		return {};
+	return _uniforms.at({stage, shader, properties});
+}
+
+void Model::addModelUniform(Material::Uniform uniform) {
+	for (const auto &subMesh: _mesh->getMeshs()) {
+		for (const auto &stage: subMesh.material.getStages()) {
+			const auto index = GfxMan.getUniformIndex(
+				subMesh.material.getShaderName(),
+				stage,
+				subMesh.material.getProperties(),
+				uniform.id
+			);
+
+			if (index >= 0)
+				_uniforms[{
+					stage,
+					subMesh.material.getShaderName(),
+					subMesh.material.getProperties()
+				}].emplace_back(uniform).index = index;
+		}
+	}
+}
+
+bool Model::hasBoundSphere() const {
+	return _boundSphere || _mesh->hasBoundingSphere();
+}
+
+const Common::BoundSphere & Model::getBoundSphere() const {
+	if (_boundSphere)
+		return *_boundSphere;
+	else
+		return _mesh->getBoundingSphere();
+}
+
+void Model::setBoundSphere(const Common::BoundSphere &boundSphere) {
+	_boundSphere = boundSphere;
 }
 
 }
