@@ -844,6 +844,7 @@ Renderer::createAttributeObject(
 				break;
 			case kVec4BI:
 				integer = true;
+				[[fallthrough]];
 			case kVec4BF:
 				type = GL_UNSIGNED_BYTE;
 				size = 4;
