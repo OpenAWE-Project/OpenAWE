@@ -103,9 +103,14 @@ std::string Functions::getFunctionString(
 				valueString = fmt::format("\"{}\"", dp->getString(std::get<Number>(parameters[i]).integer));
 				break;
 
-			case kEntity:
-				valueString = fmt::format("<{}>", static_cast<unsigned int>(std::get<entt::entity>(parameters[i])));
+			case kEntity: {
+				const auto entity = static_cast<unsigned int>(std::get<entt::entity>(parameters[i]));
+				if (entity == entt::null)
+					valueString = "<null>";
+				else
+					valueString = fmt::format("<{}>", entity);
 				break;
+			}
 
 			default:
 				valueString = "<invalid>";
