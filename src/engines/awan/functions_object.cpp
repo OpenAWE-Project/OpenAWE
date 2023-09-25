@@ -39,7 +39,7 @@ void Functions::hide(Context &ctx) {
 		return;
 	}
 
-	const auto visible = ctx.getBool(0);
+	const auto visible = !ctx.getBool(0);
 
 	setVisible(_registry, caller, visible);
 }
