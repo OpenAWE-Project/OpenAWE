@@ -254,7 +254,7 @@ void Renderer::drawWorld(const std::string &stage) {
 
 		pushDebug(fmt::format("Pass {} {:0<8x}", pass.id.programName, pass.id.properties));
 
-		const ProgramPtr &currentShader = (!hasProgram(pass.id.programName, stage, pass.id.properties)) ? defaultShader : getProgram(pass.id.programName, stage, pass.id.properties);
+		ProgramPtr currentShader = (!hasProgram(pass.id.programName, stage, pass.id.properties)) ? defaultShader : getProgram(pass.id.programName, stage, pass.id.properties);
 		currentShader->bind();
 
 		const std::optional<GLint> localToView = currentShader->getUniformLocation("g_mLocalToView");
@@ -321,41 +321,7 @@ void Renderer::drawWorld(const std::string &stage) {
 					indices->bind();
 
 				GLuint textureSlot = textureSlotShader;
-				for (const auto &attribute : partmesh.material.getUniforms(stage)) {
-					switch (attribute.type) {
-						case Material::kFloat: {
-							float value = std::get<float>(attribute.data);
-							currentShader->setUniform1f(attribute.index, value);
-							break;
-						}
-
-						case Material::kVec2: {
-							glm::vec2 value = std::get<glm::vec2>(attribute.data);
-							currentShader->setUniform2f(attribute.index, value);
-							break;
-						}
-
-						case Material::kVec3: {
-							glm::vec3 value = std::get<glm::vec3>(attribute.data);
-							currentShader->setUniform3f(attribute.index, value);
-							break;
-						}
-
-						case Material::kVec4: {
-							glm::vec4 value = std::get<glm::vec4>(attribute.data);
-							currentShader->setUniform4f(attribute.index, value);
-							break;
-						}
-
-						case Material::kTexture:
-							glActiveTexture(getTextureSlot(textureSlot));
-							std::dynamic_pointer_cast<Graphics::OpenGL::GLTexture>(std::get<TexturePtr>(attribute.data))->bind();
-							currentShader->setUniformSampler(attribute.index, textureSlot);
-							textureSlot += 1;
-							break;
-					}
-					//assert(glGetError() == GL_NO_ERROR);
-				}
+				applyUniforms(currentShader, partmesh.material.getUniforms(stage), textureSlot);
 
 				if (task.model->hasSkeleton() && skinningMatrices) {
 					const auto matrices =	task.model->getSkeleton().getSkinningMatrices(partmesh.boneMap);
@@ -891,6 +857,67 @@ Renderer::createAttributeObject(
 	glBindVertexArray(0);
 
 	return vao;
+}
+
+void Renderer::applyUniforms(ProgramPtr &program, std::vector<Material::Uniform> uniforms, GLuint &textureSlot) {
+	for (const auto &attribute : uniforms) {
+		switch (attribute.type) {
+			case Material::kFloat: {
+				float value = std::get<float>(attribute.data);
+				program->setUniform1f(attribute.index, value);
+				break;
+			}
+
+			case Material::kVec2: {
+				glm::vec2 value = std::get<glm::vec2>(attribute.data);
+				program->setUniform2f(attribute.index, value);
+				break;
+			}
+
+			case Material::kVec3: {
+				glm::vec3 value = std::get<glm::vec3>(attribute.data);
+				program->setUniform3f(attribute.index, value);
+				break;
+			}
+
+			case Material::kVec4: {
+				glm::vec4 value = std::get<glm::vec4>(attribute.data);
+				program->setUniform4f(attribute.index, value);
+				break;
+			}
+
+			case Material::kFloatArray: {
+				std::vector<float> values = std::get<std::vector<float>>(attribute.data);
+				program->setUniform1fArray(attribute.index, values);
+				break;
+			}
+
+			case Material::kVec2Array: {
+				std::vector<glm::vec2> values = std::get<std::vector<glm::vec2>>(attribute.data);
+				program->setUniform2fArray(attribute.index, values);
+				break;
+			}
+
+			case Material::kVec3Array: {
+				std::vector<glm::vec3> values = std::get<std::vector<glm::vec3>>(attribute.data);
+				program->setUniform3fArray(attribute.index, values);
+				break;
+			}
+
+			case Material::kVec4Array: {
+				std::vector<glm::vec4> values = std::get<std::vector<glm::vec4>>(attribute.data);
+				program->setUniform4fArray(attribute.index, values);
+				break;
+			}
+
+			case Material::kTexture:
+				glActiveTexture(getTextureSlot(textureSlot));
+				std::dynamic_pointer_cast<Graphics::OpenGL::GLTexture>(std::get<TexturePtr>(attribute.data))->bind();
+				program->setUniformSampler(attribute.index, textureSlot);
+				textureSlot += 1;
+				break;
+		}
+	}
 }
 
 void Renderer::rebuildShaders() {

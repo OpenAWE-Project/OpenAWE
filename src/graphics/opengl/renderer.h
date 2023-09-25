@@ -75,6 +75,21 @@ private:
 
 	static void debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, void *userParam);
 
+	/*!
+	 * Apply a vector of uniforms to a program
+	 * \param program The program to apply the uniforms to
+	 * \param uniforms The uniforms to apply to the program
+	 * \param textureSlot The current texture slot, gets incremented when new textures are applied
+	 */
+	void applyUniforms(
+		ProgramPtr &program,
+		std::vector<Material::Uniform> uniforms,
+		GLuint &textureSlot
+	);
+
+	/*!
+	 * Clear the programs and reread all available shaders
+	 */
 	void rebuildShaders();
 
 	Platform::Window &_window;
