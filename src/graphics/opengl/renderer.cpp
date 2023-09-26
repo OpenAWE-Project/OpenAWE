@@ -83,7 +83,16 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	spdlog::info("GLSL Version: {}", glslVersion);
 	assert(glGetError() == GL_NO_ERROR);
 
-	if (GLEW_ATI_meminfo) {
+	if (GLEW_NVX_gpu_memory_info) {
+		GLint dedicatedVideoMemory, totalAvailableMemory, currentAvailableMemory;
+		glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &dedicatedVideoMemory);
+		glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &totalAvailableMemory);
+		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &currentAvailableMemory);
+
+		spdlog::info("Dedicated video memory: {}kb", dedicatedVideoMemory);
+		spdlog::info("Total available memory: {}kb", totalAvailableMemory);
+		spdlog::info("Current available video memory: {}kb", currentAvailableMemory);
+	} else if (GLEW_ATI_meminfo) {
 		GLint vboFreeMemory[4], textureFreeMemory[4], renderbufferFreeMemory[4];
 		glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, vboFreeMemory);
 		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, textureFreeMemory);
