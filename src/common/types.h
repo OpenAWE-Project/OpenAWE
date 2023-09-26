@@ -98,7 +98,7 @@ struct BoundSphere {
 inline BoundSphere combine(Common::BoundSphere sphere1, Common::BoundSphere sphere2) {
 	const float distance = glm::distance(sphere1.position, sphere2.position);
 	const float newRadius = (sphere1.radius + sphere2.radius + distance) / 2.0f;
-	const auto newCenter = glm::mix(sphere1.position, sphere2.position, std::clamp(0.0f, 1.0f, sphere1.radius / (sphere1.radius + sphere2.radius)));
+	const auto newCenter = glm::mix(sphere1.position, sphere2.position, sphere1.radius / (sphere1.radius + sphere2.radius));
 
 	return {newCenter, newRadius};
 }
