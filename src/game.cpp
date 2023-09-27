@@ -358,7 +358,9 @@ void Game::start() {
 		lastTime = time;
 	}
 
+	transformRelationshipObserver.disconnect();
 	transformModelObserver.disconnect();
+	transformLightObserver.disconnect();
 
 	spdlog::info("Stopping AWE...");
 
