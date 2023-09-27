@@ -106,15 +106,13 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 		spdlog::info("Renderbuffer free auxiliary memory: {}", renderbufferFreeMemory[2]);
 	}
 
-	GLint maxTextureUnits, maxTextureCoords, maxVertexAttribs, maxUniformLocations, maxVertexUniformComponents, maxFragmentUniformComponents;
+	GLint maxTextureUnits, maxVertexAttribs, maxUniformLocations, maxVertexUniformComponents, maxFragmentUniformComponents;
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-	glGetIntegerv(GL_MAX_TEXTURE_COORDS, &maxTextureCoords);
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
 	glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &maxUniformLocations);
 	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &maxVertexUniformComponents);
 	glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &maxFragmentUniformComponents);
 	spdlog::info("OpenGL Max Texture Units: {}", maxTextureUnits);
-	spdlog::info("OpenGL Max Texture Coordinates: {}", maxTextureCoords);
 	spdlog::info("OpenGL Max Vertex Attributes: {}", maxVertexAttribs);
 	spdlog::info("OpenGL Max Uniform Attributes: {}", maxVertexAttribs);
 	spdlog::info("OpenGL Max Vertex Uniform Components: {}", maxVertexUniformComponents);
