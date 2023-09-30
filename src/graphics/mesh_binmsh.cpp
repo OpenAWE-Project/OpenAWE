@@ -150,23 +150,23 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 		const bool refractive = f[1];
 		const bool specular = f[2];
 
-		const uint32_t numAttributes = binmsh->readUint32LE();
-		std::vector<Material::Uniform> attributes;
-		for (unsigned int j = 0; j < numAttributes; ++j) {
-			uint32_t attributeNameLength = binmsh->readUint32LE();
-			std::string attributeName = binmsh->readFixedSizeString(attributeNameLength, true);
+		const uint32_t numUniforms = binmsh->readUint32LE();
+		std::vector<Material::Uniform> uniforms;
+		for (unsigned int j = 0; j < numUniforms; ++j) {
+			uint32_t uniformNameLength = binmsh->readUint32LE();
+			std::string uniformName = binmsh->readFixedSizeString(uniformNameLength, true);
 
 			uint32_t dataType = binmsh->readUint32LE();
 			switch (dataType) {
 				case 0: {
-					attributes.emplace_back(attributeName, binmsh->readIEEEFloatLE());
+					uniforms.emplace_back(uniformName, binmsh->readIEEEFloatLE());
 					break;
 				}
 				case 1: {
 					const float v1 = binmsh->readIEEEFloatLE();
 					const float v2 = binmsh->readIEEEFloatLE();
 
-					attributes.emplace_back(attributeName, glm::vec2(v1, v2));
+					uniforms.emplace_back(uniformName, glm::vec2(v1, v2));
 					break;
 				}
 				case 2: {
@@ -174,7 +174,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 					const float v2 = binmsh->readIEEEFloatLE();
 					const float v3 = binmsh->readIEEEFloatLE();
 
-					attributes.emplace_back(attributeName, glm::vec3(v1, v2, v3));
+					uniforms.emplace_back(uniformName, glm::vec3(v1, v2, v3));
 					break;
 				}
 				case 3: {
@@ -183,7 +183,7 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 					const float v3 = binmsh->readIEEEFloatLE();
 					const float v4 = binmsh->readIEEEFloatLE();
 
-					attributes.emplace_back(attributeName, glm::vec4(v1, v2, v3, v4));
+					uniforms.emplace_back(uniformName, glm::vec4(v1, v2, v3, v4));
 					break;
 				}
 				case 7: {
@@ -191,13 +191,13 @@ void BINMSHMesh::load(Common::ReadStream *binmsh) {
 					std::string file = binmsh->readFixedSizeString(length, true);
 					file = AWE::getNormalizedPath(file);
 
-					attributes.emplace_back(attributeName, TextureMan.getTexture(file));
+					uniforms.emplace_back(uniformName, TextureMan.getTexture(file));
 					break;
 				}
 			}
 		}
 
-		material = Material(shaderName, {"depth", "material"}, attributes, properties);
+		material = Material(shaderName, {"depth", "material"}, uniforms, properties);
 
 		switch (cullMode) {
 			case 2:
