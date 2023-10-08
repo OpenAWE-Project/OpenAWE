@@ -36,12 +36,24 @@ public:
 	float getAmbientLightIntensity() const;
 	float getAmbientLightSaturation() const;
 
+	float getGroundFogFalloff() const;
+	float getGroundFogDensity() const;
+
+	const glm::vec3 &getFogColor() const;
+	const glm::vec3 &getFogColorOpposite() const;
+	float getFogIntensity() const;
+	float getFogIntensityOpposite() const;
+
 private:
 	glm::vec3 parseVec3(const std::string &str);
 
 	glm::vec3 _ambientLightColor;
 	float _ambientLightIntensity;
 	float _ambientLightSaturation;
+
+	float _groundFogFalloff, _groundFogDensity;
+	glm::vec3 _fogColor, _fogColorOpposite;
+	float _fogIntensity, _fogIntensityOpposite;
 };
 
 }

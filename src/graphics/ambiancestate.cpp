@@ -49,6 +49,18 @@ AmbianceState::AmbianceState(Common::ReadStream &ambianceState) {
 			_ambientLightIntensity = std::stof(value);
 		else if (child.name == "ambient_light_saturation")
 			_ambientLightSaturation = std::stof(value);
+		else if (child.name == "ground_fog_density")
+			_groundFogDensity = std::stof(value);
+		else if (child.name == "ground_fog_falloff")
+			_groundFogFalloff = std::stof(value);
+		else if (child.name == "fog_color")
+			_fogColor = parseVec3(value);
+		else if (child.name == "fog_color_opposite")
+			_fogColorOpposite = parseVec3(value);
+		else if (child.name == "fog_intensity")
+			_fogIntensity = std::stof(value);
+		else if (child.name == "fog_intensity_opposite")
+			_fogIntensityOpposite = std::stof(value);
 	}
 }
 
@@ -71,6 +83,30 @@ float AmbianceState::getAmbientLightIntensity() const {
 
 float AmbianceState::getAmbientLightSaturation() const {
 	return _ambientLightSaturation;
+}
+
+const glm::vec3 &AmbianceState::getFogColor() const {
+	return _fogColor;
+}
+
+const glm::vec3 &AmbianceState::getFogColorOpposite() const {
+	return _fogColorOpposite;
+}
+
+float AmbianceState::getFogIntensity() const {
+	return _fogIntensity;
+}
+
+float AmbianceState::getFogIntensityOpposite() const {
+	return _fogIntensityOpposite;
+}
+
+float AmbianceState::getGroundFogFalloff() const {
+	return _groundFogFalloff;
+}
+
+float AmbianceState::getGroundFogDensity() const {
+	return _groundFogDensity;
 }
 
 }
