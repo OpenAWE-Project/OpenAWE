@@ -75,10 +75,10 @@ $ sudo make install
 Usage
 -----
 To run OpenAWE, do something like this. Note that you need to replace the path with the actual path to your Alan Wake
-installation's data directory, and that only Alan Wake's American Nightmare will work at the moment.
+installation's data directory and the path to the compiled shaders which are built during the compilation.
 
 ```bash
-$ ./awe -p /path/to/the/alan/wake/data/directory
+$ ./awe -p /path/to/the/alan/wake/data/directory -s /path/to/the/compiled/shaders
 ```
 
 
