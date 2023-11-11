@@ -146,4 +146,12 @@ void Model::setBoundSphere(const Common::BoundSphere &boundSphere) {
 	_boundSphere = boundSphere;
 }
 
+bool Model::isVisible() const {
+	return _visible;
+}
+
+void Model::setVisible(bool visible) {
+	_visible = visible;
+}
+
 }

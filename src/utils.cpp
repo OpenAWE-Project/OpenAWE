@@ -26,10 +26,7 @@ void setVisible(entt::registry &registry, entt::entity entity, bool visible) {
 	Graphics::ModelPtr model = registry.get<Graphics::ModelPtr>(entity);
 	const auto relationship = registry.try_get<Relationship>(entity);
 
-	if (visible)
-		model->show();
-	else
-		model->hide();
+	model->setVisible(visible);
 
 	// TODO: Hide more elements
 

@@ -69,6 +69,18 @@ public:
 	glm::mat4 getInverseTransform() const;
 
 	/*!
+	 * Set the visibility state of the model
+	 * \param visible If the model should be visible
+	 */
+	void setVisible(bool visible);
+
+	/*!
+	 * Check if the model is currently visible
+	 * @return If the model is visible
+	 */
+	bool isVisible() const;
+
+	/*!
 	 * Get the number of instances, this model should be rendered. Defaults to 1
 	 * \return The number of instances, this model should be rendered
 	 */
@@ -125,6 +137,7 @@ public:
 protected:
 	Model();
 
+	bool _visible{true};
 	unsigned int _numInstances;
 	std::string _label;
 

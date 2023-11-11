@@ -285,6 +285,9 @@ void Renderer::drawWorld(const std::string &stage) {
 		}
 
 		for (const auto &task: pass.renderTasks) {
+			if (!task.model->isVisible())
+				continue;
+
 			glm::mat4 m = mirrorZ * task.model->getTransform();
 			glm::mat4 mv = _view * m;
 			glm::mat4 vm = task.model->getInverseTransform() * viewToWorldMat;
