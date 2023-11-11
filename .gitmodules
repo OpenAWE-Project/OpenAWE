@@ -1,7 +1,10 @@
-[submodule "3rdparty/entt"]
+[submodule "entt"]
 	path = 3rdparty/entt
 	url = https://github.com/skypjack/entt
 	branch = v3.11.x
-[submodule "3rdparty/CLI11"]
+[submodule "CLI11"]
 	path = 3rdparty/CLI11
 	url = https://github.com/CLIUtils/CLI11
+[submodule "3rdparty/tinygltf"]
+	path = 3rdparty/tinygltf
+	url = https://github.com/syoyo/tinygltf
