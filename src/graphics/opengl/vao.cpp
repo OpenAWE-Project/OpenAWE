@@ -22,8 +22,11 @@
 
 namespace Graphics::OpenGL {
 
-VAO::VAO() : _id(0) {
+VAO::VAO(const std::string &label) : _id(0) {
 	glGenVertexArrays(1, &_id);
+
+	if (GLEW_KHR_debug && !label.empty())
+		glObjectLabel(GL_VERTEX_ARRAY, _id, label.size(), label.c_str());
 }
 
 VAO::~VAO() {

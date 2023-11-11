@@ -30,7 +30,7 @@ namespace Graphics::OpenGL {
 
 class VAO : public AttributeObject {
 public:
-	VAO();
+	VAO(const std::string &label = "");
 	~VAO();
 
 	void bind();
