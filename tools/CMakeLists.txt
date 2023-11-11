@@ -77,6 +77,13 @@ target_link_libraries(
         awe_sound
 )
 
+add_executable(havok2gltf havok2gltf.cpp)
+target_link_libraries(
+        havok2gltf
+        awe_common
+        awe_lib
+)
+
 install(
         TARGETS
         unrmdp
