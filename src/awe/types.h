@@ -24,8 +24,10 @@
 #include <cstdint>
 
 #include <tuple>
+#include <regex>
 
 #include <fmt/format.h>
+#include <CLI/CLI.hpp>
 
 enum GameEngine {
 	kAlanWake,
@@ -138,6 +140,18 @@ enum ObjectType {
 	kAttachmentContainer,
 	kSpotLight,
 	kWeapon
+};
+
+struct GIDValidator : public CLI::Validator {
+	GIDValidator() {
+		name_ = "GID";
+		func_ = [](const std::string &str) -> std::string {
+			if (!std::regex_match(str, std::regex("\\d+:[0-9a-fA-F]{8}")))
+				return fmt::format("{} is not a valid GID");
+
+			return "";
+		};
+	}
 };
 
 /*!
