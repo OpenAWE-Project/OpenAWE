@@ -61,6 +61,10 @@ AmbianceState::AmbianceState(Common::ReadStream &ambianceState) {
 			_fogIntensity = std::stof(value);
 		else if (child.name == "fog_intensity_opposite")
 			_fogIntensityOpposite = std::stof(value);
+		else if (child.name == "secondary_sky_glow_height")
+			_secondarySkyGlowHeight = std::stof(value);
+		else if (child.name == "weather_cloudiness")
+			_weatherCloudiness = std::stof(value);
 	}
 }
 
@@ -107,6 +111,18 @@ float AmbianceState::getGroundFogFalloff() const {
 
 float AmbianceState::getGroundFogDensity() const {
 	return _groundFogDensity;
+}
+
+float AmbianceState::getSecondarySkyGlowHeight() const {
+	return _secondarySkyGlowHeight;
+}
+
+float AmbianceState::getWeatherCloudiness() const {
+	return _weatherCloudiness;
+}
+
+float AmbianceState::getCloudThreshold() const {
+	return (1.0f - _weatherCloudiness) * 0.8f + 0.1f;
 }
 
 }

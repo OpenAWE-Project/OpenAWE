@@ -44,6 +44,11 @@ public:
 	float getFogIntensity() const;
 	float getFogIntensityOpposite() const;
 
+	float getSecondarySkyGlowHeight() const;
+
+	float getWeatherCloudiness() const;
+	float getCloudThreshold() const;
+
 private:
 	glm::vec3 parseVec3(const std::string &str);
 
@@ -54,6 +59,10 @@ private:
 	float _groundFogFalloff, _groundFogDensity;
 	glm::vec3 _fogColor, _fogColorOpposite;
 	float _fogIntensity, _fogIntensityOpposite;
+
+	float _secondarySkyGlowHeight;
+
+	float _weatherCloudiness;
 };
 
 }
