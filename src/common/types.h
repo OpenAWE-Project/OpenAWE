@@ -26,11 +26,23 @@
 #include <glm/glm.hpp>
 #include <fmt/format.h>
 
+/*
+ * Operating System Macros
+ */
 #define OS_LINUX linux || __linux
 #define OS_ANDROID __ANDROID__
 #define OS_MACOS macintosh || Macintosh || __APPLE__ || __MACH__
 #define OS_IOS (__APPLE__ || __MACH__) && __ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__
 #define OS_WINDOWS _WIN32 || _WIN64 || __WIN32__ || __TOS_WIN__ || __WINDOWS__
+
+/*
+ * Architecture Macros
+ */
+#define ARCH_ARM __arm__ || __arm64 || __thumb__ || __TARGET_ARCH_ARM || __TARGET_ARCH_THUMB || _M_ARM
+#define ARCH_X86_32 i386 || __i386__ || __i486__ || __i586__ || __i686__ || __i386 || _M_IX86 || _X86_ || \
+	__THW_INTEL__ || __I86__  || __INTEL__
+#define ARCH_X86_64 __x86_64 || __x86_64__ || __amd64 || __amd64__ || _M_X64
+#define ARCH_X86 ARCH_X86_32 || ARCH_X86_64
 
 #define MKTAG(a0,a1,a2,a3) ((uint32_t)((a3) | ((a2) << 8) | ((a1) << 16) | ((a0) << 24)))
 
