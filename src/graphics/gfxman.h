@@ -117,6 +117,7 @@ public:
 	 * \param vertexAttributes The attributes to create the attribute object
 	 * \param vertexData The vertex data to bind the attribute object to
 	 * \param offset The global offset inside the vertex data from which to start
+	 * \param label The label of the attribute object
 	 * \return A render system specific attribute object
 	 */
 	AttributeObjectPtr createAttributeObject(
@@ -125,7 +126,8 @@ public:
 		uint32_t properties,
 		const std::vector<VertexAttribute> &vertexAttributes,
 		BufferPtr vertexData,
-		unsigned int offset = 0
+		unsigned int offset = 0,
+		const std::string &label = ""
 	);
 
 	/*!

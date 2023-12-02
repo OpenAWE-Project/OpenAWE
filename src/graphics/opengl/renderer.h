@@ -56,7 +56,7 @@ public:
 	AttributeObjectPtr
 	createAttributeObject(const std::string &shader, const std::string &stage, uint32_t properties,
 						  const std::vector<VertexAttribute> &vertexAttributes, BufferPtr vertexData,
-						  unsigned int offset) override;
+						  unsigned int offset, const std::string &label) override;
 
 	int getUniformIndex(const std::string &shaderName, const std::string &stage, uint32_t properties,
 						const std::string &id) override;

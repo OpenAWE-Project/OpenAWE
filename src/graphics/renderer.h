@@ -72,7 +72,8 @@ public:
 		uint32_t properties,
 		const std::vector<VertexAttribute> &vertexAttributes,
 		BufferPtr vertexData,
-		unsigned int offset
+		unsigned int offset,
+		const std::string &label
 	) = 0;
 
 	virtual int getUniformIndex(

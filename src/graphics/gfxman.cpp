@@ -92,7 +92,8 @@ GraphicsManager::createAttributeObject(
 	uint32_t properties,
 	const std::vector<VertexAttribute> &vertexAttributes,
 	BufferPtr vertexData,
-	unsigned int offset
+	unsigned int offset,
+	const std::string &label
 ) {
 	return _renderer->createAttributeObject(
 		shader,
@@ -100,7 +101,8 @@ GraphicsManager::createAttributeObject(
 		properties,
 		vertexAttributes,
 		std::move(vertexData),
-		offset
+		offset,
+		label
 	);
 }
 

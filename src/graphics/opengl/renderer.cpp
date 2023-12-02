@@ -771,9 +771,10 @@ Renderer::createAttributeObject(
 	uint32_t properties,
 	const std::vector<VertexAttribute> &vertexAttributes,
 	BufferPtr vertexData,
-	unsigned int offset
+	unsigned int offset,
+	const std::string &label
 ) {
-	auto vao = std::make_unique<VAO>();
+	auto vao = std::make_unique<VAO>(label);
 	vao->bind();
 	std::static_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
 
