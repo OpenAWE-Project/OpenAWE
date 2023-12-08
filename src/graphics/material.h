@@ -31,6 +31,7 @@
 #include "src/common/uuid.h"
 
 #include "src/graphics/texture.h"
+#include "src/graphics/textureman.h"
 
 namespace Graphics {
 
@@ -79,14 +80,15 @@ public:
 		Uniform(const std::string &id, std::vector<glm::vec3> value) : id(id), data(value), type(kVec3Array), index(-1) {}
 		Uniform(const std::string &id, std::vector<glm::vec4> value) : id(id), data(value), type(kVec4Array), index(-1) {}
 		Uniform(const std::string &id, TexturePtr value) : id(id), data(value), type(kTexture), index(-1) {}
+		Uniform(const std::string &id, std::string value) : id(id), data(TextureMan.getTexture(value)), type(kTexture), index(-1) {}
 	};
 
 	Material();
 	Material(
-		const std::string &shaderName,
-		std::initializer_list<std::string> stages,
-		std::vector<Uniform> attributes,
-		uint32_t properties = 0
+			const std::string &shaderName,
+			std::vector<std::string> stages,
+			std::vector<Uniform> attributes,
+			uint32_t properties = 0
 	);
 
 	const std::vector<std::string> &getStages() const;

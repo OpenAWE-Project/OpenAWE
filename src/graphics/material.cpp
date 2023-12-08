@@ -18,8 +18,10 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "material.h"
-#include "gfxman.h"
+#include <utility>
+
+#include "src/graphics/material.h"
+#include "src/graphics/gfxman.h"
 
 namespace Graphics {
 
@@ -27,13 +29,13 @@ Material::Material() {
 }
 
 Material::Material(
-	const std::string &shaderName,
-	std::initializer_list<std::string> stages,
-	std::vector<Uniform> attributes,
-	uint32_t properties) :
+		const std::string &shaderName,
+		std::vector<std::string> stages,
+		std::vector<Uniform> attributes,
+		uint32_t properties) :
 	_blendMode(BlendMode::kNone),
 	_properties(properties),
-	_stages(stages),
+	_stages(std::move(stages)),
 	_shaderName(shaderName) {
 	for (const auto &stage: _stages) {
 		_attributes[stage] = attributes;
