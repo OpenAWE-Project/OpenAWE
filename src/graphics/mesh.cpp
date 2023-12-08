@@ -58,4 +58,12 @@ const Common::BoundSphere &Mesh::getBoundingSphere() const {
 	return *_boundingSphere;
 }
 
+void Mesh::setBoundingSphere(const Common::BoundSphere &boundingSphere) {
+	_boundingSphere = boundingSphere;
+}
+
+void Mesh::setInverseRestTransforms(const std::map<std::string, glm::mat4> &inverseRestTransforms) {
+	_inverseRestTransforms = inverseRestTransforms;
+}
+
 }

@@ -64,6 +64,8 @@ public:
 	[[nodiscard]] const std::vector<PartMesh> &getMeshs() const;
 	const std::map<std::string, glm::mat4> & getInverseRestTransforms() const;
 
+	void setInverseRestTransforms(const std::map<std::string, glm::mat4> &inverseRestTransforms);
+
 	void setIndices(BufferPtr indices);
 	void addPartMesh(const PartMesh &partMesh);
 
@@ -71,6 +73,7 @@ public:
 
 	bool hasBoundingSphere() const;
 	const Common::BoundSphere &getBoundingSphere() const;
+	void setBoundingSphere(const Common::BoundSphere &boundingSphere);
 
 protected:
 	std::optional<Common::BoundSphere> _boundingSphere;
