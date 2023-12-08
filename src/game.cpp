@@ -23,13 +23,6 @@
 
 #include <CLI/CLI.hpp>
 
-#include <src/graphics/fontman.h>
-#include "src/graphics/text.h"
-#include "src/graphics/sky.h"
-#include "src/graphics/meshman.h"
-#include "src/graphics/binmshloader.h"
-#include "src/graphics/binfolloader.h"
-
 #include "src/common/crc32.h"
 #include "src/common/threadpool.h"
 #include "src/common/strutil.h"
@@ -37,19 +30,24 @@
 #include "src/common/platform.h"
 #include "src/common/cpuinfo.h"
 
-#include "src/platform/keyconversion.h"
-#include "src/platform/gamepadconversion.h"
-#include "src/platform/gamepadman.h"
-
-#include "src/events/eventman.h"
-
-#include "src/physics/physicsman.h"
-
-#include "src/world.h"
 #include "src/awe/resman.h"
 #include "src/awe/cidfile.h"
 #include "src/awe/havokfile.h"
 #include "src/awe/types.h"
+
+#include "src/platform/keyconversion.h"
+#include "src/platform/gamepadconversion.h"
+#include "src/platform/gamepadman.h"
+
+#include "src/graphics/fontman.h"
+#include "src/graphics/text.h"
+#include "src/graphics/meshman.h"
+#include "src/graphics/binmshloader.h"
+#include "src/graphics/binfolloader.h"
+
+#include "src/events/eventman.h"
+
+#include "src/physics/physicsman.h"
 
 #include "src/engines/aw/engine.h"
 #include "src/engines/awan/engine.h"
@@ -63,6 +61,7 @@
 #include "src/transform.h"
 #include "src/probe.h"
 #include "src/utils.h"
+#include "src/world.h"
 
 static constexpr uint32_t kLockMouse = Common::crc32("MOUSE_LOCK");
 
