@@ -53,6 +53,8 @@ public:
 	bool hasResource(const std::string &path);
 	bool hasDirectory(const std::string &path);
 
+	std::string getResourcePath(rid_t rid);
+
 	std::vector<std::string> getDirectoryResources(const std::string &path);
 
 	Common::ReadStream *getResource(const std::string &path);

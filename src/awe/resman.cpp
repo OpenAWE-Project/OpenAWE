@@ -81,6 +81,18 @@ bool RessourceManager::hasDirectory(const std::string &path) {
 	return false;
 }
 
+std::string RessourceManager::getResourcePath(rid_t rid) {
+	for (const auto &meta : _meta) {
+		const std::string path = meta->getNameByRid(rid);
+
+		if (path.empty())
+			continue;
+
+		return path;
+	}
+	return "";
+}
+
 std::vector<std::string> RessourceManager::getDirectoryResources(const std::string &path) {
 	std::vector<std::string> paths;
 	for (auto &archive : _archives) {
