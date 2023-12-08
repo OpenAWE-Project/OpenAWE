@@ -25,6 +25,10 @@
 
 #include <src/graphics/fontman.h>
 #include "src/graphics/text.h"
+#include "src/graphics/sky.h"
+#include "src/graphics/meshman.h"
+#include "src/graphics/binmshloader.h"
+#include "src/graphics/binfolloader.h"
 
 #include "src/common/crc32.h"
 #include "src/common/threadpool.h"
@@ -43,7 +47,6 @@
 
 #include "src/world.h"
 #include "src/awe/resman.h"
-#include "src/game.h"
 #include "src/awe/cidfile.h"
 #include "src/awe/havokfile.h"
 #include "src/awe/types.h"
@@ -53,6 +56,7 @@
 
 #include "src/sound/soundman.h"
 
+#include "src/game.h"
 #include "src/controlledfreecamera.h"
 #include "src/task.h"
 #include "src/timerprocess.h"
@@ -203,6 +207,11 @@ void Game::init() {
 
 	GfxMan.initOpenGL(*_window, _shaderPath);
 	//GfxMan.setAmbianceState("scene1_reststop_creepy");
+
+	// Initialize loaders
+	spdlog::info("Initializing mesh loaders");
+	MeshMan.appendLoader<Graphics::BINMSHLoader>();
+	MeshMan.appendLoader<Graphics::BINFOLLoader>();
 
 	// Initialize Physics
 	PhysicsMan.setDebugDraw(_physicsDebugDraw);
