@@ -20,16 +20,18 @@
 
 #include <stdexcept>
 #include <regex>
+#include <filesystem>
 
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
-#include "meshman.h"
+#include "src/common/exception.h"
+
 #include "src/awe/resman.h"
 
 #include "src/graphics/mesh_binmsh.h"
 #include "src/graphics/mesh_binfol.h"
-
+#include "src/graphics/meshman.h"
 
 namespace Graphics {
 
@@ -53,12 +55,12 @@ MeshPtr MeshManager::getMesh(rid_t rid) {
 			return getMissingMesh();
 
 		try {
-			_meshRegistry.insert(std::make_pair(rid, std::make_shared<BINMSHMesh>(meshResource.get())));
+			const auto &loader = getMeshLoader(std::filesystem::path(ResMan.getResourcePath(rid)).extension().string());
+			return _meshRegistry[rid] = loader.load(*meshResource);
 		} catch (std::exception &e) {
 			spdlog::error("Error while loading mesh {:x}: {}", rid, e.what());
 			return getBrokenMesh();
 		}
-		return _meshRegistry[rid];
 	} else {
 		return iter->second;
 	}
@@ -72,24 +74,15 @@ MeshPtr MeshManager::getMesh(const std::string &path) {
 			return getMissingMesh();
 
 		try {
-			if (std::regex_match(path, std::regex(".*\\.(binmsh|binfbx)$")))
-				_meshRegistry.insert(std::make_pair(path, std::make_shared<BINMSHMesh>(meshResource.get())));
-			else if (std::regex_match(path, std::regex(".*\\.binfol$")))
-				_meshRegistry.insert(std::make_pair(path, std::make_shared<BINFOLMesh>(meshResource.get())));
-			else
-				throw std::runtime_error(fmt::format("Invalid or unsupported mesh file {}", path));
+			const auto &loader = getMeshLoader(std::filesystem::path(path).extension().string());
+			return _meshRegistry[path] = loader.load(*meshResource);
 		} catch (std::exception &e) {
 			spdlog::error("Error while loading mesh \"{}\": {}", path, e.what());
 			return getBrokenMesh();
 		}
-		return _meshRegistry[path];
 	} else {
 		return iter->second;
 	}
-}
-
-BINFOLMeshPtr MeshManager::getFoliageMesh(const std::string &path) {
-	return std::static_pointer_cast<BINFOLMesh>(getMesh(path));
 }
 
 MeshPtr MeshManager::getMissingMesh() {
@@ -98,6 +91,19 @@ MeshPtr MeshManager::getMissingMesh() {
 
 MeshPtr MeshManager::getBrokenMesh() {
 	return getMesh(_brokenMeshPath);
+}
+
+const MeshLoader &MeshManager::getMeshLoader(const std::string &extension) {
+	const auto loaderIter = std::find_if(
+		_loaders.begin(),
+		_loaders.end(),
+		[&](const auto &loader){ return loader->isExtensionSupported(extension); }
+	);
+
+	if (loaderIter == _loaders.end())
+		throw CreateException("No loader available for type {}", extension);
+
+	return **loaderIter;
 }
 
 }

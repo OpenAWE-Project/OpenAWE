@@ -33,9 +33,40 @@
 
 namespace Graphics {
 
+/*!
+ * \brief Interface for implementing a mesh loader
+ *
+ * This interface describes the loading for a mesh from a file given as
+ * read stream and returns a usable mesh pointer
+ */
+class MeshLoader {
+public:
+	MeshLoader(const std::initializer_list<std::string> fileEndings) : _fileEndings(fileEndings) {}
+
+	bool isExtensionSupported(const std::string &extension) const {
+		return std::find(_fileEndings.cbegin(), _fileEndings.cend(), extension) != _fileEndings.end();
+	}
+
+	virtual MeshPtr load(Common::ReadStream &) const = 0;
+
+private:
+	const std::vector<std::string> _fileEndings;
+};
+
 class MeshManager : public Common::Singleton<MeshManager> {
 public:
 	MeshManager();
+
+	/*!
+	 * Append new loader to the end of the loaders list. The priority is the order of the added loaders e.g. from the
+	 * front of the loaders list to the back.
+	 * @tparam T The type of the loader to be appended
+	 * @tparam Params The parameters of the loader creation
+	 * @param args The arguments for the creation of the loader
+	 */
+	template<typename T, typename... Params> void appendLoader(Params... args) {
+		_loaders.emplace_back(std::make_unique<T>(std::forward<Params>(args)...));
+	}
 
 	MeshPtr getMesh(rid_t rid);
 	MeshPtr getMesh(const std::string &path);
@@ -50,6 +81,10 @@ public:
 private:
 	MeshPtr getMissingMesh();
 	MeshPtr getBrokenMesh();
+
+	const MeshLoader &getMeshLoader(const std::string &extension);
+
+	std::vector<std::unique_ptr<MeshLoader>> _loaders;
 
 	std::string _missingMeshPath, _brokenMeshPath;
 
