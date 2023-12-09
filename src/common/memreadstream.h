@@ -40,7 +40,7 @@ public:
 
 	bool eos() const override;
 
-	void seek(ptrdiff_t length, SeekOrigin origin) override;
+	void seek(ptrdiff_t length, SeekOrigin origin = BEGIN) override;
 
 	size_t size() const override;
 
