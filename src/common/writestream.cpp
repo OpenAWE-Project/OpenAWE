@@ -20,6 +20,8 @@
 
 #include <cstring>
 
+#include <vector>
+
 #include "src/common/writestream.h"
 #include "src/common/endianness.h"
 
@@ -30,12 +32,9 @@ void WriteStream::writeByte(byte value) {
 }
 
 void WriteStream::writeStream(Common::ReadStream *stream) {
-	byte buffer[4096];
-	while (!stream->eos()) {
-		std::memset(buffer, 0, 4096);
-		size_t sizeToRead = stream->read(buffer, 4096);
-		write(buffer, sizeToRead);
-	}
+	std::vector<byte> data(stream->size());
+	stream->read(data.data(), data.size());
+	write(data.data(), data.size());
 }
 
 void WriteStream::writeString(std::string string) {
