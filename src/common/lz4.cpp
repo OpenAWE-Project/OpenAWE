@@ -27,6 +27,7 @@
 namespace Common {
 
 ReadStream *decompressLZ4(const byte *data, size_t compressedSize, size_t decompressedSize) {
+#if WITH_LZ4
 	byte *decompressedData = new byte[decompressedSize];
 
 	const auto decompressed = LZ4_decompress_safe(
@@ -36,7 +37,7 @@ ReadStream *decompressLZ4(const byte *data, size_t compressedSize, size_t decomp
 		decompressedSize
 	);
 
-	if (decompressed != decompressedSize) {
+	if (decompressed != static_cast<long>(decompressedSize)) {
 		throw CreateException(
 			"LZ4 decompression failed expected {}, got {}",
 			decompressedSize,
@@ -45,6 +46,9 @@ ReadStream *decompressLZ4(const byte *data, size_t compressedSize, size_t decomp
 	}
 
 	return new MemoryReadStream(decompressedData, decompressedSize);
+#else
+	throw CreateException("LZ4 support was not enabled")
+#endif
 }
 
 } // End of namespace Common
