@@ -91,6 +91,8 @@ if (LZ4_FOUND)
             awe_common
             awe_sound
     )
+
+    install(TARGETS unrmdblob DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
 install(
