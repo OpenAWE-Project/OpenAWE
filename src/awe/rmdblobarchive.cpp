@@ -207,11 +207,11 @@ std::string RMDBlobArchive::getResourcePath(size_t index) const {
 }
 
 Common::ReadStream *RMDBlobArchive::getResource(const std::string &rid) const {
-	const auto directoryEntry = findDirectoryEntry(std::filesystem::path(rid).parent_path());
+	const auto directoryEntry = findDirectoryEntry(std::filesystem::path(rid).parent_path().string());
 	if (!directoryEntry)
 		return nullptr;
 
-	const auto entry = findFileEntry(std::filesystem::path(rid).filename(), *directoryEntry);
+	const auto entry = findFileEntry(std::filesystem::path(rid).filename().string(), *directoryEntry);
 	if (!entry)
 		return nullptr;
 
@@ -255,11 +255,11 @@ Common::ReadStream *RMDBlobArchive::getResource(const std::string &rid) const {
 }
 
 bool RMDBlobArchive::hasResource(const std::string &rid) const {
-	const auto directoryEntry = findDirectoryEntry(std::filesystem::path(rid).parent_path());
+	const auto directoryEntry = findDirectoryEntry(std::filesystem::path(rid).parent_path().string());
 	if (!directoryEntry)
 		return false;
 
-	const auto entry = findFileEntry(std::filesystem::path(rid).filename(), *directoryEntry);
+	const auto entry = findFileEntry(std::filesystem::path(rid).filename().string(), *directoryEntry);
 	return entry.has_value();
 }
 

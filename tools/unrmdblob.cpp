@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 
 	Common::ReadFile rmdtoc(rmdtocFile);
 
-	AWE::RMDBlobArchive rmdblob(rmdtoc, std::filesystem::path(rmdtocFile).parent_path());
+	AWE::RMDBlobArchive rmdblob(rmdtoc, std::filesystem::path(rmdtocFile).parent_path().string());
 
 	for (size_t i = 0; i < rmdblob.getNumResources(); ++i) {
 		const std::string path = rmdblob.getResourcePath(i);
