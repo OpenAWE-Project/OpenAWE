@@ -41,7 +41,7 @@ public:
 	byte * getData();
 
 private:
-	void extendCapacity();
+	void extendCapacity(size_t length);
 
 	bool _release;
 

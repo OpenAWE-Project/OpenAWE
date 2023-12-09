@@ -42,16 +42,16 @@ byte * DynamicMemoryWriteStream::getData() {
 
 void DynamicMemoryWriteStream::write(const void *data, size_t length) {
 	while (_size + length > _capacity) {
-		extendCapacity();
+		extendCapacity(_size + length);
 	}
 
 	std::memcpy(_data + _size, data, length);
 	_size += length;
 }
 
-void DynamicMemoryWriteStream::extendCapacity() {
+void DynamicMemoryWriteStream::extendCapacity(size_t length) {
 	byte *oldData = _data;
-	_capacity += 4096;
+	_capacity = length;
 	_data = new unsigned char[_capacity];
 	std::memset(_data, 0, _capacity);
 
