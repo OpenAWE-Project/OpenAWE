@@ -84,6 +84,15 @@ target_link_libraries(
         awe_lib
 )
 
+if (LZ4_FOUND)
+    add_executable(unrmdblob unrmdblob.cpp)
+    target_link_libraries(
+            unrmdblob
+            awe_common
+            awe_sound
+    )
+endif ()
+
 install(
         TARGETS
         unrmdp
