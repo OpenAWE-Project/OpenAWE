@@ -29,17 +29,19 @@ find_path(
         lz4.h
 )
 
-file(READ ${LZ4_INCLUDE_DIR}/lz4.h header)
-string(REGEX MATCH "LZ4_VERSION_MAJOR +([0-9]+)" _ ${header})
-set(major_version ${CMAKE_MATCH_1})
-string(REGEX MATCH "LZ4_VERSION_MINOR +([0-9]+)" _ ${header})
-set(minor_version ${CMAKE_MATCH_1})
-string(REGEX MATCH "LZ4_VERSION_RELEASE +([0-9]+)" _ ${header})
-set(patch_version ${CMAKE_MATCH_1})
+if (EXISTS ${LZ4_INCLUDE_DIR})
+    file(READ ${LZ4_INCLUDE_DIR}/lz4.h header)
+    string(REGEX MATCH "LZ4_VERSION_MAJOR +([0-9]+)" _ ${header})
+    set(major_version ${CMAKE_MATCH_1})
+    string(REGEX MATCH "LZ4_VERSION_MINOR +([0-9]+)" _ ${header})
+    set(minor_version ${CMAKE_MATCH_1})
+    string(REGEX MATCH "LZ4_VERSION_RELEASE +([0-9]+)" _ ${header})
+    set(patch_version ${CMAKE_MATCH_1})
+    set(LZ4_VERSION ${major_version}.${minor_version}.${patch_version})
+endif ()
 
 set(LZ4_LIBRARIES ${LZ4_LIBRARY})
 set(LZ4_INCLUDE_DIRS ${LZ4_INCLUDE_DIR})
-set(LZ4_VERSION ${major_version}.${minor_version}.${patch_version})
 
 find_package_handle_standard_args(
         LZ4

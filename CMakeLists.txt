@@ -308,8 +308,15 @@ target_link_libraries(
 
         tinyxml2::tinyxml2
         ${ZLIB_LIBRARIES}
-        ${LZ4_LIBRARIES}
 )
+
+if (${LZ4_FOUND})
+    target_link_libraries(
+            awe_common
+
+            ${LZ4_LIBRARIES}
+    )
+endif ()
 
 file(GLOB_RECURSE SOURCE_FILES src/codecs/*.cpp src/codecs/*.h)
 add_library(awe_codecs ${SOURCE_FILES})
