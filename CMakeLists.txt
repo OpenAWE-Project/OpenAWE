@@ -211,6 +211,11 @@ find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(spdlog REQUIRED)
 
+find_package(LZ4)
+if (LZ4_FOUND)
+    add_definitions(-DWITH_LZ4)
+endif ()
+
 if (WITH_SPIRV_CROSS)
     find_package(spirv_cross_core REQUIRED)
     find_package(spirv_cross_glsl REQUIRED)
@@ -303,6 +308,7 @@ target_link_libraries(
 
         tinyxml2::tinyxml2
         ${ZLIB_LIBRARIES}
+        ${LZ4_LIBRARIES}
 )
 
 file(GLOB_RECURSE SOURCE_FILES src/codecs/*.cpp src/codecs/*.h)
