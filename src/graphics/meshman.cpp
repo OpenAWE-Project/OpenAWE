@@ -29,8 +29,6 @@
 
 #include "src/awe/resman.h"
 
-#include "src/graphics/mesh_binmsh.h"
-#include "src/graphics/mesh_binfol.h"
 #include "src/graphics/meshman.h"
 
 namespace Graphics {

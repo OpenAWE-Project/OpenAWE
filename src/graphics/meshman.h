@@ -27,7 +27,6 @@
 #include "src/common/singleton.h"
 
 #include "src/graphics/mesh.h"
-#include "src/graphics/mesh_binfol.h"
 
 #include "src/awe/types.h"
 
@@ -70,13 +69,6 @@ public:
 
 	MeshPtr getMesh(rid_t rid);
 	MeshPtr getMesh(const std::string &path);
-
-	/*!
-	 * Get the specific mesh as foliage mesh
-	 * \param path The path to the mesh as string
-	 * \return A pointer to the specific foliage mesh
-	 */
-	BINFOLMeshPtr getFoliageMesh(const std::string &path);
 
 private:
 	MeshPtr getMissingMesh();
