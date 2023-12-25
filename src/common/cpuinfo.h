@@ -39,6 +39,12 @@ std::string getCPUVendor();
 std::string getCPUName();
 
 /*!
+ * Get the name of the operating system currently running
+ * \return The name of the operating system
+ */
+std::string getOSName();
+
+/*!
  * Return if the cpu supports MMX instructions
  * \return If the cpu supports MMX instructions
  */

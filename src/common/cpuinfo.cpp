@@ -27,6 +27,10 @@
 #	include <cpuid.h>
 #endif
 
+#if HAS_UTSNAME_H
+#	include <sys/utsname.h>
+#endif
+
 #if HAS_GETAUXVAL
 #   include <sys/auxv.h>
 #   define HWCAP_NEON (1 << 12)
@@ -144,6 +148,17 @@ std::string getCPUName() {
 	std::string name(reinterpret_cast<char*>(data));
 
 	return name;
+#else
+	return "<unknown>";
+#endif
+}
+
+std::string getOSName() {
+#if OS_LINUX && HAS_UTSNAME_H
+	utsname buffer{};
+	uname(&buffer);
+
+	return fmt::format("{} {}", buffer.sysname, buffer.release);
 #else
 	return "<unknown>";
 #endif

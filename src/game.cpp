@@ -106,6 +106,7 @@ bool Game::parseArguments(int argc, char **argv) {
 }
 
 void Game::init() {
+	spdlog::debug("OS: {}", Common::getOSName());
 	spdlog::debug("CPU Vendor: {}", Common::getCPUVendor());
 	spdlog::debug("CPU Name: {}",   Common::getCPUName());
 	spdlog::debug("MMX: {}",    Common::hasMMX());
