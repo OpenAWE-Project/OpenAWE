@@ -29,7 +29,7 @@ class BINMSHLoader : public MeshLoader {
 public:
 	BINMSHLoader();
 
-	MeshPtr load(Common::ReadStream &stream) const override;
+	MeshPtr load(Common::ReadStream &stream, std::initializer_list<std::string> stages) const override;
 };
 
 } // End of namespace Graphics

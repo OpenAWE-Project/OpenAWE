@@ -46,7 +46,7 @@ public:
 		return std::find(_fileEndings.cbegin(), _fileEndings.cend(), extension) != _fileEndings.end();
 	}
 
-	virtual MeshPtr load(Common::ReadStream &) const = 0;
+	virtual MeshPtr load(Common::ReadStream &, std::initializer_list<std::string> stages) const = 0;
 
 private:
 	const std::vector<std::string> _fileEndings;
@@ -69,6 +69,7 @@ public:
 
 	MeshPtr getMesh(rid_t rid);
 	MeshPtr getMesh(const std::string &path);
+	MeshPtr getMesh(const std::string &path, std::initializer_list<std::string> stages);
 
 private:
 	MeshPtr getMissingMesh();

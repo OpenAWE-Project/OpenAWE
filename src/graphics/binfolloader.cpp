@@ -14,7 +14,7 @@ namespace Graphics {
 BINFOLLoader::BINFOLLoader() : MeshLoader({".binfol"}){
 }
 
-MeshPtr BINFOLLoader::load(Common::ReadStream &stream) const {
+MeshPtr BINFOLLoader::load(Common::ReadStream &stream, std::initializer_list<std::string> stages) const {
 	AWE::BINFOLFile binfol(stream);
 
 	const auto &vertexBufferData = binfol.getVertexData();
@@ -50,7 +50,7 @@ MeshPtr BINFOLLoader::load(Common::ReadStream &stream) const {
 			}, uniform.data);
 		}
 
-		part.material = Material(material.shader, {"depth", "material"}, uniforms, material.properties);
+		part.material = Material(material.shader, stages, uniforms, material.properties);
 
 		switch (material.cullMode) {
 			case AWE::BINMSHFile::kCullNone:
@@ -132,7 +132,7 @@ MeshPtr BINFOLLoader::load(Common::ReadStream &stream) const {
 			attributes.emplace_back(VertexAttribute{type, dataType});
 		}
 
-		for (const auto &stage : {"depth", "material"}) {
+		for (const auto &stage : stages) {
 			part.vertexAttributes[stage] = GfxMan.createAttributeObject(
 					mesh.material.shader,
 					stage,

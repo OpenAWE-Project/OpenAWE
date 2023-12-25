@@ -13,7 +13,7 @@ class BINFOLLoader : public MeshLoader {
 public:
 	BINFOLLoader();
 
-	MeshPtr load(Common::ReadStream &stream) const override;
+	MeshPtr load(Common::ReadStream &stream, std::initializer_list<std::string> stages) const override;
 };
 
 } // End of namespace Graphics

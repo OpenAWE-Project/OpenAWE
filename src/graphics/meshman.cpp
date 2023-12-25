@@ -54,7 +54,7 @@ MeshPtr MeshManager::getMesh(rid_t rid) {
 
 		try {
 			const auto &loader = getMeshLoader(std::filesystem::path(ResMan.getResourcePath(rid)).extension().string());
-			return _meshRegistry[rid] = loader.load(*meshResource);
+			return _meshRegistry[rid] = loader.load(*meshResource, {"depth", "material"});
 		} catch (std::exception &e) {
 			spdlog::error("Error while loading mesh {:x}: {}", rid, e.what());
 			return getBrokenMesh();
@@ -73,7 +73,26 @@ MeshPtr MeshManager::getMesh(const std::string &path) {
 
 		try {
 			const auto &loader = getMeshLoader(std::filesystem::path(path).extension().string());
-			return _meshRegistry[path] = loader.load(*meshResource);
+			return _meshRegistry[path] = loader.load(*meshResource, {"depth", "material"});
+		} catch (std::exception &e) {
+			spdlog::error("Error while loading mesh \"{}\": {}", path, e.what());
+			return getBrokenMesh();
+		}
+	} else {
+		return iter->second;
+	}
+}
+
+MeshPtr MeshManager::getMesh(const std::string &path, std::initializer_list<std::string> stages) {
+	auto iter = _meshRegistry.find(path);
+	if (iter == _meshRegistry.end()) {
+		std::unique_ptr<Common::ReadStream> meshResource(ResMan.getResource(path));
+		if (!meshResource)
+			return getMissingMesh();
+
+		try {
+			const auto &loader = getMeshLoader(std::filesystem::path(path).extension().string());
+			return _meshRegistry[path] = loader.load(*meshResource, stages);
 		} catch (std::exception &e) {
 			spdlog::error("Error while loading mesh \"{}\": {}", path, e.what());
 			return getBrokenMesh();
