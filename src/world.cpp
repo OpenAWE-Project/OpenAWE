@@ -25,7 +25,6 @@
 #include <spdlog/spdlog.h>
 #include <fmt/format.h>
 
-#include <src/graphics/mesh_binmsh.h>
 #include <src/graphics/gfxman.h>
 #include <src/awe/terraindatafile.h>
 
