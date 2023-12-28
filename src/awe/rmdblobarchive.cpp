@@ -96,7 +96,9 @@ RMDBlobArchive::RMDBlobArchive(Common::ReadStream &rmdtoc, const std::string &pa
 
 		_blobStreams.emplace_back(
 			std::make_unique<Common::ReadFile>(
-				fmt::format("{}/{}", path, std::filesystem::path(blobPath).filename().string())
+				path.empty()
+					? std::filesystem::path(blobPath).filename().string()
+					: fmt::format("{}/{}", path, std::filesystem::path(blobPath).filename().string())
 			)
 		);
 	}
