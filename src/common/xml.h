@@ -85,6 +85,13 @@ public:
 		 * @return The searched attribute as float
 		 */
 		float getFloat(const std::string &attribute) const;
+
+		/*!
+		 * Get an attribute of the node as vec3
+		 * \param attribute The attribute to search for
+		 * \return The searched attribute as vec3
+		 */
+		glm::vec3 getVec3(const std::string &attribute) const;
 	};
 
 	/*!

@@ -22,6 +22,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "src/common/strutil.h"
 #include "src/common/exception.h"
 #include "src/common/xml.h"
 
@@ -59,6 +60,23 @@ float XML::Node::getFloat(const std::string &attribute) const {
 		throw CreateException("Property {} not found in tag", attribute);
 
 	return std::stof(iter->second);
+}
+
+glm::vec3 XML::Node::getVec3(const std::string &attribute) const {
+	const auto iter = properties.find(attribute);
+	if (iter == properties.end())
+		throw CreateException("Property {} not found in tag", attribute);
+
+	const auto valueStrings = Common::split(iter->second, std::regex(" "));
+
+	if (valueStrings.size() != 3)
+		throw CreateException("Incorrect number of values detected, expected 3, got {}", valueStrings.size());
+
+	return {
+		std::stof(valueStrings[0]),
+		std::stof(valueStrings[1]),
+		std::stof(valueStrings[2])
+	};
 }
 
 XML::Node &XML::getRootNode() {
