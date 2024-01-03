@@ -58,6 +58,15 @@ void AnimationController::play(const std::string &id, float startTime) {
 	};
 }
 
+void AnimationController::play(const AnimationPtr animation, bool looping) {
+	_lastAnimation = _currentAnimation;
+	_currentAnimation = AnimationPart{
+			animation,
+			looping ? kLoop : kNone,
+			0.0
+	};
+}
+
 void AnimationController::update(float time) {
 	if (!_currentAnimation.animation)
 		return;

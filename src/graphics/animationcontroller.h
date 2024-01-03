@@ -66,6 +66,13 @@ public:
 	void play(const std::string &id, float startTime = 0.0f);
 
 	/*!
+	 * Play an animation not contained in the controllers standard animations
+	 * \param animation The animation to play
+	 * \param looping If the animation should be looped
+	 */
+	void play(const AnimationPtr animation, bool looping);
+
+	/*!
 	 * Update the animation to the given time point
 	 * \param time The time to which to transform the skeleton
 	 */
