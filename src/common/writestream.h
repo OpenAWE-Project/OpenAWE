@@ -70,7 +70,7 @@ public:
 	template<typename FormatString, typename ...Args>
 	void writeString(const FormatString &format, const Args &... args) {
 #if FMT_VERSION < 80000
-		_message = fmt::format(format, args...);
+		writeString(fmt::format(format, args...));
 #else
 		writeString(fmt::format(fmt::runtime(format), args...));
 #endif
