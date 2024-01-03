@@ -41,6 +41,7 @@ namespace Graphics {
 class MeshLoader {
 public:
 	MeshLoader(const std::initializer_list<std::string> fileEndings) : _fileEndings(fileEndings) {}
+	virtual ~MeshLoader() = default;
 
 	bool isExtensionSupported(const std::string &extension) const {
 		return std::find(_fileEndings.cbegin(), _fileEndings.cend(), extension) != _fileEndings.end();
