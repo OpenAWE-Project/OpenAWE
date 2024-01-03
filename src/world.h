@@ -35,7 +35,7 @@
 
 class World : public ObjectCollection {
 public:
-	World(entt::registry &registry, const std::string &name);
+	World(entt::registry &registry, entt::scheduler<double> &scheduler, const std::string &name);
 
 	const std::string &getName() const;
 

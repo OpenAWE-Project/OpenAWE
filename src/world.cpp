@@ -36,8 +36,8 @@
 #include "src/awe/havokfile.h"
 #include "src/awe/script/collection.h"
 
-World::World(entt::registry &registry, const std::string &name) :
-	ObjectCollection(registry),
+World::World(entt::registry &registry, entt::scheduler<double> &scheduler, const std::string &name) :
+	ObjectCollection(registry, scheduler),
 	_name(name)
 {
 	std::string filename = fmt::format("globaldb/{}.xml", _name);
@@ -99,7 +99,7 @@ void World::loadEpisode(const std::string &id) {
 	spdlog::info("Loading episode {} from {}", id, _name);
 	WorldFile::Level level = _world->getLevel(id);
 
-	_currentEpisode = std::make_unique<Episode>(_registry, _name, id);
+	_currentEpisode = std::make_unique<Episode>(_registry, _scheduler, _name, id);
 	for (const auto &fileName : level.fileNames) {
 		_currentEpisode->loadLevel(fileName);
 	}

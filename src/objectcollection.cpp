@@ -50,7 +50,7 @@
 #include "src/utils.h"
 #include "src/keyframer.h"
 
-ObjectCollection::ObjectCollection(entt::registry &registry) : _registry(registry) {
+ObjectCollection::ObjectCollection(entt::registry &registry, entt::scheduler<double> &scheduler) : _registry(registry), _scheduler(scheduler) {
 }
 
 ObjectCollection::~ObjectCollection() {

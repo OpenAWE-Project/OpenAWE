@@ -37,7 +37,7 @@
  */
 class Global : public ObjectCollection {
 public:
-	Global(entt::registry &registry);
+	Global(entt::registry &registry, entt::scheduler<double> &scheduler);
 
 private:
 };

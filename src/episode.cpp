@@ -28,8 +28,8 @@
 
 #include "src/episode.h"
 
-Episode::Episode(entt::registry &registry, const std::string &world, const std::string &id) :
-	ObjectCollection(registry),
+Episode::Episode(entt::registry &registry, entt::scheduler<double> &scheduler, const std::string &world, const std::string &id) :
+	ObjectCollection(registry, scheduler),
 	_id(id),
 	_world(world) {
 	std::string episodeFolder = fmt::format("worlds/{}/episodes/{}", world, id);
@@ -137,5 +137,5 @@ Episode::Episode(entt::registry &registry, const std::string &world, const std::
 }
 
 void Episode::loadLevel(const std::string &id) {
-	_levels.emplace_back(std::make_unique<Level>(_registry, id, _world));
+	_levels.emplace_back(std::make_unique<Level>(_registry, _scheduler, id, _world));
 }

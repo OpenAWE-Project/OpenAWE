@@ -92,7 +92,7 @@ void Engine::loadEpisode(const std::string &data) {
 	std::string episodeName = episode[1];
 
 	if (!_world || _world->getName() != worldName) {
-		_world = std::make_unique<World>(_registry, worldName);
+		_world = std::make_unique<World>(_registry, _scheduler, worldName);
 		_world->loadGlobal();
 	}
 

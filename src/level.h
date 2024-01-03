@@ -31,7 +31,7 @@
 
 class Level : public ObjectCollection {
 public:
-	Level(entt::registry &registry, const std::string &id, const std::string &world);
+	Level(entt::registry &registry, entt::scheduler<double> &scheduler, const std::string &id, const std::string &world);
 
 private:
 	std::vector<glm::u32vec2> loadCellInfo(Common::ReadStream *cid) const;

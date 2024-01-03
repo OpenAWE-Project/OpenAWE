@@ -27,8 +27,8 @@
 
 #include "src/level.h"
 
-Level::Level(entt::registry &registry, const std::string &id, const std::string &world) :
-	ObjectCollection(registry),
+Level::Level(entt::registry &registry, entt::scheduler<double> &scheduler, const std::string &id, const std::string &world) :
+	ObjectCollection(registry, scheduler),
 	_terrain(std::make_unique<Graphics::Terrain>()),
 	_id(id),
 	_world(world) {

@@ -31,7 +31,7 @@
 
 #include "src/global.h"
 
-Global::Global(entt::registry &registry) : ObjectCollection(registry) {
+Global::Global(entt::registry &registry, entt::scheduler<double> &scheduler) : ObjectCollection(registry, scheduler) {
 	spdlog::info("Loading global data");
 
 	loadGIDRegistry(ResMan.getResource("global/GIDRegistry.txt"));

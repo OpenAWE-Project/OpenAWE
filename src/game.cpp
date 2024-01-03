@@ -228,8 +228,6 @@ void Game::init() {
 	std::unique_ptr<Common::ReadStream> localeConfigStream(ResMan.getResource("config/locale_config.xml"));
 	LocaleConfig localeConfig(*localeConfigStream);
 
-	_global = std::make_unique<Global>(_registry);
-
 	switch (engine) {
 		case kAlanWake:
 			_engine = std::make_unique<Engines::AlanWake::Engine>(
@@ -249,6 +247,8 @@ void Game::init() {
 			throw Common::Exception("Game engine not recognized");
 	}
 	_window->setTitle(_engine->getName());
+
+	_global = std::make_unique<Global>(_registry, _engine->getScheduler());
 
 	_engine->init();
 }

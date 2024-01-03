@@ -26,7 +26,7 @@
 
 class Episode : public ObjectCollection {
 public:
-	Episode(entt::registry &registry, const std::string &id, const std::string &world);
+	Episode(entt::registry &registry, entt::scheduler<double> &scheduler, const std::string &id, const std::string &world);
 
 	void loadLevel(const std::string &id);
 

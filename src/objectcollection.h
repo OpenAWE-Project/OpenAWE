@@ -38,7 +38,7 @@ public:
 	virtual ~ObjectCollection();
 
 protected:
-	ObjectCollection(entt::registry &registry);
+	ObjectCollection(entt::registry &registry, entt::scheduler<double> &scheduler);
 
 	void loadGIDRegistry(Common::ReadStream *stream);
 	void loadBytecode(Common::ReadStream *bytecode, Common::ReadStream *bytecodeParameters);
@@ -50,6 +50,7 @@ protected:
 	void loadTerrainCollisions(Common::ReadStream *collisions);
 
 	entt::registry &_registry;
+	entt::scheduler<double> &_scheduler;
 
 private:
 	void load(const AWE::Object &container, ObjectType type);
