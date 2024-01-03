@@ -49,6 +49,8 @@
 #include "src/task.h"
 #include "src/utils.h"
 #include "src/keyframer.h"
+#include "src/aiprocess.h"
+#include "src/character.h"
 
 ObjectCollection::ObjectCollection(entt::registry &registry, entt::scheduler<double> &scheduler) : _registry(registry), _scheduler(scheduler) {
 }
@@ -340,6 +342,9 @@ void ObjectCollection::loadCharacter(const AWE::Object &container) {
 		characterClass.capsuleRadius
 	);
 	characterController->setTransform(character.position, character.rotation);
+
+	_registry.emplace<AI>(characterEntity);
+	_scheduler.attach<AIProcess>(_registry, characterEntity);
 
 	_entities.emplace_back(characterEntity);
 
