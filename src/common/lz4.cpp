@@ -18,7 +18,9 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <lz4.h>
+#if WITH_LZ4
+#	include <lz4.h>
+#endif
 
 #include "src/common/lz4.h"
 #include "src/common/memreadstream.h"
@@ -47,7 +49,7 @@ ReadStream *decompressLZ4(const byte *data, size_t compressedSize, size_t decomp
 
 	return new MemoryReadStream(decompressedData, decompressedSize);
 #else
-	throw CreateException("LZ4 support was not enabled")
+	throw CreateException("LZ4 support was not enabled");
 #endif
 }
 
