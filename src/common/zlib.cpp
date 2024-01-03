@@ -18,12 +18,15 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <array>
 #include <memory>
 
 #include <zlib.h>
 
 #include "src/common/zlib.h"
 #include "src/common/memreadstream.h"
+#include "src/common/memwritestream.h"
+#include "src/common/exception.h"
 
 namespace Common {
 
@@ -43,11 +46,11 @@ ReadStream *decompressZLIB(const byte *data, size_t compressedSize, size_t decom
 
 	int result = inflateInit(&stream);
 	if (result != Z_OK)
-		throw std::runtime_error("Error initializing z_stream");
+		throw CreateException("Error initializing z_stream: {}", zError(result));
 
 	result = inflate(&stream, Z_FINISH);
 	if (result != Z_STREAM_END)
-		throw std::runtime_error("Error inflating");
+		throw CreateException("Error inflating: {}", zError(result));
 
 	inflateEnd(&stream);
 
@@ -70,11 +73,30 @@ ReadStream *compressZLIB(byte *data, size_t decompressedSize) {
 			Z_DEFAULT_STRATEGY
 	);
 
-	// TODO
+	if (zResult != Z_OK)
+		throw CreateException("Error when initializing zlig deflate: {}", zError(zResult));
+
+	stream.avail_in = decompressedSize;
+	stream.next_in = data;
+
+	constexpr auto kFrameSize = 4096;
+
+	Common::DynamicMemoryWriteStream writer(false);
+	std::array<std::byte, kFrameSize> buffer{};
+	while (stream.avail_in > 0) {
+		stream.avail_out = kFrameSize;
+		stream.next_out = reinterpret_cast<Bytef *>(buffer.data());
+
+		zResult = deflate(&stream, Z_FINISH);
+		if (zResult != Z_OK && zResult != Z_STREAM_END)
+			throw CreateException("Error when deflating a data block: {}", zError(zResult));
+
+		writer.write(buffer.data(), kFrameSize - stream.avail_out);
+	}
 
 	deflateEnd(&stream);
 
-	return nullptr;
+	return new MemoryReadStream(writer.getData(), writer.getLength());
 }
 
 } // End of namespace Common
