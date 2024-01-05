@@ -68,6 +68,11 @@ glm::vec3 CharacterController::getPosition() {
 	return glm::vec3(origin.x(), origin.y() - _groundOffset, origin.z());
 }
 
+glm::vec3 CharacterController::getUpperPosition() { 
+	btVector3 origin = _ghostObject->getWorldTransform().getOrigin();
+	return glm::vec3(origin.x(), origin.y(), origin.z());
+}
+
 glm::mat3 CharacterController::getRotation() {
 	btQuaternion rotation = _ghostObject->getWorldTransform().getRotation();
 	return glm::toMat3(glm::quat(rotation.w(), rotation.x(), rotation.y(), rotation.z()));

@@ -24,7 +24,8 @@
 
 Graphics::Renderer::Renderer() {
 	// Setup initial projection matrix
-	_projection = glm::perspectiveFov(45.0f, 1920.0f, 1080.0f, 1.0f, 10000.0f);
+	_fov = 60.0f;
+	_projection = glm::perspectiveFov(glm::radians(_fov), 1920.0f, 1080.0f, 1.0f, 10000.0f);
 
 	// Initialize frustrum with projection matrix
 	_frustrum.setProjectionMatrix(_projection);
@@ -129,5 +130,11 @@ void Graphics::Renderer::setSky(Graphics::SkyPtr sky) {
 
 void Graphics::Renderer::update() {
 	_view = _camera ? (*_camera).get().getLookAt() : glm::identity<glm::mat4>();
+	const float currentFOV = (*_camera).get().getFOV();
+	if (_fov != currentFOV) {
+		_fov = currentFOV;
+		_projection = glm::perspectiveFov(glm::radians(_fov), 1920.0f, 1080.0f, 1.0f, 10000.0f);
+		_frustrum.setProjectionMatrix(_projection);
+	}
 	_frustrum.setViewMatrix(_view);
 }
