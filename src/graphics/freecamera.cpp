@@ -30,12 +30,13 @@ FreeCamera::FreeCamera() :
 	_clearDirection(false), _clearRotation(false) {}
 
 void FreeCamera::update(float delta) {
+	constexpr double cameraPitchLimit = M_PI_2 - 1e-5;
 	_rotationAttitude.x += glm::radians(_movementRotation.x * delta * _rotationFactor);
 	_rotationAttitude.y -= glm::radians(_movementRotation.y * delta * _rotationFactor);
 	// roll is not used so far
-	_rotationAttitude.z += glm::radians(_movementRotation.z * delta * _rotationFactor);
+	// _rotationAttitude.z += glm::radians(_movementRotation.z * delta * _rotationFactor);
 	// limit pitch to -90..90 degree range
-	_rotationAttitude.y = glm::clamp(double(_rotationAttitude.y), -M_PI_2, M_PI_2);
+	_rotationAttitude.y = glm::clamp(double(_rotationAttitude.y), -cameraPitchLimit, cameraPitchLimit);
 	_direction.x = cos(_rotationAttitude.y) * cos(_rotationAttitude.x);
 	_direction.y = sin(_rotationAttitude.y);
 	_direction.z = sin(_rotationAttitude.x) * cos(_rotationAttitude.y);
