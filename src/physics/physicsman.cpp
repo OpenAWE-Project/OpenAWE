@@ -83,4 +83,11 @@ void PhysicsManager::remove(btActionInterface *actionInterface) {
 	_world->removeAction(actionInterface);
 }
 
+btCollisionWorld::ClosestRayResultCallback PhysicsManager::raycastStatic(btVector3& from, btVector3& to) {
+	btCollisionWorld::ClosestRayResultCallback results(from, to);
+	results.m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter;
+	_world->rayTest(from, to, results);
+	return results;
+}
+
 }
