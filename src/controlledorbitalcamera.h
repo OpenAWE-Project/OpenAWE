@@ -18,33 +18,33 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AWE_CAMERA_H
-#define AWE_CAMERA_H
+#ifndef OPENAWE_CONTROLLEDORBITALCAMERA_H
+#define OPENAWE_CONTROLLEDORBITALCAMERA_H
 
-#include <glm/glm.hpp>
+#include <memory>
 
-namespace Graphics {
+#include "src/events/event.h"
 
-class Camera {
+#include "src/graphics/orbitalcamera.h"
+
+#include "src/physics/charactercontroller.h"
+
+class ControlledOrbitalCamera : public Graphics::OrbitalCamera {
 public:
-	Camera();
+	ControlledOrbitalCamera();
 
-	void setPosition(const glm::vec3 &position);
-	void setDirection(const glm::vec3 &direction);
+	void attachTo(Physics::CharacterControllerPtr object);
 
-	glm::mat4 getLookAt() const;
+	void update(float delta) override;
 
-	virtual void update(float time);
+private:
+	void handleRotation(const Events::Event &event);
+	void handleStates(const Events::Event &event);
 
-	float getFOV() { return _fov; };
-
-protected:
-	glm::vec3 _position;
-	glm::vec3 _direction;
-	glm::vec3 _up;
-	float _fov = 45.f;
+	Physics::CharacterControllerPtr _followedObject;
 };
 
-} // End of namespace Graphics
+typedef std::shared_ptr<ControlledOrbitalCamera> ControlledOrbitalCameraPtr;
 
-#endif //AWE_CAMERA_H
+
+#endif //OPENAWE_CONTROLLEDORBITALCAMERA_H

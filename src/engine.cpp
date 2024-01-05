@@ -22,10 +22,13 @@
 
 #include "src/common/strutil.h"
 
+#include "src/physics/charactercontroller.h"
+
 #include "src/video/playerprocess.h"
 
 #include "src/graphics/animationcontroller.h"
 
+#include "src/controlledorbitalcamera.h"
 #include "src/engine.h"
 #include "src/task.h"
 #include "src/utils.h"
@@ -129,8 +132,15 @@ void Engine::loadEpisode(const std::string &data) {
 		if (!task.isActiveOnStartup())
 			continue;
 
-		if (!task.getPlayerCharacter().isNil())
-			_playerController.setPlayerCharacter(getEntityByGID(_registry, task.getPlayerCharacter()));
+		if (!task.getPlayerCharacter().isNil()) {
+			auto playerEntity = getEntityByGID(_registry, task.getPlayerCharacter());
+			ControlledOrbitalCameraPtr cam 
+				= _registry.emplace<ControlledOrbitalCameraPtr>(playerEntity) 
+				= std::make_shared<ControlledOrbitalCamera>();
+			cam->attachTo(_registry.get<Physics::CharacterControllerPtr>(playerEntity));
+			_playerController.setPlayerCharacter(playerEntity);
+			
+		}
 
 		spdlog::debug("Firing OnTaskActivate on {} {:x}", gid.type, gid.id);
 		bytecode->run(*_context, "OnTaskActivate", item);
