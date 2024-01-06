@@ -28,7 +28,7 @@ static constexpr uint32_t kMoveLeft     = Common::crc32("MOVE_LEFT");
 static constexpr uint32_t kMoveRight    = Common::crc32("MOVE_RIGHT");
 static constexpr uint32_t kJump         = Common::crc32("JUMP");
 
-PlayerController::PlayerController(entt::registry &registry) : _time(0.0f), _registry(registry) {
+PlayerController::PlayerController(entt::registry &registry) : _time(0.0f), _baseDirection(0), _registry(registry) {
 	Events::EventCallback callback = [this](auto && PH1) { handleEvent(std::forward<decltype(PH1)>(PH1)); };
 
 	EventMan.setActionCallback(
@@ -102,11 +102,11 @@ void PlayerController::handleEvent(const Events::Event &event) {
                 break;
 
             case kMoveLeft:
-                _charController->setAngularVelocity(1.0f);
+                _charController->setAngularVelocity(-1.0f);
                 break;
 
             case kMoveRight:
-                _charController->setAngularVelocity(-1.0f);
+                _charController->setAngularVelocity(1.0f);
                 break;
 
             case kJump:
