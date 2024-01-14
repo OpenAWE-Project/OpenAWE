@@ -20,13 +20,19 @@
 
 #version 330
 
+#define MAX_BONES 64
+
 uniform mat4 g_mLocalToView;
 uniform mat4 g_mViewToClip;
+
+uniform mat4x3 GPU_skinning_matrices[MAX_BONES];
 
 in vec3 in_Position;
 in vec4 in_Normal;
 in vec3 in_Tangent;
 in vec2 in_UV0;
+in ivec4 in_BoneID;
+in vec4 in_BoneWeight;
 
 out vec4 pass_ClipPosition;
 out vec4 pass_ViewPosition;
@@ -36,7 +42,12 @@ out vec3 pass_Bitangent;
 out vec2 pass_UV;
 
 void main() {
-    pass_ViewPosition = g_mLocalToView * vec4(in_Position, 1.0);
+    mat4x3 mAnimationFactor = mat4x3(0.0f);
+    for (int i = 0; i < 4; i++) {
+        mAnimationFactor += (in_BoneWeight[i] * (1.0/255.0)) * GPU_skinning_matrices[in_BoneID[i]];
+    }
+
+    pass_ViewPosition = g_mLocalToView * mat4(mAnimationFactor) * vec4(in_Position, 1.0);
     pass_ClipPosition = g_mViewToClip * pass_ViewPosition;
     pass_Normal = mat3(g_mLocalToView) * (in_Normal.xyz * (1.0/32767.0));
     pass_Tangent = mat3(g_mLocalToView) * (in_Tangent * (1.0/255.0) * 2.0 - 1.0);
