@@ -60,6 +60,11 @@ public:
 	void reset();
 
 	/*!
+	 * Resets the bone transformations to the default T or A Pose.
+	 */
+	void resetDefault();
+
+	/*!
 	 * Update the state of the skeleton with a specific animation and a specific time
 	 *
 	 * \param animation The animation with which to modify the skeleton

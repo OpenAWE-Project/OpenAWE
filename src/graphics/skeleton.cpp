@@ -89,6 +89,12 @@ void Skeleton::reset() {
 	}
 }
 
+void Skeleton::resetDefault() {
+	for (auto &transformation: _transformations) {
+		transformation.second = glm::identity<glm::mat4>();
+	}
+}
+
 void Skeleton::update(const Animation &animation, float time, float factor) {
 	std::vector<glm::mat4> animationTransforms(_bones.size());
 
