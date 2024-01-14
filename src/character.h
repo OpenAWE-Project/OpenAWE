@@ -31,6 +31,7 @@
 struct Animate {
 	entt::entity animation;
 	bool looping;
+	double startTime;
 };
 
 typedef std::variant<

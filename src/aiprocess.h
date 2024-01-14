@@ -23,6 +23,8 @@
 
 #include <entt/entt.hpp>
 
+#include "src/character.h"
+
 class AIProcess : public entt::process<AIProcess, double> {
 public:
 	AIProcess(entt::registry &registry, entt::entity character);
@@ -30,6 +32,11 @@ public:
 	void update(double delta, void *);
 
 private:
+	void startCommand();
+
+	float _cmdStarted;
+
+	std::optional<AICommand> _currentCmd{};
 	entt::registry &_registry;
 	const entt::entity _character;
 };

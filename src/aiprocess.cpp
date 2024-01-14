@@ -22,7 +22,6 @@
 #include "src/graphics/animation.h"
 #include "src/graphics/model.h"
 
-#include "src/character.h"
 #include "src/aiprocess.h"
 
 AIProcess::AIProcess(entt::registry &registry, entt::entity character) : _registry(registry), _character(character) {
@@ -30,20 +29,39 @@ AIProcess::AIProcess(entt::registry &registry, entt::entity character) : _regist
 }
 
 void AIProcess::update(double delta, void *) {
-	auto ai = _registry.get<AI>(_character);
+	auto &ai = _registry.get<AI>(_character);
 
-	if (ai.cmds.empty())
-		return;
+	// If there is currently command get the next available one
+	if (!_currentCmd) {
+		if (ai.cmds.empty())
+			return;
 
-	const auto &currentCmd = ai.cmds.front();
+		_currentCmd = ai.cmds.front();
+		startCommand();
+	}
 
-	switch (currentCmd.index()) {
+	// After we have potentially started a command update it
+	switch (_currentCmd->index()) {
+		case 0: {
+			const auto animate = std::get<Animate>(*_currentCmd);
+			auto animation = _registry.get<Graphics::AnimationPtr>(animate.animation);
+			if (delta >= _cmdStarted + animation->getDuration() && !animate.looping) {
+				_currentCmd.reset();
+				ai.cmds.pop_front();
+			}
+		}
+	}
+}
+
+void AIProcess::startCommand() {
+	switch (_currentCmd->index()) {
 		case 0: { // Animate
-			const auto animate = std::get<Animate>(currentCmd);
+			const auto animate = std::get<Animate>(*_currentCmd);
 			const auto controller = _registry.get<Graphics::AnimationControllerPtr>(_character);
 
+			_cmdStarted = animate.startTime;
 			auto animation = _registry.get<Graphics::AnimationPtr>(animate.animation);
-			controller->play(animation, animate.looping);
+			controller->play(animation, animate.looping, animate.startTime);
 			break;
 		}
 	}
