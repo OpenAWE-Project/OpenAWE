@@ -251,7 +251,7 @@ const std::map<std::string, Functions::NativeFunction<AlanWakesAmericanNightmare
 		{"AI_Add_DirectMove"                           , {nullptr                             , {kEntity}}},
 		{"AI_Add_SetProperty"                          , {nullptr                             , {kString, kString}}},
 		{"AI_Add_SetProfile"                           , {nullptr                             , {kString}}},
-		{"AI_Add_Animate"                              , {nullptr                             , {kEntity}}},
+		{"AI_Add_Animate"                              , {&Functions::aiAddAnimate            , {kEntity}}},
 		{"AI_Add_AnimateLooping"                       , {&Functions::aiAddAnimateLooping     , {kEntity}}},
 		{"AI_Add_Ambush"                               , {nullptr                             , {kFloat, kFloat, kBool}}},
 		{"AI_Add_Throw"                                , {nullptr                             , {}}},

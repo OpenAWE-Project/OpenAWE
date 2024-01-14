@@ -62,6 +62,7 @@ private:
 	void enablePointLight(Context &ctx);
 
 	// functions_ai.cpp
+	void aiAddAnimate(Context &ctx);
 	void aiAddAnimateLooping(Context &ctx);
 
 	static const std::map<std::string, NativeFunction<Functions>> _functions;

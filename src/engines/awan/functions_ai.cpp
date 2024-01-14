@@ -27,12 +27,20 @@
 
 namespace Engines::AlanWakesAmericanNightmare {
 
+void Functions::aiAddAnimate(Functions::Context &ctx) {
+	const auto animation = ctx.getEntity(0);
+
+	auto &ai = _registry.get<AI>(ctx.thisEntity);
+
+	ai.cmds.emplace_back(Animate{animation, false, _time});
+}
+
 void Functions::aiAddAnimateLooping(Functions::Context &ctx) {
 	const auto animation = ctx.getEntity(0);
 
 	auto &ai = _registry.get<AI>(ctx.thisEntity);
 
-	ai.cmds.emplace_back(Animate{animation, true});
+	ai.cmds.emplace_back(Animate{animation, true, _time});
 }
 
 } // End of namespace Engines::AlanWakesAmericanNightmare
