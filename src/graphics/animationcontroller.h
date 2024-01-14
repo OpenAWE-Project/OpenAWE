@@ -69,8 +69,9 @@ public:
 	 * Play an animation not contained in the controllers standard animations
 	 * \param animation The animation to play
 	 * \param looping If the animation should be looped
+	 * \param startTime The time at which the animation was started
 	 */
-	void play(const AnimationPtr animation, bool looping);
+	void play(const AnimationPtr animation, bool looping, float startTime = 0.0f);
 
 	/*!
 	 * Update the animation to the given time point

@@ -58,12 +58,12 @@ void AnimationController::play(const std::string &id, float startTime) {
 	};
 }
 
-void AnimationController::play(const AnimationPtr animation, bool looping) {
+void AnimationController::play(const AnimationPtr animation, bool looping, float startTime) {
 	_lastAnimation = _currentAnimation;
 	_currentAnimation = AnimationPart{
 			animation,
 			looping ? kLoop : kNone,
-			0.0
+			startTime
 	};
 }
 
@@ -99,6 +99,9 @@ void AnimationController::applyAnimation(const AnimationPart &prt, float time, f
 			currentTime = time - prt.startTime;
 			if (currentTime - prt.startTime > prt.animation->getDuration()) {
 				_lastAnimation = prt;
+				_currentAnimation.animation.reset();
+				_skeleton.resetDefault();
+				return;
 			}
 			break;
 	}
