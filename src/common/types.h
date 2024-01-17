@@ -99,20 +99,42 @@ struct BoundSphere {
 	inline bool intersect(const BoundSphere &boundSphere) const {
 		return glm::distance(position, boundSphere.position) < radius + boundSphere.radius;
 	}
+
+	inline bool contains(const glm::vec3 &v) const {
+		return glm::distance(position, v) <= radius;
+	}
+
+	inline bool contains(const BoundSphere &s) const {
+		return glm::distance(position, s.position) + s.radius <= radius;
+	}
 };
 
 /*!
- * Combine two bounding spheres into one, encapsulating bothe
+ * Combine two bounding spheres into one, encapsulating both
+ *
  * \param sphere1 The first sphere
  * \param sphere2 The second sphere
  * \return The newly created combined sphere
+ *
+ * \note Algorithm taken from
+ * https://github.com/sharpdx/SharpDX/blob/master/Source/SharpDX.Mathematics/BoundingSphere.cs
  */
 inline BoundSphere combine(Common::BoundSphere sphere1, Common::BoundSphere sphere2) {
-	const float distance = glm::distance(sphere1.position, sphere2.position);
-	const float newRadius = (sphere1.radius + sphere2.radius + distance) / 2.0f;
-	const auto newCenter = glm::mix(sphere1.position, sphere2.position, sphere1.radius / (sphere1.radius + sphere2.radius));
+	if (sphere1.contains(sphere2))
+		return sphere1;
+	if (sphere2.contains(sphere1))
+		return sphere2;
 
-	return {newCenter, newRadius};
+	const auto diff = sphere2.position - sphere1.position;
+	const auto length = glm::length(diff);
+	const auto radius1 = sphere1.radius;
+	const auto radius2 = sphere2.radius;
+
+	const auto dir = glm::normalize(diff);
+	const auto min = std::min(-radius1, length - radius2);
+	const auto max = (std::max(radius1, length + radius2) - min) * 0.5f;
+
+	return {sphere1.position + dir * (max + min), max};
 }
 
 }

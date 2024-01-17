@@ -117,7 +117,10 @@ void ObjectCollection::loadFoliageData(Common::ReadStream *foliageData) {
 		
 		Common::BoundSphere finalBoundSphere = {positions.front() + meshBoundSphere.position, meshBoundSphere.radius};
 		for (const auto &position : positions) {
-			Common::combine(finalBoundSphere, {position + meshBoundSphere.position, meshBoundSphere.radius});
+			finalBoundSphere = Common::combine(
+				finalBoundSphere,
+				{position + meshBoundSphere.position, meshBoundSphere.radius}
+			);
 		}
 
 		model->setBoundSphere(finalBoundSphere);
