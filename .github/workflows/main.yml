@@ -44,7 +44,7 @@ jobs:
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
               -DCMAKE_C_COMPILER=clang \
               -DCMAKE_CXX_COMPILER=clang++ \
-              -DCMAKE_OSX_ARCHITECTURES=x86_64;arm64 \
+              -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
               -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib \
               -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include/AL \
 
