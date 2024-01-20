@@ -37,7 +37,7 @@ jobs:
             extra_cmake_args: |
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
           - name: MacOS Clang
-            os: macos-11
+            os: macos-12
             compiler: clang
             extra_cmake_args: | 
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
@@ -106,7 +106,7 @@ jobs:
           vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl lz4 shaderc
 
       - name: Install dependencies with brew
-        if: ${{ matrix.os == 'macos-11' }}
+        if: ${{ matrix.os == 'macos-12' }}
         run: |
           rm /usr/local/bin/2to3
           rm /usr/local/bin/2to3-3.11
