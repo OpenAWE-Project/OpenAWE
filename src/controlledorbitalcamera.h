@@ -23,6 +23,8 @@
 
 #include <memory>
 
+#include <bullet/btBulletDynamicsCommon.h>
+
 #include "src/events/event.h"
 
 #include "src/graphics/orbitalcamera.h"
@@ -42,6 +44,8 @@ private:
 	void handleStates(const Events::Event &event);
 
 	Physics::CharacterControllerPtr _followedObject;
+
+	btSphereShape _castSphere;
 };
 
 typedef std::shared_ptr<ControlledOrbitalCamera> ControlledOrbitalCameraPtr;
