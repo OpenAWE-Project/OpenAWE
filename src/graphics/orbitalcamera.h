@@ -60,16 +60,17 @@ protected:
 	glm::vec3 _movementRotation;
 	glm::vec3 _rotationDirection;
 	glm::vec3 _rotationAttitude; // yaw, pitch and roll
-	float _orbitRadiusBase, _orbitRadiusCurrent, _orbitRadiusTarget;
+	const float _orbitRadiusBase;
+	float _orbitRadiusCurrent, _orbitRadiusTarget, _orbitRadiusTargetFull;
 	glm::vec3 _orbitOriginCurrent, _orbitOriginTarget;
 	float _shoulderCurrent, _shoulderTarget;
 	static constexpr float _shoulderCoef = 0.2f;
 	glm::vec3 _focusTarget;
-	float _fovBase = _fov, _fovAimMultiplier = 0.5f;
+	float _fovBase = _fov, _fovAimMultiplier = 0.75f;
 	OrbitalCameraStates _state = kCameraDefault;
+	bool _radiusOverride;
 
-	void calcOrbitPosition();
-	void calcOrbitDirection(const glm::vec3 &to, const float &lerpCoef);
+	glm::vec3 calcOrbitPosition(float radius);
 };
 
 } // End of namespace Graphics
