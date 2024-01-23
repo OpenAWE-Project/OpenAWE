@@ -90,4 +90,11 @@ btCollisionWorld::ClosestRayResultCallback PhysicsManager::raycastStatic(btVecto
 	return results;
 }
 
+btCollisionWorld::ClosestConvexResultCallback PhysicsManager::shapeCastStatic(btConvexShape* castShape, btTransform& from, btTransform& to) {
+	btCollisionWorld::ClosestConvexResultCallback results(from.getOrigin(), to.getOrigin());
+	results.m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter;
+	_world->convexSweepTest(castShape, from, to, results);
+	return results;
+}
+
 }

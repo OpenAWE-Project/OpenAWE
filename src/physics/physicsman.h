@@ -45,6 +45,7 @@ public:
 	void remove(btRigidBody *collisionObject);
 	void remove(btActionInterface * actionInterface);
 	btCollisionWorld::ClosestRayResultCallback raycastStatic(btVector3& from, btVector3& to);
+	btCollisionWorld::ClosestConvexResultCallback shapeCastStatic(btConvexShape* castShape, btTransform& from, btTransform& to);
 
 private:
 	bool _debugDraw;
