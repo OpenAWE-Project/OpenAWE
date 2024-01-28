@@ -70,8 +70,9 @@ public:
 	 * \param animation The animation with which to modify the skeleton
 	 * \param time The time at which to apply the animation
 	 * \param factor The factor on which the skeleton will be modified
+	 * \param weights The weights of how to apply the animation weighted to the bones
 	 */
-	void update(const Animation &animation, float time, float factor = 1.0f);
+	void update(const Animation &animation, float time, float factor = 1.0f, const std::vector<float> &weights = {});
 
 	/*!
 	 * Get the name of the skeleton

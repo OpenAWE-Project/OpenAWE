@@ -95,7 +95,7 @@ void Skeleton::resetDefault() {
 	}
 }
 
-void Skeleton::update(const Animation &animation, float time, float factor) {
+void Skeleton::update(const Animation &animation, float time, float factor, const std::vector<float> &weights) {
 	std::vector<glm::mat4> animationTransforms(_bones.size());
 
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
@@ -112,6 +112,7 @@ void Skeleton::update(const Animation &animation, float time, float factor) {
 
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		const auto &bone = _bones[i];
+		const auto weight = weights.empty() ? 1.0f : weights[std::min<size_t>(i, weights.size() - 1)];
 		auto transformation = glm::identity<glm::mat4>();
 
 		// Move the point back to its child position
@@ -134,7 +135,7 @@ void Skeleton::update(const Animation &animation, float time, float factor) {
 		if (inverseTransform != _inverseTransform.end())
 			transformation *= inverseTransform->second;
 
-		_transformations[bone.name] += factor * transformation;
+		_transformations[bone.name] += weight * factor * transformation;
 	}
 }
 
