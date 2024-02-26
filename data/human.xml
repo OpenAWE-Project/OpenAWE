@@ -1,0 +1,100 @@
+<!--
+OpenAWE - A reimplementation of Remedys Alan Wake Engine
+
+OpenAWE is the legal property of its developers, whose names
+can be found in the AUTHORS file distributed with this source
+distribution.
+
+OpenAWE is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 3
+of the License, or (at your option) any later version.
+
+OpenAWE is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<AnimationStateGraph>
+
+    <Object_AnimationBlendWeights>
+        <Name>BlendWeights_LeftHand</Name>
+        <Weights>RootBone,0,Pelvis,0,Spine0,0,Spine1,0,SpineThorax,0,L_Shoulder,0,L_UpperArm,0,L_ForeArm,0,L_Hand,0,R_Shoulder,0,R_UpperArm,0,R_ForeArm,0,R_Hand,0,L_Thigh,0,L_Calf,0,L_Foot,0,L_Toe0,0,R_Thigh,0,R_Calf,0,R_Foot,0,R_Toe0,0,Neck0,0,Neck1,0,Head,0,L_CalfTwist,0,L_ThighTwist,0,R_CalfTwist,0,R_ThighTwist,0,L_ForeArmTwist,0,L_UpperArmTwist,0,R_ForeArmTwist,0,R_UpperArmTwist,0,R_Gun,0,R_Gun_Attach,0,L_Flashlight,0,L_Flashlight_Attach,0,LookAt,0,L_Finger0,255,L_Finger01,255,L_Finger02,255,L_Finger1,255,L_Finger11,255,L_Finger12,255,L_Finger2,255,L_Finger21,255,L_Finger22,255,L_Finger3,255,L_Finger31,255,L_Finger32,255,L_Finger4,255,L_Finger41,255,L_Finger42,255,R_Finger0,0,R_Finger01,0,R_Finger02,0,R_Finger1,0,R_Finger11,0,R_Finger12,0,R_Finger2,0,R_Finger21,0,R_Finger22,0,R_Finger3,0,R_Finger31,0,R_Finger32,0,R_Finger4,0,R_Finger41,0,R_Finger42,0,FBone_C_Jaw,0,FBone_C_Tongue,0,FBone_L_CheekFurrow00,0,FBone_L_LipLowerWing02,0,FBone_L_LipRimLow02,0,FBone_L_LipLowerWing01,0,FBone_L_LipLower02,0,FBone_L_LipLower01,0,FBone_R_LipLower01,0,FBone_C_Chin,0,FBone_C_LipLowerWing00,0,FBone_R_LipLowerWing01,0,FBone_C_LipRimLow00,0,FBone_L_LipRimLow01,0,FBone_R_LipRimLow01,0,FBone_R_LipLowerWing02,0,FBone_R_LipRimLow02,0,FBone_R_LipLower02,0,FBone_R_CheekFurrow00,0,FBone_L_Eye,0,FBone_R_Eye,0,FBone_R_EyeLidUpper,0,FBone_L_EyeLidUpper,0,FBone_R_EyeLidLower,0,FBone_L_EyeLidLower,0,FBone_C_LipUpper00,0,FBone_L_Cheek00,0,FBone_L_Cheek01,0,FBone_L_CheekFurrow02,0,FBone_L_CheekFurrow03,0,FBone_L_CheekFurrow04,0,FBone_L_CheekFurrowCrest01,0,FBone_L_Eyebrow00,0,FBone_L_Eyebrow01,0,FBone_L_Eyebrow02,0,FBone_R_Cheek00,0,FBone_R_Cheek01,0,FBone_R_CheekFurrow02,0,FBone_R_CheekFurrow03,0,FBone_R_CheekFurrow04,0,FBone_R_CheekFurrowCrest01,0,FBone_R_Eyebrow00,0,FBone_R_Eyebrow01,0,FBone_R_Eyebrow02,0,FBone_L_LipUpperWing02,0,FBone_R_LipUpperWing02,0,FBone_R_LipUpperWing01,0,FBone_C_LipUpperWing00,0,FBone_L_LipUpperWing01,0,FBone_L_LipRimUp01,0,FBone_L_LipRimUp02,0,FBone_C_LipRimUp00,0,FBone_R_LipRimUp01,0,FBone_R_LipRimUp02,0,FBone_L_LipRimCorner,0,FBone_L_CheekFurrow01,0,FBone_L_CheekFurrowCrest00,0,FBone_R_LipRimCorner,0,FBone_R_CheekFurrow01,0,FBone_R_CheekFurrowCrest00,0,Hood,0,Jkt_L_Shoulder,0,Jkt_L_Front0,0,Jkt_L_Front1,0,Jkt_L_Front2,0,Jkt_L_Front3,0,Jkt_L_Front4,0,Jkt_L_Back0,0,Jkt_L_Back1,0,Jkt_L_Back2,0,Jkt_L_Back3,0,Jkt_L_Back4,0,Jkt_L_Rib1,0,Jkt_L_Rib2,0,Jkt_L_Rib3,0,Jkt_L_Rib4,0,Jkt_R_Shoulder,0,Jkt_R_Front0,0,Jkt_R_Front1,0,Jkt_R_Front2,0,Jkt_R_Front3,0,Jkt_R_Front4,0,Jkt_R_Back0,0,Jkt_R_Back1,0,Jkt_R_Back2,0,Jkt_R_Back3,0,Jkt_R_Back4,0,Jkt_R_Rib1,0,Jkt_R_Rib2,0,Jkt_R_Rib3,0,Jkt_R_Rib4,0,</Weights>
+    </Object_AnimationBlendWeights>
+
+    <Object_AnimationBlendWeights>
+        <Name>BlendWeights_RightHand</Name>
+        <Weights>RootBone,0,Pelvis,0,Spine0,0,Spine1,0,SpineThorax,0,L_Shoulder,0,L_UpperArm,0,L_ForeArm,0,L_Hand,0,R_Shoulder,0,R_UpperArm,0,R_ForeArm,0,R_Hand,0,L_Thigh,0,L_Calf,0,L_Foot,0,L_Toe0,0,R_Thigh,0,R_Calf,0,R_Foot,0,R_Toe0,0,Neck0,0,Neck1,0,Head,0,L_CalfTwist,0,L_ThighTwist,0,R_CalfTwist,0,R_ThighTwist,0,L_ForeArmTwist,0,L_UpperArmTwist,0,R_ForeArmTwist,0,R_UpperArmTwist,0,R_Gun,0,R_Gun_Attach,0,L_Flashlight,0,L_Flashlight_Attach,0,LookAt,0,L_Finger0,0,L_Finger01,0,L_Finger02,0,L_Finger1,0,L_Finger11,0,L_Finger12,0,L_Finger2,0,L_Finger21,0,L_Finger22,0,L_Finger3,0,L_Finger31,0,L_Finger32,0,L_Finger4,0,L_Finger41,0,L_Finger42,0,R_Finger0,255,R_Finger01,255,R_Finger02,255,R_Finger1,255,R_Finger11,255,R_Finger12,255,R_Finger2,255,R_Finger21,255,R_Finger22,255,R_Finger3,255,R_Finger31,255,R_Finger32,255,R_Finger4,255,R_Finger41,255,R_Finger42,255,FBone_C_Jaw,0,FBone_C_Tongue,0,FBone_L_CheekFurrow00,0,FBone_L_LipLowerWing02,0,FBone_L_LipRimLow02,0,FBone_L_LipLowerWing01,0,FBone_L_LipLower02,0,FBone_L_LipLower01,0,FBone_R_LipLower01,0,FBone_C_Chin,0,FBone_C_LipLowerWing00,0,FBone_R_LipLowerWing01,0,FBone_C_LipRimLow00,0,FBone_L_LipRimLow01,0,FBone_R_LipRimLow01,0,FBone_R_LipLowerWing02,0,FBone_R_LipRimLow02,0,FBone_R_LipLower02,0,FBone_R_CheekFurrow00,0,FBone_L_Eye,0,FBone_R_Eye,0,FBone_R_EyeLidUpper,0,FBone_L_EyeLidUpper,0,FBone_R_EyeLidLower,0,FBone_L_EyeLidLower,0,FBone_C_LipUpper00,0,FBone_L_Cheek00,0,FBone_L_Cheek01,0,FBone_L_CheekFurrow02,0,FBone_L_CheekFurrow03,0,FBone_L_CheekFurrow04,0,FBone_L_CheekFurrowCrest01,0,FBone_L_Eyebrow00,0,FBone_L_Eyebrow01,0,FBone_L_Eyebrow02,0,FBone_R_Cheek00,0,FBone_R_Cheek01,0,FBone_R_CheekFurrow02,0,FBone_R_CheekFurrow03,0,FBone_R_CheekFurrow04,0,FBone_R_CheekFurrowCrest01,0,FBone_R_Eyebrow00,0,FBone_R_Eyebrow01,0,FBone_R_Eyebrow02,0,FBone_L_LipUpperWing02,0,FBone_R_LipUpperWing02,0,FBone_R_LipUpperWing01,0,FBone_C_LipUpperWing00,0,FBone_L_LipUpperWing01,0,FBone_L_LipRimUp01,0,FBone_L_LipRimUp02,0,FBone_C_LipRimUp00,0,FBone_R_LipRimUp01,0,FBone_R_LipRimUp02,0,FBone_L_LipRimCorner,0,FBone_L_CheekFurrow01,0,FBone_L_CheekFurrowCrest00,0,FBone_R_LipRimCorner,0,FBone_R_CheekFurrow01,0,FBone_R_CheekFurrowCrest00,0,Hood,0,Jkt_L_Shoulder,0,Jkt_L_Front0,0,Jkt_L_Front1,0,Jkt_L_Front2,0,Jkt_L_Front3,0,Jkt_L_Front4,0,Jkt_L_Back0,0,Jkt_L_Back1,0,Jkt_L_Back2,0,Jkt_L_Back3,0,Jkt_L_Back4,0,Jkt_L_Rib1,0,Jkt_L_Rib2,0,Jkt_L_Rib3,0,Jkt_L_Rib4,0,Jkt_R_Shoulder,0,Jkt_R_Front0,0,Jkt_R_Front1,0,Jkt_R_Front2,0,Jkt_R_Front3,0,Jkt_R_Front4,0,Jkt_R_Back0,0,Jkt_R_Back1,0,Jkt_R_Back2,0,Jkt_R_Back3,0,Jkt_R_Back4,0,Jkt_R_Rib1,0,Jkt_R_Rib2,0,Jkt_R_Rib3,0,Jkt_R_Rib4,0,</Weights>
+    </Object_AnimationBlendWeights>
+
+    <Object_AnimationBlendWeights>
+        <Name>BlendWeights_FullBody</Name>
+        <Weights>RootBone,255,Pelvis,255,Spine0,255,Spine1,255,SpineThorax,255,L_Shoulder,255,L_UpperArm,255,L_ForeArm,255,L_Hand,255,R_Shoulder,255,R_UpperArm,255,R_ForeArm,255,R_Hand,255,L_Thigh,255,L_Calf,255,L_Foot,255,L_Toe0,255,R_Thigh,255,R_Calf,255,R_Foot,255,R_Toe0,255,Neck0,255,Neck1,255,Head,255,L_CalfTwist,255,L_ThighTwist,255,R_CalfTwist,255,R_ThighTwist,255,L_ForeArmTwist,255,L_UpperArmTwist,255,R_ForeArmTwist,255,R_UpperArmTwist,255,R_Gun,255,R_Gun_Attach,255,L_Flashlight,255,L_Flashlight_Attach,255,LookAt,0,L_Finger0,0,L_Finger01,0,L_Finger02,0,L_Finger1,0,L_Finger11,0,L_Finger12,0,L_Finger2,0,L_Finger21,0,L_Finger22,0,L_Finger3,0,L_Finger31,0,L_Finger32,0,L_Finger4,0,L_Finger41,0,L_Finger42,0,R_Finger0,0,R_Finger01,0,R_Finger02,0,R_Finger1,0,R_Finger11,0,R_Finger12,0,R_Finger2,0,R_Finger21,0,R_Finger22,0,R_Finger3,0,R_Finger31,0,R_Finger32,0,R_Finger4,0,R_Finger41,0,R_Finger42,0,FBone_C_Jaw,0,FBone_C_Tongue,0,FBone_L_CheekFurrow00,0,FBone_L_LipLowerWing02,0,FBone_L_LipRimLow02,0,FBone_L_LipLowerWing01,0,FBone_L_LipLower02,0,FBone_L_LipLower01,0,FBone_R_LipLower01,0,FBone_C_Chin,0,FBone_C_LipLowerWing00,0,FBone_R_LipLowerWing01,0,FBone_C_LipRimLow00,0,FBone_L_LipRimLow01,0,FBone_R_LipRimLow01,0,FBone_R_LipLowerWing02,0,FBone_R_LipRimLow02,0,FBone_R_LipLower02,0,FBone_R_CheekFurrow00,0,FBone_L_Eye,0,FBone_R_Eye,0,FBone_R_EyeLidUpper,0,FBone_L_EyeLidUpper,0,FBone_R_EyeLidLower,0,FBone_L_EyeLidLower,0,FBone_C_LipUpper00,0,FBone_L_Cheek00,0,FBone_L_Cheek01,0,FBone_L_CheekFurrow02,0,FBone_L_CheekFurrow03,0,FBone_L_CheekFurrow04,0,FBone_L_CheekFurrowCrest01,0,FBone_L_Eyebrow00,0,FBone_L_Eyebrow01,0,FBone_L_Eyebrow02,0,FBone_R_Cheek00,0,FBone_R_Cheek01,0,FBone_R_CheekFurrow02,0,FBone_R_CheekFurrow03,0,FBone_R_CheekFurrow04,0,FBone_R_CheekFurrowCrest01,0,FBone_R_Eyebrow00,0,FBone_R_Eyebrow01,0,FBone_R_Eyebrow02,0,FBone_L_LipUpperWing02,0,FBone_R_LipUpperWing02,0,FBone_R_LipUpperWing01,0,FBone_C_LipUpperWing00,0,FBone_L_LipUpperWing01,0,FBone_L_LipRimUp01,0,FBone_L_LipRimUp02,0,FBone_C_LipRimUp00,0,FBone_R_LipRimUp01,0,FBone_R_LipRimUp02,0,FBone_L_LipRimCorner,0,FBone_L_CheekFurrow01,0,FBone_L_CheekFurrowCrest00,0,FBone_R_LipRimCorner,0,FBone_R_CheekFurrow01,0,FBone_R_CheekFurrowCrest00,0,Hood,0,Jkt_L_Shoulder,0,Jkt_L_Front0,0,Jkt_L_Front1,0,Jkt_L_Front2,0,Jkt_L_Front3,0,Jkt_L_Front4,0,Jkt_L_Back0,0,Jkt_L_Back1,0,Jkt_L_Back2,0,Jkt_L_Back3,0,Jkt_L_Back4,0,Jkt_L_Rib1,0,Jkt_L_Rib2,0,Jkt_L_Rib3,0,Jkt_L_Rib4,0,Jkt_R_Shoulder,0,Jkt_R_Front0,0,Jkt_R_Front1,0,Jkt_R_Front2,0,Jkt_R_Front3,0,Jkt_R_Front4,0,Jkt_R_Back0,0,Jkt_R_Back1,0,Jkt_R_Back2,0,Jkt_R_Back3,0,Jkt_R_Back4,0,Jkt_R_Rib1,0,Jkt_R_Rib2,0,Jkt_R_Rib3,0,Jkt_R_Rib4,0,</Weights>
+    </Object_AnimationBlendWeights>
+
+    <Object_AnimationBlendWeights>
+        <Name>BlendWeights_Jacket</Name>
+        <Weights>RootBone,0,Pelvis,0,Spine0,0,Spine1,0,SpineThorax,0,L_Shoulder,0,L_UpperArm,0,L_ForeArm,0,L_Hand,0,R_Shoulder,0,R_UpperArm,0,R_ForeArm,0,R_Hand,0,L_Thigh,0,L_Calf,0,L_Foot,0,L_Toe0,0,R_Thigh,0,R_Calf,0,R_Foot,0,R_Toe0,0,Neck0,0,Neck1,0,Head,0,L_CalfTwist,0,L_ThighTwist,0,R_CalfTwist,0,R_ThighTwist,0,L_ForeArmTwist,0,L_UpperArmTwist,0,R_ForeArmTwist,0,R_UpperArmTwist,0,R_Gun,0,R_Gun_Attach,0,L_Flashlight,0,L_Flashlight_Attach,0,LookAt,0,L_Finger0,0,L_Finger01,0,L_Finger02,0,L_Finger1,0,L_Finger11,0,L_Finger12,0,L_Finger2,0,L_Finger21,0,L_Finger22,0,L_Finger3,0,L_Finger31,0,L_Finger32,0,L_Finger4,0,L_Finger41,0,L_Finger42,0,R_Finger0,0,R_Finger01,0,R_Finger02,0,R_Finger1,0,R_Finger11,0,R_Finger12,0,R_Finger2,0,R_Finger21,0,R_Finger22,0,R_Finger3,0,R_Finger31,0,R_Finger32,0,R_Finger4,0,R_Finger41,0,R_Finger42,0,FBone_C_Jaw,0,FBone_C_Tongue,0,FBone_L_CheekFurrow00,0,FBone_L_LipLowerWing02,0,FBone_L_LipRimLow02,0,FBone_L_LipLowerWing01,0,FBone_L_LipLower02,0,FBone_L_LipLower01,0,FBone_R_LipLower01,0,FBone_C_Chin,0,FBone_C_LipLowerWing00,0,FBone_R_LipLowerWing01,0,FBone_C_LipRimLow00,0,FBone_L_LipRimLow01,0,FBone_R_LipRimLow01,0,FBone_R_LipLowerWing02,0,FBone_R_LipRimLow02,0,FBone_R_LipLower02,0,FBone_R_CheekFurrow00,0,FBone_L_Eye,0,FBone_R_Eye,0,FBone_R_EyeLidUpper,0,FBone_L_EyeLidUpper,0,FBone_R_EyeLidLower,0,FBone_L_EyeLidLower,0,FBone_C_LipUpper00,0,FBone_L_Cheek00,0,FBone_L_Cheek01,0,FBone_L_CheekFurrow02,0,FBone_L_CheekFurrow03,0,FBone_L_CheekFurrow04,0,FBone_L_CheekFurrowCrest01,0,FBone_L_Eyebrow00,0,FBone_L_Eyebrow01,0,FBone_L_Eyebrow02,0,FBone_R_Cheek00,0,FBone_R_Cheek01,0,FBone_R_CheekFurrow02,0,FBone_R_CheekFurrow03,0,FBone_R_CheekFurrow04,0,FBone_R_CheekFurrowCrest01,0,FBone_R_Eyebrow00,0,FBone_R_Eyebrow01,0,FBone_R_Eyebrow02,0,FBone_L_LipUpperWing02,0,FBone_R_LipUpperWing02,0,FBone_R_LipUpperWing01,0,FBone_C_LipUpperWing00,0,FBone_L_LipUpperWing01,0,FBone_L_LipRimUp01,0,FBone_L_LipRimUp02,0,FBone_C_LipRimUp00,0,FBone_R_LipRimUp01,0,FBone_R_LipRimUp02,0,FBone_L_LipRimCorner,0,FBone_L_CheekFurrow01,0,FBone_L_CheekFurrowCrest00,0,FBone_R_LipRimCorner,0,FBone_R_CheekFurrow01,0,FBone_R_CheekFurrowCrest00,0,Hood,255,Jkt_L_Shoulder,255,Jkt_L_Front0,255,Jkt_L_Front1,255,Jkt_L_Front2,255,Jkt_L_Front3,255,Jkt_L_Front4,255,Jkt_L_Back0,255,Jkt_L_Back1,255,Jkt_L_Back2,255,Jkt_L_Back3,255,Jkt_L_Back4,255,Jkt_L_Rib1,255,Jkt_L_Rib2,255,Jkt_L_Rib3,255,Jkt_L_Rib4,255,Jkt_R_Shoulder,255,Jkt_R_Front0,255,Jkt_R_Front1,255,Jkt_R_Front2,255,Jkt_R_Front3,255,Jkt_R_Front4,255,Jkt_R_Back0,255,Jkt_R_Back1,255,Jkt_R_Back2,255,Jkt_R_Back3,255,Jkt_R_Back4,255,Jkt_R_Rib1,255,Jkt_R_Rib2,255,Jkt_R_Rib3,255,Jkt_R_Rib4,255,</Weights>
+    </Object_AnimationBlendWeights>
+
+    <Object_AnimationBlendWeights>
+        <Name>BlendWeights_Face</Name>
+        <Weights>RootBone,0,Pelvis,0,Spine0,0,Spine1,0,SpineThorax,0,L_Shoulder,0,L_UpperArm,0,L_ForeArm,0,L_Hand,0,R_Shoulder,0,R_UpperArm,0,R_ForeArm,0,R_Hand,0,L_Thigh,0,L_Calf,0,L_Foot,0,L_Toe0,0,R_Thigh,0,R_Calf,0,R_Foot,0,R_Toe0,0,Neck0,0,Neck1,0,Head,0,L_CalfTwist,0,L_ThighTwist,0,R_CalfTwist,0,R_ThighTwist,0,L_ForeArmTwist,0,L_UpperArmTwist,0,R_ForeArmTwist,0,R_UpperArmTwist,0,R_Gun,0,R_Gun_Attach,0,L_Flashlight,0,L_Flashlight_Attach,0,LookAt,0,L_Finger0,0,L_Finger01,0,L_Finger02,0,L_Finger1,0,L_Finger11,0,L_Finger12,0,L_Finger2,0,L_Finger21,0,L_Finger22,0,L_Finger3,0,L_Finger31,0,L_Finger32,0,L_Finger4,0,L_Finger41,0,L_Finger42,0,R_Finger0,0,R_Finger01,0,R_Finger02,0,R_Finger1,0,R_Finger11,0,R_Finger12,0,R_Finger2,0,R_Finger21,0,R_Finger22,0,R_Finger3,0,R_Finger31,0,R_Finger32,0,R_Finger4,0,R_Finger41,0,R_Finger42,0,FBone_C_Jaw,255,FBone_C_Tongue,255,FBone_L_CheekFurrow00,255,FBone_L_LipLowerWing02,255,FBone_L_LipRimLow02,255,FBone_L_LipLowerWing01,255,FBone_L_LipLower02,255,FBone_L_LipLower01,255,FBone_R_LipLower01,255,FBone_C_Chin,255,FBone_C_LipLowerWing00,255,FBone_R_LipLowerWing01,255,FBone_C_LipRimLow00,255,FBone_L_LipRimLow01,255,FBone_R_LipRimLow01,255,FBone_R_LipLowerWing02,255,FBone_R_LipRimLow02,255,FBone_R_LipLower02,255,FBone_R_CheekFurrow00,255,FBone_L_Eye,255,FBone_R_Eye,255,FBone_R_EyeLidUpper,255,FBone_L_EyeLidUpper,255,FBone_R_EyeLidLower,255,FBone_L_EyeLidLower,255,FBone_C_LipUpper00,255,FBone_L_Cheek00,255,FBone_L_Cheek01,255,FBone_L_CheekFurrow02,255,FBone_L_CheekFurrow03,255,FBone_L_CheekFurrow04,255,FBone_L_CheekFurrowCrest01,255,FBone_L_Eyebrow00,255,FBone_L_Eyebrow01,255,FBone_L_Eyebrow02,255,FBone_R_Cheek00,255,FBone_R_Cheek01,255,FBone_R_CheekFurrow02,255,FBone_R_CheekFurrow03,255,FBone_R_CheekFurrow04,255,FBone_R_CheekFurrowCrest01,255,FBone_R_Eyebrow00,255,FBone_R_Eyebrow01,255,FBone_R_Eyebrow02,255,FBone_L_LipUpperWing02,255,FBone_R_LipUpperWing02,255,FBone_R_LipUpperWing01,255,FBone_C_LipUpperWing00,255,FBone_L_LipUpperWing01,255,FBone_L_LipRimUp01,255,FBone_L_LipRimUp02,255,FBone_C_LipRimUp00,255,FBone_R_LipRimUp01,255,FBone_R_LipRimUp02,255,FBone_L_LipRimCorner,255,FBone_L_CheekFurrow01,255,FBone_L_CheekFurrowCrest00,255,FBone_R_LipRimCorner,255,FBone_R_CheekFurrow01,255,FBone_R_CheekFurrowCrest00,255,Hood,0,Jkt_L_Shoulder,0,Jkt_L_Front0,0,Jkt_L_Front1,0,Jkt_L_Front2,0,Jkt_L_Front3,0,Jkt_L_Front4,0,Jkt_L_Back0,0,Jkt_L_Back1,0,Jkt_L_Back2,0,Jkt_L_Back3,0,Jkt_L_Back4,0,Jkt_L_Rib1,0,Jkt_L_Rib2,0,Jkt_L_Rib3,0,Jkt_L_Rib4,0,Jkt_R_Shoulder,0,Jkt_R_Front0,0,Jkt_R_Front1,0,Jkt_R_Front2,0,Jkt_R_Front3,0,Jkt_R_Front4,0,Jkt_R_Back0,0,Jkt_R_Back1,0,Jkt_R_Back2,0,Jkt_R_Back3,0,Jkt_R_Back4,0,Jkt_R_Rib1,0,Jkt_R_Rib2,0,Jkt_R_Rib3,0,Jkt_R_Rib4,0,</Weights>
+    </Object_AnimationBlendWeights>
+
+    <Object_AnimationState>
+        <Name>State_LeftHand</Name>
+        <Type>Single</Type>
+        <BlendWeights>BlendWeights_LeftHand</BlendWeights>
+        <AnimationClip>Handpose_Left_Stand</AnimationClip>
+    </Object_AnimationState>
+
+    <Object_AnimationState>
+        <Name>State_RightHand</Name>
+        <Type>Single</Type>
+        <BlendWeights>BlendWeights_RightHand</BlendWeights>
+        <AnimationClip>Handpose_Right_Stand</AnimationClip>
+    </Object_AnimationState>
+
+    <Object_AnimationState>
+        <Name>State_FullBody</Name>
+        <Type>Single</Type>
+        <BlendWeights>BlendWeights_FullBody</BlendWeights>
+        <AnimationClip>Stand</AnimationClip>
+    </Object_AnimationState>
+
+    <Object_AnimationState>
+        <Name>State_Jacket</Name>
+        <Type>Single</Type>
+        <BlendWeights>BlendWeights_Jacket</BlendWeights>
+        <AnimationClip>_null_</AnimationClip>
+    </Object_AnimationState>
+
+    <Object_AnimationState>
+        <Name>State_Face</Name>
+        <Type>Single</Type>
+        <BlendWeights>BlendWeights_Face</BlendWeights>
+        <AnimationClip>_null_</AnimationClip>
+    </Object_AnimationState>
+
+    <Object_AnimationState>
+        <Name>State_Blended</Name>
+        <Type>Blended</Type>
+        <AnimationState Name="State_LeftHand"/>
+        <AnimationState Name="State_RightHand"/>
+        <AnimationState Name="State_FullBody"/>
+        <AnimationState Name="State_Jacket"/>
+        <AnimationState Name="State_Face"/>
+    </Object_AnimationState>
+
+    <Object_AnimationState>
+        <Name>Root</Name>
+        <Root>true</Root>
+        <Type>Nested</Type>
+        <AnimationState Name="State_Blended"/>
+    </Object_AnimationState>
+</AnimationStateGraph>
