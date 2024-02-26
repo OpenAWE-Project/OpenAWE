@@ -59,6 +59,27 @@ public:
 		Node &addNewNode(const std::string &name);
 
 		/*!
+		 * Check if the node contains a direct child node with the specified name
+		 * \param name The tag name to search for
+		 * \return If at least one node with the given name exists
+		 */
+		bool hasNode(const std::string &name) const;
+
+		/*!
+		 * Get the first direct child node with the specified tag name
+		 * \param name The tag name on which to search the node
+		 * \return The found child node
+		 */
+		const Node &getNode(const std::string &name) const;
+
+		/*!
+		 * Get all nodes, having a specific tag name
+		 * \param name The tag name to search for
+		 * \return A vector of reference to this nodes
+		 */
+		std::vector<Node> getNodes(const std::string &name) const;
+
+		/*!
 		 * Check if a given property is available in the node
 		 * @param attribute The attribute name to check for its presence
 		 * @return If the property exists

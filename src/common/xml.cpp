@@ -34,6 +34,31 @@ XML::Node &XML::Node::addNewNode(const std::string &name) {
 	return children.emplace_back(newNode);
 }
 
+bool XML::Node::hasNode(const std::string &name) const {
+	return std::any_of(children.cbegin(), children.cend(), [&](const auto &child){
+		return child.name == name;
+	});
+}
+
+const XML::Node &XML::Node::getNode(const std::string &name) const {
+	if (!hasNode(name))
+		throw CreateException("No node with {} found", name);
+
+	return *std::find_if(children.cbegin(), children.cend(), [&](const auto &child){
+		return child.name == name;
+	});
+}
+
+std::vector<XML::Node> XML::Node::getNodes(const std::string &name) const {
+	std::vector<XML::Node> nodes;
+	for (const auto &node: children) {
+		if (node.name == name)
+			nodes.emplace_back(node);
+	}
+
+	return nodes;
+}
+
 bool XML::Node::hasProperty(const std::string &attribute) const {
 	return properties.find(attribute) != properties.end();
 }
