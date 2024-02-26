@@ -24,6 +24,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include <spdlog/spdlog.h>
+
 #include "src/common/readstream.h"
 #include "src/common/exception.h"
 
@@ -58,6 +60,9 @@ Skeleton::Skeleton(rid_t rid) {
 		_bones.emplace_back(newBone);
 	}
 
+	_relativeTransformations.resize(_bones.size());
+	std::fill_n(_relativeTransformations.begin(), _bones.size(), glm::identity<glm::mat4>());
+
 	for (const auto &bone: _bones) {
 		_transformations.insert(std::make_pair(bone.name, glm::identity<glm::mat4>()));
 	}
@@ -66,6 +71,9 @@ Skeleton::Skeleton(rid_t rid) {
 Skeleton::Skeleton(const Skeleton &skeleton) {
 	_name = skeleton.getName();
 	_bones = skeleton._bones;
+
+	_relativeTransformations.resize(_bones.size());
+	std::fill_n(_relativeTransformations.begin(), _bones.size(), glm::identity<glm::mat4>());
 
 	for (const auto &bone: _bones) {
 		_transformations.insert(std::make_pair(bone.name, glm::identity<glm::mat4>()));
@@ -87,32 +95,39 @@ void Skeleton::reset() {
 	for (auto &transformation: _transformations) {
 		transformation.second = glm::zero<glm::mat4>();
 	}
+	std::fill(_relativeTransformations.begin(), _relativeTransformations.end(), glm::zero<glm::mat4>());
 }
 
 void Skeleton::resetDefault() {
 	for (auto &transformation: _transformations) {
 		transformation.second = glm::identity<glm::mat4>();
 	}
+	std::fill(_relativeTransformations.begin(), _relativeTransformations.end(), glm::identity<glm::mat4>());
 }
 
 void Skeleton::update(const Animation &animation, float time, float factor, const std::vector<float> &weights) {
-	std::vector<glm::mat4> animationTransforms(_bones.size());
-
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		const auto &bone = _bones[i];
+		const auto &weight = weights.empty() ? 1.0f : weights[i];
+
+		if (weight == 0.0f)
+			continue;
+
 		if (animation.hasTrackForBone(bone.name))
 			// If the animation defines a track for the bone, calculate the transformation
-			animationTransforms[i] = animation.calculateTransformation(bone.name, time);
+			_relativeTransformations[i] += weight * factor * animation.calculateTransformation(bone.name, time);
 		else
 			// If the animation defines no track for the bone, calculate the transformation
-			animationTransforms[i] =
+			_relativeTransformations[i] +=
+				weight * factor *
 				glm::translate(bone.translation) *
 				glm::toMat4(bone.rotation);
 	}
+}
 
+void Skeleton::apply() {
 	for (unsigned int i = 0; i < _bones.size(); ++i) {
 		const auto &bone = _bones[i];
-		const auto weight = weights.empty() ? 1.0f : weights[std::min<size_t>(i, weights.size() - 1)];
 		auto transformation = glm::identity<glm::mat4>();
 
 		// Move the point back to its child position
@@ -121,21 +136,21 @@ void Skeleton::update(const Animation &animation, float time, float factor, cons
 			const auto &parentBone = _bones[parentIndex];
 
 			transformation =
-					animationTransforms[parentIndex] *
+					_relativeTransformations[parentIndex] *
 					transformation;
 
 			parentIndex = parentBone.parent;
 		}
 
 		// Move the point according to the transformation
-		transformation *= animationTransforms[i];
+		transformation *= _relativeTransformations[i];
 
 		// Move the point to the skeleton origin
 		const auto inverseTransform = _inverseTransform.find(bone.name);
 		if (inverseTransform != _inverseTransform.end())
 			transformation *= inverseTransform->second;
 
-		_transformations[bone.name] += weight * factor * transformation;
+		_transformations[bone.name] = transformation;
 	}
 }
 

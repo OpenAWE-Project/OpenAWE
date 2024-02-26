@@ -65,7 +65,10 @@ public:
 	void resetDefault();
 
 	/*!
-	 * Update the state of the skeleton with a specific animation and a specific time
+	 * Update the relative transformations of the skeletons bones with a specific animation and a specific time. It is
+	 * also modified by a global factor and bone specific weights. This function modifies only the relative
+	 * transformations of the bones. The state of the skeleton will be changed by calling Skeleton::apply() and the
+	 * relative transforms will be applied to the global state.
 	 *
 	 * \param animation The animation with which to modify the skeleton
 	 * \param time The time at which to apply the animation
@@ -73,6 +76,12 @@ public:
 	 * \param weights The weights of how to apply the animation weighted to the bones
 	 */
 	void update(const Animation &animation, float time, float factor = 1.0f, const std::vector<float> &weights = {});
+
+	/**
+	 * Apply the relative transformations to the global transformations and allow getting this global state over
+	 * Skeleton::getSkinningMatrices().
+	 */
+	void apply();
 
 	/*!
 	 * Get the name of the skeleton
@@ -105,6 +114,8 @@ private:
 	};
 
 	std::vector<Bone> _bones;
+
+	std::vector<glm::mat4> _relativeTransformations;
 	std::map<std::string, glm::mat4> _transformations;
 	std::map<std::string, glm::mat4> _inverseTransform;
 	std::string _name;
