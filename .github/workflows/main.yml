@@ -36,10 +36,20 @@ jobs:
             os: windows-2019
             extra_cmake_args: |
               -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake \
-          - name: MacOS Clang
-            os: macos-12
+          - name: MacOS x86 Clang
+            os: macos-13
             compiler: clang
             extra_cmake_args: | 
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_C_COMPILER=clang \
+              -DCMAKE_CXX_COMPILER=clang++ \
+              -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib \
+              -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include/AL \
+          - name: MacOS ARM64 Clang
+            os: macos-13-xlarge
+            compiler: clang
+            extra_cmake_args: |
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
               -DCMAKE_C_COMPILER=clang \
