@@ -105,7 +105,7 @@ jobs:
           vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl lz4 shaderc
 
       - name: Install dependencies with brew
-        if: ${{ matrix.os == 'macos-12' }}
+        if: ${{ matrix.os == 'macos-13' }}
         run: |
           rm /usr/local/bin/2to3
           rm /usr/local/bin/2to3-3.11
