@@ -64,6 +64,18 @@ private:
 };
 
 /*!
+ * Helper type for std::visit. It enables to assign multiple type dependent lambda functions
+ * to std::visit
+ *
+ * @tparam Ts The types of the overload
+ */
+template<class... Ts>
+struct Overloaded : Ts... { using Ts::operator()...; };
+
+template<class... Ts>
+Overloaded(Ts...) -> Overloaded<Ts...>;
+
+/*!
  * \brief Util class for representing a axis aligned bounding box
  *
  * This class represents an axis aligned bounding box and has helper functions to test if
