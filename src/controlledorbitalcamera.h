@@ -43,6 +43,8 @@ private:
 	void handleRotation(const Events::Event &event);
 	void handleStates(const Events::Event &event);
 
+	float _mouseSensitivity = 1.0f, _gamepadSensitivity = 10.0f;
+
 	Physics::CharacterControllerPtr _followedObject;
 
 	btSphereShape _castSphere;

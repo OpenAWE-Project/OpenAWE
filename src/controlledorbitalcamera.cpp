@@ -63,11 +63,11 @@ ControlledOrbitalCamera::ControlledOrbitalCamera() : _castSphere(0.75f) {
 void ControlledOrbitalCamera::handleRotation(const Events::Event &event) {
 	const Events::AxisEvent<glm::vec2> axisEvent = std::get<Events::AxisEvent<glm::vec2>>(event.data);
 	if (event.action == kRotateMouse) {
-		_movementRotation.x += axisEvent.delta.x;
-		_movementRotation.y += axisEvent.delta.y;
+		_movementRotation.x += axisEvent.delta.x * _mouseSensitivity;
+		_movementRotation.y += axisEvent.delta.y * _mouseSensitivity;
 	} else if (event.action == kRotateGamepad) {
-		_movementRotation.x += axisEvent.absolute.x * 10.0f;
-		_movementRotation.y += axisEvent.absolute.y * 10.0f;
+		_movementRotation.x += axisEvent.absolute.x * _gamepadSensitivity;
+		_movementRotation.y += axisEvent.absolute.y * _gamepadSensitivity;
 	}
 }
 
