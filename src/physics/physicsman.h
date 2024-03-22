@@ -23,11 +23,18 @@
 
 #include <memory>
 
+#include <glm/glm.hpp>
 #include <bullet/btBulletDynamicsCommon.h>
 
 #include "src/common/singleton.h"
 
 namespace Physics {
+
+struct CastResult {
+	const bool hasHit;
+	const glm::vec3 rayHitPoint;
+	const glm::vec3 exactHitPoint;
+};
 
 class PhysicsManager : public Common::Singleton<PhysicsManager> {
 public:
@@ -44,8 +51,8 @@ public:
 	void remove(btCollisionObject *collisionObject);
 	void remove(btRigidBody *collisionObject);
 	void remove(btActionInterface * actionInterface);
-	btCollisionWorld::ClosestRayResultCallback raycastStatic(btVector3& from, btVector3& to);
-	btCollisionWorld::ClosestConvexResultCallback shapeCastStatic(btConvexShape* castShape, btTransform& from, btTransform& to);
+	const CastResult raycastStatic(glm::vec3& from, glm::vec3& to);
+	const CastResult shapeCastStatic(btConvexShape* castShape, glm::mat4& from, glm::mat4& to);
 
 private:
 	bool _debugDraw;
