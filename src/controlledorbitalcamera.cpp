@@ -98,7 +98,7 @@ void ControlledOrbitalCamera::attachTo(Physics::CharacterControllerPtr object) {
 	newOrigin.y += 0.6f;
 	setOrbitOrigin(newOrigin);
 	_orbitOriginCurrent = _orbitOriginTarget;
-	_rotationAttitude = glm::vec3(-M_PI, 0.0f, 0.0f) * object->getRotation();
+	_rotationOrientation = glm::vec3(-M_PI, 0.0f, 0.0f) * object->getRotation();
 	_position = calcOrbitPosition(_orbitRadiusCurrent);
 	_direction = _rotationDirection;
 }

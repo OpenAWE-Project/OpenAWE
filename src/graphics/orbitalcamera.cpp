@@ -29,7 +29,7 @@ namespace Graphics {
 
 OrbitalCamera::OrbitalCamera() : 
 	_rotationFactor(2.0), _movementRotation(0.0f), 
-	_rotationDirection(glm::vec3(0.0f, 0.0f, 1.0f)), _rotationAttitude(0.0f), _orbitRadiusBase(2.5f),
+	_rotationDirection(glm::vec3(0.0f, 0.0f, 1.0f)), _rotationOrientation(0.0f), _orbitRadiusBase(2.5f),
 	_radiusOverride(false) {
 		_orbitOriginCurrent = _orbitOriginTarget = glm::zero<glm::vec3>();
 		_shoulderCurrent = _shoulderTarget = 1.25f;
@@ -37,56 +37,79 @@ OrbitalCamera::OrbitalCamera() :
 }
 
 glm::vec3 OrbitalCamera::calcOrbitPosition(float radius) {
+	// Convert camera direction from pitch and yaw 
+	// to a 3D vector
 	_rotationDirection = glm::normalize(glm::vec3(
-		cos(_rotationAttitude.y) * cos(_rotationAttitude.x),
-		sin(_rotationAttitude.y),
-		sin(_rotationAttitude.x) * cos(_rotationAttitude.y)));
+		cos(_rotationOrientation.y) * cos(_rotationOrientation.x),
+		sin(_rotationOrientation.y),
+		sin(_rotationOrientation.x) * cos(_rotationOrientation.y)));
 
 	const glm::vec3 right = glm::cross(_up, _rotationDirection);
 
 	constexpr float cameraPitchLimit = M_PI_2 / 3 * 2;
-	const float shoulderCoef = _shoulderCoef * (1 + std::abs(_rotationAttitude.y / cameraPitchLimit));
+	/* Shoulder offset gets calculated relative to camera's yaw,
+	   so with higher upper angle shoulder would get wider,
+	   keeping the position between player's character and the center of the screen
+	   relatively consistent. */
+	const float shoulderCoef = _shoulderCoef * (1 + std::abs(_rotationOrientation.y / cameraPitchLimit));
 
-	// Add orbit, shoulder, and orbit lowering
+	/* Camera's position consists of 4 main components:
+	   1. Smoothed out followed object's position;
+	   2. Orbit radius opposite to view direction;
+	   3. Shoulder offset parallel to view direction;
+	   4. Extra rise in elevation for cases when camera
+	   gets close to player's character to mimic
+	   original game's behavior. */
 	return _orbitOriginCurrent + 
 		(right * _shoulderCurrent * shoulderCoef - _rotationDirection) * radius - 
 		_up * radius / _orbitRadiusBase * 0.75f;
 }
 
 void OrbitalCamera::update(float delta) {
-	// Lerp values
+	// Define multiple frame-independent lerping coefficients
+	// to smooth out various camera movements
 	const float lerpCoefSmooth = 1.0f - glm::pow(0.1f, delta);
 	const float lerpCoefSnappy = 1.0f - glm::pow(1e-4, delta);
 	const float lerpCoefExtraSnappy = 1.0f - glm::pow(1e-6, delta);
+	// Original games would change shoulder offset rather slowly, 
+	// so we use a smaller coefficient
 	_shoulderCurrent = glm::mix(_shoulderCurrent, _shoulderTarget, lerpCoefSmooth);
 	if (!_radiusOverride) {
+		// When overriding radius, _orbitRadiusTarget gets smaller, 
+		// so we smooth it back to full when not overriding
 		_orbitRadiusTarget = glm::mix(_orbitRadiusTarget, _orbitRadiusTargetFull, lerpCoefSnappy);
 	} else { 
 		_radiusOverride = false;
 	}
 	_orbitRadiusCurrent = glm::mix(_orbitRadiusCurrent, _orbitRadiusTarget, lerpCoefSnappy);
 	_orbitOriginCurrent = glm::mix(_orbitOriginCurrent, _orbitOriginTarget, lerpCoefSnappy);
+	// Smooth out FOV changes during and after aiming
 	const float fovTarget = _state == kCameraAiming ? _fovBase * _fovAimMultiplier : _fovBase;
 	_fov = glm::mix(_fov, fovTarget, lerpCoefSnappy);
 
-	// Get target look direction
+	// Get target look direction as pitch and yaw values
 	// roll (_rotationAttitude.z) is not used so far
-	_rotationAttitude.x += glm::radians(_movementRotation.x * delta * _rotationFactor);
-	_rotationAttitude.y -= glm::radians(_movementRotation.y * delta * _rotationFactor);
-	// limit pitch to -60..60 degree range
+	_rotationOrientation.x += glm::radians(_movementRotation.x * delta * _rotationFactor);
+	_rotationOrientation.y -= glm::radians(_movementRotation.y * delta * _rotationFactor);
+	// limit pitch to -60..60 degree range similar to original games
 	constexpr float cameraPitchLimit = M_PI_2 / 3 * 2;
-	_rotationAttitude.y = glm::clamp(_rotationAttitude.y, -cameraPitchLimit, cameraPitchLimit);
+	_rotationOrientation.y = glm::clamp(_rotationOrientation.y, -cameraPitchLimit, cameraPitchLimit);
 
 	_position = calcOrbitPosition(_orbitRadiusCurrent);
 
+	// When focused, our look target is overriden, but usually we look in front of the character
 	glm::vec3 target = 
 		_state == kCameraFocused ? _focusTarget : _rotationDirection * 25.0f + _position;
 
 	target = glm::normalize(target - _position);
+	// Here, we use spherical interpolation to smoothly rotate
+	// our camera towards desired direction
 	if (glm::distance(_direction, target) > 1e-3)
 		_direction = glm::slerp(_direction, target, lerpCoefExtraSnappy);
 
-	// Always clear rotation for mouse/gamepad input in some way
+	// Always clear rotation for mouse/gamepad input in some way.
+	// We use glm::mix to leave a bit of inertia from inputs, 
+	// making camera movement way smoother to the eye
 	_movementRotation = glm::mix(_movementRotation, glm::zero<glm::vec3>(), lerpCoefExtraSnappy);
 }
 
