@@ -27,12 +27,12 @@
 
 #include "src/controlledorbitalcamera.h"
 
-static constexpr uint32_t kRotateMouse         = Common::crc32("ORBITALCAM_ROTATE_MOUSE");
-static constexpr uint32_t kRotateGamepad       = Common::crc32("ORBITALCAM_ROTATE_GAMEPAD");
+static constexpr uint32_t kRotateMouse    = Common::crc32("ORBITALCAM_ROTATE_MOUSE");
+static constexpr uint32_t kRotateGamepad  = Common::crc32("ORBITALCAM_ROTATE_GAMEPAD");
 
-static constexpr uint32_t kSwitchShoulder      = Common::crc32("ORBITALCAM_SWITCH_SHOULDER");
-static constexpr uint32_t kAimWeapon           = Common::crc32("ORBITALCAM_AIM_WEAPON");
-static constexpr uint32_t kFocusCamera         = Common::crc32("ORBITALCAM_FOCUS_CAMERA");
+static constexpr uint32_t kSwitchShoulder = Common::crc32("ORBITALCAM_SWITCH_SHOULDER");
+static constexpr uint32_t kAimWeapon      = Common::crc32("ORBITALCAM_AIM_WEAPON");
+static constexpr uint32_t kFocusCamera    = Common::crc32("ORBITALCAM_FOCUS_CAMERA");
 
 ControlledOrbitalCamera::ControlledOrbitalCamera() : _castSphere(0.75f) {
 	Events::EventCallback callbackRotate = [this](auto && PH1) { handleRotation(std::forward<decltype(PH1)>(PH1)); };
@@ -109,24 +109,18 @@ void ControlledOrbitalCamera::update(float delta) {
 	setOrbitOrigin(newOrigin);
 	Graphics::OrbitalCamera::update(delta);
 	// Resolving colisions with static objects
-	const btMatrix3x3 castIdentity{
-		1.f, 0.f, 0.f, 
-		0.f, 1.f, 0.f, 
-		0.f, 0.f, 1.f
-	};
-	const glm::vec3 basePoint = calcOrbitPosition(_orbitRadiusTargetFull);
-	const btVector3 cameraOrigin{_orbitOriginCurrent.x, _orbitOriginCurrent.y, -_orbitOriginCurrent.z};
-	btTransform 
-		from{castIdentity, cameraOrigin}, 
-		to{castIdentity, btVector3(basePoint.x, basePoint.y, -basePoint.z)};
-	btCollisionWorld::ClosestConvexResultCallback camCast = PhysicsMan.shapeCastStatic(&_castSphere, from, to);
-	if (camCast.hasHit()) {
-		// Since hit point can be anywhere on a sphere, we should project hit point onto movement ray
-		const glm::vec3 hitPoint{camCast.m_hitPointWorld.x(), camCast.m_hitPointWorld.y(), -camCast.m_hitPointWorld.z()};
-		const glm::vec3 origVec = _position - _orbitOriginCurrent;
-		const glm::vec3 hitVec = hitPoint - _orbitOriginCurrent;
-		// derived from formula:
-		// glm::length(hitProjection), where hitProjection = glm::dot(hitVec, origVec) / glm::dot(origVec, origVec) * origVec
-		snapRadius(glm::dot(hitVec, origVec) / glm::length(origVec));
+	const glm::vec4 
+		mat1(1.f, 0.f, 0.f, 0.f),
+		mat2(0.f, 1.f, 0.f, 0.f),
+		mat3(0.f, 0.f, 1.f, 0.f);
+	const glm::vec3 basePoint{calcOrbitPosition(_orbitRadiusTargetFull)};
+	const glm::vec4 cameraOrigin{_orbitOriginCurrent.x, _orbitOriginCurrent.y, -_orbitOriginCurrent.z, 1.f};
+	glm::mat4
+		from{mat1, mat2, mat3, cameraOrigin}, 
+		to{mat1, mat2, mat3, glm::vec4(basePoint.x, basePoint.y, -basePoint.z, 1.f)};
+	Physics::CastResult camCast = PhysicsMan.shapeCastStatic(&_castSphere, from, to);
+	if (camCast.hasHit) {
+		float rad = glm::length(camCast.rayHitPoint - glm::vec3(_orbitOriginCurrent.x, _orbitOriginCurrent.y, -_orbitOriginCurrent.z));
+		snapRadius(rad);
 	};
 }
