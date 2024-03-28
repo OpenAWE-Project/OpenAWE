@@ -84,6 +84,8 @@ void AnimationController::update(float time) {
 	if (_lastAnimation.animation) {
 		applyAnimation(_lastAnimation, time, 1.0f - blendFactor);
 	}
+
+	_skeleton.apply();
 }
 
 void AnimationController::applyAnimation(const AnimationPart &prt, float time, float factor) {
