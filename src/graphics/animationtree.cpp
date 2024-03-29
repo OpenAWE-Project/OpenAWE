@@ -47,6 +47,30 @@ void AnimationTree::load(Common::ReadStream &tree) {
 	if (root.name != "AnimationStateGraph")
 		throw CreateException("Invalid animation graph file expected \"AnimationStateGraph\", got \"{}\"", root.name);
 
+	//std::vector<std::string> flagNames;
+	std::map<std::string, boost::dynamic_bitset<uint8_t>> flags;
+	for (const Common::XML::Node &animationFlags : root.getNodes("Object_AnimationFlags")) {
+		const auto flagsName = animationFlags.getNode("Name").content;
+		const auto flagsData = Common::split(animationFlags.getNode("Flags").content, std::regex(","));
+		const auto noFlagNames = _flagNames.empty();
+
+		assert(flagsData.size() % 2 == 0);
+
+		boost::dynamic_bitset<uint8_t> flagBits;
+		for (size_t i = 0; i < flagsData.size() / 2; ++i) {
+			const auto name = flagsData[i * 2];
+			const auto flag = std::stol(flagsData[i * 2 + 1]) != 0;
+
+			flagBits.push_back(flag);
+			if (noFlagNames)
+				_flagNames.emplace_back(name);
+		}
+
+		flags[flagsName] = flagBits;
+	}
+
+	_currentFlags.resize(_flagNames.size());
+
 	std::map<std::string, std::vector<float>> weightSets;
 	for (const Common::XML::Node &blendWeights: root.getNodes("Object_AnimationBlendWeights")) {
 		const auto weightsName = blendWeights.getNode("Name").content;
@@ -75,6 +99,8 @@ void AnimationTree::load(Common::ReadStream &tree) {
 			state.weights = weightSets[node.getNode("BlendWeights").content];
 		if (node.hasNode("Root") && Common::toLower(node.getNode("Root").content) == "true")
 			_root = state.name;
+		if (node.hasNode("Flags") && Common::toLower(node.getNode("Flags").content) != "_null_")
+			state.flags = flags.at(node.getNode("Flags").content);
 
 		const auto typeString = node.getNode("Type").content;
 		if (typeString == "Nested")
@@ -102,8 +128,17 @@ std::vector<AnimationTree::WeightedAnimation> AnimationTree::getCurrentAnimation
 std::vector<AnimationTree::WeightedAnimation> AnimationTree::getAnimation(const AnimationTree::State &state) const {
 	switch (state.type) {
 		case kNested: {
-			// TODO: In the future, this should be selected by condition
-			return getAnimation(_states.at(state.states.front()));
+			for (const auto &stateName : state.states) {
+				const auto nestedState = _states.at(stateName);
+				if (nestedState.flags.empty())
+					return getAnimation(nestedState);
+
+				if (_currentFlags == nestedState.flags) {
+					const auto lowerState = getAnimation(nestedState);
+					return {{state.weights, lowerState.front().clip}};
+				}
+			}
+			break;
 		}
 
 		case kBlended: {
@@ -122,6 +157,16 @@ std::vector<AnimationTree::WeightedAnimation> AnimationTree::getAnimation(const 
 	}
 
 	return {};
+}
+
+void AnimationTree::setFlag(const std::string &name, bool flag) {
+	const auto nameIter = std::find(_flagNames.begin(), _flagNames.end(), name);
+	if (nameIter == _flagNames.end())
+		throw CreateException("Flag \"{}\" does not exist", name);
+
+	const auto index = std::distance(_flagNames.begin(), nameIter);
+	_dirty = true;
+	_currentFlags[index] = flag;
 }
 
 bool AnimationTree::isDirty() const {

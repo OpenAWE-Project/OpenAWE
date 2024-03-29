@@ -21,6 +21,10 @@
 #ifndef OPENAWE_ANIMATIONTREE_H
 #define OPENAWE_ANIMATIONTREE_H
 
+#include <variant>
+
+#include <boost/dynamic_bitset.hpp>
+
 #include "src/common/readstream.h"
 #include "src/common/xml.h"
 
@@ -43,6 +47,8 @@ public:
 	explicit AnimationTree(Common::ReadStream &tree);
 	explicit AnimationTree(const std::string &file);
 
+	void setFlag(const std::string &name, bool flag);
+
 	bool isDirty() const;
 	std::vector<AnimationTree::WeightedAnimation> getCurrentAnimation();
 
@@ -58,6 +64,7 @@ private:
 		StateType type;
 		std::string clip;
 		std::vector<float> weights;
+		boost::dynamic_bitset<uint8_t> flags;
 		std::vector<std::string> states;
 	};
 
@@ -66,6 +73,8 @@ private:
 
 	bool _dirty{};
 	std::string _root;
+	std::vector<std::string> _flagNames;
+	boost::dynamic_bitset<uint8_t> _currentFlags;
 	std::map<std::string, State> _states;
 };
 
