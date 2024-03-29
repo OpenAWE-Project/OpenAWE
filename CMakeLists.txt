@@ -215,6 +215,7 @@ find_package(Ogg REQUIRED)
 find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(Boost REQUIRED)
 
 find_package(LZ4)
 if (LZ4_FOUND)
