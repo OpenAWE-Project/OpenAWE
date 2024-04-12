@@ -76,6 +76,7 @@ jobs:
             liblz4-dev \
             libgtest-dev \
             libboost-dev \
+            libtoml11-dev \
             ccache
 
       - name: Install glslc compiler
@@ -103,7 +104,7 @@ jobs:
             -password "${{ github.token }}"
           nuget setapikey "${{ github.token }}" \
             -source "https://nuget.pkg.github.com/${{ github.actor }}/index.json"
-          vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl lz4 boost-dynamic-bitset shaderc
+          vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog glew openal-soft bullet3 fmt gtest tinyxml2 glm opengl lz4 boost-dynamic-bitset toml11 shaderc
 
       - name: Install dependencies with brew
         if: ${{ matrix.os == 'macos-13' }}
@@ -119,7 +120,7 @@ jobs:
           rm /usr/local/bin/python3.11
           rm /usr/local/bin/python3.11-config
           brew update
-          brew install zlib glfw libogg libvorbis theora spdlog glew openal-soft bullet fmt googletest tinyxml2 glm lz4 boost ccache shaderc
+          brew install zlib glfw libogg libvorbis theora spdlog glew openal-soft bullet fmt googletest tinyxml2 glm lz4 boost toml11 ccache shaderc
 
       - name: Cache non-Windows build with ccache
         if: ${{ matrix.os != 'windows-2019' }}

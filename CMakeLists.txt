@@ -215,6 +215,7 @@ find_package(Ogg REQUIRED)
 find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(toml11 REQUIRED)
 find_package(Boost REQUIRED)
 
 find_package(LZ4)
@@ -312,6 +313,7 @@ add_library(awe_common ${SOURCE_FILES})
 target_link_libraries(
         awe_common
 
+        toml11::toml11
         tinyxml2::tinyxml2
         ${ZLIB_LIBRARIES}
 )
