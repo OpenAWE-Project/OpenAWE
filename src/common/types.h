@@ -51,6 +51,14 @@ typedef unsigned char byte;
 namespace Common {
 
 /*!
+ * \brief Helper type for std::visit
+ */
+template<class... Ts>
+struct Overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts>
+Overloaded(Ts...) -> Overloaded<Ts...>;
+
+/*!
  * \brief Util class for making non copyable
  */
 class Noncopyable {
