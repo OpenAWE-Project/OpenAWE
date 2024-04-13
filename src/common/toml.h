@@ -23,6 +23,7 @@
 
 #include <map>
 #include <variant>
+#include <vector>
 
 #include "src/common/readstream.h"
 
