@@ -5,6 +5,9 @@
 [submodule "CLI11"]
 	path = 3rdparty/CLI11
 	url = https://github.com/CLIUtils/CLI11
-[submodule "3rdparty/tinygltf"]
+[submodule "tinygltf"]
 	path = 3rdparty/tinygltf
 	url = https://github.com/syoyo/tinygltf
+[submodule "toml11"]
+	path = 3rdparty/toml11
+	url = https://github.com/ToruNiina/toml11

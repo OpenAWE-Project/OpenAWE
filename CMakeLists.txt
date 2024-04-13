@@ -196,6 +196,9 @@ add_definitions(-DSUPPORT_PROFILE_HLSL=0)
 add_definitions(-DSUPPORT_PROFILE_SPIRV=0)
 add_definitions(-DSUPPORT_PROFILE_GLSPIRV=0)
 
+# TOML11
+add_subdirectory(3rdparty/toml11)
+
 # ------------------------------------
 # Dependencies
 
@@ -215,7 +218,6 @@ find_package(Ogg REQUIRED)
 find_package(Theora REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(spdlog REQUIRED)
-find_package(toml11 REQUIRED)
 find_package(Boost REQUIRED)
 
 find_package(LZ4)
