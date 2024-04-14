@@ -44,4 +44,16 @@ glm::mat4 Camera::getLookAt() const {
 void Camera::update(float delta) {
 }
 
+const glm::vec3 &Camera::getPosition() const {
+	return _position;
+}
+
+const glm::vec3 &Camera::getDirection() const {
+	return _direction;
+}
+
+const glm::vec3 &Camera::getUp() const {
+	return _up;
+}
+
 }

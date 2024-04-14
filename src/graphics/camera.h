@@ -32,6 +32,24 @@ public:
 	void setPosition(const glm::vec3 &position);
 	void setDirection(const glm::vec3 &direction);
 
+	/**
+	 * Get eye position of the camera
+	 * @return The eye position of the camera
+	 */
+	[[nodiscard]] const glm::vec3 &getPosition() const;
+
+	/**
+	 * Get direction of the camera
+	 * @return The direction of the camera
+	 */
+	[[nodiscard]] const glm::vec3 &getDirection() const;
+
+	/**
+	 * Get the up direction of the camera
+	 * @return The up direction of the camera
+	 */
+	[[nodiscard]] const glm::vec3 &getUp() const;
+
 	glm::mat4 getLookAt() const;
 
 	virtual void update(float time);
