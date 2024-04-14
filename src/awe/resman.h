@@ -43,6 +43,7 @@ namespace AWE {
 class RessourceManager : public Common::Singleton<RessourceManager> {
 public:
 	void setRootPath(const std::string &rootPath);
+	void addPath(const std::string &path);
 
 	void indexPackmeta(const std::string &packmetaFile);
 
@@ -64,6 +65,7 @@ public:
 private:
 	std::string _rootPath;
 	std::vector<std::unique_ptr<RIDProvider>> _meta;
+	std::vector<std::string> _paths;
 	std::vector<std::unique_ptr<Archive>> _archives;
 };
 

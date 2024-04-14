@@ -109,6 +109,12 @@ Common::ReadStream *RessourceManager::getResource(const std::string &path) {
 	if (std::filesystem::is_regular_file(_rootPath + "/" + path))
 		return new Common::ReadFile(_rootPath + "/" + path);
 
+	for (const auto &dirPath: _paths) {
+		const auto fullPath = fmt::format("{}/{}", dirPath, path);
+		if (std::filesystem::is_regular_file(fullPath))
+			return new Common::ReadFile(fullPath);
+	}
+
 	for (auto &archive : _archives) {
 		Common::ReadStream *stream = archive->getResource(path);
 		if (stream != nullptr)
@@ -132,6 +138,14 @@ Common::ReadStream *RessourceManager::getResource(rid_t rid) {
 
 void RessourceManager::setRootPath(const std::string &rootPath) {
 	_rootPath = rootPath;
+}
+
+void RessourceManager::addPath(const std::string &path) {
+	// For ensuring, that no unnecessary file tests are done, we ensure, that an added path exists
+	if (!std::filesystem::is_directory(path))
+		return;
+
+	_paths.emplace_back(path);
 }
 
 } // End of namespace AWE
