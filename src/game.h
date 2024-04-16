@@ -49,6 +49,7 @@ public:
 private:
 	bool _physicsDebugDraw;
 	std::string _path, _shaderPath;
+	std::vector<std::string> _additionalPaths;
 	Common::Language _language;
 
 	entt::registry _registry;

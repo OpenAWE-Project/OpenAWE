@@ -94,6 +94,9 @@ bool Game::parseArguments(int argc, char **argv) {
 		->default_val(Common::getSystemLanguage());
 	app.add_option("-s,--shader-path", _shaderPath, "The path in which the shader files are stored")
 		->default_val("../shaders");
+	app.add_option("-a,--additional-path", _additionalPaths,
+		"Additional data paths for adding and overriding resources")
+		->check(CLI::ExistingDirectory);
 
 	_physicsDebugDraw = false;
 	app.add_flag("--debug-physics", _physicsDebugDraw, "Draw physics bodies for debugging");
@@ -126,6 +129,12 @@ void Game::init() {
 	std::vector<std::string> identifiers;
 
 	ResMan.setRootPath(_path);
+
+	// Add additional data paths
+	for (const auto &path: _additionalPaths) {
+		spdlog::info("Adding path {}", path);
+		ResMan.addPath(path);
+	}
 
 	// Index rmdp archives
 	for (const auto &path : std::filesystem::directory_iterator(_path)) {
