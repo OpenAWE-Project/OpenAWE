@@ -68,7 +68,7 @@ static void readValue(TOML::PropertyMap &props, const std::string &id, const tom
 			break;
 
 		case toml::value_t::integer:
-			props[id] = value.as_integer();
+			props[id] = static_cast<long>(value.as_integer());
 			break;
 
 		case toml::value_t::floating:
