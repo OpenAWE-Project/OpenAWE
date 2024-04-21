@@ -45,16 +45,6 @@ Sky::Sky() : _sky(MeshMan.getMesh("objects/hardcoded/sky.binfbx", {"night_sky"})
 	}
 }
 
-void Sky::setTime(int hour, int minute) {
-	if (hour > 23)
-		throw CreateException("Invalid hour, expected <=23, got {}", hour);
-
-	if (minute > 59)
-		throw CreateException("Invalid minute, expected <=59, got {}", minute);
-
-	_daytime = static_cast<float>(hour) / 24.0f + (static_cast<float>(minute) / 60.0f) * (1.0f / 24.0f);
-}
-
 const MeshPtr &Sky::getSkyMesh() const {
 	return _sky;
 }
