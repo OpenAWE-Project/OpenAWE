@@ -52,6 +52,13 @@ public:
 	void addGUIElement(GUIElement *gui);
 
 	/*!
+	 * Set a sky for the current rendering
+	 *
+	 * @param sky The sky to set for rendering
+	 */
+	void setSky(SkyPtr sky);
+
+	/*!
 	 * Removes gui element by pointer from the scene
 	 * \param gui The gui element to remove
 	 */

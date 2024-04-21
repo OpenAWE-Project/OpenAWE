@@ -53,6 +53,10 @@ void GraphicsManager::removeGUIElement(GUIElement *gui) {
 	_renderer->removeGUIElement(gui);
 }
 
+void GraphicsManager::setSky(SkyPtr sky) {
+	_renderer->setSky(sky);
+}
+
 void GraphicsManager::addLight(Light *light) {
 	_renderer->addLight(light);
 }

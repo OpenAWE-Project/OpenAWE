@@ -35,6 +35,7 @@
 #include "src/graphics/light.h"
 #include "src/graphics/attributeobject.h"
 #include "src/graphics/images/decoder.h"
+#include "src/graphics/sky.h"
 
 
 namespace Graphics {
@@ -53,6 +54,13 @@ public:
 	void setCamera(Camera &camera);
 
 	void setAmbianceState(const AmbianceState ambiance);
+
+	/*!
+	 * Set a sky as sky for the rendering
+	 *
+	 * \param sky The sky to set for rndering
+	 */
+	void setSky(SkyPtr sky);
 
     /*!
      * Create a texture by the specified type with the given label
@@ -120,6 +128,8 @@ protected:
 
 	glm::mat4 _view;
 	glm::mat4 _projection;
+
+	SkyPtr _sky;
 
 	std::optional<std::reference_wrapper<Camera>> _camera;
 	AmbianceState _ambiance;

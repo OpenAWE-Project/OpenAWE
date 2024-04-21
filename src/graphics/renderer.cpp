@@ -114,6 +114,10 @@ void Graphics::Renderer::setAmbianceState(const Graphics::AmbianceState ambiance
 	_ambiance = ambiance;
 }
 
+void Graphics::Renderer::setSky(Graphics::SkyPtr sky) {
+	_sky = sky;
+}
+
 void Graphics::Renderer::update() {
 	_view = _camera ? (*_camera).get().getLookAt() : glm::identity<glm::mat4>();
 	_frustrum.setViewMatrix(_view);

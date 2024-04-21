@@ -42,6 +42,7 @@
 #include "src/graphics/fontman.h"
 #include "src/graphics/text.h"
 #include "src/graphics/meshman.h"
+#include "src/graphics/sky.h"
 #include "src/graphics/binmshloader.h"
 #include "src/graphics/binfolloader.h"
 
@@ -321,6 +322,9 @@ void Game::start() {
 		_registry,
 		entt::collector.update<Transform>().where<Graphics::Light>()
 	};
+
+	Graphics::SkyPtr sky = std::make_shared<Graphics::Sky>();
+	GfxMan.setSky(sky);
 
 	double lastTime = _platform.getTime();
 	bool exit = false;
