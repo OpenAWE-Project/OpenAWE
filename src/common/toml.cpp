@@ -38,7 +38,7 @@ static TOML::PropertyArray readArray(const toml::array &arr) {
 				break;
 
 			case toml::value_t::integer:
-				array.emplace_back(value.as_integer());
+				array.emplace_back(static_cast<long>(value.as_integer()));
 				break;
 
 			case toml::value_t::floating:
