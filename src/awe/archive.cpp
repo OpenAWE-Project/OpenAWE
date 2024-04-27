@@ -18,7 +18,7 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "archive.h"
+#include "src/awe/archive.h"
 
 namespace AWE {
 

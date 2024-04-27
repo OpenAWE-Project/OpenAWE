@@ -44,7 +44,7 @@ public:
 	 *
 	 * \return the number of resources in this archive
 	 */
-	virtual size_t getNumResources() const = 0;
+	[[nodiscard]] virtual size_t getNumResources() const = 0;
 
 	/*!
 	 * Get all indices of resources in a specific directory
@@ -52,7 +52,7 @@ public:
 	 * \param directory The directory to get the resource indices for
 	 * \return A vector of all indices of resources in this directory
 	 */
-	virtual std::vector<size_t> getDirectoryResources(const std::string &directory) = 0;
+	[[nodiscard]] virtual std::vector<size_t> getDirectoryResources(const std::string &directory) = 0;
 
 	/*!
 	 * Get the path of a resource at a specific index in the archive
@@ -60,7 +60,7 @@ public:
 	 * \param index The index in the archive
 	 * \return The path of the resource at that index
 	 */
-	virtual std::string getResourcePath(size_t index) const = 0;
+	[[nodiscard]] virtual std::string getResourcePath(size_t index) const = 0;
 
 	/*!
 	 * Try to get a resource using the virtual path to it.
@@ -69,7 +69,7 @@ public:
 	 * \return The found resource or NULL if the resource
 	 * is not available
 	 */
-	virtual Common::ReadStream *getResource(const std::string &rid) const = 0;
+	[[nodiscard]] virtual Common::ReadStream *getResource(const std::string &rid) const = 0;
 
 	/*!
 	 * Check if a resource given by a path exists.
@@ -77,7 +77,7 @@ public:
 	 * \param rid the path to search for
 	 * \return if the resource specified by rid exists
 	 */
-	virtual bool hasResource(const std::string &rid) const = 0;
+	[[nodiscard]] virtual bool hasResource(const std::string &rid) const = 0;
 
 	/*!
 	 * Check if the archive has a certain directory
@@ -85,7 +85,7 @@ public:
 	 * \param directory the directory to check for
 	 * \return If the given directory exists
 	 */
-	virtual bool hasDirectory(const std::string &directory) const = 0;
+	[[nodiscard]] virtual bool hasDirectory(const std::string &directory) const = 0;
 };
 
 } // End of namespace AWE
