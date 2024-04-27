@@ -44,7 +44,8 @@ void dumpTGA(Common::WriteStream &tga, ImageDecoder &imageDecoder) {
 	tga.writeByte(0); // Image Descriptor
 
 	// Image data
-	Common::MemoryReadStream imageDataStream(mipmap.data[0], mipmap.dataSize, false);
+	const auto &imageData = mipmap.data[0];
+	Common::MemoryReadStream imageDataStream(reinterpret_cast<const byte *>(imageData.data()), imageData.size());
 	for (unsigned int i = 0; i < mipmap.width * mipmap.height; ++i) {
 		const byte r = imageDataStream.readByte();
 		const byte g = imageDataStream.readByte();

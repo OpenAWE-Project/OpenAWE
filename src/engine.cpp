@@ -29,6 +29,7 @@
 #include "src/engine.h"
 #include "src/task.h"
 #include "src/utils.h"
+#include "src/common/threadpool.h"
 
 Engine::Engine(entt::registry &registry,  const LocaleConfig::Config &config, AWE::Script::Functions *functions) :
 	_registry(registry),
@@ -85,56 +86,58 @@ Configuration &Engine::getConfiguration() {
 }
 
 void Engine::loadEpisode(const std::string &data) {
-	std::vector<std::string> parameters = Common::split(data, std::regex(" "));
-	std::vector<std::string> episode = Common::split(parameters.back(), std::regex(":"));
+	//Threads.add([=, this](){
+		std::vector<std::string> parameters = Common::split(data, std::regex(" "));
+		std::vector<std::string> episode = Common::split(parameters.back(), std::regex(":"));
 
-	std::string worldName = episode[0];
-	std::string episodeName = episode[1];
+		std::string worldName = episode[0];
+		std::string episodeName = episode[1];
 
-	if (!_world || _world->getName() != worldName) {
-		_world = std::make_unique<World>(_registry, _scheduler, worldName);
-		_world->loadGlobal();
-	}
+		if (!_world || _world->getName() != worldName) {
+			_world = std::make_unique<World>(_registry, _scheduler, worldName);
+			_world->loadGlobal();
+		}
 
-	_world->loadEpisode(episodeName);
+		_world->loadEpisode(episodeName);
 
-	// Start animation controller process
-	auto animControllerView = _registry.view<Graphics::AnimationControllerPtr>();
-	for (const auto &controllerEntity: animControllerView) {
-		auto controller = _registry.get<Graphics::AnimationControllerPtr>(controllerEntity);
+		// Start animation controller process
+		auto animControllerView = _registry.view<Graphics::AnimationControllerPtr>();
+		for (const auto &controllerEntity: animControllerView) {
+			auto controller = _registry.get<Graphics::AnimationControllerPtr>(controllerEntity);
 
-		_scheduler.attach<Graphics::AnimationControllerProcess>(controller);
-	}
+			_scheduler.attach<Graphics::AnimationControllerProcess>(controller);
+		}
 
-	// Call OnInit on every object
-	auto bytecodeView = _registry.view<AWE::Script::BytecodePtr>();
-	for (const auto &item : bytecodeView) {
-		auto gid = _registry.get<GID>(item);
-		auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
+		// Call OnInit on every object
+		auto bytecodeView = _registry.view<AWE::Script::BytecodePtr>();
+		for (const auto &item : bytecodeView) {
+			auto gid = _registry.get<GID>(item);
+			auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
 
-		if (!bytecode->hasEntryPoint("OnInit"))
-			continue;
+			if (!bytecode->hasEntryPoint("OnInit"))
+				continue;
 
-		spdlog::debug("Firing OnInit on {} {:x}", gid.type, gid.id);
-		bytecode->run(*_context, "OnInit", item);
-	}
+			spdlog::debug("Firing OnInit on {} {:x}", gid.type, gid.id);
+			bytecode->run(*_context, "OnInit", item);
+		}
 
-	// Activate starter tasks
-	auto taskView = _registry.view<Task, AWE::Script::BytecodePtr>();
-	for (const auto &item : taskView) {
-		auto gid = _registry.get<GID>(item);
-		auto task = _registry.get<Task>(item);
-		auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
+		// Activate starter tasks
+		auto taskView = _registry.view<Task, AWE::Script::BytecodePtr>();
+		for (const auto &item : taskView) {
+			auto gid = _registry.get<GID>(item);
+			auto task = _registry.get<Task>(item);
+			auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
 
-		if (!task.isActiveOnStartup())
-			continue;
+			if (!task.isActiveOnStartup())
+				continue;
 
-		if (!task.getPlayerCharacter().isNil())
-			_playerController.setPlayerCharacter(getEntityByGID(_registry, task.getPlayerCharacter()));
+			if (!task.getPlayerCharacter().isNil())
+				_playerController.setPlayerCharacter(getEntityByGID(_registry, task.getPlayerCharacter()));
 
-		spdlog::debug("Firing OnTaskActivate on {} {:x}", gid.type, gid.id);
-		bytecode->run(*_context, "OnTaskActivate", item);
-	}
+			spdlog::debug("Firing OnTaskActivate on {} {:x}", gid.type, gid.id);
+			bytecode->run(*_context, "OnTaskActivate", item);
+		}
+	//});
 }
 
 entt::scheduler<double> & Engine::getScheduler() {

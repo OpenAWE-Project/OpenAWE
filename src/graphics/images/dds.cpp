@@ -88,10 +88,9 @@ DDS::DDS(Common::ReadStream *dds) {
 
 		size_t dataSize = std::max(16u, ((width + 3u) / 4u) * ((height + 3u) / 4u) * 16u);
 
-		mipMap.dataSize = dataSize;
 		mipMap.data.resize(1);
-		mipMap.data[0] = new byte[dataSize];
-		dds->read(mipMap.data[0], dataSize);
+		mipMap.data[0].resize(dataSize);
+		dds->read(mipMap.data[0].data(), dataSize);
 
 		width /= 2;
 		height /= 2;

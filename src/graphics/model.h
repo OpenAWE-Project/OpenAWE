@@ -137,7 +137,7 @@ public:
 protected:
 	Model();
 
-	bool _visible{true};
+	bool _visible{false};
 	unsigned int _numInstances;
 	std::string _label;
 

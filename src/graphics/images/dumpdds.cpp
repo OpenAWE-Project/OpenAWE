@@ -147,7 +147,8 @@ void dumpDDS(Common::WriteStream &dds, ImageDecoder &imageDecoder) {
 	dds.writeUint32LE(0); // reserved
 
 	for (size_t i = 0; i < imageDecoder.getNumMipMaps(); ++i) {
-		dds.write(imageDecoder.getMipMap(i).data[0], imageDecoder.getMipMap(i).dataSize);
+		const auto &data = imageDecoder.getMipMap(i).data[0];
+		dds.write(data.data(), data.size());
 	}
 }
 

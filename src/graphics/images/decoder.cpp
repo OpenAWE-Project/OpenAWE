@@ -24,15 +24,6 @@
 namespace Graphics {
 
 ImageDecoder::ImageDecoder(TextureType type) : _format(kRGBA8), _type(type), _compressed(false) {
-
-}
-
-ImageDecoder::~ImageDecoder() {
-	for (const auto &mipMap : _layers) {
-		for (const auto &data : mipMap.data) {
-			delete[] data;
-		}
-	}
 }
 
 size_t ImageDecoder::getNumMipMaps() const {

@@ -32,12 +32,12 @@ namespace Graphics {
 class ImageDecoder : public Common::Noncopyable {
 public:
 	struct Mipmap {
-		std::vector<byte *> data;
-		unsigned int dataSize, width, height, depth;
+		std::vector<Common::ByteBuffer> data;
+		unsigned int width, height, depth;
 	};
 
 	ImageDecoder(TextureType type = kTexture2D);
-	virtual ~ImageDecoder();
+	virtual ~ImageDecoder() = default;
 
 	size_t getNumMipMaps() const;
 	[[nodiscard]] const Mipmap & getMipMap(unsigned int layer = 0) const;

@@ -97,11 +97,10 @@ TEX::TEX(Common::ReadStream &tex) {
 			mipmap.data.resize(6);
 		else
 			mipmap.data.resize(1);
-		mipmap.dataSize = imageSize;
 
 		for (auto &datum : mipmap.data) {
-			datum = new byte[imageSize];
-			tex.read(datum, imageSize);
+			datum.resize(imageSize);
+			tex.read(datum.data(), imageSize);
 		}
 
 
