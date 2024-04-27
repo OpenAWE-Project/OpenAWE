@@ -22,6 +22,7 @@
 #define SRC_COMMON_TYPES_H
 
 #include <algorithm>
+#include <vector>
 
 #include <glm/glm.hpp>
 #include <fmt/format.h>
@@ -49,6 +50,8 @@
 typedef unsigned char byte;
 
 namespace Common {
+
+typedef std::vector<std::byte> ByteBuffer;
 
 /*!
  * \brief Util class for making non copyable
