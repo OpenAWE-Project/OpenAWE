@@ -396,6 +396,17 @@ void Texture::getParameters(
 			type = GL_UNSIGNED_BYTE;
 			break;
 
+		case kRGBA16F:
+			internalFormat = GL_RGBA16F;
+			format = GL_RGBA;
+			type = GL_HALF_FLOAT;
+			break;
+		case kRGBA32F:
+			internalFormat = GL_RGBA32F;
+			format = GL_RGBA;
+			type = GL_FLOAT;
+			break;
+
 		case kBC1:
 			format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
 			break;
