@@ -156,63 +156,65 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 		mapCoords.emplace_back(atlasPosition);
 	}
 
-	const auto vertexBuffer = GfxMan.createBuffer(
-		vertexData.getData(),
-		vertexData.getLength(),
-		kVertexBuffer
-	);
-	
-	currentIndex = _indices.size();
-	for (const auto &tilesetId: tilesetIndices) {
-		const auto tileset = tilesets[tilesetId.first];
-		const auto indices = tilesetId.second;
+	if (!terrainData.getPolygons().empty()) {
+		Common::ByteBuffer vertexDataBuffer(vertexData.getLength());
+		assert(vertexDataBuffer.size() == vertexData.getLength());
+		std::memcpy(vertexDataBuffer.data(), vertexData.getData(), vertexData.getLength());
 
-		for (const auto &index: indices) {
-			_indices.emplace_back(index);
+		const auto vertexBuffer = GfxMan.createBuffer(std::move(vertexDataBuffer), kVertexBuffer, false);
+
+		currentIndex = _indices.size();
+		for (const auto &tilesetId: tilesetIndices) {
+			const auto tileset = tilesets[tilesetId.first];
+			const auto indices = tilesetId.second;
+
+			for (const auto &index: indices) {
+				_indices.emplace_back(index);
+			}
+
+			const std::vector<Material::Uniform> materialAttributes = {
+				Material::Uniform("g_sColorMaps[0]",   localTextures[tileset.colorTiles[0]]),
+				Material::Uniform("g_sColorMaps[1]",   localTextures[tileset.colorTiles[1]]),
+				Material::Uniform("g_sColorMaps[2]",   localTextures[tileset.colorTiles[2]]),
+				Material::Uniform("g_sNormalMaps[0]",  localTextures[tileset.normalTiles[0]]),
+				Material::Uniform("g_sNormalMaps[1]",  localTextures[tileset.normalTiles[1]]),
+				Material::Uniform("g_sNormalMaps[2]",  localTextures[tileset.normalTiles[2]]),
+				Material::Uniform("g_sBlendMap",       _blendMap),
+				Material::Uniform("g_sGeoNormalMap",   _geoNormalMap),
+				Material::Uniform("g_vTexCoordScale1", glm::vec4(16.0)),
+				Material::Uniform("g_vTexCoordScale2", glm::vec4(glm::vec2(16.0), glm::vec2(_blendScale)))
+			};
+
+			const std::vector<VertexAttribute> attributes = {
+				{kPosition,  kVec3F},
+				{kNormal,    kVec3F},
+				{kTangent0,  kVec3F},
+				{kTangent1,  kVec3F},
+				{kTangent2,  kVec3F},
+				{kTexCoord0, kVec4F},
+				{kTexCoord1, kVec4F},
+			};
+
+			Mesh::PartMesh partMesh;
+
+			for (const auto &stage: {"material", "depth"}) {
+				partMesh.vertexAttributes[stage] = GfxMan.createAttributeObject(
+					"terrain", stage, 0,
+					attributes,
+					vertexBuffer
+				);
+			}
+			partMesh.renderType = Mesh::kTriangles;
+			partMesh.vertexData = vertexBuffer;
+			partMesh.material = Material("terrain", {"material", "depth"}, materialAttributes);
+			partMesh.material.setCullMode(Material::kBack);
+			partMesh.offset = currentIndex * 2;
+			partMesh.length = indices.size();
+
+			currentIndex += indices.size();
+
+			_mesh->addPartMesh(partMesh);
 		}
-
-		const std::vector<Material::Uniform> materialAttributes = {
-			Material::Uniform("g_sColorMaps[0]",   localTextures[tileset.colorTiles[0]]),
-			Material::Uniform("g_sColorMaps[1]",   localTextures[tileset.colorTiles[1]]),
-			Material::Uniform("g_sColorMaps[2]",   localTextures[tileset.colorTiles[2]]),
-			Material::Uniform("g_sNormalMaps[0]",  localTextures[tileset.normalTiles[0]]),
-			Material::Uniform("g_sNormalMaps[1]",  localTextures[tileset.normalTiles[1]]),
-			Material::Uniform("g_sNormalMaps[2]",  localTextures[tileset.normalTiles[2]]),
-			Material::Uniform("g_sBlendMap",       _blendMap),
-			Material::Uniform("g_sGeoNormalMap",   _geoNormalMap),
-			Material::Uniform("g_vTexCoordScale1", glm::vec4(16.0)),
-			Material::Uniform("g_vTexCoordScale2", glm::vec4(glm::vec2(16.0), glm::vec2(_blendScale)))
-		};
-
-		const std::vector<VertexAttribute> attributes = {
-			{kPosition,  kVec3F},
-			{kNormal,    kVec3F},
-			{kTangent0,  kVec3F},
-			{kTangent1,  kVec3F},
-			{kTangent2,  kVec3F},
-			{kTexCoord0, kVec4F},
-			{kTexCoord1, kVec4F},
-		};
-
-		Mesh::PartMesh partMesh;
-
-		for (const auto &stage: {"material", "depth"}) {
-			partMesh.vertexAttributes[stage] = GfxMan.createAttributeObject(
-				"terrain", stage, 0,
-				attributes,
-				vertexBuffer
-			);
-		}
-		partMesh.renderType = Mesh::kTriangles;
-		partMesh.vertexData = vertexBuffer;
-		partMesh.material = Material("terrain", {"material", "depth"}, materialAttributes);
-		partMesh.material.setCullMode(Material::kBack);
-		partMesh.offset = currentIndex * 2;
-		partMesh.length = indices.size();
-
-		currentIndex += indices.size();
-
-		_mesh->addPartMesh(partMesh);
 	}
 
 	for (const auto &blendMap : terrainData.getBlendMaps()) {
