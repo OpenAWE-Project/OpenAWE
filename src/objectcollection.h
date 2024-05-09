@@ -40,6 +40,8 @@ public:
 protected:
 	ObjectCollection(entt::registry &registry, entt::scheduler<double> &scheduler);
 
+	virtual void setVisible(bool visible);
+
 	void loadGIDRegistry(Common::ReadStream *stream);
 	void loadBytecode(Common::ReadStream *bytecode, Common::ReadStream *bytecodeParameters);
 

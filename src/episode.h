@@ -30,6 +30,8 @@ public:
 
 	void loadLevel(const std::string &id);
 
+	void setVisible(bool visible) override;
+
 private:
 	const std::string _id, _world;
 

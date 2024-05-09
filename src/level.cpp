@@ -150,3 +150,9 @@ std::vector<glm::u32vec2> Level::loadCellInfo(Common::ReadStream *cid) const {
 	}
 	return cell;
 }
+
+void Level::setVisible(bool visible) {
+	_terrain->setVisible(visible);
+
+	ObjectCollection::setVisible(visible);
+}

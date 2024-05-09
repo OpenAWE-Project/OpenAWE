@@ -37,8 +37,6 @@ TerrainCollision::TerrainCollision(AWE::COLLISIONSFile &collisionsFile) {
 	if (indices.empty()) {
 		shape = new btEmptyShape();
 		setCollisionShape(shape);
-
-		setActive(true);
 		return;
 	}
 
@@ -55,8 +53,6 @@ TerrainCollision::TerrainCollision(AWE::COLLISIONSFile &collisionsFile) {
 
 	shape = new btBvhTriangleMeshShape(_mesh.get(), true);
 	setCollisionShape(shape);
-
-	setActive(true);
 }
 
 }

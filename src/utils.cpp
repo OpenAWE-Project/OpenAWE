@@ -20,13 +20,22 @@
 
 #include "src/graphics/model.h"
 
+#include "src/physics/charactercontroller.h"
+
 #include "src/utils.h"
 
 void setVisible(entt::registry &registry, entt::entity entity, bool visible) {
 	Graphics::ModelPtr model = registry.get<Graphics::ModelPtr>(entity);
+	auto charCtrl = registry.try_get<Physics::CharacterControllerPtr>(entity);
+	auto collisionObject = registry.try_get<Physics::CollisionObjectPtr>(entity);
 	const auto relationship = registry.try_get<Relationship>(entity);
 
 	model->setVisible(visible);
+
+	if (collisionObject)
+		(*collisionObject)->setActive(visible);
+	if (charCtrl)
+		(*charCtrl)->setActive(visible);
 
 	// TODO: Hide more elements
 

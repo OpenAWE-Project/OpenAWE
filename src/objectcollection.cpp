@@ -59,6 +59,26 @@ ObjectCollection::~ObjectCollection() {
 	_registry.destroy(_entities.begin(), _entities.end());
 }
 
+void ObjectCollection::setVisible(bool visible) {
+	const auto &modelView = _registry.view<Graphics::ModelPtr>();
+	for (const auto &item: modelView) {
+		auto &model = _registry.get<Graphics::ModelPtr>(item);
+		model->setVisible(visible);
+	}
+
+	const auto &charControllerView = _registry.view<Physics::CharacterControllerPtr>();
+	for (const auto &item: charControllerView) {
+		auto &collisionObject = _registry.get<Physics::CharacterControllerPtr>(item);
+		collisionObject->setActive(visible);
+	}
+
+	const auto &collisionBodyView = _registry.view<Physics::CollisionObjectPtr>();
+	for (const auto &item: collisionBodyView) {
+		auto &collisionObject = _registry.get<Physics::CollisionObjectPtr>(item);
+		collisionObject->setActive(visible);
+	}
+}
+
 void ObjectCollection::loadGIDRegistry(Common::ReadStream *stream) {
 	std::unique_ptr<Common::ReadStream> gidStream(stream);
 	_gid = std::make_unique<AWE::GIDRegistryFile>(*gidStream);

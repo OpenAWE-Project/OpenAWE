@@ -139,3 +139,11 @@ Episode::Episode(entt::registry &registry, entt::scheduler<double> &scheduler, c
 void Episode::loadLevel(const std::string &id) {
 	_levels.emplace_back(std::make_unique<Level>(_registry, _scheduler, id, _world));
 }
+
+void Episode::setVisible(bool visible) {
+	for (auto &level: _levels) {
+		level->setVisible(visible);
+	}
+
+	ObjectCollection::setVisible(visible);
+}

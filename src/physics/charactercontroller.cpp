@@ -48,8 +48,6 @@ CharacterController::CharacterController(float capsuleHeight, float capsuleRadiu
 	_characterController->setFallSpeed(100.0f);
 	_characterController->setJumpSpeed(100.0f);
 	_characterController->setUseGhostSweepTest(false);
-
-	setActive(true);
 }
 
 void CharacterController::setLinearVelocity(glm::vec3 direction) {
