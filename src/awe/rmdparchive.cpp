@@ -24,6 +24,7 @@
 #include <optional>
 #include <regex>
 #include <vector>
+#include <mutex>
 
 #include <fmt/format.h>
 
@@ -175,6 +176,7 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 }
 
 Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
+	std::lock_guard<std::mutex> g(_readMutex);
 	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(rid);
 	// Extract and separate file name from the rest of the path
 	auto pathHashes = getPathHashes(path);

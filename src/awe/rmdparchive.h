@@ -24,9 +24,11 @@
 #include <vector>
 #include <memory>
 #include <optional>
+#include <mutex>
 
-#include "archive.h"
 #include "src/common/endianreadstream.h"
+
+#include "src/awe/archive.h"
 
 namespace AWE {
 
@@ -199,6 +201,12 @@ private:
 	std::vector<FileEntry> _fileEntries;
 
 	std::unique_ptr<Common::ReadStream> _rmdp;
+
+	/*
+	 * TODO: Currently the reading is critical sectioned allowing only one parallel read at a time in the archive. This
+	 * could be improved by creating and utilizing a fixed set of streams allowing parallel access to the archive
+	 */
+	mutable std::mutex _readMutex;
 };
 
 } // End of namespace AWE
