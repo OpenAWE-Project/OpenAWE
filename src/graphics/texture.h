@@ -69,6 +69,8 @@ public:
  */
 class ProxyTexture : public Texture {
 public:
+	ProxyTexture() = default;
+
 	/*!
 	 * Asssign a texture to this proxy texture
 	 * @param texture The texture
