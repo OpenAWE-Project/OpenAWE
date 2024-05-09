@@ -32,7 +32,6 @@ namespace Physics {
 
 CollisionObject::CollisionObject() : _collision(new btCollisionObject) {
 	_offset.setIdentity();
-	_collision->activate();
 }
 
 void CollisionObject::setTransform(const glm::vec3 &position, const glm::mat3 &rotation) {
@@ -47,6 +46,11 @@ void CollisionObject::setTransform(const glm::vec3 &position, const glm::mat3 &r
 }
 
 void CollisionObject::setActive(bool active) {
+	if (_active == active)
+		_active = active;
+
+	_active = active;
+
 	if (active)
 		PhysicsMan.add(_collision.get());
 	else

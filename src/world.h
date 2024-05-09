@@ -42,6 +42,8 @@ public:
 	void loadGlobal();
 	void loadEpisode(const std::string &id);
 
+	void setVisible(bool visible) override;
+
 private:
 	const std::string _name;
 	std::unique_ptr<WorldFile> _world;

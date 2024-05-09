@@ -76,6 +76,11 @@ glm::mat3 CharacterController::getRotation() {
 }
 
 void CharacterController::setActive(bool active) {
+	if (_active == active)
+		return;
+
+	_active = active;
+
 	if (active) {
 		PhysicsMan.add(
 			_ghostObject,
@@ -85,6 +90,7 @@ void CharacterController::setActive(bool active) {
 		PhysicsMan.add(_characterController);
 	} else {
 		PhysicsMan.remove(_ghostObject);
+		PhysicsMan.remove(_characterController);
 	}
 }
 

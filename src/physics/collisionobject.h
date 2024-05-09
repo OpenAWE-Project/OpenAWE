@@ -50,6 +50,8 @@ protected:
 
 	btCollisionShape &getCollisionShape();
 
+	bool _active{};
+
 private:
 	btTransform _offset;
 	std::unique_ptr<btCollisionShape> _shape;

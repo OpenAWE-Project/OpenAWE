@@ -104,3 +104,9 @@ void World::loadEpisode(const std::string &id) {
 		_currentEpisode->loadLevel(fileName);
 	}
 }
+
+void World::setVisible(bool visible) {
+	_currentEpisode->setVisible(visible);
+
+	ObjectCollection::setVisible(visible);
+}
