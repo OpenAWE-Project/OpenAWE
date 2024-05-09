@@ -111,12 +111,6 @@ LoopableStream::LoopableStream(Codecs::SeekableAudioStream *stream) :
 	_seekableStream(stream),
 	_loopStart(0),
 	_loopEnd(std::numeric_limits<size_t>::max()) {
-	setRelative(true);
-	_buffers.resize(32);
-	alGenBuffers(32, _buffers.data());
-	for (const auto &buffer: _buffers) {
-		_availableBuffers.push_back(buffer);
-	}
 }
 
 void LoopableStream::setLoopRange(unsigned int start, unsigned int end) {
