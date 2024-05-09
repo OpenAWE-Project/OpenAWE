@@ -47,6 +47,7 @@ void DebugDraw::draw3dText(const btVector3 &location, const char *textString) {
 
 void DebugDraw::setDebugMode(int debugMode) {
 	_debugMode = debugMode;
+	_lineList.setVisible(debugMode != DBG_NoDebug);
 }
 
 int DebugDraw::getDebugMode() const {
