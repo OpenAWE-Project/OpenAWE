@@ -17,7 +17,7 @@ jobs:
       matrix:
         include:
           - name: Linux GCC
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             compiler: gcc
             extra_cmake_args:
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
@@ -25,7 +25,7 @@ jobs:
               -DCMAKE_C_COMPILER=gcc \
               -DCMAKE_CXX_COMPILER=g++ \
           - name: Linux Clang
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             compiler: clang
             extra_cmake_args: |
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
@@ -56,7 +56,7 @@ jobs:
           submodules: 'true'
 
       - name: Install dependencies with APT
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
         run: |
           sudo apt-get update
           sudo apt-get -y install \
@@ -76,19 +76,8 @@ jobs:
             liblz4-dev \
             libgtest-dev \
             libboost-dev \
+            glslc \
             ccache
-
-      - name: Install glslc compiler
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: |
-          git clone https://github.com/google/shaderc shaderc
-          cd shaderc
-          ./utils/git-sync-deps
-          mkdir build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DSHADERC_SKIP_TESTS=ON -DSHADERC_SKIP_EXAMPLES=ON ..
-          make
-          sudo make install
 
       - name: Install dependencies with vcpkg
         if: ${{ matrix.os == 'windows-2019' }}
