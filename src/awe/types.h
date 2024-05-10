@@ -145,11 +145,11 @@ enum ObjectType {
 struct GIDValidator : public CLI::Validator {
 	GIDValidator() {
 		name_ = "GID";
-		func_ = [](const std::string &str) -> std::string {
+		func_ = [](const std::string &str) {
 			if (!std::regex_match(str, std::regex("\\d+:[0-9a-fA-F]{8}")))
-				return fmt::format("{} is not a valid GID");
+				return std::string("Invalid GID string");
 
-			return "";
+			return std::string();
 		};
 	}
 };
