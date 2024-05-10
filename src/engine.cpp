@@ -92,7 +92,7 @@ Configuration &Engine::getConfiguration() {
 
 void Engine::loadEpisode(const std::string &data) {
 	_doneLoading = false;
-	Threads.add([=, this](){
+	Threads.add([this, data](){
 		std::vector<std::string> parameters = Common::split(data, std::regex(" "));
 		std::vector<std::string> episode = Common::split(parameters.back(), std::regex(":"));
 
