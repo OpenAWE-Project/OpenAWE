@@ -23,8 +23,6 @@
 
 #include <deque>
 
-#include <boost/lockfree/queue.hpp>
-
 #include "src/common/types.h"
 
 namespace Graphics::OpenGL {
