@@ -33,8 +33,15 @@ typedef std::shared_ptr<Buffer> BufferPtr;
 
 class Buffer : Common::Noncopyable {
 public:
+	[[deprecated("Not thread safe, will probably reworked or removed")]]
 	virtual void read(byte *data, size_t length) = 0;
-	virtual void write(const byte *data, size_t length) = 0;
+
+	/*!
+	 * Instruct the buffer to load a buffer of data. This call is async, it is not guaranteed that the loading is done
+	 * when it returns
+	 * @param data The data to load
+	 */
+	virtual void write(Common::ByteBuffer &&data) = 0;
 };
 
 } // End of namespace Graphics

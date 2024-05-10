@@ -18,23 +18,24 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENAWE_ATTRIBUTEOBJECT_H
-#define OPENAWE_ATTRIBUTEOBJECT_H
+#ifndef OPENAWE_TASK_H
+#define OPENAWE_TASK_H
 
-#include <memory>
+#include <deque>
 
-#include "src/graphics/vertexattribute.h"
-#include "src/graphics/buffer.h"
+#include <boost/lockfree/queue.hpp>
 
-namespace Graphics {
+#include "src/common/types.h"
 
-class AttributeObject;
+namespace Graphics::OpenGL {
 
-typedef std::shared_ptr<AttributeObject> AttributeObjectPtr;
-
-class AttributeObject : Common::Noncopyable {
+struct Task : public Common::Noncopyable {
+	virtual ~Task() = default;
+	virtual void apply() = 0;
 };
 
-} // End of namespace Graphics
+typedef std::deque<std::unique_ptr<Task>> TaskQueue;
 
-#endif //OPENAWE_ATTRIBUTEOBJECT_H
+} // End of namespace Graphics::OpenGL
+
+#endif //OPENAWE_TASK_H

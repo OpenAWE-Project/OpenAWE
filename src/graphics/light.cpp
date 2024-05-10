@@ -36,16 +36,17 @@ namespace Graphics {
 Light::Light() : _label("<No Label>"), _enabled(true) {
 	auto shape = Common::generateIcoSphere(1.075, 1);
 	Common::reverseTriangles(shape);
-	_shape = GfxMan.createBuffer(
-		reinterpret_cast<const byte *>(shape.positions.data()),
-		shape.positions.size() * sizeof(glm::vec3),
-		kVertexBuffer
-	);
-	_indices = GfxMan.createBuffer(
-		reinterpret_cast<const byte *>(shape.indices.data()),
-		shape.indices.size() * sizeof(uint16_t),
-		kIndexBuffer
-	);
+
+	Common::ByteBuffer vertexData(shape.positions.size() * sizeof(glm::vec3));
+	Common::ByteBuffer indexData(shape.indices.size() * sizeof(uint16_t));
+
+	std::memcpy(vertexData.data(), shape.positions.data(), vertexData.size());
+	std::memcpy(indexData.data(), shape.indices.data(), indexData.size());
+
+	_shape = GfxMan.createBuffer(std::move(vertexData),
+								 kVertexBuffer, false);
+	_indices = GfxMan.createBuffer(std::move(indexData),
+								   kIndexBuffer, false);
 
 	_numIndices = shape.indices.size();
 

@@ -34,6 +34,7 @@
 #include "src/graphics/opengl/texture.h"
 #include "src/graphics/opengl/framebuffer.h"
 #include "src/graphics/opengl/programcollection.h"
+#include "task.h"
 
 namespace Graphics::OpenGL {
 
@@ -43,6 +44,8 @@ public:
 	~Renderer();
 
 	void drawFrame() override;
+
+	bool isLoading() const override;
 
 	TexturePtr createTexture(
             TextureType type,
@@ -108,6 +111,8 @@ private:
 	std::unique_ptr<Framebuffer> _deferredBuffer;
 
 	std::map<RenderPassId, std::unique_ptr<ProgramCollection>> _programs;
+
+	TaskQueue _loadingTasks;
 };
 
 }

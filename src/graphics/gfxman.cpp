@@ -53,6 +53,10 @@ void GraphicsManager::removeGUIElement(GUIElement *gui) {
 	_renderer->removeGUIElement(gui);
 }
 
+bool GraphicsManager::isLoading() const {
+	return _renderer->isLoading();
+}
+
 void GraphicsManager::setSky(SkyPtr sky) {
 	_renderer->setSky(sky);
 }
@@ -61,9 +65,9 @@ void GraphicsManager::addLight(Light *light) {
 	_renderer->addLight(light);
 }
 
-TexturePtr GraphicsManager::createTexture(const ImageDecoder &decoder, const std::string &label) {
+TexturePtr GraphicsManager::createTexture(ImageDecoder &&decoder, const std::string &label) {
 	TexturePtr texture = _renderer->createTexture(decoder.getType(), label);
-	texture->load(decoder);
+	texture->load(std::move(decoder));
 	return texture;
 }
 
@@ -78,9 +82,9 @@ TexturePtr GraphicsManager::createEmptyTexture2D(TextureFormat format, unsigned 
 	return texture;
 }
 
-BufferPtr GraphicsManager::createBuffer(const byte *data, size_t length, BufferType type, bool modifiable) {
+BufferPtr GraphicsManager::createBuffer(Common::ByteBuffer &&data, BufferType type, bool modifiable) {
 	BufferPtr buffer = _renderer->createBuffer(type, modifiable);
-	buffer->write(data, length);
+	buffer->write(std::move(data));
 	return buffer;
 }
 

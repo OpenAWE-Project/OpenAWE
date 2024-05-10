@@ -23,16 +23,77 @@
 #include <iostream>
 #include <assert.h>
 
-#include "vbo.h"
+#include <spdlog/spdlog.h>
+
+#include "src/graphics/opengl/vbo.h"
+#include "src/graphics/opengl/task.h"
 
 namespace Graphics::OpenGL {
 
-VBO::VBO(GLenum type, GLenum usage) : _id(0), _type(type), _usage(usage) {
-	glGenBuffers(1, &_id);
+class BufferTask : public Task {
+public:
+	BufferTask(GLuint &id, GLuint type) : _id(id), _type(type) {}
+
+	void apply() override {
+		glBindBuffer(_type, _id);
+	}
+
+protected:
+	GLuint &_id;
+	const GLuint _type;
+};
+
+class BufferCreationTask : public BufferTask {
+public:
+	BufferCreationTask(GLuint &id, GLuint type) : BufferTask(id, type) {}
+
+	void apply() override {
+		glGenBuffers(1, &_id);
+	}
+};
+
+class BufferDeletionTask : public BufferTask {
+public:
+	BufferDeletionTask(GLuint &id, GLuint type) : BufferTask(id, type) {}
+
+	void apply() override {
+		glDeleteBuffers(1, &_id);
+	}
+};
+
+class BufferDataTask : public BufferTask {
+public:
+	BufferDataTask(
+			GLuint &id,
+			GLuint type,
+			GLuint usage,
+			Common::ByteBuffer &&data
+	)
+	: BufferTask(id, type)
+	, _usage(usage)
+	, _data(std::move(data)), _s(_data.size()) {}
+
+	void apply() override {
+		BufferTask::apply();
+
+		assert(_data.size() == _s);
+		glBufferData(_type, _data.size(), _data.data(), _usage);
+		assert(GL_NO_ERROR == glGetError());
+	}
+
+private:
+	const GLuint _usage;
+	const Common::ByteBuffer _data;
+	const size_t _s;
+};
+
+
+VBO::VBO(TaskQueue &tasks, GLenum type, GLenum usage) : _tasks(tasks), _id(0), _type(type), _usage(usage) {
+	_tasks.emplace_back(std::make_unique<BufferCreationTask>(_id, _type));
 }
 
 VBO::~VBO() {
-	glDeleteBuffers(1, &_id);
+	_tasks.emplace_back(std::make_unique<BufferDeletionTask>(_id, _type));
 }
 
 void VBO::bufferData(byte *data, size_t length) {
@@ -68,12 +129,9 @@ void VBO::read(byte *data, size_t length) {
 	glUnmapBuffer(_type);
 }
 
-void VBO::write(const byte *data, size_t length) {
+void VBO::write(Common::ByteBuffer &&data) {
 	bind();
-	if (length != getBufferSize())
-		glBufferData(_type, length, data, _usage);
-	else
-		glBufferSubData(_type, 0, length, data);
+	_tasks.emplace_back(std::make_unique<BufferDataTask>(_id, _type, _usage, std::move(data)));
 }
 
 }

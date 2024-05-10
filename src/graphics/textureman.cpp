@@ -54,7 +54,7 @@ TexturePtr TextureManager::getTexture(const std::string &path) {
 	_textures.insert(std::make_pair(
             path,
             GfxMan.createTexture(
-                *decoder,
+                std::move(*decoder),
                 std::filesystem::path(path).stem().string()
             )
     ));

@@ -41,22 +41,22 @@ FullScreenPlane::FullScreenPlane() {
 		0, 2, 3
 	};
 
+	Common::ByteBuffer vertexBuffer(16 * sizeof(float));
+	Common::ByteBuffer indexBuffer(6 * sizeof(uint16_t));
+
+	std::memcpy(vertexBuffer.data(), planeVertices, 16 * sizeof(float));
+	std::memcpy(indexBuffer.data(), planeIndices, 6 * sizeof(uint16_t));
+
 	part.position = glm::zero<glm::vec2>();
 	part.absoluteSize = glm::zero<glm::vec2>();
 	part.relativeSize = glm::one<glm::vec2>();
 	part.indicesOffset = 0;
 	part.verticesOffset = 0;
 	part.indicesCount = 6;
-	part.vertices = GfxMan.createBuffer(
-		(byte *)&planeVertices,
-		16 * sizeof(float),
-		kVertexBuffer
-	);
-	part.indices = GfxMan.createBuffer(
-		(byte *)&planeIndices,
-		6 * sizeof(uint16_t),
-		kIndexBuffer
-	);
+	part.vertices = GfxMan.createBuffer(std::move(vertexBuffer),
+										kVertexBuffer, false);
+	part.indices = GfxMan.createBuffer(std::move(indexBuffer),
+									   kIndexBuffer, false);
 
 	std::vector<VertexAttribute> attributes = {
 		{kPosition,  kVec2F},

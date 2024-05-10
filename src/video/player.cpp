@@ -189,7 +189,7 @@ void Player::prepareTextures() {
 		std::shared_ptr<Graphics::Surface> frameSurface = _preparedSurfaces.front();
 		_preparedSurfaces.pop_front();
 
-		frameTexture->load(*frameSurface);
+		frameTexture->load(std::move(*frameSurface));
 		_preparedTextures.push_back(frameTexture);
 		_availableSurfaces.push_back(frameSurface);
 	}

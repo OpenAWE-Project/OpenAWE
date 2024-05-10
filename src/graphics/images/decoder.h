@@ -29,7 +29,7 @@
 
 namespace Graphics {
 
-class ImageDecoder : public Common::Noncopyable {
+class ImageDecoder {
 public:
 	struct Mipmap {
 		std::vector<Common::ByteBuffer> data;

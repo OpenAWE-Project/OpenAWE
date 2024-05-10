@@ -41,6 +41,7 @@
 
 #include "src/awe/resman.h"
 #include "src/awe/objfile.h"
+#include "src/awe/hg.h"
 
 #include "src/graphics/shaderconverter.h"
 #include "src/graphics/skeleton.h"
@@ -53,9 +54,8 @@
 namespace Graphics::OpenGL {
 
 Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory) :
-	_window(window),
-	_shaderDirectory(shaderDirectory)
-{
+		_window(window),
+		_shaderDirectory(shaderDirectory) {
 	_window.makeCurrent();
 
 	// Initialize GLEW
@@ -73,10 +73,10 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	// Dump OpenGL Information
 	//
 
-	const std::string vendor       = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-	const std::string renderer     = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-	const std::string version      = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-	const std::string glslVersion  = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+	const std::string vendor      = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+	const std::string renderer    = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+	const std::string version     = reinterpret_cast<const char *>(glGetString(GL_VERSION));
+	const std::string glslVersion = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
 	spdlog::info("OpenGL Vendor: {}", vendor);
 	spdlog::info("OpenGL Renderer: {}", renderer);
 	spdlog::info("OpenGL Version: {}", version);
@@ -188,9 +188,10 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 
 	// Initialize deferred shading
 	//
-	_depthTexture = std::make_unique<Texture>(width, height, "depth_buffer");
-	_normalTexture = std::make_unique<Texture>(width, height, "normal_buffer");
-	_depthstencilBuffer = std::make_unique<Renderbuffer>(width, height, GL_DEPTH24_STENCIL8, "depthstencil_renderbuffer");
+	_depthTexture = std::make_unique<Texture>(_loadingTasks, width, height, kRGBA16F, "depth_buffer");
+	_normalTexture = std::make_unique<Texture>(_loadingTasks, width, height, kRGBA16F, "normal_buffer");
+	_depthstencilBuffer = std::make_unique<Renderbuffer>(width, height, GL_DEPTH24_STENCIL8,
+														 "depthstencil_renderbuffer");
 
 	_deferredBuffer = std::make_unique<Framebuffer>("Deferred Buffer");
 	_deferredBuffer->setClearColor({0.0f, 0.0f, 0.0f, 0.0f});
@@ -201,7 +202,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	_deferredBuffer->attachTexture(*_depthTexture, GL_COLOR_ATTACHMENT0);
 	_deferredBuffer->attachTexture(*_normalTexture, GL_COLOR_ATTACHMENT1);
 
-	_lightBufferTexture = std::make_unique<Texture>(width, height, "light_buffer");
+	_lightBufferTexture = std::make_unique<Texture>(_loadingTasks, width, height, kRGBA16F, "light_buffer");
 
 	_lightBuffer = std::make_unique<Framebuffer>("Light Buffer");
 	_lightBuffer->setClearColor({0.0f, 0.0f, 0.0f, 0.0f});
@@ -213,13 +214,20 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Check for errors
-    assert(glGetError() == GL_NO_ERROR);
+	assert(glGetError() == GL_NO_ERROR);
 }
 
 Renderer::~Renderer() {
 }
 
 void Renderer::drawFrame() {
+	// Loading
+	while (!_loadingTasks.empty()) {
+		auto &task = _loadingTasks.front();
+		task->apply();
+		_loadingTasks.pop_front();
+	}
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	_deferredBuffer->bind();
@@ -253,16 +261,21 @@ void Renderer::drawWorld(const std::string &stage) {
 
 	bool wireframe = false;
 	Material::CullMode cullMode = Material::kNone;
-	
+
 	pushDebug(fmt::format("Draw stage {}", stage));
 
 	for (const auto &pass: _renderPasses) {
 		if (pass.renderTasks.empty())
 			continue;
 
+		if (pass.id.programName == "terrain")
+			int i = 0;
+
 		pushDebug(fmt::format("Pass {} {:0<8x}", pass.id.programName, pass.id.properties));
 
-		ProgramPtr currentShader = (!hasProgram(pass.id.programName, stage, pass.id.properties)) ? defaultShader : getProgram(pass.id.programName, stage, pass.id.properties);
+		ProgramPtr currentShader = (!hasProgram(pass.id.programName, stage, pass.id.properties)) ? defaultShader
+																								 : getProgram(
+						pass.id.programName, stage, pass.id.properties);
 		currentShader->bind();
 
 		const std::optional<GLint> localToView = currentShader->getUniformLocation("g_mLocalToView");
@@ -302,8 +315,8 @@ void Renderer::drawWorld(const std::string &stage) {
 					continue;
 			}
 
-            if (task.partMeshsToRender.empty())
-                continue;
+			if (task.partMeshsToRender.empty())
+				continue;
 
 			pushDebug(task.model->getLabel());
 
@@ -335,14 +348,14 @@ void Renderer::drawWorld(const std::string &stage) {
 				applyUniforms(currentShader, partmesh.material.getUniforms(stage), textureSlot);
 
 				const auto uniforms = task.model->getUniforms(
-					stage,
-					pass.id.programName,
-					pass.id.properties
+						stage,
+						pass.id.programName,
+						pass.id.properties
 				);
 				applyUniforms(currentShader, uniforms, textureSlot);
 
 				if (task.model->hasSkeleton() && skinningMatrices) {
-					const auto matrices =	task.model->getSkeleton().getSkinningMatrices(partmesh.boneMap);
+					const auto matrices = task.model->getSkeleton().getSkinningMatrices(partmesh.boneMap);
 					currentShader->setUniformMatrix4x3fArray(*skinningMatrices, matrices);
 				} else if (skinningMatrices) {
 					currentShader->setUniformMatrix4x3fArray(*skinningMatrices, placeholderMatrices);
@@ -449,7 +462,7 @@ void Renderer::drawWorld(const std::string &stage) {
 void Renderer::drawLights() {
 	pushDebug("Draw Lights");
 
-	auto stencilProgram    = getProgram("deferredlight", "render_stencil", 0);
+	auto stencilProgram = getProgram("deferredlight", "render_stencil", 0);
 	auto pointlightProgram = getProgram("deferredlight", "pointlight", 0);
 
 	const glm::mat4 vp = _projection * _view;
@@ -468,16 +481,16 @@ void Renderer::drawLights() {
 
 	glEnable(GL_STENCIL_TEST);
 	glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 
 	for (const auto &light: _lights) {
 		if (!light->isEnabled())
 			continue;
 
-		if (!_frustrum.test(Common::BoundSphere {mirrorZ * light->getTransform()[3], light->getRange() * 1.075f}))
+		if (!_frustrum.test(Common::BoundSphere{mirrorZ * light->getTransform()[3], light->getRange() * 1.075f}))
 			continue;
 
-        pushDebug(light->getLabel());
+		pushDebug(light->getLabel());
 
 		glClear(GL_STENCIL_BUFFER_BIT);
 
@@ -498,10 +511,10 @@ void Renderer::drawLights() {
 		stencilProgram->setUniformMatrix4f(localToClipStencilIndex, vp * mirrorZ * light->getTransform());
 
 		glDrawElements(
-			GL_TRIANGLES,
-			light->getNumIndices(),
-			GL_UNSIGNED_SHORT,
-			reinterpret_cast<void*>(0)
+				GL_TRIANGLES,
+				light->getNumIndices(),
+				GL_UNSIGNED_SHORT,
+				reinterpret_cast<void *>(0)
 		);
 
 
@@ -535,18 +548,18 @@ void Renderer::drawLights() {
 		pointlightProgram->setUniform4f(lightFalloffIndex, light->getFalloff());
 
 		glDrawElements(
-			GL_TRIANGLES,
-			light->getNumIndices(),
-			GL_UNSIGNED_SHORT,
-			reinterpret_cast<void*>(0)
+				GL_TRIANGLES,
+				light->getNumIndices(),
+				GL_UNSIGNED_SHORT,
+				reinterpret_cast<void *>(0)
 		);
 
-        popDebug();
+		popDebug();
 	}
 
 	glDisable(GL_STENCIL_TEST);
 	glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 
 	popDebug(); // Pop Draw Lights message
 }
@@ -560,24 +573,23 @@ void Renderer::drawGUI() {
 	program->bind();
 
 	const GLint locationTexture = *program->getUniformLocation("g_sTexture");
-	const GLint locationMVP     = *program->getUniformLocation("g_mMVP");
+	const GLint locationMVP = *program->getUniformLocation("g_mMVP");
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 
-	for (const auto &element : _guiElements) {
+	for (const auto &element: _guiElements) {
 		glm::mat4 m = glm::translate(glm::vec3(
-			element->getAbsolutePosition() +
-			element->getRelativePosition() * glm::vec2(1920.0, 1080.0),
-			0.0f
+				element->getAbsolutePosition() +
+				element->getRelativePosition() * glm::vec2(1920.0, 1080.0),
+				0.0f
 		));
 		std::static_pointer_cast<Graphics::OpenGL::VAO>(element->getVertexAttributes())->bind();
 
-		for (const auto &part : element->getParts()) {
+		for (const auto &part: element->getParts()) {
 			glm::mat4 m2 = m *
-				glm::scale(glm::vec3(part.absoluteSize + part.relativeSize * glm::vec2(1920, 1080), 1.0f)) *
-				glm::translate(glm::vec3(part.position, 1.0f))
-			;
+						   glm::scale(glm::vec3(part.absoluteSize + part.relativeSize * glm::vec2(1920, 1080), 1.0f)) *
+						   glm::translate(glm::vec3(part.position, 1.0f));
 			std::static_pointer_cast<Graphics::OpenGL::VBO>(part.indices)->bind();
 
 			glActiveTexture(getTextureSlot(0));
@@ -589,7 +601,7 @@ void Renderer::drawGUI() {
 					GL_TRIANGLES,
 					part.indicesCount,
 					GL_UNSIGNED_SHORT,
-					reinterpret_cast<void*>(part.indicesOffset),
+					reinterpret_cast<void *>(part.indicesOffset),
 					part.verticesOffset
 			);
 		}
@@ -601,8 +613,8 @@ void Renderer::drawGUI() {
 }
 
 void Renderer::drawSky() {
-	if (!_sky)
-		return;
+	//if (!_sky)
+	return;
 
 	pushDebug("Draw Sky");
 
@@ -619,11 +631,11 @@ void Renderer::drawSky() {
 	auto skyProgram = getProgram("sky", "night_sky", 0);
 	skyProgram->bind();
 
-	const auto viewToClip  = skyProgram->getUniformLocation("g_mViewToClip");
+	const auto viewToClip = skyProgram->getUniformLocation("g_mViewToClip");
 	const auto worldToView = skyProgram->getUniformLocation("g_mWorldToView");
 	const auto viewToWorld = skyProgram->getUniformLocation("g_mViewToWorld");
 	const auto clipToWorld = skyProgram->getUniformLocation("g_mClipToWorld");
-	const auto screenRes   = skyProgram->getUniformLocation("g_vScreenRes");
+	const auto screenRes = skyProgram->getUniformLocation("g_vScreenRes");
 
 	const auto noiseMap = skyProgram->getUniformLocation("g_sNoiseMap");
 	const auto stereoBuffer = skyProgram->getUniformLocation("g_sStereoBuffer");
@@ -719,36 +731,66 @@ bool Renderer::hasProgram(const std::string &name, const std::string &stage, uin
 GLenum Renderer::getTextureSlot(unsigned int slot) {
 	switch (slot % 32) {
 		default:
-		case 0: return GL_TEXTURE0;
-		case 1: return GL_TEXTURE1;
-		case 2: return GL_TEXTURE2;
-		case 3: return GL_TEXTURE3;
-		case 4: return GL_TEXTURE4;
-		case 5: return GL_TEXTURE5;
-		case 6: return GL_TEXTURE6;
-		case 7: return GL_TEXTURE7;
-		case 8: return GL_TEXTURE8;
-		case 9: return GL_TEXTURE9;
-		case 10: return GL_TEXTURE10;
-		case 11: return GL_TEXTURE11;
-		case 12: return GL_TEXTURE12;
-		case 13: return GL_TEXTURE13;
-		case 14: return GL_TEXTURE14;
-		case 17: return GL_TEXTURE17;
-		case 18: return GL_TEXTURE18;
-		case 19: return GL_TEXTURE19;
-		case 20: return GL_TEXTURE20;
-		case 21: return GL_TEXTURE21;
-		case 22: return GL_TEXTURE22;
-		case 23: return GL_TEXTURE23;
-		case 24: return GL_TEXTURE24;
-		case 25: return GL_TEXTURE25;
-		case 26: return GL_TEXTURE26;
-		case 27: return GL_TEXTURE27;
-		case 28: return GL_TEXTURE28;
-		case 29: return GL_TEXTURE29;
-		case 30: return GL_TEXTURE30;
-		case 31: return GL_TEXTURE31;
+		case 0:
+			return GL_TEXTURE0;
+		case 1:
+			return GL_TEXTURE1;
+		case 2:
+			return GL_TEXTURE2;
+		case 3:
+			return GL_TEXTURE3;
+		case 4:
+			return GL_TEXTURE4;
+		case 5:
+			return GL_TEXTURE5;
+		case 6:
+			return GL_TEXTURE6;
+		case 7:
+			return GL_TEXTURE7;
+		case 8:
+			return GL_TEXTURE8;
+		case 9:
+			return GL_TEXTURE9;
+		case 10:
+			return GL_TEXTURE10;
+		case 11:
+			return GL_TEXTURE11;
+		case 12:
+			return GL_TEXTURE12;
+		case 13:
+			return GL_TEXTURE13;
+		case 14:
+			return GL_TEXTURE14;
+		case 17:
+			return GL_TEXTURE17;
+		case 18:
+			return GL_TEXTURE18;
+		case 19:
+			return GL_TEXTURE19;
+		case 20:
+			return GL_TEXTURE20;
+		case 21:
+			return GL_TEXTURE21;
+		case 22:
+			return GL_TEXTURE22;
+		case 23:
+			return GL_TEXTURE23;
+		case 24:
+			return GL_TEXTURE24;
+		case 25:
+			return GL_TEXTURE25;
+		case 26:
+			return GL_TEXTURE26;
+		case 27:
+			return GL_TEXTURE27;
+		case 28:
+			return GL_TEXTURE28;
+		case 29:
+			return GL_TEXTURE29;
+		case 30:
+			return GL_TEXTURE30;
+		case 31:
+			return GL_TEXTURE31;
 	}
 }
 
@@ -773,7 +815,7 @@ void Renderer::debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenu
 				case GL_DEBUG_SEVERITY_MEDIUM:
 					spdlog::debug(msg);
 					break;
-                default:
+				default:
 				case GL_DEBUG_SEVERITY_LOW:
 					spdlog::trace(msg);
 					break;
@@ -802,7 +844,7 @@ TexturePtr Renderer::createTexture(TextureType type, const std::string &label) {
 			throw Common::Exception("Invalid texture type");
 	}
 
-	return std::make_shared<Graphics::OpenGL::Texture>(texType, label);
+	return std::make_shared<Graphics::OpenGL::Texture>(_loadingTasks, texType, label);
 }
 
 BufferPtr Renderer::createBuffer(BufferType type, bool modifiable) {
@@ -829,7 +871,7 @@ BufferPtr Renderer::createBuffer(BufferType type, bool modifiable) {
 		usage = GL_STATIC_DRAW;
 	}
 
-	return std::make_shared<Graphics::OpenGL::VBO>(bufferType, usage);
+	return std::make_shared<Graphics::OpenGL::VBO>(_loadingTasks, bufferType, usage);
 }
 
 int Renderer::getUniformIndex(const std::string &shaderName, const std::string &stage, uint32_t properties,
@@ -846,138 +888,29 @@ int Renderer::getUniformIndex(const std::string &shaderName, const std::string &
 
 AttributeObjectPtr
 Renderer::createAttributeObject(
-	const std::string &shader,
-	const std::string &stage,
-	uint32_t properties,
-	const std::vector<VertexAttribute> &vertexAttributes,
-	BufferPtr vertexData,
-	unsigned int offset,
-	const std::string &label
+		const std::string &shader,
+		const std::string &stage,
+		uint32_t properties,
+		const std::vector<VertexAttribute> &vertexAttributes,
+		BufferPtr vertexData,
+		unsigned int offset,
+		const std::string &label
 ) {
-	auto vao = std::make_unique<VAO>(label);
-	vao->bind();
-	std::static_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
+	auto vao = std::make_unique<VAO>(_loadingTasks, label);
 
 	std::string shaderName = shader;
 	if (!hasProgram(shaderName, stage, properties))
 		shaderName = "standardmaterial";
 
 	ProgramPtr program = getProgram(shaderName, stage, properties);
-	program->bind();
 
-	// Calculate the size of the vertex element.
-	GLuint stride = 0;
-	for (const auto &attribute : vertexAttributes) {
-		switch (attribute.dataType) {
-			case kUByte:
-				stride += 1;
-				break;
-			case kVec4BF:
-			case kVec4BI:
-			case kVec2S:
-				stride += 4;
-				break;
-			case kVec4S:
-			case kVec2F:
-				stride += 8;
-				break;
-			case kVec3F:
-				stride += 12;
-				break;
-			case kVec4F:
-				stride += 16;
-				break;
-			default:
-				throw CreateException("Invalid vertex attribute type");
-		}
-	}
-
-	GLuint localOffset = 0;
-	for (unsigned int i = 0; i < vertexAttributes.size(); ++i) {
-		const auto vertexAttribute = vertexAttributes[i];
-		bool integer = false;
-		GLuint size = 0, totalSize = 0;
-		GLenum type = 0;
-
-		switch (vertexAttribute.dataType) {
-			case kVec2F:
-				type = GL_FLOAT;
-				size = 2;
-				totalSize = 8;
-				break;
-			case kVec3F:
-				type = GL_FLOAT;
-				size = 3;
-				totalSize = 12;
-				break;
-			case kVec4F:
-				type = GL_FLOAT;
-				size = 4;
-				totalSize = 16;
-				break;
-			case kVec2S:
-				type = GL_SHORT;
-				size = 2;
-				totalSize = 4;
-				break;
-			case kVec4S:
-				type = GL_SHORT;
-				size = 4;
-				totalSize = 8;
-				break;
-			case kVec4BI:
-				integer = true;
-				[[fallthrough]];
-			case kVec4BF:
-				type = GL_UNSIGNED_BYTE;
-				size = 4;
-				totalSize = 4;
-				break;
-			case kUByte:
-				type = GL_UNSIGNED_BYTE;
-				size = 1;
-				totalSize = 1;
-				integer = true;
-				break;
-			default:
-				throw CreateException("Invalid vertex attribute type");
-		}
-
-		const auto index = program->getAttributeLocation(vertexAttribute.component);
-		if (index) {
-			glEnableVertexAttribArray(*index);
-			if (integer) {
-				glVertexAttribIPointer(
-						*index,
-						size,
-						type,
-						stride,
-						reinterpret_cast<const void *>(localOffset + offset)
-				);
-			} else {
-				glVertexAttribPointer(
-						*index,
-						size,
-						type,
-						GL_FALSE,
-						stride,
-						reinterpret_cast<const void *>(localOffset + offset)
-				);
-			}
-		}
-
-		localOffset += totalSize;
-	}
-
-	program->validate();
-
-	glBindVertexArray(0);
+	vao->applyAttributes(program, vertexAttributes, vertexData, offset);
 
 	return vao;
 }
 
 void Renderer::applyUniforms(ProgramPtr &program, std::vector<Material::Uniform> uniforms, GLuint &textureSlot) {
-	for (const auto &attribute : uniforms) {
+	for (const auto &attribute: uniforms) {
 		switch (attribute.type) {
 			case Material::kFloat: {
 				float value = std::get<float>(attribute.data);
@@ -1042,7 +975,7 @@ void Renderer::rebuildShaders() {
 	_programs.clear();
 
 	const std::regex objFile("^[a-z0-9]+\\.obj$");
-	for (const auto &item : std::filesystem::directory_iterator(_shaderDirectory)) {
+	for (const auto &item: std::filesystem::directory_iterator(_shaderDirectory)) {
 		const std::string filename = item.path().filename().string();
 		if (!item.is_regular_file())
 			continue;
@@ -1055,7 +988,7 @@ void Renderer::rebuildShaders() {
 
 		spdlog::info("Loading shader archive {}", filename);
 
-		for (auto &program : obj.getPrograms()) {
+		for (auto &program: obj.getPrograms()) {
 			spdlog::info("Loading shader progran {}", program.name);
 			const auto &vertexShaderStream = *program.shaders.front().vertexShader;
 			const auto &pixelShaderStream = *program.shaders.front().pixelShader;
@@ -1064,23 +997,23 @@ void Renderer::rebuildShaders() {
 				continue;
 
 			const auto identifier = fmt::format(
-				"{}-{}-0x{:0>8x}",
-				obj.getName(),
-				program.name,
-				program.shaders.front().flags
+					"{}-{}-0x{:0>8x}",
+					obj.getName(),
+					program.name,
+					program.shaders.front().flags
 			);
 
 			Graphics::ShaderConverter vertexConverter(*program.shaders.front().vertexShader);
 			Graphics::ShaderConverter pixelConverter(*program.shaders.front().pixelShader);
-			ShaderPtr vertexShader   = Shader::fromGLSL(
-				GL_VERTEX_SHADER,
-				vertexConverter.convertToGLSL(),
-				fmt::format("{}-vert", identifier)
+			ShaderPtr vertexShader = Shader::fromGLSL(
+					GL_VERTEX_SHADER,
+					vertexConverter.convertToGLSL(),
+					fmt::format("{}-vert", identifier)
 			);
 			ShaderPtr fragmentShader = Shader::fromGLSL(
-				GL_FRAGMENT_SHADER,
-				pixelConverter.convertToGLSL(),
-				fmt::format("{}-frag", identifier)
+					GL_FRAGMENT_SHADER,
+					pixelConverter.convertToGLSL(),
+					fmt::format("{}-frag", identifier)
 			);
 
 			auto p = std::make_unique<ConvertedProgram>(identifier);
@@ -1097,8 +1030,8 @@ void Renderer::rebuildShaders() {
 				_programs[passId] = std::make_unique<ProgramCollection>();
 
 			_programs[passId]->setProgram(
-				program.name,
-				std::move(p)
+					program.name,
+					std::move(p)
 			);
 		}
 	}
@@ -1107,7 +1040,7 @@ void Renderer::rebuildShaders() {
 	const std::regex shaderFile("^[a-z]+-[a-z\\_]+-0x[0-9a-c]+\\.(vert|frag|tesc|tese)\\.(glsl|spv)$");
 	std::map<std::tuple<std::string, std::string, uint32_t>, ProgramPtr> programs;
 	std::vector<ShaderPtr> shaders;
-	for (const auto &item : std::filesystem::directory_iterator(_shaderDirectory)) {
+	for (const auto &item: std::filesystem::directory_iterator(_shaderDirectory)) {
 		std::string filename = item.path().filename().string();
 
 		if (!std::regex_match(filename, shaderFile))
@@ -1167,17 +1100,21 @@ void Renderer::rebuildShaders() {
 		_programs[id]->setProgram(stage, program.second);
 	}
 
-	for (auto &item : _programs) {
+	for (auto &item: _programs) {
 		// If this render pass name already exists, skip it
 		if (std::find_if(
 				_renderPasses.begin(),
 				_renderPasses.end(),
-				[&](const auto &v){ return v.id == item.first; })
+				[&](const auto &v) { return v.id == item.first; })
 			!= _renderPasses.end()
 				)
 			continue;
 		_renderPasses.emplace_back(RenderPass(item.first.programName, item.first.properties));
 	}
+}
+
+bool Renderer::isLoading() const {
+	return !_loadingTasks.empty();
 }
 
 }

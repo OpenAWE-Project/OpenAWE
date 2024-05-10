@@ -33,15 +33,15 @@ BINFNTFont::BINFNTFont(Common::ReadStream &binfnt) {
 		throw std::runtime_error("Invalid binfnt version");
 
 	uint32_t numVertices = binfnt.readUint32LE();
-	byte *data = new byte[numVertices * 4 * 4];
-	binfnt.read(data, numVertices * 4 * 4);
+	Common::ByteBuffer verticesData(numVertices * 4 * 4);
+	binfnt.read(verticesData.data(), numVertices * 4 * 4);
 
 	uint32_t numIndices = binfnt.readUint32LE();
-	byte *indicesData = new byte [numIndices * 2];
-	binfnt.read(indicesData, numIndices * 2);
+	Common::ByteBuffer indicesData(numIndices * 2);
+	binfnt.read(indicesData.data(), numIndices * 2);
 
-	_vertices = GfxMan.createBuffer(data, numVertices * 4 * 4, kVertexBuffer);
-	_indices = GfxMan.createBuffer(indicesData, numIndices * 2, kIndexBuffer);
+	_vertices = GfxMan.createBuffer(std::move(verticesData), kVertexBuffer, false);
+	_indices = GfxMan.createBuffer(std::move(indicesData), kIndexBuffer, false);
 
 	std::vector<VertexAttribute> attributes = {
 			{kPosition,  kVec2F},
@@ -54,9 +54,6 @@ BINFNTFont::BINFNTFont(Common::ReadStream &binfnt) {
 		attributes,
 		_vertices
 	);
-
-	delete [] data;
-	delete [] indicesData;
 
 	const uint32_t numGlyphs = binfnt.readUint32LE();
 	std::queue<Glyph> glyphs;
@@ -87,7 +84,7 @@ BINFNTFont::BINFNTFont(Common::ReadStream &binfnt) {
 	std::unique_ptr<Common::ReadStream> textureStream = std::unique_ptr<Common::ReadStream>(binfnt.readStream(textureSize));
 
 	DDS dds(textureStream.get());
-	_texture = GfxMan.createTexture(dds);
+	_texture = GfxMan.createTexture(std::move(dds));
 }
 
 BINFNTFont::~BINFNTFont() {

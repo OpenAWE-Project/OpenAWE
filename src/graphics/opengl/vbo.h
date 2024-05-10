@@ -25,6 +25,7 @@
 
 #include "src/graphics/buffer.h"
 #include "src/graphics/opengl/opengl.h"
+#include "src/graphics/opengl/task.h"
 
 namespace Graphics::OpenGL {
 
@@ -36,7 +37,7 @@ namespace Graphics::OpenGL {
  */
 class VBO : public Buffer {
 public:
-	VBO(GLenum type, GLenum usage);
+	VBO(TaskQueue &tasks, GLenum type, GLenum usage);
 	~VBO();
 
 	void bufferData(byte *data, size_t length);
@@ -49,9 +50,10 @@ public:
 	unsigned int getBufferSize() const;
 
 	void read(byte *data, size_t length) override;
-	void write(const byte *data, size_t length) override;
+	void write(Common::ByteBuffer &&data) override;
 
 private:
+	TaskQueue &_tasks;
 	GLuint _id;
 	GLenum _type;
 	GLenum _usage;

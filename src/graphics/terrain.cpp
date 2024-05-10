@@ -231,7 +231,7 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 			blendMap.data.data(),
 			blendMap.data.size() * sizeof(uint16_t)
 		);
-		_blendMap->load(xoffset, yoffset, blendSurface);
+		_blendMap->load(xoffset, yoffset, std::move(blendSurface));
 	}
 
 	for (const auto &geonormalMap: terrainData.getGeonormalMaps()) {
@@ -248,7 +248,7 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 				geonormalMap.data.data(),
 				geonormalMap.data.size() * sizeof(uint16_t)
 		);
-		_geoNormalMap->load(xoffset, yoffset, blendSurface);
+		_geoNormalMap->load(xoffset, yoffset, std::move(blendSurface));
 	}
 }
 
@@ -258,11 +258,15 @@ void Terrain::finalize() {
 	for (const auto &index: _indices) {
 		indexData.writeUint16LE(index);
 	}
-	
+
+	Common::ByteBuffer indexDataBuffer(indexData.getLength());
+	std::memcpy(indexDataBuffer.data(), indexData.getData(), indexData.getLength());
+
+	spdlog::info("Terrain index loading");
 	const auto indexBuffer = GfxMan.createBuffer(
-		indexData.getData(),
-		indexData.getLength(),
-		kIndexBuffer
+		std::move(indexDataBuffer),
+		kIndexBuffer,
+		false
 	);
 
 	_mesh->setIndices(indexBuffer);

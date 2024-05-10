@@ -35,12 +35,12 @@ void ProxyTexture::allocate(TextureFormat textureFormat, unsigned int width, uns
 	_texture->allocate(textureFormat, width, height);
 }
 
-void ProxyTexture::load(unsigned int xoffset, unsigned int yoffset, const ImageDecoder &decoder) {
-	_texture->load(xoffset, yoffset, decoder);
+void ProxyTexture::load(unsigned int xoffset, unsigned int yoffset, ImageDecoder &&decoder) {
+	_texture->load(xoffset, yoffset, std::move(decoder));
 }
 
-void ProxyTexture::load(const ImageDecoder &decoder) {
-	_texture->load(decoder);
+void ProxyTexture::load(ImageDecoder &&decoder) {
+	_texture->load(std::move(decoder));
 }
 
 void ProxyTexture::assign(TexturePtr texture) {

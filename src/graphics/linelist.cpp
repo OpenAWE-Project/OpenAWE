@@ -74,8 +74,11 @@ void LineList::flush() {
 		lineData.push_back(line.color);
 	}
 
+	Common::ByteBuffer data(lineData.size() * sizeof(glm::vec3));
+	std::memcpy(data.data(), lineData.data(), lineData.size() * sizeof(glm::vec3));
+
 	_mesh->setPartMeshSize(0, _lines.size() * 2);
-	_buffer->write(reinterpret_cast<byte *>(lineData.data()), lineData.size() * sizeof(glm::vec3));
+	_buffer->write(std::move(data));
 }
 
 void LineList::addLine(glm::vec3 from, glm::vec3 to, glm::vec3 color) {

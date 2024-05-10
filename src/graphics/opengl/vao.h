@@ -25,17 +25,22 @@
 
 #include "src/graphics/attributeobject.h"
 #include "src/graphics/opengl/opengl.h"
+#include "src/graphics/opengl/task.h"
 
 namespace Graphics::OpenGL {
 
 class VAO : public AttributeObject {
 public:
-	VAO(const std::string &label = "");
+	VAO(TaskQueue &queue, const std::string &label = "");
 	~VAO();
 
 	void bind();
 
+	void applyAttributes(ProgramPtr program, const std::vector<VertexAttribute> &vertexAttributes, BufferPtr vertexData,
+						 unsigned int offset);
+
 private:
+	TaskQueue &_queue;
 	GLuint _id;
 };
 

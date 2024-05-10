@@ -52,6 +52,13 @@ public:
 	void addGUIElement(GUIElement *gui);
 
 	/*!
+	 * Check if the renderer is currently loading resources
+	 *
+	 * \return If the renderer is currently loading resources
+	 */
+	bool isLoading() const;
+
+	/*!
 	 * Set a sky for the current rendering
 	 *
 	 * @param sky The sky to set for rendering
@@ -77,7 +84,7 @@ public:
 	 * \param label String label for identification in graphics debuggers
 	 * \return A render system specific texture object
 	 */
-	TexturePtr createTexture(const ImageDecoder &decoder, const std::string &label = "");
+	TexturePtr createTexture(ImageDecoder &&decoder, const std::string &label = "");
 
 	/*!
 	 * Create an empty proxy texture for assigning other textures to it. This is useful for video playback to switch
@@ -104,7 +111,7 @@ public:
 	 * \param modifiable If the buffer should be modifiable
 	 * \return A render system specific buffer object
 	 */
-	BufferPtr createBuffer(const byte* data, size_t length, BufferType type, bool modifiable = false);
+	BufferPtr createBuffer(Common::ByteBuffer &&data, BufferType type, bool modifiable);
 
 	/*!
 	 * Create an empty buffer with the size of zero and no contents contained. It is assumed, that this buffer is used

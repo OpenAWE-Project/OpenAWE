@@ -55,6 +55,8 @@ public:
 
 	void setAmbianceState(const AmbianceState ambiance);
 
+	virtual bool isLoading() const = 0;
+
 	/*!
 	 * Set a sky as sky for the rendering
 	 *

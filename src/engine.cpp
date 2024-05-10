@@ -21,15 +21,16 @@
 #include <spdlog/spdlog.h>
 
 #include "src/common/strutil.h"
+#include "src/common/threadpool.h"
 
 #include "src/video/playerprocess.h"
 
+#include "src/graphics/gfxman.h"
 #include "src/graphics/animationcontroller.h"
 
 #include "src/engine.h"
 #include "src/task.h"
 #include "src/utils.h"
-#include "src/common/threadpool.h"
 
 Engine::Engine(entt::registry &registry,  const LocaleConfig::Config &config, AWE::Script::Functions *functions) :
 	_registry(registry),
@@ -74,6 +75,10 @@ void Engine::playVideo() {
 
 void Engine::update(float time) {
 	_playerController.update(time);
+
+	if (!GfxMan.isLoading() && _doneLoading && !_started) {
+		initEpisode();
+	}
 }
 
 void Engine::writeConfiguration() {
@@ -86,7 +91,8 @@ Configuration &Engine::getConfiguration() {
 }
 
 void Engine::loadEpisode(const std::string &data) {
-	//Threads.add([=, this](){
+	_doneLoading = false;
+	Threads.add([=, this](){
 		std::vector<std::string> parameters = Common::split(data, std::regex(" "));
 		std::vector<std::string> episode = Common::split(parameters.back(), std::regex(":"));
 
@@ -100,44 +106,53 @@ void Engine::loadEpisode(const std::string &data) {
 
 		_world->loadEpisode(episodeName);
 
-		// Start animation controller process
-		auto animControllerView = _registry.view<Graphics::AnimationControllerPtr>();
-		for (const auto &controllerEntity: animControllerView) {
-			auto controller = _registry.get<Graphics::AnimationControllerPtr>(controllerEntity);
+		_doneLoading = true;
+		_started = false;
+	});
+}
 
-			_scheduler.attach<Graphics::AnimationControllerProcess>(controller);
-		}
+void Engine::initEpisode() {
+	_world->setVisible(true);
 
-		// Call OnInit on every object
-		auto bytecodeView = _registry.view<AWE::Script::BytecodePtr>();
-		for (const auto &item : bytecodeView) {
-			auto gid = _registry.get<GID>(item);
-			auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
+	// Start animation controller process
+	auto animControllerView = _registry.view<Graphics::AnimationControllerPtr>();
+	for (const auto &controllerEntity: animControllerView) {
+		auto controller = _registry.get<Graphics::AnimationControllerPtr>(controllerEntity);
 
-			if (!bytecode->hasEntryPoint("OnInit"))
-				continue;
+		_scheduler.attach<Graphics::AnimationControllerProcess>(controller);
+	}
 
-			spdlog::debug("Firing OnInit on {} {:x}", gid.type, gid.id);
-			bytecode->run(*_context, "OnInit", item);
-		}
+	// Call OnInit on every object
+	auto bytecodeView = _registry.view<AWE::Script::BytecodePtr>();
+	for (const auto &item : bytecodeView) {
+		auto gid = _registry.get<GID>(item);
+		auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
 
-		// Activate starter tasks
-		auto taskView = _registry.view<Task, AWE::Script::BytecodePtr>();
-		for (const auto &item : taskView) {
-			auto gid = _registry.get<GID>(item);
-			auto task = _registry.get<Task>(item);
-			auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
+		if (!bytecode->hasEntryPoint("OnInit"))
+			continue;
 
-			if (!task.isActiveOnStartup())
-				continue;
+		spdlog::debug("Firing OnInit on {} {:x}", gid.type, gid.id);
+		bytecode->run(*_context, "OnInit", item);
+	}
 
-			if (!task.getPlayerCharacter().isNil())
-				_playerController.setPlayerCharacter(getEntityByGID(_registry, task.getPlayerCharacter()));
+	// Activate starter tasks
+	auto taskView = _registry.view<Task, AWE::Script::BytecodePtr>();
+	for (const auto &item : taskView) {
+		auto gid = _registry.get<GID>(item);
+		auto task = _registry.get<Task>(item);
+		auto bytecode = _registry.get<AWE::Script::BytecodePtr>(item);
 
-			spdlog::debug("Firing OnTaskActivate on {} {:x}", gid.type, gid.id);
-			bytecode->run(*_context, "OnTaskActivate", item);
-		}
-	//});
+		if (!task.isActiveOnStartup())
+			continue;
+
+		if (!task.getPlayerCharacter().isNil())
+			_playerController.setPlayerCharacter(getEntityByGID(_registry, task.getPlayerCharacter()));
+
+		spdlog::debug("Firing OnTaskActivate on {} {:x}", gid.type, gid.id);
+		bytecode->run(*_context, "OnTaskActivate", item);
+	}
+
+	_started = true;
 }
 
 entt::scheduler<double> & Engine::getScheduler() {

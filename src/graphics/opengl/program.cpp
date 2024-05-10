@@ -25,6 +25,8 @@
 #include <fmt/format.h>
 #include <vector>
 
+#include "src/common/strutil.h"
+
 #include "src/graphics/opengl/program.h"
 
 namespace Graphics::OpenGL {
@@ -104,8 +106,20 @@ void Program::link() {
 		GLenum type;
 		GLint size;
 		glGetActiveUniform(_id, i, maxUniformNameLength, &actualLength, &size, &type, name);
-		std::string uniformName(name, actualLength);
+		const std::string uniformName(name, actualLength);
 		_uniforms[uniformName] = glGetUniformLocation(_id, name);
+
+		if (size > 1) {
+			const std::string arrayName = Common::replace(uniformName, "[0]", "");
+			_uniforms[arrayName] = _uniforms[uniformName];
+
+			for (int j = 1; j < size; ++j) {
+				const std::string itemName = Common::replace(uniformName, "[0]", fmt::format("[{}]", j));
+				const auto itemLocation = glGetUniformLocation(_id, itemName.c_str());
+				if (itemLocation >= 0)
+					_uniforms[itemName] = itemLocation;
+			}
+		}
 	}
 	delete [] name;
 }
@@ -231,13 +245,8 @@ std::optional<GLint> Program::getUniformLocation(const std::string &name) const 
 	const auto iter = _uniforms.find(name);
 	if (iter != _uniforms.end())
 		return iter->second;
-
-	// If that doesn't work, try to find it usng glGetUniformLocation, for example for specific array offsets
-	GLint location = glGetUniformLocation(_id, name.c_str());
-	if (location == -1)
-		return std::optional<GLint>();
 	else
-		return location;
+		return {};
 }
 
 std::optional<GLint> Program::getAttributeLocation(const std::string &name) const {

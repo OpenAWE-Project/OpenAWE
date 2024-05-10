@@ -24,15 +24,15 @@
 #include "src/graphics/texture.h"
 #include "src/graphics/images/decoder.h"
 #include "src/graphics/opengl/opengl.h"
+#include "src/graphics/opengl/task.h"
 #include "src/graphics/opengl/gltexture.h"
 
 namespace Graphics::OpenGL {
 
 class Texture : public Graphics::Texture, public GLTexture {
 public:
-	Texture(GLenum type, const std::string &label = "");
-	Texture(unsigned int width, unsigned int height, const std::string &label = "");
-	Texture(unsigned int width, unsigned int height, TextureFormat format, const std::string &label = "");
+	Texture(TaskQueue &tasks, GLenum type, const std::string &label);
+	Texture(TaskQueue &tasks, unsigned int width, unsigned int height, TextureFormat textureFormat, const std::string &label);
 	~Texture();
 
 	void bind() override;
@@ -40,22 +40,17 @@ public:
 
 	void allocate(TextureFormat textureFormat, unsigned int width, unsigned int height) override;
 
-	void load(unsigned int xoffset, unsigned int yoffset, const ImageDecoder &decoder) override;
+	void load(unsigned int xoffset, unsigned int yoffset, ImageDecoder &&decoder) override;
 
-	void load(const ImageDecoder &decoder) override;
+	void load(ImageDecoder &&decoder) override;
 
 private:
-	void getParameters(
-		TextureFormat textureFormat,
-		GLenum &format,
-		GLenum &internalFormat,
-		GLenum &type
-	) const;
-
 	friend class Framebuffer;
 
 	GLuint _id;
 	GLenum _type;
+
+	TaskQueue  &_tasks;
 };
 
 }

@@ -38,6 +38,9 @@ public:
 
 	void loadEpisode(const std::string &data) override;
 
+protected:
+	void initEpisode() override;
+
 private:
 	unsigned int _storyModeRound;
 };

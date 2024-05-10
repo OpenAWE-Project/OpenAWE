@@ -32,9 +32,9 @@ public:
 
 	void allocate(TextureFormat textureFormat, unsigned int width, unsigned int height) override;
 
-	void load(unsigned int xoffset, unsigned int yoffset, const ImageDecoder &decoder) override;
+	void load(unsigned int xoffset, unsigned int yoffset, ImageDecoder &&decoder) override;
 
-	void load(const ImageDecoder &decoder) override;
+	void load(ImageDecoder &&decoder) override;
 
 	void assign(TexturePtr texture) override;
 

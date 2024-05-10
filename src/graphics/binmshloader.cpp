@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <spdlog/spdlog.h>
+
 #include "src/common/exception.h"
 
 #include "src/awe/binmshfile.h"
@@ -36,9 +38,15 @@ MeshPtr BINMSHLoader::load(Common::ReadStream &stream, std::initializer_list<std
 	const auto &vertexBufferData = binmsh.getVertexData();
 	const auto &indexBufferData = binmsh.getIndexData();
 
+	Common::ByteBuffer vertexBuffer(vertexBufferData.size());
+	Common::ByteBuffer indexBuffer(indexBufferData.size());
+
+	std::memcpy(vertexBuffer.data(), vertexBufferData.data(), vertexBufferData.size());
+	std::memcpy(indexBuffer.data(), indexBufferData.data(), indexBufferData.size());
+
 	// Create vertex and index buffer buffer
-	const auto vertexBuffer = GfxMan.createBuffer(vertexBufferData.data(), vertexBufferData.size(), kVertexBuffer);
-	const auto indexBuffer = GfxMan.createBuffer(indexBufferData.data(), indexBufferData.size(), kIndexBuffer);
+	const auto vb = GfxMan.createBuffer(std::move(vertexBuffer), kVertexBuffer, false);
+	const auto ib = GfxMan.createBuffer(std::move(indexBuffer), kIndexBuffer, false);
 
 	auto finalMesh = std::make_shared<Mesh>();
 	finalMesh->setBoundingSphere(binmsh.getBoundSphere());
@@ -48,11 +56,11 @@ MeshPtr BINMSHLoader::load(Common::ReadStream &stream, std::initializer_list<std
 		if (mesh.lod > 0)
 			continue;
 
-		finalMesh->setIndices(indexBuffer);
+		finalMesh->setIndices(ib);
 
 		Mesh::PartMesh part;
 		part.renderType = Mesh::kTriangles;
-		part.vertexData = vertexBuffer;
+		part.vertexData = vb;
 		part.offset = mesh.indicesOffset;
 		part.length = mesh.indicesCount;
 		part.boneMap = mesh.boneMap;
@@ -154,7 +162,7 @@ MeshPtr BINMSHLoader::load(Common::ReadStream &stream, std::initializer_list<std
 					stage,
 					mesh.material.properties,
 					attributes,
-					vertexBuffer,
+					vb,
 					mesh.vertexOffset
 			);
 		}

@@ -61,6 +61,10 @@ void Engine::loadEpisode(const std::string &data) {
 		_storyModeRound = 0;
 		return;
 	}
+}
+
+void Engine::initEpisode() {
+	::Engine::initEpisode();
 
 	// Activate starter tasks
 	auto taskView = _registry.view<Task, AWE::Script::BytecodePtr>();

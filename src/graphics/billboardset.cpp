@@ -65,19 +65,16 @@ BillboardSet::BillboardSet(
 		typesData.writeIEEEFloatLE(type.billboardSize.y);
 	}
 
-	_billboardTypes = GfxMan.createBuffer(
-		typesData.getData(),
-		typesData.getLength(),
-		kUniformBuffer
-	);
+	Common::ByteBuffer vertexBuffer(vertexData.getLength());
+	Common::ByteBuffer indexBuffer(indicesData.getLength());
+
+	std::memcpy(vertexBuffer.data(), vertexData.getData(), vertexData.getLength());
+	std::memcpy(indexBuffer.data(), indicesData.getData(), indicesData.getLength());
 
 	_colorAtlas = TextureMan.getTexture(colorAtlas);
 
-	_mesh->setIndices(GfxMan.createBuffer(
-		indicesData.getData(),
-		indicesData.getLength(),
-		kIndexBuffer
-	));
+	_mesh->setIndices(GfxMan.createBuffer(std::move(indexBuffer),
+										  kIndexBuffer, false));
 
 	const std::vector<VertexAttribute> attributes = {
 		{kPosition,       kVec3F},
@@ -103,11 +100,7 @@ BillboardSet::BillboardSet(
 	materialAttributes.emplace_back(Material::Uniform("g_sColorMap", _colorAtlas));
 
 	Mesh::PartMesh partMesh;
-	partMesh.vertexData = GfxMan.createBuffer(
-		vertexData.getData(),
-		vertexData.getLength(),
-		kVertexBuffer
-	);
+	partMesh.vertexData = GfxMan.createBuffer(std::move(vertexBuffer), kVertexBuffer, false);
 
 	for (const auto &stage: {"material", "depth"}) {
 		partMesh.vertexAttributes[stage] = GfxMan.createAttributeObject(

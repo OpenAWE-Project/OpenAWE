@@ -54,9 +54,20 @@ public:
 	void writeConfiguration();
 	Configuration &getConfiguration();
 
+	/*!
+	 * Start the paralell process of loading an episode
+	 *
+	 * \param data The string describing the episode to load
+	 */
 	virtual void loadEpisode(const std::string &data);
 
 protected:
+	/*!
+	 * This method is being called when the loading of an episode is done and executes all necessary initializations
+	 * like first script functions or task activations.
+	 */
+	virtual void initEpisode();
+
 	entt::registry &_registry;
 	entt::scheduler<double> _scheduler;
 	std::unique_ptr<AWE::Script::Functions> _functions;
@@ -69,6 +80,8 @@ private:
 	std::unique_ptr<Graphics::FullScreenPlane> _videoPlane;
 	PlayerController _playerController;
 	LocaleConfig::Config _localeConfig;
+	bool _doneLoading{true};
+	bool _started{true};
 };
 
 

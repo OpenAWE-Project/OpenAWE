@@ -52,13 +52,13 @@ public:
 	 * \param yoffset The offset in y direction
 	 * \param decoder The image to copy into the texture
 	 */
-	virtual void load(unsigned int xoffset, unsigned int yoffset, const Graphics::ImageDecoder &decoder) = 0;
+	virtual void load(unsigned int xoffset, unsigned int yoffset, ImageDecoder &&decoder) = 0;
 
 	/*!
 	 * Load an image into the texture and reallocate the texture in regards to the images size.
 	 * \param decoder The image to load into the texture
 	 */
-	virtual void load(const Graphics::ImageDecoder &decoder) = 0;
+	virtual void load(ImageDecoder &&decoder) = 0;
 };
 
 /*!

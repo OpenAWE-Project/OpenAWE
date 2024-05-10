@@ -2,6 +2,8 @@
 // Created by patrick on 08.12.23.
 //
 
+#include <spdlog/spdlog.h>
+
 #include "src/common/exception.h"
 
 #include "src/awe/binfolfile.h"
@@ -20,9 +22,15 @@ MeshPtr BINFOLLoader::load(Common::ReadStream &stream, std::initializer_list<std
 	const auto &vertexBufferData = binfol.getVertexData();
 	const auto &indexBufferData = binfol.getIndexData();
 
+	Common::ByteBuffer vertexBuffer(vertexBufferData.size());
+	Common::ByteBuffer indexBuffer(indexBufferData.size());
+
+	std::memcpy(vertexBuffer.data(), vertexBufferData.data(), vertexBufferData.size());
+	std::memcpy(indexBuffer.data(), indexBufferData.data(), indexBufferData.size());
+
 	// Create vertex and index buffer buffer
-	const auto vertexBuffer = GfxMan.createBuffer(vertexBufferData.data(), vertexBufferData.size(), kVertexBuffer);
-	const auto indexBuffer = GfxMan.createBuffer(indexBufferData.data(), indexBufferData.size(), kIndexBuffer);
+	const auto vb = GfxMan.createBuffer(std::move(vertexBuffer), kVertexBuffer, false);
+	const auto ib = GfxMan.createBuffer(std::move(indexBuffer), kIndexBuffer, false);
 
 	auto finalMesh = std::make_shared<Mesh>();
 	finalMesh->setBoundingSphere(binfol.getBoundSphere());
@@ -32,11 +40,11 @@ MeshPtr BINFOLLoader::load(Common::ReadStream &stream, std::initializer_list<std
 		if (mesh.lod > 0)
 			continue;
 
-		finalMesh->setIndices(indexBuffer);
+		finalMesh->setIndices(ib);
 
 		Mesh::PartMesh part;
 		part.renderType = Mesh::kTriangles;
-		part.vertexData = vertexBuffer;
+		part.vertexData = vb;
 		part.offset = mesh.indicesOffset;
 		part.length = mesh.indicesCount;
 		part.boneMap = mesh.boneMap;
@@ -138,7 +146,7 @@ MeshPtr BINFOLLoader::load(Common::ReadStream &stream, std::initializer_list<std
 					stage,
 					mesh.material.properties,
 					attributes,
-					vertexBuffer,
+					vb,
 					mesh.vertexOffset
 			);
 		}
