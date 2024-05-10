@@ -613,8 +613,8 @@ void Renderer::drawGUI() {
 }
 
 void Renderer::drawSky() {
-	//if (!_sky)
-	return;
+	if (!_sky)
+		return;
 
 	pushDebug("Draw Sky");
 
