@@ -26,8 +26,6 @@
 #include <entt/entt.hpp>
 #include <fmt/format.h>
 
-#include "src/common/bit_cast.h"
-
 #include "src/awe/script/float.h"
 
 namespace AWE::Script {
@@ -97,7 +95,7 @@ template<> struct fmt::formatter<AWE::Script::Variable> {
 			case 0: {
 				int32_t intValue = std::get<AWE::Script::Number>(variable).integer;
 				if (AWE::Script::isFloat(intValue))
-					return fmt::format_to(ctx.out(), "{:f}", Common::bit_cast<float>(intValue));
+					return fmt::format_to(ctx.out(), "{:f}", std::bit_cast<float>(intValue));
 				return fmt::format_to(ctx.out(), "{}", intValue);
 			}
 			case 1: {

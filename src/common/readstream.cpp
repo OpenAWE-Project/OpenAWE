@@ -27,7 +27,6 @@
 #include "src/common/readstream.h"
 #include "src/common/memreadstream.h"
 #include "src/common/memwritestream.h"
-#include "src/common/bit_cast.h"
 
 namespace Common {
 
@@ -58,11 +57,11 @@ uint64_t ReadStream::readUint64BE() {
 }
 
 int64_t ReadStream::readSint64LE() {
-	return Common::bit_cast<int64_t>(readUint64LE());
+	return std::bit_cast<int64_t>(readUint64LE());
 }
 
 int64_t ReadStream::readSint64BE() {
-	return Common::bit_cast<int64_t>(readUint64BE());
+	return std::bit_cast<int64_t>(readUint64BE());
 }
 
 uint32_t ReadStream::readUint32LE() {
@@ -84,11 +83,11 @@ uint32_t ReadStream::readUint32BE() {
 }
 
 int32_t ReadStream::readSint32LE() {
-	return Common::bit_cast<int32_t>(readUint32LE());
+	return std::bit_cast<int32_t>(readUint32LE());
 }
 
 int32_t ReadStream::readSint32BE() {
-	return Common::bit_cast<int32_t>(readUint32BE());
+	return std::bit_cast<int32_t>(readUint32BE());
 }
 
 uint16_t ReadStream::readUint16LE() {
@@ -110,11 +109,11 @@ uint16_t ReadStream::readUint16BE() {
 }
 
 int16_t ReadStream::readSint16LE() {
-	return Common::bit_cast<int16_t>(readUint16LE());
+	return std::bit_cast<int16_t>(readUint16LE());
 }
 
 int16_t ReadStream::readSint16BE() {
-	return Common::bit_cast<int16_t>(readUint16BE());
+	return std::bit_cast<int16_t>(readUint16BE());
 }
 
 float ReadStream::readIEEEFloatLE() {
