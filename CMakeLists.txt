@@ -327,6 +327,8 @@ include_directories(
         ${MOJOSHADER_INCLUDE_DIRS}
 )
 
+target_link_libraries(imgui_platform glfw)
+
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 add_definitions(-DSPDLOG_FMT_EXTERNAL)
 
