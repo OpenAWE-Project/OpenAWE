@@ -199,6 +199,25 @@ add_definitions(-DSUPPORT_PROFILE_GLSPIRV=0)
 # TOML11
 add_subdirectory(3rdparty/toml11)
 
+# ImGui
+file(GLOB IMGUI_SOURCE 3rdparty/imgui/*.cpp)
+set(
+        IMGUI_RENDERING_SOURCE
+        3rdparty/imgui/backends/imgui_impl_opengl3.cpp
+)
+
+set(
+        IMGUI_PLATFORM_SOURCE
+        3rdparty/imgui/backends/imgui_impl_glfw.cpp
+)
+
+add_library(imgui_rendering ${IMGUI_SOURCE} ${IMGUI_RENDERING_SOURCE})
+add_library(imgui_platform ${IMGUI_SOURCE} ${IMGUI_PLATFORM_SOURCE})
+include_directories(
+        3rdparty/imgui
+        3rdparty/imgui/backends
+)
+
 # ------------------------------------
 # Dependencies
 
@@ -356,6 +375,7 @@ target_link_libraries(
         awe_common
 
         glfw
+        imgui_platform
 )
 
 file(GLOB_RECURSE SOURCE_FILES src/events/*.cpp src/events/*.h)
@@ -374,6 +394,7 @@ target_link_libraries(
         GLEW::GLEW
         OpenGL::GL
         ${MOJOSHADER_LIBRARIES}
+        imgui_rendering
 )
 
 if (WITH_SPIRV_CROSS)

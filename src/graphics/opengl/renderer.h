@@ -69,6 +69,7 @@ private:
 	void drawLights();
 	void drawGUI();
 	void drawSky();
+	void drawImGui();
 
 	void pushDebug(const std::string &message);
 	void popDebug();

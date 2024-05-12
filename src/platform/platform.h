@@ -21,6 +21,7 @@
 #ifndef AWE_PLATFORM_H
 #define AWE_PLATFORM_H
 
+#include <GLFW/glfw3.h>
 
 namespace Platform {
 
@@ -42,6 +43,7 @@ public:
 	void update();
 
 private:
+	static void monitorCallback(GLFWmonitor* monitor, int event);
 	static void errorCallback(int code, const char *description);
 };
 

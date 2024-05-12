@@ -80,14 +80,18 @@ public:
 
 private:
 	static void callbackKey(GLFWwindow *window, int key, int scancode, int action, int mods);
+	static void callbackChar(GLFWwindow *window, unsigned int c);
 	static void callbackMousePosition(GLFWwindow *window, double xpos, double ypos);
 	static void callbackMouseScroll(GLFWwindow *window, double xpos, double ypos);
 	static void callbackMouseButton(GLFWwindow *window, int button, int action, int mods);
 	static void callbackMouseEnter(GLFWwindow *window, int entered);
 
+	static void callbackWindowsFocusCallback(GLFWwindow *window, int focused);
+
 	static void callbackFramebufferSize(GLFWwindow *window, int width, int height);
 
 	GLFWwindow *_window;
+	void *_imguiCtx;
 
 	KeyCallback _keyCallback;
 	MouseButtonCallback _mouseButtonCallback;

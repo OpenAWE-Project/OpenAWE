@@ -11,3 +11,6 @@
 [submodule "toml11"]
 	path = 3rdparty/toml11
 	url = https://github.com/ToruNiina/toml11
+[submodule "imgui"]
+	path = 3rdparty/imgui
+	url = https://github.com/ocornut/imgui

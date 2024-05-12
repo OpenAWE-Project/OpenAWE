@@ -32,6 +32,8 @@
 #include <glm/glm.hpp>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
+#include <imgui.h>
+#include <imgui_impl_opengl3.h>
 
 #include "src/common/uuid.h"
 #include "src/common/writefile.h"
@@ -213,6 +215,9 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	// Initialize ImGui
+	ImGui_ImplOpenGL3_Init();
+
 	// Check for errors
 	assert(glGetError() == GL_NO_ERROR);
 }
@@ -221,6 +226,8 @@ Renderer::~Renderer() {
 }
 
 void Renderer::drawFrame() {
+	_window.makeCurrent();
+
 	// Loading
 	while (!_loadingTasks.empty()) {
 		auto &task = _loadingTasks.front();
@@ -243,6 +250,8 @@ void Renderer::drawFrame() {
 	drawSky();
 	drawWorld("material");
 	drawGUI();
+
+	drawImGui();
 
 	_window.swap();
 }
@@ -687,6 +696,21 @@ void Renderer::drawSky() {
 
 	glFrontFace(GL_CW);
 	glEnable(GL_DEPTH_TEST);
+
+	popDebug();
+}
+
+void Renderer::drawImGui() {
+	pushDebug("Draw ImGui");
+
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui::NewFrame();
+
+	// TODO: Add system for adding imgui windows
+	//ImGui::ShowDemoWindow();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	popDebug();
 }

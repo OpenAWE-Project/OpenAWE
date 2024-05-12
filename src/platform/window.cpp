@@ -22,12 +22,12 @@
 #include <optional>
 
 #include <spdlog/spdlog.h>
+#include <imgui_impl_glfw.h>
 
 #include "src/common/types.h"
 
 #include "src/platform/gamepadman.h"
-
-#include "window.h"
+#include "src/platform/window.h"
 
 namespace Platform {
 
@@ -69,19 +69,42 @@ Window::Window(ContextType type) {
 	glfwSetWindowUserPointer(_window, this);
 
 	glfwSetKeyCallback(_window, &Window::callbackKey);
+	glfwSetCharCallback(_window, &Window::callbackChar);
 	glfwSetCursorPosCallback(_window, &Window::callbackMousePosition);
 	glfwSetMouseButtonCallback(_window, &Window::callbackMouseButton);
 	glfwSetScrollCallback(_window, &Window::callbackMouseScroll);
 	glfwSetCursorEnterCallback(_window, &Window::callbackMouseEnter);
 	glfwSetFramebufferSizeCallback(_window, &Window::callbackFramebufferSize);
+	glfwSetWindowFocusCallback(_window, &Window::callbackWindowsFocusCallback);
+
+	IMGUI_CHECKVERSION();
+	_imguiCtx = ImGui::CreateContext();
+
+	switch (type) {
+		case kOpenGL: [[fallthrough]];
+		case kOpenGLES:
+			ImGui_ImplGlfw_InitForOpenGL(_window, false);
+			break;
+
+		case kVulkan:
+			ImGui_ImplGlfw_InitForVulkan(_window, false);
+			break;
+
+		default:
+			ImGui_ImplGlfw_InitForOther(_window, false);
+			break;
+	}
 }
 
 Window::~Window() {
+	ImGui_ImplGlfw_Shutdown();
 	glfwDestroyWindow(_window);
 }
 
 void Window::makeCurrent() {
 	glfwMakeContextCurrent(_window);
+	ImGui::SetCurrentContext(reinterpret_cast<ImGuiContext*>(_imguiCtx));
+	ImGui_ImplGlfw_NewFrame();
 }
 
 void Window::swap() {
@@ -97,6 +120,8 @@ bool Window::shouldClose() {
 }
 
 void Window::callbackKey(GLFWwindow *window, int key, int scancode, int action, int mods) {
+	ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+
 	if (action == GLFW_REPEAT)
 		return;
 
@@ -107,7 +132,13 @@ void Window::callbackKey(GLFWwindow *window, int key, int scancode, int action, 
 	w->_keyCallback(key, scancode, action, mods);
 }
 
+void Window::callbackChar(GLFWwindow *window, unsigned int c) {
+	ImGui_ImplGlfw_CharCallback(window, c);
+}
+
 void Window::callbackMousePosition(GLFWwindow *window, double xpos, double ypos) {
+	ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+
 	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
 
 	glm::vec2 absolute = glm::vec2(xpos, ypos);
@@ -120,6 +151,8 @@ void Window::callbackMousePosition(GLFWwindow *window, double xpos, double ypos)
 }
 
 void Window::callbackMouseScroll(GLFWwindow *window, double xpos, double ypos) {
+	ImGui_ImplGlfw_ScrollCallback(window, xpos, ypos);
+
 	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
 	if (!w->_mouseScrollCallback)
 		return;
@@ -129,8 +162,9 @@ void Window::callbackMouseScroll(GLFWwindow *window, double xpos, double ypos) {
 }
 
 void Window::callbackMouseEnter(GLFWwindow *window, int entered) {
+	ImGui_ImplGlfw_CursorEnterCallback(window, entered);
+
 	Window *w = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
-	
 	if (entered) {
 		double x, y;
 		glfwGetCursorPos(w->_window, &x, &y);
@@ -146,6 +180,8 @@ void Window::callbackMouseEnter(GLFWwindow *window, int entered) {
 }
 
 void Window::callbackMouseButton(GLFWwindow *window, int button, int action, int mods) {
+	ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+
 	if (action == GLFW_REPEAT)
 		return;
 
@@ -154,6 +190,10 @@ void Window::callbackMouseButton(GLFWwindow *window, int button, int action, int
 		return;
 
 	w->_mouseButtonCallback(button, action, mods);
+}
+
+void Window::callbackWindowsFocusCallback(GLFWwindow *window, int focused) {
+	ImGui_ImplGlfw_WindowFocusCallback(window, focused);
 }
 
 void Window::callbackFramebufferSize(GLFWwindow *window, int width, int height) {

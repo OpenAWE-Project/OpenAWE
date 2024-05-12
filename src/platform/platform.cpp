@@ -20,6 +20,7 @@
 
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
+#include <imgui_impl_glfw.h>
 
 #include "platform.h"
 
@@ -35,6 +36,8 @@ void Platform::init() {
 	int result = glfwInit();
 	if (result == GLFW_FALSE)
 		throw std::runtime_error("Failed to initialize glfw");
+
+	glfwSetMonitorCallback(&Platform::monitorCallback);
 }
 
 void Platform::terminate() {
@@ -47,6 +50,10 @@ double Platform::getTime() {
 
 void Platform::update() {
 	glfwPollEvents();
+}
+
+void Platform::monitorCallback(GLFWmonitor *monitor, int event) {
+	ImGui_ImplGlfw_MonitorCallback(monitor, event);
 }
 
 void Platform::errorCallback(int code, const char *description) {
