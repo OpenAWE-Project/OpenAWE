@@ -90,7 +90,7 @@ public:
 	void apply() override {
 		glGenVertexArrays(1, &_id);
 
-		if (GLEW_KHR_debug && !_label.empty())
+		if (GLAD_GL_KHR_debug && !_label.empty())
 			glObjectLabel(GL_VERTEX_ARRAY, _id, _label.size(), _label.c_str());
 	}
 

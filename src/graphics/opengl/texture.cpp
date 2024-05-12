@@ -121,7 +121,7 @@ public:
 
 		TextureTask::apply();
 
-		if (GLEW_KHR_debug && !_label.empty())
+		if (GLAD_GL_KHR_debug && !_label.empty())
 			glObjectLabel(GL_TEXTURE, _id, static_cast<GLsizei>(_label.size()), _label.c_str());
 	}
 
@@ -397,7 +397,7 @@ Texture::Texture(TaskQueue &tasks, unsigned int width, unsigned int height, Text
 			nullptr
 	);
 
-	if (GLEW_KHR_debug && !label.empty())
+	if (GLAD_GL_KHR_debug && !label.empty())
 		glObjectLabel(GL_TEXTURE, _id, static_cast<GLsizei>(label.size()), label.c_str());
 }
 

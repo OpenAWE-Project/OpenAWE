@@ -37,7 +37,7 @@ namespace Graphics::OpenGL {
 ShaderPtr Shader::fromSPIRV(GLuint type, const std::vector<byte> &bytecode, const std::string &label) {
 	ShaderPtr shader(new Shader(type, label));
 
-	if (!GLEW_ARB_gl_spirv || !GLEW_ARB_spirv_extensions) {
+	if (!GLAD_GL_ARB_gl_spirv || !GLAD_GL_ARB_spirv_extensions) {
 #if WITH_SPIRV_CROSS
 		spirv_cross::CompilerGLSL glsl(
 			reinterpret_cast<const uint32_t *>(bytecode.data()),
@@ -129,7 +129,7 @@ ShaderPtr Shader::fromGLSL(GLuint type, const std::string &source, const std::st
 }
 
 Shader::Shader(GLuint type, const std::string &label) : _id(glCreateShader(type)) {
-	if (GLEW_KHR_debug && !label.empty())
+	if (GLAD_GL_KHR_debug && !label.empty())
 		glObjectLabel(GL_SHADER, _id, label.size(), label.c_str());
 }
 

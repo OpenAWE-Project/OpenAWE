@@ -32,7 +32,7 @@
 namespace Graphics::OpenGL {
 
 Program::Program(const std::string &label) : _id(glCreateProgram()) {
-	if (GLEW_KHR_debug && !label.empty())
+	if (GLAD_GL_KHR_debug && !label.empty())
 		glObjectLabel(GL_PROGRAM, _id, label.size(), label.c_str());
 }
 

@@ -33,7 +33,7 @@ Framebuffer::Framebuffer(const std::string &label) {
 		throw CreateException("Failed to initialize framebuffer");
 
 	bind();
-	if (GLEW_KHR_debug && !label.empty())
+	if (GLAD_GL_KHR_debug && !label.empty())
 		glObjectLabel(GL_FRAMEBUFFER, _id, label.size(), label.c_str());
 }
 
@@ -93,7 +93,7 @@ Renderbuffer::Renderbuffer(GLsizei width, GLsizei height, GLenum format, const s
 
 	glRenderbufferStorage(GL_RENDERBUFFER, format, width, height);
 
-	if (GLEW_KHR_debug && !label.empty())
+	if (GLAD_GL_KHR_debug && !label.empty())
 		glObjectLabel(GL_RENDERBUFFER, _id, label.size(), label.c_str());
 }
 

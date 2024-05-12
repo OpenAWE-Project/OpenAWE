@@ -218,6 +218,11 @@ include_directories(
         3rdparty/imgui/backends
 )
 
+# glad
+file(GLOB_RECURSE GLAD_SOURCE 3rdparty/glad/*.c 3rdparty/glad/*.h)
+add_library(glad ${GLAD_SOURCE})
+include_directories(3rdparty/glad/include)
+
 # ------------------------------------
 # Dependencies
 
@@ -227,9 +232,7 @@ find_package(PkgConfig)
 find_package(Threads REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(glfw3 REQUIRED)
-find_package(GLEW REQUIRED)
 find_package(glm REQUIRED)
-find_package(OpenGL REQUIRED COMPONENTS OpenGL)
 find_package(OpenAL REQUIRED)
 find_package(Bullet REQUIRED)
 find_package(fmt REQUIRED)
@@ -391,10 +394,9 @@ target_link_libraries(
         awe_lib
         awe_platform
 
-        GLEW::GLEW
-        OpenGL::GL
         ${MOJOSHADER_LIBRARIES}
         imgui_rendering
+        glad
 )
 
 if (WITH_SPIRV_CROSS)

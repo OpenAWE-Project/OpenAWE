@@ -45,6 +45,8 @@
 #include "src/awe/objfile.h"
 #include "src/awe/hg.h"
 
+#include "src/platform/procaddress.h"
+
 #include "src/graphics/shaderconverter.h"
 #include "src/graphics/skeleton.h"
 #include "src/graphics/opengl/renderer.h"
@@ -55,19 +57,25 @@
 
 namespace Graphics::OpenGL {
 
+static void *loadProcAddress(const char *name) {
+	return Platform::getProcAddressGL(name);
+}
+
 Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory) :
 		_window(window),
 		_shaderDirectory(shaderDirectory) {
 	_window.makeCurrent();
 
+	gladLoadGL(reinterpret_cast<GLADloadfunc>(&loadProcAddress));
+
 	// Initialize GLEW
-	glewExperimental = false; // TODO: Make a config argument out of it
+	/*glewExperimental = false; // TODO: Make a config argument out of it
 	GLenum result = glewInit();
 	if (result != GLEW_OK)
-		throw std::runtime_error(reinterpret_cast<const char *>(glewGetErrorString(result)));
+		throw std::runtime_error(reinterpret_cast<const char *>(glewGetErrorString(result)));*/
 
 	// Initialize debug output if possible
-	if (GLEW_ARB_debug_output) {
+	if (GLAD_GL_ARB_debug_output) {
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallbackARB(reinterpret_cast<GLDEBUGPROC>(&Renderer::debugMessageCallback), nullptr);
 	}
@@ -85,7 +93,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	spdlog::info("GLSL Version: {}", glslVersion);
 	assert(glGetError() == GL_NO_ERROR);
 
-	if (GLEW_NVX_gpu_memory_info) {
+	if (GLAD_GL_NVX_gpu_memory_info) {
 		GLint dedicatedVideoMemory, totalAvailableMemory, currentAvailableMemory;
 		glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &dedicatedVideoMemory);
 		glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &totalAvailableMemory);
@@ -94,7 +102,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 		spdlog::info("Dedicated video memory: {}kb", dedicatedVideoMemory);
 		spdlog::info("Total available memory: {}kb", totalAvailableMemory);
 		spdlog::info("Current available video memory: {}kb", currentAvailableMemory);
-	} else if (GLEW_ATI_meminfo) {
+	} else if (GLAD_GL_ATI_meminfo) {
 		GLint vboFreeMemory[4], textureFreeMemory[4], renderbufferFreeMemory[4];
 		glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, vboFreeMemory);
 		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, textureFreeMemory);
@@ -120,7 +128,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	spdlog::info("OpenGL Max Vertex Uniform Components: {}", maxVertexUniformComponents);
 	spdlog::info("OpenGL Max Fragment Uniform Components: {}", maxFragmentUniformComponents);
 
-	if (GLEW_ARB_uniform_buffer_object) {
+	if (GLAD_GL_ARB_uniform_buffer_object) {
 		GLint maxUniformBufferBindings, maxUniformBlockSize, maxVertexUniformBlocks, maxFragmentUniformBlocks;
 		glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxUniformBufferBindings);
 		glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUniformBlockSize);
@@ -132,7 +140,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 		spdlog::info("OpenGL Max Fragment Uniform Blocks: {}", maxFragmentUniformBlocks);
 	}
 
-	if (GLEW_ARB_tessellation_shader) {
+	if (GLAD_GL_ARB_tessellation_shader) {
 		GLint maxPatchVertices;
 		glGetIntegerv(GL_MAX_PATCH_VERTICES, &maxPatchVertices);
 		spdlog::info("OpenGL Max Patch Vertices: {}", maxPatchVertices);
@@ -152,11 +160,11 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 		spdlog::debug("- {}", extension);
 	}
 
-	if (!GLEW_EXT_texture_compression_s3tc) {
+	if (!GLAD_GL_EXT_texture_compression_s3tc) {
 		throw std::runtime_error("No S3TC extension available");
 	}
 
-	_hasDebug = GLEW_KHR_debug;
+	_hasDebug = GLAD_GL_KHR_debug;
 	if (_hasDebug)
 		spdlog::info("GL_KHR_debug extension found, opengl labelling and messaging will be available");
 

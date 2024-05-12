@@ -21,15 +21,6 @@
 #ifndef AWE_OPENGL_H
 #define AWE_OPENGL_H
 
-#include <GL/glew.h>
-#if OS_LINUX
-#   include <GL/glxew.h>
-#endif
-#if OS_MACOS
-#	include <OpenGL/gl.h>
-#else
-#	include <GL/gl.h>
-#	include <GL/glu.h>
-#endif
+#include <glad/gl.h>
 
 #endif //AWE_OPENGL_H
