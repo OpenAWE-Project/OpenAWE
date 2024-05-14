@@ -41,18 +41,16 @@ byte ReadStream::readByte() {
 uint64_t ReadStream::readUint64LE() {
 	uint64_t value;
 	read(&value, sizeof(uint64_t));
-#ifdef BIG_ENDIAN_SYSTEM
-	value = swapBytes(value);
-#endif // BIG_ENDIAN
+	if constexpr (std::endian::native == std::endian::big)
+		value = swapBytes(value);
 	return value;
 }
 
 uint64_t ReadStream::readUint64BE() {
 	uint64_t value;
 	read(&value, sizeof(uint64_t));
-#ifdef LITTLE_ENDIAN_SYSTEM
-	value = swapBytes(value);
-#endif // LITTLE_ENDIAN
+	if constexpr (std::endian::native == std::endian::little)
+		value = swapBytes(value);
 	return value;
 }
 
@@ -67,18 +65,16 @@ int64_t ReadStream::readSint64BE() {
 uint32_t ReadStream::readUint32LE() {
 	uint32_t value;
 	read(&value, sizeof(uint32_t));
-#ifdef BIG_ENDIAN_SYSTEM
-	value = swapBytes(value);
-#endif // BIG_ENDIAN
+	if constexpr (std::endian::native == std::endian::big)
+		value = swapBytes(value);
 	return value;
 }
 
 uint32_t ReadStream::readUint32BE() {
 	uint32_t value;
 	read(&value, sizeof(uint32_t));
-#ifdef LITTLE_ENDIAN_SYSTEM
-	value = swapBytes(value);
-#endif // LITTLE_ENDIAN
+	if constexpr (std::endian::native == std::endian::little)
+		value = swapBytes(value);
 	return value;
 }
 
@@ -93,18 +89,16 @@ int32_t ReadStream::readSint32BE() {
 uint16_t ReadStream::readUint16LE() {
 	uint16_t value;
 	read(&value, sizeof(uint16_t));
-#ifdef BIG_ENDIAN_SYSTEM
-	value = swapBytes(value);
-#endif // BIG_ENDIAN
+	if constexpr (std::endian::native == std::endian::big)
+		value = swapBytes(value);
 	return value;
 }
 
 uint16_t ReadStream::readUint16BE() {
 	uint16_t value;
 	read(&value, sizeof(uint16_t));
-#ifdef LITTLE_ENDIAN_SYSTEM
-	value = swapBytes(value);
-#endif // LITTLE_ENDIAN
+	if constexpr (std::endian::native == std::endian::little)
+		value = swapBytes(value);
 	return value;
 }
 
