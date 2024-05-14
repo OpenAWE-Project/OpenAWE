@@ -19,6 +19,7 @@
  */
 
 #include <string>
+#include <algorithm>
 
 #include <gtest/gtest.h>
 
