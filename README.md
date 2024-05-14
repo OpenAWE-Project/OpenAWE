@@ -34,7 +34,7 @@ varies depending on your operating system (and in the case of Linux, distributio
  - OpenGL
  - OpenAL
  - Bullet
- - FMT
+ - FMT (>=9.0.0)
  - Ogg
  - Theora
  - Vorbis

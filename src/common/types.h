@@ -154,16 +154,4 @@ inline BoundSphere combine(Common::BoundSphere sphere1, Common::BoundSphere sphe
 
 }
 
-// Polyfill function for fmt::underlying for fmt version < 9.0.0
-#if FMT_VERSION < 90000
-namespace fmt {
-
-template <typename Enum>
-constexpr auto underlying(Enum e) noexcept -> std::underlying_type_t<Enum> {
-	return static_cast<std::underlying_type_t<Enum>>(e);
-}
-
-}
-#endif
-
 #endif //SRC_COMMON_TYPES_H
