@@ -85,14 +85,10 @@ public:
 private:
 	void readNextValue() {
 		_bits.read(&_curValue, sizeof(T));
-#ifdef LITTLE_ENDIAN_SYSTEM
-		if constexpr (!le && sizeof(T) > 1)
+		if constexpr (!le && sizeof(T) > 1 && std::endian::native == std::endian::little)
 			_curValue = swapBytes(_curValue);
-#endif // LITTLE_ENDIAN_SYSTEM
-#ifdef BIG_ENDIAN_SYSTEM
-		if constexpr (le && sizeof(T) > 1)
+		if constexpr (le && sizeof(T) > 1 && std::endian::native == std::endian::big)
 			_curValue = swapBytes(_curValue);
-#endif // BIG_ENDIAN_SYSTEM
 		_remainingBits = sizeof(T) * 8;
 	}
 
