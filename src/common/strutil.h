@@ -28,18 +28,33 @@
 namespace Common {
 
 /*!
- * Change all letters from the string str to lower case letters
+ * Change all ascii alpha letters from the string str to lower case letters
  * \param str the string to change
  * \return the new lower case string
  */
-std::string toLower(std::string str);
+constexpr std::string toLower(std::string_view str) {
+	std::string result;
+	for (const auto &c: str) {
+		result += (c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c;
+	}
+
+	return result;
+}
 
 /*!
- * Change all letters from the string str to upper case letters
+ * Change all ascii alpha letters from the string str to upper case letters
  * \param str the string to change
  * \return the new upper case string
  */
-std::string toUpper(std::string str);
+constexpr std::string toUpper(std::string_view str) {
+	std::string result;
+	for (const auto &c: str) {
+		result += (c >= 'a' && c <= 'z') ? c + ('A' - 'a') : c;
+	}
+
+	return result;
+}
+
 
 /*!
  * check if a string contains a certain substring

@@ -18,37 +18,14 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sstream>
 #include <iostream>
 #include <regex>
-
-#include <zlib.h>
 
 #include "src/common/exception.h"
 
 #include "strutil.h"
 
 namespace Common {
-
-std::string toLower(std::string str) {
-	std::stringstream ss;
-
-	for (const auto &c : str) {
-		ss << static_cast<char>(std::tolower(c));
-	}
-
-	return ss.str();
-}
-
-std::string toUpper(std::string str) {
-	std::stringstream ss;
-
-	for (const auto &c : str) {
-		ss << static_cast<char>(std::toupper(c));
-	}
-
-	return ss.str();
-}
 
 bool contains(const std::string &str, const std::string &s) {
 	return str.find(s) != std::string::npos;
