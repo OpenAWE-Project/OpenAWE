@@ -23,10 +23,14 @@
 
 #include <fmt/format.h>
 
+#include "src/common/exception.h"
+
+#include "src/awe/atmfile.h"
 #include "src/awe/resman.h"
 
 #include "src/graphics/gfxman.h"
 #include "src/graphics/opengl/renderer.h"
+#include "src/graphics/images/tex.h"
 
 namespace Graphics {
 
@@ -133,6 +137,17 @@ void GraphicsManager::setAmbianceState(const std::string &id) {
 	);
 
 	_renderer->setAmbianceState(AmbianceState(*ambianceFile));
+}
+
+void GraphicsManager::setAtmosphere(const std::string &id) {
+	const auto atmPath = fmt::format("atmosphere/{}.atm", id);
+	std::unique_ptr<Common::ReadStream> atmStream(ResMan.getResource(atmPath));
+	if (atmStream)
+		throw CreateException("Cannot find {}", atmPath);
+
+	AWE::ATMFile atm(*atmStream);
+	auto skyLUT = createTexture(TEX(atm.getAtmosphericLUT()), fmt::format("{}_skylut", id));
+	_renderer->setSkyLUT(skyLUT);
 }
 
 void GraphicsManager::setCamera(Camera &camera) {

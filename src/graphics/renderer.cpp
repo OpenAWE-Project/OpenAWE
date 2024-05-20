@@ -114,6 +114,10 @@ void Graphics::Renderer::setAmbianceState(const Graphics::AmbianceState ambiance
 	_ambiance = ambiance;
 }
 
+void Graphics::Renderer::setSkyLUT(TexturePtr lut) {
+	_skyLUT = lut;
+}
+
 void Graphics::Renderer::setSky(Graphics::SkyPtr sky) {
 	_sky = sky;
 }

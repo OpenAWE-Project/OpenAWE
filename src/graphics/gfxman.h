@@ -46,6 +46,13 @@ public:
 
 	void setAmbianceState(const std::string &id);
 
+	/*!
+	 * Set the atmosphere of the rendering, expressed by the given id
+	 *
+	 * \param id The id of the atmosphere to set
+	 */
+	void setAtmosphere(const std::string &id);
+
 	void addModel(Model *model);
 	void removeModel(Model *model);
 

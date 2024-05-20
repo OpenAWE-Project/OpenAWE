@@ -223,6 +223,9 @@ void Game::init() {
 	MeshMan.appendLoader<Graphics::BINMSHLoader>();
 	MeshMan.appendLoader<Graphics::BINFOLLoader>();
 
+	// Set atmosphere
+	GfxMan.setAtmosphere("mediumhaze");
+
 	// Initialize Physics
 	PhysicsMan.setDebugDraw(_physicsDebugDraw);
 

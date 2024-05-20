@@ -55,6 +55,13 @@ public:
 
 	void setAmbianceState(const AmbianceState ambiance);
 
+	/*!
+	 * Set the sky lut from an atmosphere file for the renderer
+	 *
+	 * \param lut The lut texture to set for the renderer
+	 */
+	void setSkyLUT(TexturePtr lut);
+
 	virtual bool isLoading() const = 0;
 
 	/*!
@@ -135,6 +142,8 @@ protected:
 
 	std::optional<std::reference_wrapper<Camera>> _camera;
 	AmbianceState _ambiance;
+
+	TexturePtr _skyLUT;
 
 	Common::Frustrum _frustrum;
 
