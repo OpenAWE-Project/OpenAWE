@@ -59,9 +59,13 @@ TEX::TEX(Common::ReadStream &tex) {
 		// RGBA8 LUT
 		// RGBA8
 		case 4:
-		case 6:
 		case 8:
 			_format = kRGBA8;
+			break;
+
+		// RGBA16F
+		case 6:
+			_format = kRGBA16F;
 			break;
 
 		// DXT1
