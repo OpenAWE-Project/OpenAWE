@@ -54,4 +54,8 @@ ATMFile::ATMFile(Common::ReadStream &atm) {
 	_atmosphericLUT.reset(atm.readStream());
 }
 
+Common::ReadStream &ATMFile::getAtmosphericLUT() {
+	return *_atmosphericLUT;
+}
+
 } // End of namespace AWE

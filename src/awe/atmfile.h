@@ -25,9 +25,21 @@
 
 namespace AWE {
 
+/*!
+ * \brief Reader for atmosphere files
+ *
+ * This class handles the loading of atm files, which contain parameters for the atmospheric rendering
+ */
 class ATMFile {
 public:
 	ATMFile(Common::ReadStream &atm);
+
+	/*!
+	 * Return a stream to the atmospheric lut texture in the atm format
+	 *
+	 * \return A reference to the atmospheric lut stream in the tex format
+	 */
+	Common::ReadStream &getAtmosphericLUT();
 
 private:
 	std::vector<glm::vec3> _stars;
