@@ -26,6 +26,7 @@
 #include <fstream>
 #include <sstream>
 #include <set>
+#include <random>
 
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -49,6 +50,7 @@
 
 #include "src/graphics/shaderconverter.h"
 #include "src/graphics/skeleton.h"
+#include "src/graphics/images/surface.h"
 #include "src/graphics/opengl/renderer.h"
 #include "src/graphics/opengl/opengl.h"
 #include "src/graphics/opengl/vbo.h"
@@ -222,6 +224,20 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	_lightBuffer->attachRenderBuffer(*_depthstencilBuffer, GL_DEPTH_STENCIL_ATTACHMENT);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// Initialize noise map
+	//
+	std::mt19937 mt(std::chrono::system_clock::now().time_since_epoch().count());
+	std::uniform_int_distribution<byte> dist(0, 0xFF);
+
+	auto noiseSurface = Surface(32, 32, 64, kRGBA8);
+	for (int i = 0; i < 32 * 32 * 64; ++i) {
+		const auto date = dist(mt);
+		std::memset(reinterpret_cast<byte*>(noiseSurface.getData()) + i * 4, date,	4);
+	}
+
+	_noiseMap = std::make_unique<Texture>(_loadingTasks, GL_TEXTURE_3D, "noise_map");
+	_noiseMap->load(std::move(noiseSurface));
 
 	// Initialize ImGui
 	ImGui_ImplOpenGL3_Init();

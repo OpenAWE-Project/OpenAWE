@@ -109,6 +109,7 @@ private:
 
 	std::unique_ptr<Texture> _depthTexture;
 	std::unique_ptr<Texture> _normalTexture;
+	std::unique_ptr<Texture> _noiseMap;
 	std::unique_ptr<Framebuffer> _deferredBuffer;
 
 	std::map<RenderPassId, std::unique_ptr<ProgramCollection>> _programs;
