@@ -32,7 +32,8 @@
 enum GameEngine {
 	kAlanWake,
 	kAlanWakesAmericanNightmare,
-	kQuantumBreak
+	kQuantumBreak,
+	kControl
 };
 
 struct GID {

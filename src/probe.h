@@ -29,6 +29,7 @@ enum ProbeResult {
 	kResultAmericanNightmare = 2,
 	kResultQuantumBreak = 4,
 	kResultAlanWakeRemastered = 8,
+	kResultControl = 16,
 };
 
 class Probe {
@@ -67,6 +68,12 @@ private:
 	 * Alan Wake Remastered
 	 */
 	ProbeResult checkAlanWakeRemastered();
+
+	/*!
+	 * Checks whether supplied data archives are of
+	 * Control
+	 */
+	ProbeResult checkControl();
 
 };
 

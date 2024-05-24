@@ -759,8 +759,10 @@ void Renderer::popDebug() {
 }
 
 ProgramPtr Renderer::getProgram(const std::string &name, const std::string &stage, const uint32_t property) {
-	const auto &programCollection = _programs[RenderPassId(name, property)];
-	return programCollection->getProgram(stage);
+	const auto programIter = _programs.find(RenderPassId(name, property));
+	if (programIter == _programs.cend())
+		throw CreateException("Couldn't find program with name '{}' and property 0x{:08x}", stage, property);
+	return programIter->second->getProgram(stage);
 }
 
 bool Renderer::hasProgram(const std::string &name, const std::string &stage, uint32_t properties) {

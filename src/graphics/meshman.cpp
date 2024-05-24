@@ -36,8 +36,12 @@ namespace Graphics {
 MeshManager::MeshManager() {
 	if (ResMan.hasResource("objects/hardcoded/helpers_missingmesh.binmsh"))
 		_missingMeshPath = "objects/hardcoded/helpers_missingmesh.binmsh";
+	else if (ResMan.hasResource("data/objects/hardcoded/helpers_missingmesh.binfbx"))
+	    _missingMeshPath = "data/objects/hardcoded/helpers_missingmesh.binfbx";
 	if (ResMan.hasResource("objects/hardcoded/helpers_brokenmesh.binmsh"))
 		_brokenMeshPath = "objects/hardcoded/helpers_brokenmesh.binmsh";
+	else if (ResMan.hasResource("data/objects/hardcoded/helpers_brokenmesh.binfbx"))
+	    _brokenMeshPath = "data/objects/hardcoded/helpers_brokenmesh.binfbx";
 
 	if (_missingMeshPath.empty())
 		throw std::runtime_error("No missing mesh mesh found!");
