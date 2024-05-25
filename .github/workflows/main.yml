@@ -78,7 +78,7 @@ jobs:
             ccache
 
       - name: Install dependencies with vcpkg
-        if: ${{ matrix.os == 'windows-2019' }}
+        if: ${{ matrix.os == 'windows-2022' }}
         shell: bash
         run: |
           vcpkg update
