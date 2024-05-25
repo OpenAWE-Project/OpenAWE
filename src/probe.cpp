@@ -231,12 +231,12 @@ ProbeResult Probe::checkQuantumBreak() {
 ProbeResult Probe::checkControl() {
 	// Check for Control missions
 	bool hasControlMissions =
-	    ResMan.hasDirectory("data/worlds/gameworld/layers/hub_mission_01_the_bureau") &&
+		ResMan.hasDirectory("data/worlds/gameworld/layers/hub_mission_01_the_bureau") &&
 		ResMan.hasDirectory("data/worlds/gameworld/layers/hub_mission_02_the_hotline") &&
-	    ResMan.hasDirectory("data/worlds/gameworld/layers/maintenance_main_mission_03_lockdown") &&
+		ResMan.hasDirectory("data/worlds/gameworld/layers/maintenance_main_mission_03_lockdown") &&
 		ResMan.hasDirectory("data/worlds/gameworld/layers/research_mission_04_marshall") &&
 		ResMan.hasDirectory("data/worlds/gameworld/layers/maintenance_main_mission_05_blackrock") &&
-	    ResMan.hasDirectory("data/worlds/gameworld/layers/containment_main_mission_06_dylan") &&
+		ResMan.hasDirectory("data/worlds/gameworld/layers/containment_main_mission_06_dylan") &&
 		ResMan.hasDirectory("data/worlds/gameworld/layers/containment_main_mission_07_ordinary") &&
 		ResMan.hasDirectory("data/worlds/gameworld/layers/maintenance_main_mission_08_ahti") &&
 		ResMan.hasDirectory("data/worlds/gameworld/layers/research_mission_09_the_hedron") &&
@@ -245,8 +245,8 @@ ProbeResult Probe::checkControl() {
 	bool hasAhti =
 		ResMan.hasResource("data/animations/intermediate/p7/human/male/ahti/ahti_mopping_loop_02.binanimclip");
 	// Check for vending machine
-	bool hasVendingMachine = 
-	    ResMan.hasResource("data/objects/props/vending_machines/vending_machines_vending_machine.binfbx");
+	bool hasVendingMachine =
+		ResMan.hasResource("data/objects/props/vending_machines/vending_machines_vending_machine.binfbx");
 
 	if (hasControlMissions && hasAhti && hasVendingMachine) {
 		spdlog::debug("Looks like Control!");

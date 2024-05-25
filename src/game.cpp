@@ -163,7 +163,6 @@ void Game::init() {
 	// Launch probe to see what game we are dealing with
 	Probe probe = Probe();
 	ProbeResult probeResult = probe.performProbe();
-	std::string prefix = "";
 	switch (probeResult) {
 		case kResultAlanWake:
 			spdlog::info("Initializing Alan Wake...");
@@ -179,15 +178,13 @@ void Game::init() {
 			throw CreateException("Alan Wake Remastered is not yet supported by OpenAWE.");
 		case kResultControl:
 			throw CreateException("Control is not yet supported by OpenAWE.");
-			//prefix = "data/";
-			break;
 		case kResultUnknown:
 		default:
 			throw CreateException("Unknown game data was supplied.");
 	}
 
 	// Check if the resources have packmeta files and load them and if not load streamed resources
-	if (engine == kAlanWakesAmericanNightmare || engine == kControl) {
+	if (engine == kAlanWakesAmericanNightmare) {
 		for (const auto &identifier : identifiers) {
 			spdlog::info("Indexing packmeta file {}", identifier + ".packmeta");
 			ResMan.indexPackmeta(identifier + ".packmeta");
@@ -240,11 +237,11 @@ void Game::init() {
 
 	// Initialize fonts
 	spdlog::info("Loading font fixedsys");
-	FontMan.load(prefix + "fonts/fixedsys.binfnt", "fixedsys");
+	FontMan.load("fonts/fixedsys.binfnt", "fixedsys");
 
 	// Initialize locale config
 	std::unique_ptr<Common::ReadStream> localeConfigStream(ResMan.getResource("config/locale_config.xml"));
-	if (localeConfigStream == nullptr)
+	if (!localeConfigStream)
 		throw Common::Exception("Locale Config file not found");
 	LocaleConfig localeConfig(*localeConfigStream);
 
