@@ -33,8 +33,8 @@ void FontManager::load(const std::string &path, const std::string &id) {
 
 	std::unique_ptr<Common::ReadStream> font(ResMan.getResource(path));
 
-	if (font == nullptr)
-       throw std::runtime_error(fmt::format("Font file not found: {}", path));
+	if (!font)
+		throw std::runtime_error(fmt::format("Font file not found: {}", path));
 
 	_fonts[id] = std::make_unique<BINFNTFont>(*font);
 }
