@@ -228,7 +228,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	// Initialize noise map
 	//
 	std::mt19937 mt(std::chrono::system_clock::now().time_since_epoch().count());
-	std::uniform_int_distribution<byte> dist(0, 0xFF);
+	std::uniform_int_distribution<unsigned int> dist(0, 0xFF);
 
 	auto noiseSurface = Surface(32, 32, 64, kRGBA8);
 	for (int i = 0; i < 32 * 32 * 64; ++i) {
