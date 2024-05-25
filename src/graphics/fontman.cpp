@@ -20,6 +20,8 @@
 
 #include <regex>
 
+#include "src/common/exception.h"
+
 #include "src/awe/resman.h"
 
 #include "src/graphics/fontman.h"
@@ -29,12 +31,12 @@ namespace Graphics {
 
 void FontManager::load(const std::string &path, const std::string &id) {
 	if (!std::regex_match(path, std::regex(".*\\.binfnt")))
-		throw std::runtime_error("Invalid font file");
+		throw CreateException("Invalid font file");
 
 	std::unique_ptr<Common::ReadStream> font(ResMan.getResource(path));
 
 	if (!font)
-		throw std::runtime_error(fmt::format("Font file not found: {}", path));
+		throw CreateException("Font file not found: {}", path);
 
 	_fonts[id] = std::make_unique<BINFNTFont>(*font);
 }
