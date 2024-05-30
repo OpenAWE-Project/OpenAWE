@@ -33,7 +33,6 @@ TEX::TEX(Common::ReadStream &tex) {
 	const uint32_t mipmapCount = tex.readUint32LE();
 	const uint32_t filter = tex.readUint32LE();
 
-	assert(depth == 1);
 	//assert(filter == 0);
 
 	tex.seek(0x20);
