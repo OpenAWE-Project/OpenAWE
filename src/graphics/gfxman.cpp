@@ -142,7 +142,7 @@ void GraphicsManager::setAmbianceState(const std::string &id) {
 void GraphicsManager::setAtmosphere(const std::string &id) {
 	const auto atmPath = fmt::format("atmosphere/{}.atm", id);
 	std::unique_ptr<Common::ReadStream> atmStream(ResMan.getResource(atmPath));
-	if (atmStream)
+	if (!atmStream)
 		throw CreateException("Cannot find {}", atmPath);
 
 	AWE::ATMFile atm(*atmStream);
