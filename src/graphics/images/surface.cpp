@@ -60,7 +60,7 @@ Surface::Surface(unsigned int width, unsigned int height, unsigned int depth, Te
 	mipmap.height = height;
 	mipmap.depth = depth;
 
-	const auto dataSize = getImageSize(width, height);
+	const auto dataSize = getImageSize(width, height, depth);
 	mipmap.data.resize(1);
 	mipmap.data[0].resize(dataSize);
 
