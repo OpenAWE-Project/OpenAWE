@@ -31,24 +31,15 @@ ATMFile::ATMFile(Common::ReadStream &atm) {
 	if (version != 1)
 		throw CreateException("Invalid atmosphere file version. Expected 1, got {}", version);
 
-	glm::vec3 v1, v2, v3;
-	v1.x = atm.readIEEEFloatLE();
-	v1.y = atm.readIEEEFloatLE();
-	v1.z = atm.readIEEEFloatLE();
+	const auto v1 = atm.read<glm::vec3>();
+	const auto v2 = atm.read<glm::vec3>();
+	const auto v3 = atm.read<glm::vec3>();
 
-	v2.x = atm.readIEEEFloatLE();
-	v2.y = atm.readIEEEFloatLE();
-	v2.z = atm.readIEEEFloatLE();
-
-	v3.x = atm.readIEEEFloatLE();
-	v3.y = atm.readIEEEFloatLE();
-	v3.z = atm.readIEEEFloatLE();
+	const auto unkValue = atm.readIEEEFloatLE();
 
 	_stars.resize(256); // ?
 	for (auto &star : _stars) {
-		star.x = atm.readIEEEFloatLE();
-		star.y = atm.readIEEEFloatLE();
-		star.z = atm.readIEEEFloatLE();
+		star = atm.read<glm::vec3>();
 	}
 
 	_atmosphericLUT.reset(atm.readStream());
