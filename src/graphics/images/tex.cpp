@@ -64,6 +64,7 @@ TEX::TEX(Common::ReadStream &tex) {
 
 		// RGBA16F
 		case 6:
+		case 10:
 			_format = kRGBA16F;
 			break;
 
