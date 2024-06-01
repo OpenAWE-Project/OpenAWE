@@ -478,6 +478,11 @@ if (WITH_TOOLS)
 endif ()
 
 # ------------------------------------
+# Data
+file(GLOB DATA_FILES data/*.xml)
+install(FILES ${DATA_FILES} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/openawe)
+
+# ------------------------------------
 # Unit Tests
 if (GTEST_FOUND)
     list(FILTER SOURCE_FILES EXCLUDE REGEX \\.*/awe.cpp)
