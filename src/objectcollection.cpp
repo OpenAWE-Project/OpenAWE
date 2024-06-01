@@ -151,6 +151,8 @@ void ObjectCollection::loadFoliageData(Common::ReadStream *foliageData) {
 
 		model->setNumInstances(positions.size());
 		model->setLabel("<Foliage>");
+
+		_entities.emplace_back(foliageEntity);
 	}
 }
 
@@ -201,6 +203,8 @@ void ObjectCollection::loadSkeleton(const AWE::Object &container) {
 	_registry.emplace<GID>(skeletonEntity) = skeleton.gid;
 	_registry.emplace<Graphics::Skeleton>(skeletonEntity) = skeleton.rid;
 
+	_entities.emplace_back(skeletonEntity);
+
 	spdlog::debug("Loading skeleton {}", skeleton.name);
 }
 
@@ -220,6 +224,8 @@ void ObjectCollection::loadAnimation(const AWE::Object &container) {
 
 	_globalObjects[kAnimationID].emplace_back(animationEntity);
 
+	_entities.emplace_back(animationEntity);
+
 	spdlog::debug("Loading animation {} for skeleton {}", animation.name, _gid->getString(animation.skeletonGid));
 }
 
@@ -228,6 +234,7 @@ void ObjectCollection::loadNotebookPage(const AWE::Object &container) {
 
 	auto notebookPageEntity = _registry.create();
 	_registry.emplace<GID>(notebookPageEntity) = notebookPage.gid;
+
 	_entities.emplace_back(notebookPageEntity);
 
 	spdlog::debug("Loading notebook page {}", _gid->getString(notebookPage.gid));
@@ -409,6 +416,8 @@ void ObjectCollection::loadScriptInstance(const AWE::Object &container) {
 	_registry.emplace<GID>(scriptInstanceEntity) = scriptInstance.gid;
 	_registry.emplace<Transform>(scriptInstanceEntity) = Transform(scriptInstance.position,  scriptInstance.rotation);
 
+	_entities.emplace_back(scriptInstanceEntity);
+
 	spdlog::debug("Loading script instance {}", _gid->getString(scriptInstance.gid));
 }
 
@@ -461,6 +470,8 @@ void ObjectCollection::loadFloatingScript(const AWE::Object &container) {
 	if (variableStore)
 		_registry.emplace<AWE::Script::VariableStorePtr>(floatingScriptEntity) = variableStore;
 
+	_entities.emplace_back(floatingScriptEntity);
+
 	spdlog::debug("Loading floating script {}", _gid->getString(floatingScript.gid));
 }
 
@@ -510,6 +521,8 @@ void ObjectCollection::loadPointLight(const AWE::Object &container) {
 
 	_attachmentMappings[pointLight.attachmentGid] = pointLight.gid;
 
+	_entities.emplace_back(pointLightEntity);
+
 	spdlog::debug("Loading point light {}", _gid->getString(pointLight.gid));
 }
 
@@ -520,6 +533,8 @@ void ObjectCollection::loadAmbientLightInstance(const AWE::Object &container) {
 	_registry.emplace<GID>(ambientLightEntity) = ambientLightInstance.gid;
 	_registry.emplace<Transform>(ambientLightEntity) = Transform(ambientLightInstance.position, glm::identity<glm::mat3>());
 
+	_entities.emplace_back(ambientLightEntity);
+
 	spdlog::debug("Loading ambient light {}", _gid->getString(ambientLightInstance.gid));
 }
 
@@ -529,6 +544,8 @@ void ObjectCollection::loadAreaTrigger(const AWE::Object &container) {
 	auto areaTriggerEntity = _registry.create();
 	_registry.emplace<GID>(areaTriggerEntity) = areaTrigger.gid;
 	_registry.emplace<Common::ConvexShape>(areaTriggerEntity) = areaTrigger.positions;
+
+	_entities.emplace_back(areaTriggerEntity);
 
 	spdlog::debug("Loading area trigger {}", areaTrigger.identifier);
 }
@@ -549,6 +566,8 @@ void ObjectCollection::loadTaskDefinition(const AWE::Object &container) {
 		taskDefinition.activateOnStartupRound
 	);
 
+	_entities.emplace_back(taskEntity);
+
 	spdlog::debug("Loading task {}", _gid->getString(taskDefinition.gid));
 }
 
@@ -559,6 +578,8 @@ void ObjectCollection::loadWaypoint(const AWE::Object &container) {
 	_registry.emplace<GID>(wayPointEntity) = wayPoint.gid;
 	_registry.emplace<Transform>(wayPointEntity) = Transform(wayPoint.position, wayPoint.rotation);
 
+	_entities.emplace_back(wayPointEntity);
+
 	spdlog::debug("Loading way point {}", _gid->getString(wayPoint.gid));
 }
 
@@ -568,6 +589,8 @@ void ObjectCollection::loadSound(const AWE::Object &container) {
 	auto soundEntity = _registry.create();
 	_registry.emplace<GID>(soundEntity) = sound.gid;
 	_registry.emplace<Sound::AudioStreamFactory>(soundEntity) = sound.rid;
+
+	_entities.emplace_back(soundEntity);
 
 	spdlog::debug("Loading sound {}", _gid->getString(sound.gid));
 }
@@ -653,6 +676,8 @@ void ObjectCollection::loadKeyFramer(const AWE::Object &container) {
 
 	_localObjects[kKeyframerID].emplace_back(keyFramerEntity);
 
+	_entities.emplace_back(keyFramerEntity);
+
 	spdlog::debug("Loading keyframer {}", _gid->getString(keyFramer.gid));
 }
 
@@ -720,6 +745,8 @@ void ObjectCollection::loadKeyFrameAnimation(const AWE::Object &container) {
 	_registry.emplace<KeyFrameAnimation>(keyFrameAnimationEntity) = keyFrameAnimationObject;
 
 	_localObjects[kKeyframeAnimationID].emplace_back(keyFrameAnimationEntity);
+
+	_entities.emplace_back(keyFrameAnimationEntity);
 
 	spdlog::debug("Loading keyframe animation {}", _gid->getString(keyFrameAnimation.gid));
 }
