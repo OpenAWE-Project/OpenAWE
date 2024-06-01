@@ -111,6 +111,10 @@ void Engine::loadEpisode(const std::string &data) {
 	});
 }
 
+void Engine::clearWorld() {
+	_world.reset();
+}
+
 void Engine::initEpisode() {
 	_world->setVisible(true);
 

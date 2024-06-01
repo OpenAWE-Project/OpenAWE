@@ -61,6 +61,11 @@ public:
 	 */
 	virtual void loadEpisode(const std::string &data);
 
+	/**
+	 * Removes every object collection currently loaded by the engine
+	 */
+	void clearWorld();
+
 protected:
 	/*!
 	 * This method is being called when the loading of an episode is done and executes all necessary initializations
