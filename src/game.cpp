@@ -395,6 +395,14 @@ void Game::start() {
 
 	_engine->writeConfiguration();
 
+	_engine->clearWorld();
+	_global.reset();
+
+	MeshMan.clear();
+
+	GfxMan.update();
+	GfxMan.releaseRenderer();
+
 	_window.reset();
 	_platform.terminate();
 }
