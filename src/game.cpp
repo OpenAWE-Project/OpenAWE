@@ -265,9 +265,11 @@ void Game::init() {
 	}
 	_window->setTitle(_engine->getName());
 
-	_global = std::make_unique<Global>(_registry, _engine->getScheduler());
+	Threads.add([this](){
+		_global = std::make_unique<Global>(_registry, _engine->getScheduler());
 
-	_engine->init();
+		_engine->init();
+	});
 }
 
 void Game::start() {
