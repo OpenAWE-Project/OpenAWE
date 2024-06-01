@@ -92,7 +92,12 @@ if (LZ4_FOUND)
             awe_sound
     )
 
-    install(TARGETS unrmdblob DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(
+            TARGETS unrmdblob
+            DESTINATION ${CMAKE_INSTALL_BINDIR}
+            RUNTIME_DEPENDENCIES
+            POST_EXCLUDE_REGEXES ld-linux*
+    )
 endif ()
 
 install(
@@ -107,4 +112,6 @@ install(
         fsb2wav
 
         DESTINATION ${CMAKE_INSTALL_BINDIR}
+        RUNTIME_DEPENDENCIES
+        POST_EXCLUDE_REGEXES ld-linux*
 )

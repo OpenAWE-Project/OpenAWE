@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.21)
 project(OpenAWE VERSION 0.0.1)
 
 include(GoogleTest)
@@ -454,6 +454,8 @@ target_link_libraries(
 install(
         TARGETS awe
         DESTINATION ${CMAKE_INSTALL_BINDIR}
+        RUNTIME_DEPENDENCIES
+        POST_EXCLUDE_REGEXES ld-linux*
 )
 
 # ------------------------------------
