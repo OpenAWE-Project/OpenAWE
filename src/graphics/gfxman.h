@@ -42,6 +42,11 @@ class GraphicsManager : public Common::Singleton<GraphicsManager> {
 public:
 	void initOpenGL(Platform::Window &window, const std::string &shaderDirectory);
 
+	/*!
+	 * Frees the renderer and all of its associated resources
+	 */
+	void releaseRenderer();
+
 	void setCamera(Camera &camera);
 
 	void setAmbianceState(const std::string &id);
