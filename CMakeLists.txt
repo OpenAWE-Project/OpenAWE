@@ -189,6 +189,7 @@ add_definitions(-DSUPPORT_PROFILE_SPIRV=0)
 add_definitions(-DSUPPORT_PROFILE_GLSPIRV=0)
 
 # TOML11
+set(toml11_INSTALL OFF)
 add_subdirectory(3rdparty/toml11)
 
 # ImGui
