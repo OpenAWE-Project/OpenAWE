@@ -101,7 +101,10 @@ public:
 		const std::string &id
 	) = 0;
 
-	void update();
+	/*!
+	 * Execute tasks for the renderer which are not drawing related
+	 */
+	virtual void update();
 	virtual void drawFrame() = 0;
 
 protected:

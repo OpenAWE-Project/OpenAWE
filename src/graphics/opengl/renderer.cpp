@@ -252,13 +252,6 @@ Renderer::~Renderer() {
 void Renderer::drawFrame() {
 	_window.makeCurrent();
 
-	// Loading
-	while (!_loadingTasks.empty()) {
-		auto &task = _loadingTasks.front();
-		task->apply();
-		_loadingTasks.pop_front();
-	}
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	_deferredBuffer->bind();
@@ -278,6 +271,19 @@ void Renderer::drawFrame() {
 	drawImGui();
 
 	_window.swap();
+}
+
+void Renderer::update() {
+	Graphics::Renderer::update();
+
+	_window.makeCurrent();
+
+	// Loading
+	while (!_loadingTasks.empty()) {
+		auto &task = _loadingTasks.front();
+		task->apply();
+		_loadingTasks.pop_front();
+	}
 }
 
 void Renderer::drawWorld(const std::string &stage) {

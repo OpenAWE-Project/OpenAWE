@@ -43,6 +43,8 @@ public:
 	explicit Renderer(Platform::Window &window, const std::string &shaderDirectory);
 	~Renderer();
 
+	void update() override;
+
 	void drawFrame() override;
 
 	bool isLoading() const override;
