@@ -50,6 +50,7 @@ public:
 	void addGUIElement(GUIElement *gui);
 	void removeGUIElement(GUIElement *gui);
 	void addLight(Light *light);
+	void removeLight(Light *light);
 
 	void setCamera(Camera &camera);
 

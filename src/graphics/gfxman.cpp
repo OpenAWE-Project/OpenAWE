@@ -66,6 +66,16 @@ void GraphicsManager::setSky(SkyPtr sky) {
 }
 
 void GraphicsManager::addLight(Light *light) {
+	if (!_renderer)
+		return;
+
+	_renderer->addLight(light);
+}
+
+void GraphicsManager::removeLight(Light *light) {
+	if (!_renderer)
+		return;
+
 	_renderer->addLight(light);
 }
 

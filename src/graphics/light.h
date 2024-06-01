@@ -41,11 +41,16 @@ namespace Graphics {
 class Light {
 public:
 	Light();
+	virtual ~Light();
 
 	/*!
 	 * Adds the light to the scene graph and makes it through that visible
 	 */
 	void show();
+	/*!
+	 * Removes the light from the scene graph
+	 */
+	void hide();
 
 	/*!
 	 * Return the current color of the light

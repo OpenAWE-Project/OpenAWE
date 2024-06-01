@@ -63,8 +63,16 @@ Light::Light() : _label("<No Label>"), _enabled(true) {
 	);
 }
 
+Light::~Light() {
+	hide();
+}
+
 void Light::show() {
 	GfxMan.addLight(this);
+}
+
+void Light::hide() {
+	GfxMan.removeLight(this);
 }
 
 void Light::setTransform(const glm::mat4 &transform) {

@@ -106,6 +106,11 @@ void Graphics::Renderer::addLight(Graphics::Light *light) {
 	_lights.emplace_back(light);
 }
 
+void Graphics::Renderer::removeLight(Graphics::Light *light) {
+	const auto iter = std::remove(_lights.begin(), _lights.end(), light);
+	_lights.erase(iter);
+}
+
 void Graphics::Renderer::setCamera(Graphics::Camera &camera) {
 	_camera = camera;
 }

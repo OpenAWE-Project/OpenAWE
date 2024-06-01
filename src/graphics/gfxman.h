@@ -85,6 +85,12 @@ public:
 	void addLight(Light *light);
 
 	/*!
+	 * Remove a light from the rendering queue
+	 * \param light The light to be removed
+	 */
+	void removeLight(Light *light);
+
+	/*!
 	 * Create a texture in the initialized rendering system using given image data from a decoder as base. The decoder
 	 * also defines metadata, like how the dimensions of the texture are and the format of the texture.
 	 * \param decoder The decoder defining the image data
@@ -165,6 +171,8 @@ public:
 		uint32_t properties,
 		const std::string &id
 	);
+
+	void update();
 
 	void drawFrame();
 
