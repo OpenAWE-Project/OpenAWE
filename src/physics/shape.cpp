@@ -29,6 +29,9 @@ Shape::~Shape() {
     for (const auto &additionalShape: _additionalShapes) {
         delete additionalShape;
     }
+	for (const auto &mesh : _meshes) {
+		delete mesh;
+	}
     delete _rootShape;
 }
 
