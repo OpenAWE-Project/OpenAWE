@@ -102,6 +102,10 @@ MeshPtr MeshManager::getMesh(const std::string &path, std::initializer_list<std:
 	}
 }
 
+void MeshManager::clear() {
+	_meshRegistry.clear();
+}
+
 MeshPtr MeshManager::getMissingMesh() {
 	return getMesh(_missingMeshPath);
 }

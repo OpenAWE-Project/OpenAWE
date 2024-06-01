@@ -72,6 +72,8 @@ public:
 	MeshPtr getMesh(const std::string &path);
 	MeshPtr getMesh(const std::string &path, std::initializer_list<std::string> stages);
 
+	void clear();
+
 private:
 	MeshPtr getMissingMesh();
 	MeshPtr getBrokenMesh();
