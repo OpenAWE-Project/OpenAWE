@@ -247,6 +247,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 }
 
 Renderer::~Renderer() {
+	ImGui_ImplOpenGL3_Shutdown();
 }
 
 void Renderer::drawFrame() {
