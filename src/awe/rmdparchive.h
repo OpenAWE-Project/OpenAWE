@@ -193,7 +193,6 @@ private:
 	 */
 	std::optional<FileEntry> findFile(const FolderEntry &folder, const uint32_t nameHash) const;
 
-	bool _pathPrefix;
 	bool _littleEndian;
 	uint32_t _version;
 
