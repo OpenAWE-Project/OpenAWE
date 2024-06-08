@@ -64,7 +64,6 @@ RMDPArchive::RMDPArchive(Common::ReadStream *bin, Common::ReadStream *rmdp) : _r
 			break;
 		case kVersionControl:
 			loadHeaderV8(bin, end);
-			_pathPrefix = false;
 			break;
 		default:
 			throw CreateException("Unknown RMDP Archive version {}", _version);
@@ -237,7 +236,6 @@ std::string RMDPArchive::readEntryName(Common::ReadStream *bin, int64_t offset, 
 
 void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream &end) {
 	// Load header version 2, used by both Alan Wake and Alan Wake Remastered
-	_pathPrefix = false;
 
 	const uint32_t numFolders = end.readUint32();
 	const uint32_t numFiles = end.readUint32();
@@ -360,7 +358,6 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 
 void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream &end) {
 	// Load header version 7, used by Nightmare
-	_pathPrefix = true;
 
 	const uint32_t numFolders = end.readUint32();
 	const uint32_t numFiles = end.readUint32();
@@ -413,7 +410,6 @@ void RMDPArchive::loadHeaderV7(Common::ReadStream *bin, Common::EndianReadStream
 
 void RMDPArchive::loadHeaderV8(Common::ReadStream *bin, Common::EndianReadStream &end) {
 	// Load header version 8, used by Quantum Break
-	_pathPrefix = true;
 
 	const uint32_t numFolders = end.readUint32();
 	const uint32_t numFiles = end.readUint32();
