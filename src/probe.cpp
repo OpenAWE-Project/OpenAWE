@@ -27,7 +27,13 @@
 #include "src/common/exception.h"
 #include "src/probe.h"
 
-Probe::Probe() {}
+Probe::Probe() {
+	_pathPrefixes[kResultAlanWake] = "";
+	_pathPrefixes[kResultAlanWakeRemastered] = "d:/data/";
+	_pathPrefixes[kResultAmericanNightmare] = "d:/data/";
+	_pathPrefixes[kResultQuantumBreak] = "d:/data/";
+	_pathPrefixes[kResultControl] = "data/";
+}
 
 ProbeResult Probe::performProbe() {
 	spdlog::info("Probing archives...");
@@ -39,13 +45,17 @@ ProbeResult Probe::performProbe() {
 		checkControl();
 	if (allChecks.none())
 		return kResultUnknown;
-	else if (allChecks.count() == 1)
-		return static_cast<ProbeResult>(allChecks.to_ulong());
+	else if (allChecks.count() == 1) {
+		ProbeResult probeResult = static_cast<ProbeResult>(allChecks.to_ulong());
+		ResMan.setPathPrefix(_pathPrefixes[probeResult]); // Set the final path prefix
+		return probeResult;
+	}
 	else
-		throw CreateException("Ambiguous archives: probe failed to recognise a certain game");	 	
+		throw CreateException("Ambiguous archives: probe failed to recognise a certain game");
 }
 
 ProbeResult Probe::checkAlanWake() {
+	ResMan.setPathPrefix(_pathPrefixes[kResultAlanWake]);
 	// check if old Alan Wake's textures are present in files
 	bool hasAlanWake2008 = ResMan.hasDirectory("textures/characters/alanwake_2008");
 	// check for Stucky's texture variation
@@ -79,6 +89,7 @@ ProbeResult Probe::checkAlanWake() {
 }
 
 ProbeResult Probe::checkAlanWakeRemastered() {
+	ResMan.setPathPrefix(_pathPrefixes[kResultAlanWakeRemastered]);
 	// check for new deerfest parade truck textures
 	bool hasParadefloat = ResMan.hasDirectory("textures/objects/vehicles/new/paradefloat/paradefloat");
 	// check for Rose's trailer items
@@ -126,11 +137,13 @@ ProbeResult Probe::checkAlanWakeRemastered() {
 		return kResultAlanWakeRemastered;
 	} else {
 		spdlog::debug("Doesn't look like Alan Wake Remastered...");
+		ResMan.setPathPrefix(""); // reset pathPrefix
 		return kResultUnknown;
 	}
 }
 
 ProbeResult Probe::checkAmericanNightmare() {
+	ResMan.setPathPrefix(_pathPrefixes[kResultAmericanNightmare]);
 	// check for game's characters
 	bool hasNightmareCharacters = 
 		ResMan.hasResource("objects/characters/alanwake_awns_mesh.binmsh") &&
@@ -171,7 +184,7 @@ ProbeResult Probe::checkAmericanNightmare() {
 		ResMan.hasDirectory("worlds/gameworld/levels/arcade3_rim") &&
 		ResMan.hasDirectory("worlds/gameworld/levels/arcade2_rim") &&
 		ResMan.hasDirectory("worlds/gameworld/levels/arcade1_rim");
-	
+
 	if (hasArcadeWorlds && hasFilmFestivalBanner &&
 		hasNightmareCharacters && hasNightmareComplexes &&
 		hasNightmareMusic && hasObservatoryPosters &&
@@ -180,11 +193,13 @@ ProbeResult Probe::checkAmericanNightmare() {
 		return kResultAmericanNightmare;
 	} else {
 		spdlog::debug("Doesn't look like Alan Wake's American Nightmare...");
+		ResMan.setPathPrefix(""); // reset pathPrefix
 	 	return kResultUnknown;
 	}
 }
 
 ProbeResult Probe::checkQuantumBreak() {
+	ResMan.setPathPrefix(_pathPrefixes[kResultQuantumBreak]);
 	// check for Microsoft product placement
 	bool hasMicrosoftProducts = 
 		ResMan.hasResource("animations/intermediate/objects/ringtail/batch39/microsoft_surface_surface_3_p_9ddbe72b.aaa") &&
@@ -216,7 +231,7 @@ ProbeResult Probe::checkQuantumBreak() {
 		ResMan.hasDirectory("textures/characters/jacjoy") &&
 		ResMan.hasDirectory("textures/characters/liabur") &&
 		ResMan.hasDirectory("textures/characters/nicmar");
-	
+
 	if (hasQBreakCharacters && hasQBreakPrototype &&
 		hasQBreakLevels && hasMicrosoftProducts &&
 		hasMonarchHQ && hasNissanLeaf && hasTimeMachine) {
@@ -224,35 +239,38 @@ ProbeResult Probe::checkQuantumBreak() {
 		return kResultQuantumBreak;
 	} else {
 		spdlog::debug("Doesn't look like Quantum Break...");
+		ResMan.setPathPrefix(""); // reset pathPrefix
 		return kResultUnknown;
 	}
 }
 
 ProbeResult Probe::checkControl() {
+	ResMan.setPathPrefix(_pathPrefixes[kResultControl]);
 	// Check for Control missions
 	bool hasControlMissions =
-		ResMan.hasDirectory("data/worlds/gameworld/layers/hub_mission_01_the_bureau") &&
-		ResMan.hasDirectory("data/worlds/gameworld/layers/hub_mission_02_the_hotline") &&
-		ResMan.hasDirectory("data/worlds/gameworld/layers/maintenance_main_mission_03_lockdown") &&
-		ResMan.hasDirectory("data/worlds/gameworld/layers/research_mission_04_marshall") &&
-		ResMan.hasDirectory("data/worlds/gameworld/layers/maintenance_main_mission_05_blackrock") &&
-		ResMan.hasDirectory("data/worlds/gameworld/layers/containment_main_mission_06_dylan") &&
-		ResMan.hasDirectory("data/worlds/gameworld/layers/containment_main_mission_07_ordinary") &&
-		ResMan.hasDirectory("data/worlds/gameworld/layers/maintenance_main_mission_08_ahti") &&
-		ResMan.hasDirectory("data/worlds/gameworld/layers/research_mission_09_the_hedron") &&
-		ResMan.hasDirectory("data/worlds/gameworld/layers/hub_mission_10_nightmare");
+		ResMan.hasDirectory("worlds/gameworld/layers/hub_mission_01_the_bureau") &&
+		ResMan.hasDirectory("worlds/gameworld/layers/hub_mission_02_the_hotline") &&
+		ResMan.hasDirectory("worlds/gameworld/layers/maintenance_main_mission_03_lockdown") &&
+		ResMan.hasDirectory("worlds/gameworld/layers/research_mission_04_marshall") &&
+		ResMan.hasDirectory("worlds/gameworld/layers/maintenance_main_mission_05_blackrock") &&
+		ResMan.hasDirectory("worlds/gameworld/layers/containment_main_mission_06_dylan") &&
+		ResMan.hasDirectory("worlds/gameworld/layers/containment_main_mission_07_ordinary") &&
+		ResMan.hasDirectory("worlds/gameworld/layers/maintenance_main_mission_08_ahti") &&
+		ResMan.hasDirectory("worlds/gameworld/layers/research_mission_09_the_hedron") &&
+		ResMan.hasDirectory("worlds/gameworld/layers/hub_mission_10_nightmare");
 	// Check for mopping Ahti
 	bool hasAhti =
-		ResMan.hasResource("data/animations/intermediate/p7/human/male/ahti/ahti_mopping_loop_02.binanimclip");
+		ResMan.hasResource("animations/intermediate/p7/human/male/ahti/ahti_mopping_loop_02.binanimclip");
 	// Check for vending machine
 	bool hasVendingMachine =
-		ResMan.hasResource("data/objects/props/vending_machines/vending_machines_vending_machine.binfbx");
+		ResMan.hasResource("objects/props/vending_machines/vending_machines_vending_machine.binfbx");
 
 	if (hasControlMissions && hasAhti && hasVendingMachine) {
 		spdlog::debug("Looks like Control!");
 		return kResultControl;
 	} else {
 		spdlog::debug("Doesn't look like Control...");
+		ResMan.setPathPrefix(""); // reset pathPrefix
 		return kResultUnknown;
 	}
 }

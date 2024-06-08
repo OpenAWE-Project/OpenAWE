@@ -75,6 +75,8 @@ private:
 	 */
 	ProbeResult checkControl();
 
+	std::map<ProbeResult, std::string> _pathPrefixes;
+
 };
 
 #endif //AWE_PROBE_H

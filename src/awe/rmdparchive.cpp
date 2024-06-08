@@ -122,8 +122,7 @@ std::optional<RMDPArchive::FileEntry> RMDPArchive::findFile(const FolderEntry &f
 }
 
 std::vector<size_t> RMDPArchive::getDirectoryResources(const std::string &directory) {
-	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(directory);
-	auto pathHashes = getPathHashes(path);
+	auto pathHashes = getPathHashes(directory);
 
 	auto maybeFolder = findDirectory(pathHashes);
 	if (!maybeFolder) return {};
@@ -177,9 +176,9 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 
 Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 	std::lock_guard<std::mutex> g(_readMutex);
-	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(rid);
+
 	// Extract and separate file name from the rest of the path
-	auto pathHashes = getPathHashes(path);
+	auto pathHashes = getPathHashes(rid);
 	uint32_t fileHash = pathHashes.back();
 	pathHashes.pop_back();
 
@@ -204,9 +203,8 @@ Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
 }
 
 bool RMDPArchive::hasResource(const std::string &rid) const {
-	std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(rid);
 	// Extract and separate file name from the rest of the path
-	auto pathHashes = getPathHashes(path);
+	auto pathHashes = getPathHashes(rid);
 	uint32_t fileHash = pathHashes.back();
 	pathHashes.pop_back();
 
@@ -219,8 +217,7 @@ bool RMDPArchive::hasResource(const std::string &rid) const {
 }
 
 bool RMDPArchive::hasDirectory(const std::string &directory) const {
-	const std::string path = (_pathPrefix ? "d:/data/" : "") + AWE::getNormalizedPath(directory);
-	const auto pathHashes = getPathHashes(path);
+	const auto pathHashes = getPathHashes(directory);
 	const auto maybeFolder = findDirectory(pathHashes);
 	return maybeFolder.has_value();
 }

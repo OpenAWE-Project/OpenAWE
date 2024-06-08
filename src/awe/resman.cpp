@@ -25,6 +25,7 @@
 #include "src/common/readfile.h"
 
 #include "resman.h"
+#include "src/awe/path.h"
 #include "src/awe/rmdparchive.h"
 #include "src/awe/streamedresourcefile.h"
 
@@ -61,8 +62,9 @@ bool RessourceManager::hasResource(const std::string &path) {
 	if (std::filesystem::is_regular_file(_rootPath + "/" + path))
 		return true;
 
+	const auto fullPath = _pathPrefix + AWE::getNormalizedPath(path);
 	for (const auto &archive : _archives) {
-		if (archive->hasResource(path))
+		if (archive->hasResource(fullPath))
 			return true;
 	}
 
@@ -73,8 +75,9 @@ bool RessourceManager::hasDirectory(const std::string &path) {
 	if (std::filesystem::is_directory(_rootPath + "/" + path))
 		return true;
 
+	const auto fullPath = _pathPrefix + AWE::getNormalizedPath(path);
 	for (const auto &archive : _archives) {
-		if (archive->hasDirectory(path))
+		if (archive->hasDirectory(fullPath))
 			return true;
 	}
 
@@ -95,8 +98,9 @@ std::string RessourceManager::getResourcePath(rid_t rid) {
 
 std::vector<std::string> RessourceManager::getDirectoryResources(const std::string &path) {
 	std::vector<std::string> paths;
+	const auto fullPath = _pathPrefix + AWE::getNormalizedPath(path);
 	for (auto &archive : _archives) {
-		const auto indices = archive->getDirectoryResources(path);
+		const auto indices = archive->getDirectoryResources(fullPath);
 		for (const auto &index: indices) {
 			paths.emplace_back(archive->getResourcePath(index));
 		}
@@ -115,12 +119,12 @@ Common::ReadStream *RessourceManager::getResource(const std::string &path) {
 			return new Common::ReadFile(fullPath);
 	}
 
+	const auto fullPath = _pathPrefix + AWE::getNormalizedPath(path);
 	for (auto &archive : _archives) {
-		Common::ReadStream *stream = archive->getResource(path);
+		Common::ReadStream *stream = archive->getResource(fullPath);
 		if (stream != nullptr)
 			return stream;
 	}
-
 	return nullptr;
 }
 
@@ -134,6 +138,10 @@ Common::ReadStream *RessourceManager::getResource(rid_t rid) {
 		return getResource(path);
 	}
 	return nullptr;
+}
+
+void RessourceManager::setPathPrefix(const std::string &pathPrefix) {
+	_pathPrefix = pathPrefix;
 }
 
 void RessourceManager::setRootPath(const std::string &rootPath) {

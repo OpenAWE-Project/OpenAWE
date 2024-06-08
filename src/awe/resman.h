@@ -42,6 +42,7 @@ namespace AWE {
  */
 class RessourceManager : public Common::Singleton<RessourceManager> {
 public:
+	void setPathPrefix(const std::string &pathPrefix);
 	void setRootPath(const std::string &rootPath);
 	void addPath(const std::string &path);
 
@@ -63,6 +64,7 @@ public:
 	Common::ReadStream *getResource(rid_t rid);
 
 private:
+	std::string _pathPrefix;
 	std::string _rootPath;
 	std::vector<std::unique_ptr<RIDProvider>> _meta;
 	std::vector<std::string> _paths;
