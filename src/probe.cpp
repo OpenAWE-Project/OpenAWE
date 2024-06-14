@@ -137,7 +137,6 @@ ProbeResult Probe::checkAlanWakeRemastered() {
 		return kResultAlanWakeRemastered;
 	} else {
 		spdlog::debug("Doesn't look like Alan Wake Remastered...");
-		ResMan.setPathPrefix(""); // reset pathPrefix
 		return kResultUnknown;
 	}
 }
@@ -193,7 +192,6 @@ ProbeResult Probe::checkAmericanNightmare() {
 		return kResultAmericanNightmare;
 	} else {
 		spdlog::debug("Doesn't look like Alan Wake's American Nightmare...");
-		ResMan.setPathPrefix(""); // reset pathPrefix
 	 	return kResultUnknown;
 	}
 }
@@ -239,7 +237,6 @@ ProbeResult Probe::checkQuantumBreak() {
 		return kResultQuantumBreak;
 	} else {
 		spdlog::debug("Doesn't look like Quantum Break...");
-		ResMan.setPathPrefix(""); // reset pathPrefix
 		return kResultUnknown;
 	}
 }
@@ -270,7 +267,6 @@ ProbeResult Probe::checkControl() {
 		return kResultControl;
 	} else {
 		spdlog::debug("Doesn't look like Control...");
-		ResMan.setPathPrefix(""); // reset pathPrefix
 		return kResultUnknown;
 	}
 }
