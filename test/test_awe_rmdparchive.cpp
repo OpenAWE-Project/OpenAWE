@@ -1850,27 +1850,27 @@ TEST(RMDPArchive, EmptyArchiveV7) {
 	AWE::RMDPArchive rmdpArchive(bin, rmdp);
 	EXPECT_EQ(rmdpArchive.getNumResources(), 0);
 
-	EXPECT_FALSE(rmdpArchive.hasDirectory("upper_test_folder"));
-	EXPECT_FALSE(rmdpArchive.hasDirectory("upper_test_folder/lower_test_folder"));
-	EXPECT_FALSE(rmdpArchive.hasDirectory("lower_test_folder"));
+	EXPECT_FALSE(rmdpArchive.hasDirectory("d:/data/upper_test_folder"));
+	EXPECT_FALSE(rmdpArchive.hasDirectory("d:/data/upper_test_folder/lower_test_folder"));
+	EXPECT_FALSE(rmdpArchive.hasDirectory("d:/data/lower_test_folder"));
 
-	EXPECT_FALSE(rmdpArchive.hasResource("test.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("test2.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("test3.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("test4.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test2.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test3.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test4.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/test.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/test2.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/test3.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/test4.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test2.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test3.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test4.txt"));
 
-	std::unique_ptr<Common::ReadStream> test1(rmdpArchive.getResource("test.txt"));
-	std::unique_ptr<Common::ReadStream> test2(rmdpArchive.getResource("test2.txt"));
-	std::unique_ptr<Common::ReadStream> test3(rmdpArchive.getResource("test3.txt"));
-	std::unique_ptr<Common::ReadStream> test4(rmdpArchive.getResource("test4.txt"));
-	std::unique_ptr<Common::ReadStream> test1_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test.txt"));
-	std::unique_ptr<Common::ReadStream> test2_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test2.txt"));
-	std::unique_ptr<Common::ReadStream> test3_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test3.txt"));
-	std::unique_ptr<Common::ReadStream> test4_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test4.txt"));
+	std::unique_ptr<Common::ReadStream> test1(rmdpArchive.getResource("d:/data/test.txt"));
+	std::unique_ptr<Common::ReadStream> test2(rmdpArchive.getResource("d:/data/test2.txt"));
+	std::unique_ptr<Common::ReadStream> test3(rmdpArchive.getResource("d:/data/test3.txt"));
+	std::unique_ptr<Common::ReadStream> test4(rmdpArchive.getResource("d:/data/test4.txt"));
+	std::unique_ptr<Common::ReadStream> test1_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test.txt"));
+	std::unique_ptr<Common::ReadStream> test2_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test2.txt"));
+	std::unique_ptr<Common::ReadStream> test3_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test3.txt"));
+	std::unique_ptr<Common::ReadStream> test4_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test4.txt"));
 
 	ASSERT_FALSE(test1);
 	ASSERT_FALSE(test2);
@@ -1897,27 +1897,27 @@ TEST(RMDPArchive, MultipleFilesArchiveV7) {
 	AWE::RMDPArchive rmdpArchive(bin, rmdp);
 	EXPECT_EQ(rmdpArchive.getNumResources(), 6);
 
-	EXPECT_TRUE(rmdpArchive.hasDirectory("upper_test_folder"));
-	EXPECT_TRUE(rmdpArchive.hasDirectory("upper_test_folder/lower_test_folder"));
-	EXPECT_FALSE(rmdpArchive.hasDirectory("lower_test_folder"));
+	EXPECT_TRUE(rmdpArchive.hasDirectory("d:/data/upper_test_folder"));
+	EXPECT_TRUE(rmdpArchive.hasDirectory("d:/data/upper_test_folder/lower_test_folder"));
+	EXPECT_FALSE(rmdpArchive.hasDirectory("d:/data/lower_test_folder"));
 
-	EXPECT_TRUE(rmdpArchive.hasResource("test.txt"));
-	EXPECT_TRUE(rmdpArchive.hasResource("test2.txt"));
-	EXPECT_TRUE(rmdpArchive.hasResource("test3.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("test4.txt"));
-	EXPECT_TRUE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test.txt"));
-	EXPECT_TRUE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test2.txt"));
-	EXPECT_TRUE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test3.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test4.txt"));
+	EXPECT_TRUE(rmdpArchive.hasResource("d:/data/test.txt"));
+	EXPECT_TRUE(rmdpArchive.hasResource("d:/data/test2.txt"));
+	EXPECT_TRUE(rmdpArchive.hasResource("d:/data/test3.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/test4.txt"));
+	EXPECT_TRUE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test.txt"));
+	EXPECT_TRUE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test2.txt"));
+	EXPECT_TRUE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test3.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test4.txt"));
 
-	std::unique_ptr<Common::ReadStream> test1(rmdpArchive.getResource("test.txt"));
-	std::unique_ptr<Common::ReadStream> test2(rmdpArchive.getResource("test2.txt"));
-	std::unique_ptr<Common::ReadStream> test3(rmdpArchive.getResource("test3.txt"));
-	std::unique_ptr<Common::ReadStream> test4(rmdpArchive.getResource("test4.txt"));
-	std::unique_ptr<Common::ReadStream> test1_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test.txt"));
-	std::unique_ptr<Common::ReadStream> test2_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test2.txt"));
-	std::unique_ptr<Common::ReadStream> test3_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test3.txt"));
-	std::unique_ptr<Common::ReadStream> test4_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test4.txt"));
+	std::unique_ptr<Common::ReadStream> test1(rmdpArchive.getResource("d:/data/test.txt"));
+	std::unique_ptr<Common::ReadStream> test2(rmdpArchive.getResource("d:/data/test2.txt"));
+	std::unique_ptr<Common::ReadStream> test3(rmdpArchive.getResource("d:/data/test3.txt"));
+	std::unique_ptr<Common::ReadStream> test4(rmdpArchive.getResource("d:/data/test4.txt"));
+	std::unique_ptr<Common::ReadStream> test1_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test.txt"));
+	std::unique_ptr<Common::ReadStream> test2_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test2.txt"));
+	std::unique_ptr<Common::ReadStream> test3_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test3.txt"));
+	std::unique_ptr<Common::ReadStream> test4_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test4.txt"));
 
 	ASSERT_TRUE(test1);
 	ASSERT_TRUE(test2);
@@ -1961,27 +1961,27 @@ TEST(RMDPArchive, EmptyArchiveV8) {
 	AWE::RMDPArchive rmdpArchive(bin, rmdp);
 	EXPECT_EQ(rmdpArchive.getNumResources(), 0);
 
-	EXPECT_FALSE(rmdpArchive.hasDirectory("upper_test_folder"));
-	EXPECT_FALSE(rmdpArchive.hasDirectory("upper_test_folder/lower_test_folder"));
-	EXPECT_FALSE(rmdpArchive.hasDirectory("lower_test_folder"));
+	EXPECT_FALSE(rmdpArchive.hasDirectory("d:/data/upper_test_folder"));
+	EXPECT_FALSE(rmdpArchive.hasDirectory("d:/data/upper_test_folder/lower_test_folder"));
+	EXPECT_FALSE(rmdpArchive.hasDirectory("d:/data/lower_test_folder"));
 
-	EXPECT_FALSE(rmdpArchive.hasResource("test.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("test2.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("test3.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("test4.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test2.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test3.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test4.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/test.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/test2.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/test3.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/test4.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test2.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test3.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test4.txt"));
 
-	std::unique_ptr<Common::ReadStream> test1(rmdpArchive.getResource("test.txt"));
-	std::unique_ptr<Common::ReadStream> test2(rmdpArchive.getResource("test2.txt"));
-	std::unique_ptr<Common::ReadStream> test3(rmdpArchive.getResource("test3.txt"));
-	std::unique_ptr<Common::ReadStream> test4(rmdpArchive.getResource("test4.txt"));
-	std::unique_ptr<Common::ReadStream> test1_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test.txt"));
-	std::unique_ptr<Common::ReadStream> test2_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test2.txt"));
-	std::unique_ptr<Common::ReadStream> test3_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test3.txt"));
-	std::unique_ptr<Common::ReadStream> test4_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test4.txt"));
+	std::unique_ptr<Common::ReadStream> test1(rmdpArchive.getResource("d:/data/test.txt"));
+	std::unique_ptr<Common::ReadStream> test2(rmdpArchive.getResource("d:/data/test2.txt"));
+	std::unique_ptr<Common::ReadStream> test3(rmdpArchive.getResource("d:/data/test3.txt"));
+	std::unique_ptr<Common::ReadStream> test4(rmdpArchive.getResource("d:/data/test4.txt"));
+	std::unique_ptr<Common::ReadStream> test1_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test.txt"));
+	std::unique_ptr<Common::ReadStream> test2_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test2.txt"));
+	std::unique_ptr<Common::ReadStream> test3_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test3.txt"));
+	std::unique_ptr<Common::ReadStream> test4_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test4.txt"));
 
 	ASSERT_FALSE(test1);
 	ASSERT_FALSE(test2);
@@ -2008,27 +2008,27 @@ TEST(RMDPArchive, MultipleFilesArchiveV8) {
 	AWE::RMDPArchive rmdpArchive(bin, rmdp);
 	EXPECT_EQ(rmdpArchive.getNumResources(), 6);
 
-	EXPECT_TRUE(rmdpArchive.hasDirectory("upper_test_folder"));
-	EXPECT_TRUE(rmdpArchive.hasDirectory("upper_test_folder/lower_test_folder"));
-	EXPECT_FALSE(rmdpArchive.hasDirectory("lower_test_folder"));
+	EXPECT_TRUE(rmdpArchive.hasDirectory("d:/data/upper_test_folder"));
+	EXPECT_TRUE(rmdpArchive.hasDirectory("d:/data/upper_test_folder/lower_test_folder"));
+	EXPECT_FALSE(rmdpArchive.hasDirectory("d:/data/lower_test_folder"));
 
-	EXPECT_TRUE(rmdpArchive.hasResource("test.txt"));
-	EXPECT_TRUE(rmdpArchive.hasResource("test2.txt"));
-	EXPECT_TRUE(rmdpArchive.hasResource("test3.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("test4.txt"));
-	EXPECT_TRUE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test.txt"));
-	EXPECT_TRUE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test2.txt"));
-	EXPECT_TRUE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test3.txt"));
-	EXPECT_FALSE(rmdpArchive.hasResource("upper_test_folder/lower_test_folder/test4.txt"));
+	EXPECT_TRUE(rmdpArchive.hasResource("d:/data/test.txt"));
+	EXPECT_TRUE(rmdpArchive.hasResource("d:/data/test2.txt"));
+	EXPECT_TRUE(rmdpArchive.hasResource("d:/data/test3.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/test4.txt"));
+	EXPECT_TRUE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test.txt"));
+	EXPECT_TRUE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test2.txt"));
+	EXPECT_TRUE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test3.txt"));
+	EXPECT_FALSE(rmdpArchive.hasResource("d:/data/upper_test_folder/lower_test_folder/test4.txt"));
 
-	std::unique_ptr<Common::ReadStream> test1(rmdpArchive.getResource("test.txt"));
-	std::unique_ptr<Common::ReadStream> test2(rmdpArchive.getResource("test2.txt"));
-	std::unique_ptr<Common::ReadStream> test3(rmdpArchive.getResource("test3.txt"));
-	std::unique_ptr<Common::ReadStream> test4(rmdpArchive.getResource("test4.txt"));
-	std::unique_ptr<Common::ReadStream> test1_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test.txt"));
-	std::unique_ptr<Common::ReadStream> test2_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test2.txt"));
-	std::unique_ptr<Common::ReadStream> test3_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test3.txt"));
-	std::unique_ptr<Common::ReadStream> test4_2(rmdpArchive.getResource("upper_test_folder/lower_test_folder/test4.txt"));
+	std::unique_ptr<Common::ReadStream> test1(rmdpArchive.getResource("d:/data/test.txt"));
+	std::unique_ptr<Common::ReadStream> test2(rmdpArchive.getResource("d:/data/test2.txt"));
+	std::unique_ptr<Common::ReadStream> test3(rmdpArchive.getResource("d:/data/test3.txt"));
+	std::unique_ptr<Common::ReadStream> test4(rmdpArchive.getResource("d:/data/test4.txt"));
+	std::unique_ptr<Common::ReadStream> test1_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test.txt"));
+	std::unique_ptr<Common::ReadStream> test2_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test2.txt"));
+	std::unique_ptr<Common::ReadStream> test3_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test3.txt"));
+	std::unique_ptr<Common::ReadStream> test4_2(rmdpArchive.getResource("d:/data/upper_test_folder/lower_test_folder/test4.txt"));
 
 	ASSERT_TRUE(test1);
 	ASSERT_TRUE(test2);
