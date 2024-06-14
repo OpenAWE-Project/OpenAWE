@@ -29,7 +29,7 @@
 
 Probe::Probe() {
 	_pathPrefixes[kResultAlanWake] = "";
-	_pathPrefixes[kResultAlanWakeRemastered] = "d:/data/";
+	_pathPrefixes[kResultAlanWakeRemastered] = "";
 	_pathPrefixes[kResultAmericanNightmare] = "d:/data/";
 	_pathPrefixes[kResultQuantumBreak] = "d:/data/";
 	_pathPrefixes[kResultControl] = "data/";
