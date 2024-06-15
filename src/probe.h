@@ -24,12 +24,13 @@
 #include "src/awe/resman.h"
 
 enum ProbeResult {
-	kResultUnknown = 0,
-	kResultAlanWake = 1,
-	kResultAmericanNightmare = 2,
-	kResultQuantumBreak = 4,
-	kResultAlanWakeRemastered = 8,
-	kResultControl = 16,
+	kResultAlanWake = 0,
+	kResultAlanWakeRemastered,
+	kResultAmericanNightmare,
+	kResultQuantumBreak,
+	kResultControl,
+	kResultUnknown,
+	kResultCount = kResultUnknown
 };
 
 class Probe {
@@ -49,33 +50,31 @@ private:
 	 * Checks whether supplied data archives are of
 	 * original Alan Wake
 	 */
-	ProbeResult checkAlanWake();
-	
+	bool checkAlanWake();
+
 	/*!
 	 * Checks whether supplied data archives are of
 	 * Alan Wake's American Nightmare
 	 */
-	ProbeResult checkAmericanNightmare();
+	bool checkAmericanNightmare();
 
 	/*!
 	 * Checks whether supplied data archives are of
 	 * Quantum Break
 	 */
-	ProbeResult checkQuantumBreak();
+	bool checkQuantumBreak();
 
 	/*!
 	 * Checks whether supplied data archives are of
 	 * Alan Wake Remastered
 	 */
-	ProbeResult checkAlanWakeRemastered();
+	bool checkAlanWakeRemastered();
 
 	/*!
 	 * Checks whether supplied data archives are of
 	 * Control
 	 */
-	ProbeResult checkControl();
-
-	std::map<ProbeResult, std::string> _pathPrefixes;
+	bool checkControl();
 
 };
 
