@@ -27,7 +27,7 @@
 #include "src/common/exception.h"
 #include "src/probe.h"
 
-constexpr std::array<std::string, kResultCount> _pathPrefixes = {
+const std::array<std::string, kResultCount> _pathPrefixes = {
 	"",		// kResultAlanWake
 	"",		// kResultAlanWakeRemastered
 	"d:/data/",	// kResultAmericanNightmare
