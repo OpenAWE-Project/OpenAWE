@@ -18,7 +18,7 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bitset>
+#include <set>
 
 #include <spdlog/spdlog.h>
 
@@ -27,26 +27,29 @@
 #include "src/common/exception.h"
 #include "src/probe.h"
 
-Probe::Probe() {
-	_pathPrefixes[kResultAlanWake] = "";
-	_pathPrefixes[kResultAlanWakeRemastered] = "";
-	_pathPrefixes[kResultAmericanNightmare] = "d:/data/";
-	_pathPrefixes[kResultQuantumBreak] = "d:/data/";
-	_pathPrefixes[kResultControl] = "data/";
-}
+constexpr std::array<std::string, kResultCount> _pathPrefixes = {
+	"",		// kResultAlanWake
+	"",		// kResultAlanWakeRemastered
+	"d:/data/",	// kResultAmericanNightmare
+	"d:/data/",	// kResultQuantumBreak
+	"data/"		// kResultControl
+};
+
+Probe::Probe() {}
 
 ProbeResult Probe::performProbe() {
 	spdlog::info("Probing archives...");
-	std::bitset<8> allChecks = 
-		checkAlanWake() |
-		checkAmericanNightmare() |
-		checkQuantumBreak() |
-		checkAlanWakeRemastered() |
-		checkControl();
-	if (allChecks.none())
+	std::set<ProbeResult> allChecks;
+	if (checkAlanWake()) allChecks.insert(kResultAlanWake);
+	if (checkAlanWakeRemastered()) allChecks.insert(kResultAlanWakeRemastered);
+	if (checkAmericanNightmare()) allChecks.insert(kResultAmericanNightmare);
+	if (checkQuantumBreak()) allChecks.insert(kResultQuantumBreak);
+	if (checkControl()) allChecks.insert(kResultControl);
+
+	if (allChecks.empty())
 		return kResultUnknown;
-	else if (allChecks.count() == 1) {
-		ProbeResult probeResult = static_cast<ProbeResult>(allChecks.to_ulong());
+	else if (allChecks.size() == 1) {
+		ProbeResult probeResult = *allChecks.begin();
 		ResMan.setPathPrefix(_pathPrefixes[probeResult]); // Set the final path prefix
 		return probeResult;
 	}
@@ -54,7 +57,7 @@ ProbeResult Probe::performProbe() {
 		throw CreateException("Ambiguous archives: probe failed to recognise a certain game");
 }
 
-ProbeResult Probe::checkAlanWake() {
+bool Probe::checkAlanWake() {
 	ResMan.setPathPrefix(_pathPrefixes[kResultAlanWake]);
 	// check if old Alan Wake's textures are present in files
 	bool hasAlanWake2008 = ResMan.hasDirectory("textures/characters/alanwake_2008");
@@ -81,14 +84,14 @@ ProbeResult Probe::checkAlanWake() {
 		hasEnergizerBatteries && hasGameplayExample &&
 		hasStuckyVar02 && hasVerizonCellPhone) {
 		spdlog::debug("Looks like Alan Wake!");
-		return kResultAlanWake;
+		return true;
 	} else {
 		spdlog::debug("Doesn't look like Alan Wake...");
-		return kResultUnknown;
+		return false;
 	}
 }
 
-ProbeResult Probe::checkAlanWakeRemastered() {
+bool Probe::checkAlanWakeRemastered() {
 	ResMan.setPathPrefix(_pathPrefixes[kResultAlanWakeRemastered]);
 	// check for new deerfest parade truck textures
 	bool hasParadefloat = ResMan.hasDirectory("textures/objects/vehicles/new/paradefloat/paradefloat");
@@ -134,14 +137,14 @@ ProbeResult Probe::checkAlanWakeRemastered() {
 		hasMissingPosters && hasParadefloat &&
 		hasRosesTrailer && hasZaneBookCovers) {
 		spdlog::debug("Looks like Alan Wake Remastered!");
-		return kResultAlanWakeRemastered;
+		return true;
 	} else {
 		spdlog::debug("Doesn't look like Alan Wake Remastered...");
-		return kResultUnknown;
+		return false;
 	}
 }
 
-ProbeResult Probe::checkAmericanNightmare() {
+bool Probe::checkAmericanNightmare() {
 	ResMan.setPathPrefix(_pathPrefixes[kResultAmericanNightmare]);
 	// check for game's characters
 	bool hasNightmareCharacters = 
@@ -189,14 +192,14 @@ ProbeResult Probe::checkAmericanNightmare() {
 		hasNightmareMusic && hasObservatoryPosters &&
 		hasPrototypeButtons && hasSatellite) {
 		spdlog::debug("Looks like Alan Wake's American Nightmare!");
-		return kResultAmericanNightmare;
+		return true;
 	} else {
 		spdlog::debug("Doesn't look like Alan Wake's American Nightmare...");
-	 	return kResultUnknown;
+		return false;
 	}
 }
 
-ProbeResult Probe::checkQuantumBreak() {
+bool Probe::checkQuantumBreak() {
 	ResMan.setPathPrefix(_pathPrefixes[kResultQuantumBreak]);
 	// check for Microsoft product placement
 	bool hasMicrosoftProducts = 
@@ -234,14 +237,14 @@ ProbeResult Probe::checkQuantumBreak() {
 		hasQBreakLevels && hasMicrosoftProducts &&
 		hasMonarchHQ && hasNissanLeaf && hasTimeMachine) {
 		spdlog::debug("Looks like Quantum Break!");
-		return kResultQuantumBreak;
+		return true;
 	} else {
 		spdlog::debug("Doesn't look like Quantum Break...");
-		return kResultUnknown;
+		return false;
 	}
 }
 
-ProbeResult Probe::checkControl() {
+bool Probe::checkControl() {
 	ResMan.setPathPrefix(_pathPrefixes[kResultControl]);
 	// Check for Control missions
 	bool hasControlMissions =
@@ -264,9 +267,9 @@ ProbeResult Probe::checkControl() {
 
 	if (hasControlMissions && hasAhti && hasVendingMachine) {
 		spdlog::debug("Looks like Control!");
-		return kResultControl;
+		return true;
 	} else {
 		spdlog::debug("Doesn't look like Control...");
-		return kResultUnknown;
+		return false;
 	}
 }
