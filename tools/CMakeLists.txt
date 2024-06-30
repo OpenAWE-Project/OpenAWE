@@ -96,7 +96,8 @@ if (LZ4_FOUND)
             TARGETS unrmdblob
             DESTINATION ${CMAKE_INSTALL_BINDIR}
             RUNTIME_DEPENDENCIES
-            POST_EXCLUDE_REGEXES ld-linux*
+            PRE_EXCLUDE_REGEXES api-ms-.*
+            POST_EXCLUDE_REGEXES ld-linux.* .*system32/.*
     )
 endif ()
 
@@ -113,5 +114,6 @@ install(
 
         DESTINATION ${CMAKE_INSTALL_BINDIR}
         RUNTIME_DEPENDENCIES
-        POST_EXCLUDE_REGEXES ld-linux*
+        PRE_EXCLUDE_REGEXES api-ms-.*
+        POST_EXCLUDE_REGEXES ld-linux.* .*system32/.*
 )

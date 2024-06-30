@@ -455,7 +455,8 @@ install(
         TARGETS awe
         DESTINATION ${CMAKE_INSTALL_BINDIR}
         RUNTIME_DEPENDENCIES
-        POST_EXCLUDE_REGEXES ld-linux* api-ms* ext-ms*
+        PRE_EXCLUDE_REGEXES api-ms-.*
+        POST_EXCLUDE_REGEXES ld-linux.* .*system32/.*
 )
 
 # ------------------------------------
