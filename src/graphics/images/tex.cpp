@@ -91,7 +91,7 @@ TEX::TEX(Common::ReadStream &tex) {
 	std::vector<Mipmap> &mipmaps = _layers;
 	mipmaps.resize(mipmapCount);
 	for (auto &mipmap : mipmaps) {
-		const unsigned int imageSize = getImageSize(width, height);
+		const unsigned int imageSize = getImageSize(width, height, depth);
 
 		mipmap.width = width;
 		mipmap.height = height;
