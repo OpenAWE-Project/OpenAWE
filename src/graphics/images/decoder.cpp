@@ -62,6 +62,9 @@ size_t ImageDecoder::getImageSize(unsigned int width, unsigned int height, unsig
 		case kRGBA8:
 			return width * height * depth * 4;
 
+		case kRGBA16F:
+			return width * height * depth * 8;
+
 		case kBC1:
 			return std::max(8u, ((width + 3) / 4) * ((height + 3) / 4) * 8);
 
