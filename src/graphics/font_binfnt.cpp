@@ -29,7 +29,7 @@ namespace Graphics {
 
 BINFNTFont::BINFNTFont(Common::ReadStream &binfnt) {
 	uint32_t version = binfnt.readUint32LE();
-	if (version != 3)
+	if ((version != 3) && (version != 7))
 		throw std::runtime_error("Invalid binfnt version");
 
 	uint32_t numVertices = binfnt.readUint32LE();
@@ -80,8 +80,22 @@ BINFNTFont::BINFNTFont(Common::ReadStream &binfnt) {
 		glyphs.pop();
 	}
 
-	uint32_t textureSize = binfnt.readUint32LE();
-	std::unique_ptr<Common::ReadStream> textureStream = std::unique_ptr<Common::ReadStream>(binfnt.readStream(textureSize));
+	// version 7 has kern information
+	if (version == 7) {
+		const uint32_t numKerns = binfnt.readUint32LE();
+		for (unsigned int i = 0; i < numKerns; ++i) {
+			binfnt.skip(8); // Ignore Kerning info
+		}
+	}
+
+	std::unique_ptr<Common::ReadStream> textureStream;
+	if (version == 3) {
+		uint32_t textureSize = binfnt.readUint32LE();
+		textureStream = std::unique_ptr<Common::ReadStream>(binfnt.readStream(textureSize));
+	} else if (version == 7) {
+		binfnt.skip(8); // Always 0
+		textureStream = std::unique_ptr<Common::ReadStream>(binfnt.readStream(binfnt.size() - binfnt.pos()));
+	}
 
 	DDS dds(textureStream.get());
 	_texture = GfxMan.createTexture(std::move(dds));
