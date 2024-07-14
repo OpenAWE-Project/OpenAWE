@@ -71,7 +71,6 @@ DDS::DDS(Common::ReadStream *dds) {
 	uint32_t blueBitMask  = dds->readUint32LE();
 	uint32_t alphaBitMask = dds->readUint32LE();
 
-	uint32_t bytesPerPixel;
 	if (pixelFormatFlags & DDPF_FOURCC) {
 		switch (fourCC) {
 			case DDS_DXT5:
@@ -97,7 +96,6 @@ DDS::DDS(Common::ReadStream *dds) {
 			  ) {
 		_format = kRGBA8;
 		_compressed = false;
-		bytesPerPixel = 4;
 	} else
 		throw std::runtime_error("Unsupported dds pixel format");
 
@@ -108,12 +106,7 @@ DDS::DDS(Common::ReadStream *dds) {
 		mipMap.width = width;
 		mipMap.height = height;
 
-		size_t dataSize;
-		if (_compressed) {
-			dataSize = std::max(16u, ((width + 3u) / 4u) * ((height + 3u) / 4u) * 16u);
-		} else {
-			dataSize = width * height * bytesPerPixel;
-		}
+		size_t dataSize = getImageSize(width, height);
 
 		mipMap.data.resize(1);
 		mipMap.data[0].resize(dataSize);
