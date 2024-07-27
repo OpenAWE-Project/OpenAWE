@@ -681,6 +681,7 @@ void Renderer::drawSky() {
 	const auto stereoBuffer = skyProgram->getUniformLocation("g_sStereoBuffer");
 
 	const auto skyMesh = _sky->getSkyMesh();
+	assert(skyMesh);
 	const auto indices = std::static_pointer_cast<Graphics::OpenGL::VBO>(skyMesh->getIndices());
 
 	for (const auto &mesh: skyMesh->getMeshs()) {
