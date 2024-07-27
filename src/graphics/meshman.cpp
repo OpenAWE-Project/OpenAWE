@@ -80,7 +80,9 @@ MeshPtr MeshManager::getMesh(const std::string &path) {
 			return _meshRegistry[path] = loader.load(*meshResource, {"depth", "material"});
 		} catch (std::exception &e) {
 			spdlog::error("Error while loading mesh \"{}\": {}", path, e.what());
-			return getBrokenMesh();
+			if (path != _brokenMeshPath)
+				return getBrokenMesh();
+			return nullptr;
 		}
 	} else {
 		return iter->second;
@@ -101,7 +103,9 @@ MeshPtr MeshManager::getMesh(const std::string &path, std::initializer_list<std:
 			return _meshRegistry[path] = loader.load(*meshResource, stages);
 		} catch (std::exception &e) {
 			spdlog::error("Error while loading mesh \"{}\": {}", path, e.what());
-			return getBrokenMesh();
+			if (path != _brokenMeshPath)
+				return getBrokenMesh();
+			return nullptr;
 		}
 	} else {
 		return iter->second;
