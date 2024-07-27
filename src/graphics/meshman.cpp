@@ -49,8 +49,10 @@ MeshPtr MeshManager::getMesh(rid_t rid) {
 	auto iter = _meshRegistry.find(rid);
 	if (iter == _meshRegistry.end()) {
 		std::unique_ptr<Common::ReadStream> meshResource(ResMan.getResource(rid));
-		if (!meshResource)
+		if (!meshResource) {
+			spdlog::debug("Mesh {} is missing. Falling back to MissingMesh mesh.", rid);
 			return getMissingMesh();
+		}
 
 		try {
 			const auto &loader = getMeshLoader(std::filesystem::path(ResMan.getResourcePath(rid)).extension().string());
@@ -68,8 +70,10 @@ MeshPtr MeshManager::getMesh(const std::string &path) {
 	auto iter = _meshRegistry.find(path);
 	if (iter == _meshRegistry.end()) {
 		std::unique_ptr<Common::ReadStream> meshResource(ResMan.getResource(path));
-		if (!meshResource)
+		if (!meshResource) {
+			spdlog::debug("Mesh {} is missing. Falling back to MissingMesh mesh.", path);
 			return getMissingMesh();
+		}
 
 		try {
 			const auto &loader = getMeshLoader(std::filesystem::path(path).extension().string());
@@ -87,8 +91,10 @@ MeshPtr MeshManager::getMesh(const std::string &path, std::initializer_list<std:
 	auto iter = _meshRegistry.find(path);
 	if (iter == _meshRegistry.end()) {
 		std::unique_ptr<Common::ReadStream> meshResource(ResMan.getResource(path));
-		if (!meshResource)
+		if (!meshResource) {
+			spdlog::debug("Mesh {} is missing. Falling back to MissingMesh mesh.", path);
 			return getMissingMesh();
+		}
 
 		try {
 			const auto &loader = getMeshLoader(std::filesystem::path(path).extension().string());
