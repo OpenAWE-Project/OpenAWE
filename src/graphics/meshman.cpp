@@ -50,7 +50,7 @@ MeshPtr MeshManager::getMesh(rid_t rid) {
 	if (iter == _meshRegistry.end()) {
 		std::unique_ptr<Common::ReadStream> meshResource(ResMan.getResource(rid));
 		if (!meshResource) {
-			spdlog::debug("Mesh {} is missing. Falling back to MissingMesh mesh.", rid);
+			spdlog::error("Mesh {} is missing. Falling back to MissingMesh mesh.", rid);
 			return getMissingMesh();
 		}
 
@@ -71,7 +71,7 @@ MeshPtr MeshManager::getMesh(const std::string &path) {
 	if (iter == _meshRegistry.end()) {
 		std::unique_ptr<Common::ReadStream> meshResource(ResMan.getResource(path));
 		if (!meshResource) {
-			spdlog::debug("Mesh {} is missing. Falling back to MissingMesh mesh.", path);
+			spdlog::error("Mesh {} is missing. Falling back to MissingMesh mesh.", path);
 			return getMissingMesh();
 		}
 
@@ -94,7 +94,7 @@ MeshPtr MeshManager::getMesh(const std::string &path, std::initializer_list<std:
 	if (iter == _meshRegistry.end()) {
 		std::unique_ptr<Common::ReadStream> meshResource(ResMan.getResource(path));
 		if (!meshResource) {
-			spdlog::debug("Mesh {} is missing. Falling back to MissingMesh mesh.", path);
+			spdlog::error("Mesh {} is missing. Falling back to MissingMesh mesh.", path);
 			return getMissingMesh();
 		}
 
