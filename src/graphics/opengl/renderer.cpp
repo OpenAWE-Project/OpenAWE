@@ -738,8 +738,9 @@ void Renderer::drawImGui() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui::NewFrame();
 
-	// TODO: Add system for adding imgui windows
-	//ImGui::ShowDemoWindow();
+	for (const auto &imguiElement: _imguiElements) {
+		imguiElement->draw();
+	}
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

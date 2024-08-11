@@ -35,6 +35,7 @@
 #include "src/graphics/camera.h"
 #include "src/graphics/buffer.h"
 #include "src/graphics/light.h"
+#include "src/graphics/imguielement.h"
 
 namespace Graphics {
 
@@ -60,6 +61,9 @@ public:
 
 	void addModel(Model *model);
 	void removeModel(Model *model);
+
+	void addImGuiElement(ImGuiElement *imgui);
+	void removeImGuiElement(ImGuiElement *imgui);
 
 	void addGUIElement(GUIElement *gui);
 

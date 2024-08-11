@@ -36,6 +36,7 @@
 #include "src/graphics/attributeobject.h"
 #include "src/graphics/images/decoder.h"
 #include "src/graphics/sky.h"
+#include "src/graphics/imguielement.h"
 
 
 namespace Graphics {
@@ -47,6 +48,8 @@ public:
 
 	void addModel(Model *model);
 	void removeModel(Model *model);
+	void addImGuiElement(ImGuiElement *imGuiElement);
+	void removeImGuiElement(ImGuiElement *imGuiElement);
 	void addGUIElement(GUIElement *gui);
 	void removeGUIElement(GUIElement *gui);
 	void addLight(Light *light);
@@ -152,6 +155,7 @@ protected:
 	Common::Frustrum _frustrum;
 
 	std::vector<RenderPass> _renderPasses;
+	std::vector<ImGuiElement *> _imguiElements;
 	std::vector<GUIElement *> _guiElements;
 	std::vector<Light *> _lights;
 };

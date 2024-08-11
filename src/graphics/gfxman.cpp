@@ -61,6 +61,20 @@ void GraphicsManager::removeModel(Model *model) {
 	_renderer->removeModel(model);
 }
 
+void GraphicsManager::addImGuiElement(ImGuiElement *imgui) {
+	if (!_renderer)
+		return;
+
+	_renderer->addImGuiElement(imgui);
+}
+
+void GraphicsManager::removeImGuiElement(ImGuiElement *imgui) {
+	if (!_renderer)
+		return;
+
+	_renderer->removeImGuiElement(imgui);
+}
+
 void GraphicsManager::addGUIElement(GUIElement *gui) {
 	if (!_renderer)
 		return;

@@ -93,6 +93,15 @@ void Graphics::Renderer::removeModel(Graphics::Model *model) {
 	}
 }
 
+void Graphics::Renderer::addImGuiElement(Graphics::ImGuiElement *imGuiElement) {
+	_imguiElements.emplace_back(imGuiElement);
+}
+
+void Graphics::Renderer::removeImGuiElement(Graphics::ImGuiElement *imGuiElement) {
+	const auto iter = std::remove(_imguiElements.begin(), _imguiElements.end(), imGuiElement);
+	_imguiElements.erase(iter);
+}
+
 void Graphics::Renderer::addGUIElement(Graphics::GUIElement *gui) {
 	_guiElements.emplace_back(gui);
 }
