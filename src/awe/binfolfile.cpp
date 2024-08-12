@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <memory>
+
 #include "src/awe/path.h"
 #include "src/awe/binfolfile.h"
 

@@ -21,6 +21,8 @@
 #ifndef OPENAWE_ATMFILE_H
 #define OPENAWE_ATMFILE_H
 
+#include <memory>
+
 #include "src/common/readstream.h"
 
 namespace AWE {
