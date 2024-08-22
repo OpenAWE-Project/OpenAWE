@@ -10,6 +10,7 @@ env:
   CCACHE_COMPRESS: true
   CCACHE_COMPRESSLEVEL: 6
   CCACHE_MAXSIZE: 400M
+  HOMEBREW_NO_AUTO_UPDATE: 1
 
 jobs:
   build:
@@ -95,17 +96,6 @@ jobs:
       - name: Install dependencies with brew
         if: ${{ matrix.os == 'macos-13' }}
         run: |
-          rm /usr/local/bin/2to3
-          rm /usr/local/bin/2to3-3.11
-          rm /usr/local/bin/idle3
-          rm /usr/local/bin/idle3.11
-          rm /usr/local/bin/pydoc3
-          rm /usr/local/bin/pydoc3.11
-          rm /usr/local/bin/python3
-          rm /usr/local/bin/python3-config
-          rm /usr/local/bin/python3.11
-          rm /usr/local/bin/python3.11-config
-          brew update
           brew install zlib glfw libogg libvorbis theora spdlog openal-soft bullet fmt googletest tinyxml2 glm lz4 boost ccache shaderc
 
       - name: Cache non-Windows build with ccache
