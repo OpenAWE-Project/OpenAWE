@@ -65,6 +65,10 @@ public:
 private:
 	void load(Common::ReadStream &bin);
 
+	void readCompressedArchiveIndex(Common::ReadStream &bin);
+
+	void readRMDLArchiveIndex(Common::ReadStream &bin);
+
 	struct FileEntry {
 		std::string name;
 		uint32_t size, offset;
@@ -72,7 +76,10 @@ private:
 
 	std::vector<FileEntry> _fileEntries;
 
+	//_data first holds the resource stream (only if owned by constructor) and in case of compression is then replaced with the uncompressed data
 	std::unique_ptr<Common::ReadStream> _data;
+
+	Common::ReadStream* _stream;
 };
 
 } // End of namespace AWE
