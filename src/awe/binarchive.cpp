@@ -30,15 +30,14 @@
 
 namespace AWE {
 
-BINArchive::BINArchive(Common::ReadStream &bin) : _stream(&bin) {
+BINArchive::BINArchive(Common::ReadStream &bin) {
 	load(bin);
 }
 
-BINArchive::BINArchive(const std::string &resource) :
-		_data(ResMan.getResource(resource)),
-		_stream(_data ? _data.get() : throw Common::Exception("Failed to load resource {}",resource)) {
+BINArchive::BINArchive(const std::string &resource) {
+	std::unique_ptr<Common::ReadStream> bin(ResMan.getResource(resource));
 
-	load(*_data);
+	load(*bin);
 }
 
 size_t BINArchive::getNumResources() const {
@@ -50,8 +49,8 @@ Common::ReadStream *BINArchive::getResource(const std::string &rid) const {
 		if (entry.name == rid) {
 			byte *data = new byte[entry.size];
 
-			_stream->seek(entry.offset);
-			_stream->read(data, entry.size);
+			_data->seek(entry.offset);
+			_data->read(data, entry.size);
 
 			return new Common::MemoryReadStream(data, entry.size);
 		}
@@ -61,21 +60,10 @@ Common::ReadStream *BINArchive::getResource(const std::string &rid) const {
 }
 
 void BINArchive::load(Common::ReadStream &bin) {
-	bin.seek(0);
-	std::string magic = bin.readFixedSizeString(4);
-	if (magic == "RMDL") {
-		readRMDLArchiveIndex(bin); /* Control */
-	} else {
-		readCompressedArchiveIndex(bin); /* Alan Wake, Alan Wake AN*/
-	}
-}
-
-void BINArchive::readCompressedArchiveIndex(Common::ReadStream &bin) {
 	bin.seek(0, Common::ReadStream::END);
 	unsigned int fileSize = bin.pos();
-
-	// The index is at the beginning for compressed binarchive files
 	bin.seek(0);
+
 	const uint32_t numFiles = bin.readUint32LE();
 
 	_fileEntries.resize(numFiles);
@@ -97,38 +85,13 @@ void BINArchive::readCompressedArchiveIndex(Common::ReadStream &bin) {
 	byte *data = new byte[compressedSize];
 	bin.read(data, compressedSize);
 
-	//_data may already point to the uncompressed stream, depending on the constructor used.
 	_data.reset(Common::decompressZLIB(
 			data,
 			compressedSize,
 			decompressedSize
 	));
-	_stream = _data.get();
 
 	delete[] data;
-}
-
-void BINArchive::readRMDLArchiveIndex(Common::ReadStream &bin) {
-	bin.seek(4);
-	const size_t indexSize = bin.readUint32LE();
-	uint32_t offset = bin.pos();
-
-	// The index is at the end of RMDL files
-	bin.seek(-indexSize, Common::ReadStream::END);
-
-	const uint32_t numFiles = bin.readUint32LE();
-
-	_fileEntries.resize(numFiles);
-	for (auto &entry : _fileEntries) {
-		entry.size = bin.readUint32LE();
-
-		const uint32_t nameLength = bin.readUint32LE();
-		entry.name.resize(nameLength);
-		bin.read(entry.name.data(), nameLength);
-
-		entry.offset = offset;
-		offset += entry.size;
-	}
 }
 
 bool BINArchive::hasResource(const std::string &rid) const {

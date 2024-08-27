@@ -34,13 +34,10 @@ int main(int argc, char** argv) {
 	CLI::App app("Unpack bin archive", "unbin");
 
 	std::string binFile;
-	bool onlyListFiles = false;
 
 	app.add_option("binarchive", binFile, "The bin file archive")
 			->check(CLI::ExistingFile)
 			->required();
-
-	app.add_flag("-l, --list", onlyListFiles, "List files in an archive without actually extracting them");
 
 	CLI11_PARSE(app, argc, argv);
 
@@ -52,13 +49,11 @@ int main(int argc, char** argv) {
 
 		fmt::print("{}/{} {}\n", i + 1, bin.getNumResources(), path);
 
-		if (!onlyListFiles) {
-			const auto resourceStream = std::unique_ptr<Common::ReadStream>(bin.getResource(path));
+		const auto resourceStream = std::unique_ptr<Common::ReadStream>(bin.getResource(path));
 
-			Common::WriteFile writeFile(path);
-			writeFile.writeStream(resourceStream.get());
-			writeFile.close();
-		}
+		Common::WriteFile writeFile(path);
+		writeFile.writeStream(resourceStream.get());
+		writeFile.close();
 	}
 
 	return EXIT_SUCCESS;
