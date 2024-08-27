@@ -32,6 +32,13 @@ target_link_libraries(
         ${ZLIB_LIBRARIES}
 )
 
+add_executable(unrmdl unrmdl.cpp)
+target_link_libraries(
+        unrmdl
+        awe_common
+        awe_lib
+)
+
 add_executable(unobj unobj.cpp)
 target_link_libraries(
         unobj
@@ -105,6 +112,7 @@ install(
         TARGETS
         unrmdp
         unbin
+        unrmdl
         unobj
         packmeta2xml
         streamedresources2xml
