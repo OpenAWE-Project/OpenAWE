@@ -27,7 +27,7 @@
 #include "rmdlarchive.h"
 #include "resman.h"
 
-static const uint32_t RMDL_MAGIC_ID = MKTAG('R', 'M', 'D', 'L');
+static const uint32_t kRMDL = MKTAG('R', 'M', 'D', 'L');
 
 namespace AWE {
 
@@ -63,7 +63,7 @@ Common::ReadStream *RMDLArchive::getResource(const std::string &rid) const {
 void RMDLArchive::load(Common::ReadStream &bin) {
 	bin.seek(0);
 	const auto magic = bin.readUint32BE();
-	if (magic != RMDL_MAGIC_ID)
+	if (magic != kRMDL)
 		throw Common::Exception("Invalid rmdl archive");
 
 	const size_t indexSize = bin.readUint32LE();
