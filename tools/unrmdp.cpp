@@ -27,8 +27,11 @@
 
 #include "src/common/readfile.h"
 #include "src/common/writefile.h"
+#include "src/common/exception.h"
+#include "src/common/strutil.h"
 
 #include "src/awe/rmdparchive.h"
+#include "src/awe/path.h"
 
 int main(int argc, char** argv) {
 	CLI::App app("Unpack bin/rmdp archive structure", "unrmdp");
@@ -43,10 +46,12 @@ int main(int argc, char** argv) {
 	app.add_option("rmdpfile", rmdpFile, "The rmdp file containing the archives raw data")
 			->check(CLI::ExistingFile)
 			->required();
-	
+
 	app.add_flag("-l, --list", onlyListFiles, "List files in an archive without actually extracting them");
 
 	CLI11_PARSE(app, argc, argv);
+
+	fmt::print("Processing index...\n");
 
 	AWE::RMDPArchive rmdp(
 		new Common::ReadFile(binFile),
@@ -55,13 +60,16 @@ int main(int argc, char** argv) {
 
 	for (size_t i = 0; i < rmdp.getNumResources(); ++i) {
 		const std::string path = rmdp.getResourcePath(i);
+		const std::string normalizedPath = AWE::getNormalizedPath(path);
 
-		fmt::print("{}/{} {}\n", i + 1, rmdp.getNumResources(), path);
+		fmt::print("{}/{} {}\n", i + 1, rmdp.getNumResources(), normalizedPath);
 
 		if (!onlyListFiles) {
-			const auto resourceStream = std::unique_ptr<Common::ReadStream>(rmdp.getResource(path));
+			const auto resourceStream = std::unique_ptr<Common::ReadStream>(rmdp.getResource(Common::toLower(path)));
+			if (!resourceStream.get())
+				throw Common::Exception("Resource not found in archive: {}", path);
 
-			std::filesystem::path p(path);
+			std::filesystem::path p(normalizedPath);
 			if (!p.parent_path().empty())
 				std::filesystem::create_directories(p.parent_path());
 

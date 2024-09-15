@@ -170,7 +170,7 @@ std::string RMDPArchive::getResourcePath(size_t index) const {
 			path = folderEntry.name + "/" + path;
 	}
 
-	return Common::replace(path, "d:/data/", "");
+	return path;
 }
 
 Common::ReadStream *RMDPArchive::getResource(const std::string &rid) const {
@@ -344,7 +344,7 @@ void RMDPArchive::loadHeaderV2(Common::ReadStream *bin, Common::EndianReadStream
 				throw CreateException("Invalid name hash: expected {}, but found {}",
 										entry.nameHash,
 										testHash);
-			
+
 			entry.offset = end.readUint64();
 			entry.size = end.readUint64();
 
