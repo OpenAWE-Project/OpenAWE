@@ -102,7 +102,7 @@ std::vector<std::string> RessourceManager::getDirectoryResources(const std::stri
 	for (auto &archive : _archives) {
 		const auto indices = archive->getDirectoryResources(fullPath);
 		for (const auto &index: indices) {
-			paths.emplace_back(archive->getResourcePath(index));
+			paths.emplace_back(AWE::getNormalizedPath((archive->getResourcePath(index))));
 		}
 	}
 
