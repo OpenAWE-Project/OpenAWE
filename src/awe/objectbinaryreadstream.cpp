@@ -21,6 +21,7 @@
 #include <iterator>
 
 #include "objectbinaryreadstream.h"
+#include "src/common/exception.h"
 
 namespace AWE {
 
@@ -28,6 +29,11 @@ ObjectBinaryReadStream::ObjectBinaryReadStream(Common::ReadStream &stream) : _st
 }
 
 ObjectBinaryReadStream::ObjectBinaryReadStream(Common::ReadStream &stream, std::shared_ptr<DPFile> dp) : _stream(stream), _dp(dp) {
+}
+
+void ObjectBinaryReadStream::assert_dp() {
+	if (!_dp)
+		throw CreateException("dp file expected but not defined");
 }
 
 void ObjectBinaryReadStream::variable(const std::string &name, bool &value) {
@@ -51,6 +57,7 @@ void ObjectBinaryReadStream::variable(const std::string &name, float &value) {
 
 void ObjectBinaryReadStream::variable(const std::string &name, std::string &value, bool dp) {
 	if (dp) {
+		assert_dp();
 		uint32_t offset = _stream.readUint32LE();
 		value = _dp->getString(offset);
 	} else {
@@ -87,6 +94,7 @@ void ObjectBinaryReadStream::variable(const std::string &name, ObjectID &value) 
 }
 
 void ObjectBinaryReadStream::variable(const std::string &name, std::vector<int32_t> &value) {
+	assert_dp();
 	uint32_t count = _stream.readUint32LE();
 	uint32_t offset = _stream.readUint32LE();
 	std::vector<uint32_t> values = _dp->getValues(offset, count);
@@ -103,6 +111,7 @@ void ObjectBinaryReadStream::variable(const std::string &name, std::vector<bool>
 void ObjectBinaryReadStream::variable(const std::string &name, std::vector<uint32_t> &value, bool dp) {
 	uint32_t count = _stream.readUint32LE();
 	if (dp) {
+		assert_dp();
 		uint32_t offset = _stream.readUint32LE();
 		std::vector<uint32_t> values = _dp->getValues(offset, count);
 	} else {
@@ -121,6 +130,7 @@ void ObjectBinaryReadStream::variable(const std::string &name, std::vector<int32
 }
 
 void ObjectBinaryReadStream::variable(const std::string &name, std::vector<rid_t> &value) {
+	assert_dp();
 	uint32_t count = _stream.readUint32LE();
 	uint32_t offset = _stream.readUint32LE();
 	std::vector<uint32_t> values = _dp->getValues(offset, count);
@@ -128,18 +138,21 @@ void ObjectBinaryReadStream::variable(const std::string &name, std::vector<rid_t
 }
 
 void ObjectBinaryReadStream::variable(const std::string &name, std::vector<glm::vec2> &value) {
+	assert_dp();
 	uint32_t count = _stream.readUint32LE();
 	uint32_t offset = _stream.readUint32LE();
 	value = _dp->getPositions2D(offset, count);
 }
 
 void ObjectBinaryReadStream::variable(const std::string &name, std::vector<float> &value) {
+	assert_dp();
 	uint32_t count = _stream.readUint32LE();
 	uint32_t offset = _stream.readUint32LE();
 	value = _dp->getFloats(offset, count);
 }
 
 void ObjectBinaryReadStream::variable(const std::string &name, std::vector<ObjectID> &value) {
+	assert_dp();
 	uint32_t count = _stream.readUint32LE();
 	uint32_t offset = _stream.readUint32LE();
 	std::vector<uint32_t> values = _dp->getValues(offset, count);
@@ -147,12 +160,14 @@ void ObjectBinaryReadStream::variable(const std::string &name, std::vector<Objec
 }
 
 void ObjectBinaryReadStream::variable(const std::string &name, std::vector<GID> &value) {
+	assert_dp();
 	uint32_t count = _stream.readUint32LE();
 	uint32_t offset = _stream.readUint32LE();
 	value = _dp->getGIDs(offset, count);
 }
 
 void ObjectBinaryReadStream::variable(const std::string &name, std::vector<std::string> &value) {
+	assert_dp();
 	uint32_t count = _stream.readUint32LE();
 	value.resize(count);
 	for (unsigned int i = 0; i < count; ++i) {
@@ -162,6 +177,7 @@ void ObjectBinaryReadStream::variable(const std::string &name, std::vector<std::
 }
 
 void ObjectBinaryReadStream::variable(const std::string &name, std::vector<std::string> &value, size_t fixedSize) {
+	assert_dp();
 	value.resize(fixedSize);
 	for (size_t i = 0; i < fixedSize; ++i) {
 		uint32_t offset = _stream.readUint32LE();
