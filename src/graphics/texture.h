@@ -35,6 +35,11 @@ class ProxyTexture;
 typedef std::shared_ptr<Texture> TexturePtr;
 typedef std::shared_ptr<ProxyTexture> ProxyTexturePtr;
 
+enum class WrapMode {
+	kClamp,
+	kRepeat
+};
+
 class Texture : Common::Noncopyable {
 public:
 	/*!
@@ -59,6 +64,16 @@ public:
 	 * \param decoder The image to load into the texture
 	 */
 	virtual void load(ImageDecoder &&decoder) = 0;
+
+	/*!
+	 * Set the wrap mode of the texture to one of the enums given by WrapMode. The wrap mode defines the
+	 * handling of coordinates outside the [0, 1] range. The default is the repeat mode
+	 *
+	 * \param s The wrap mode in s direction
+	 * \param t The wrap mode in t direction
+	 * \param r The wrap mode in u direction, unused of the texture is not 3d.
+	 */
+	virtual void setWrapMode(WrapMode s, WrapMode t, WrapMode r = WrapMode::kClamp) = 0;
 };
 
 /*!

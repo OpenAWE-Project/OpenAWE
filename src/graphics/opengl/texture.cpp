@@ -95,6 +95,17 @@ static void getParameters(
 	}
 }
 
+static GLint getTextureWrapMode(WrapMode mode) {
+	switch (mode) {
+		default: [[fallthrough]];
+		case WrapMode::kRepeat:
+			return GL_REPEAT;
+
+		case WrapMode::kClamp:
+			return GL_CLAMP_TO_EDGE;
+	}
+}
+
 class TextureTask : public Task {
 public:
 	TextureTask(GLuint &id, GLenum type) : _id(id), _type(type) {}
@@ -366,6 +377,25 @@ private:
 	const GLint xoffset, yoffset;
 };
 
+class TextureConfigTask : public TextureTask {
+public:
+	void apply() override {
+		TextureTask::apply();
+
+		glTexParameteri(_type, GL_TEXTURE_WRAP_S, getTextureWrapMode(sWrap));
+		glTexParameteri(_type, GL_TEXTURE_WRAP_T, getTextureWrapMode(tWrap));
+
+		if (_type == GL_TEXTURE_3D)
+			glTexParameteri(_type, GL_TEXTURE_WRAP_R, getTextureWrapMode(rWrap));
+	}
+
+	TextureConfigTask(GLuint &id, GLenum type, WrapMode sWrap, WrapMode tWrap, WrapMode rWrap)
+			: TextureTask(id, type), sWrap(sWrap), tWrap(tWrap), rWrap(rWrap) {}
+
+private:
+	WrapMode sWrap, tWrap, rWrap;
+};
+
 Texture::Texture(TaskQueue &tasks, GLenum type, const std::string &label) : _id(0), _type(type), _tasks(tasks) {
 	tasks.emplace_back(std::make_unique<TextureCreationTask>(_id, _type, label));
 }
@@ -439,6 +469,10 @@ void Texture::load(ImageDecoder &&decoder) {
 	}
 
 	_tasks.emplace_back(std::make_unique<TextureLoadTask>(_id, _type, std::move(decoder)));
+}
+
+void Texture::setWrapMode(WrapMode s, WrapMode t, WrapMode r) {
+	_tasks.emplace_back(std::make_unique<TextureConfigTask>(_id, _type, s, t, r));
 }
 
 void Texture::bind() {

@@ -44,6 +44,8 @@ public:
 
 	void load(ImageDecoder &&decoder) override;
 
+	void setWrapMode(WrapMode s, WrapMode t, WrapMode u) override;
+
 private:
 	friend class Framebuffer;
 
