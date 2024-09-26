@@ -40,6 +40,8 @@ public:
 
 	void bind() override;
 
+	void setWrapMode(WrapMode s, WrapMode t, WrapMode r) override;
+
 private:
 	TexturePtr _texture;
 };

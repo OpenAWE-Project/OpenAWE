@@ -47,4 +47,8 @@ void ProxyTexture::assign(TexturePtr texture) {
 	_texture = texture;
 }
 
+void ProxyTexture::setWrapMode(WrapMode s, WrapMode t, WrapMode r) {
+	_texture->setWrapMode(s, t, r);
+}
+
 } // End of namespace Graphics::OpenGL
