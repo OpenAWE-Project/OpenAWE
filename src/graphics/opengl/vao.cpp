@@ -70,8 +70,7 @@ public:
 				}
 			}
 		}
-
-		_program->validate();
+		//_program->validate();
 	}
 
 private:
