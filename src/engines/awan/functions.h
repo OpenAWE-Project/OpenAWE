@@ -47,6 +47,8 @@ private:
 	void isTrial(Context &ctx);
 	void isTrialModeB(Context &ctx);
 	void isManuscriptPageUnlocked(Context &ctx);
+	void setSunYRotation(Context &ctx);
+	void setTime(Context &ctx);
 
 	// functions_object.cpp
 	void hide(Context &ctx);

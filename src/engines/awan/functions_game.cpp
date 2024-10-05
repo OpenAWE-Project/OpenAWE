@@ -18,9 +18,13 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <spdlog/spdlog.h>
+
 #include "src/awe/script/bytecode.h"
 
 #include "src/engines/awan/functions.h"
+
+#include "src/graphics/sky.h"
 
 #include "src/sound/soundman.h"
 #include "src/sound/audiostreamfactory.h"
@@ -45,6 +49,8 @@ void Functions::playMusic(Functions::Context &ctx) {
 
 	const auto audioStreamFactory = _registry.get<Sound::AudioStreamFactory>(sound);
 
+	//const auto view = _registry.view<Sound::Music>();
+
 	SoundMan.setMusic(audioStreamFactory.createStream());
 	SoundMan.getMusic().play();
 }
@@ -66,6 +72,33 @@ void Functions::isManuscriptPageUnlocked(Context &ctx) {
 
 	// TODO
 	ctx.ret = false;
+}
+
+void Functions::setSunYRotation(Functions::Context &ctx) {
+	const auto degree = ctx.getFloat(0);
+
+	const auto skyPtr = _registry.try_get<Graphics::SkyPtr>(_registry.view<Graphics::SkyPtr>().front());
+	if (!skyPtr) {
+		spdlog::error("Tried to set sun y rotation without an available sky");
+		return;
+	}
+
+	const auto sky = *skyPtr;
+	sky->setSunYRotation(degree);
+}
+
+void Functions::setTime(Functions::Context &ctx) {
+	const auto hours = ctx.getInt(2);
+	const auto minutes = ctx.getInt(1);
+
+	auto skyPtr = _registry.try_get<Graphics::SkyPtr>(_registry.view<Graphics::SkyPtr>().front());
+	if (!skyPtr) {
+		spdlog::error("Tried to set time of day without an available sky");
+		return;
+	}
+
+	const auto sky = *skyPtr;
+	sky->setTimeOfDay(static_cast<float>(hours) / 24.0 + (static_cast<float>(minutes) / 60.0) * (1.0 / 24.0));
 }
 
 }
