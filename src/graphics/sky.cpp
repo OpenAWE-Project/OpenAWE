@@ -34,10 +34,11 @@
 #include "src/graphics/meshman.h"
 #include "src/graphics/sky.h"
 #include "src/graphics/gfxman.h"
+#include "src/graphics/sun.h"
 
 namespace Graphics {
 
-Sky::Sky() : _sky(MeshMan.getMesh("objects/hardcoded/sky.binfbx", {"night_sky"})) {
+Sky::Sky() : _timeOfDay(0.0), _latitude(45.0), _sky(MeshMan.getMesh("objects/hardcoded/sky.binfbx", {"night_sky"})) {
 	_uniforms.emplace_back("g_fFar", 1000.0f);
 
 	for (auto &uniform: _uniforms) {
@@ -51,6 +52,36 @@ const MeshPtr &Sky::getSkyMesh() const {
 
 const std::vector<Material::Uniform> &Sky::getUniforms() const {
 	return _uniforms;
+}
+
+float Sky::getSunYRotation() const {
+	return _sunYRotation;
+}
+
+void Sky::setSunYRotation(float angle) {
+	_sunYRotation = angle;
+}
+
+float Sky::getTimeOfDay() const {
+	return _timeOfDay;
+}
+
+void Sky::setTimeOfDay(float timeOfDay) {
+	_timeOfDay = timeOfDay;
+}
+
+float Sky::getLatitude() const {
+	return _latitude;
+}
+
+void Sky::setLatitude(float latitude) {
+	_latitude = latitude;
+}
+
+glm::vec3 Sky::getSunDir() const {
+	glm::vec3 sunDir;
+
+	return Graphics::getSunDir(_timeOfDay, _sunYRotation, _latitude);
 }
 
 } // End of namespace Graphics

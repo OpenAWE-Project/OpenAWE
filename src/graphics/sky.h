@@ -53,7 +53,59 @@ public:
 	 */
 	[[nodiscard]] const std::vector<Material::Uniform> &getUniforms() const;
 
+	/*!
+	 * Set rotation around the Y Axis of the sun in degrees
+	 *
+	 * \param angle The angle of the rotation of the sun around the Y Axis in degree
+	 */
+	void setSunYRotation(float angle);
+
+	/*!
+	 * Get the current sun rotation around the Y Axis
+	 *
+	 * \return Get the current sun rotation around the Y Axis
+	 */
+	[[nodiscard]] float getSunYRotation() const;
+
+	/*!
+	 * Set the time of day for the sky. It should be given in a range of [0, 1] which represents the time from 0:00 to
+	 * 24:00
+	 *
+	 * \param timeOfDay The time of day for the current sky
+	 */
+	void setTimeOfDay(float timeOfDay);
+
+	/*!
+	 * Get the current time of day in a range of [0, 1] which equals to the time range of 0:00 to 24:00
+	 *
+	 * \return The timof day in range between 0 and 1
+	 */
+	[[nodiscard]] float getTimeOfDay() const;
+
+	/*!
+	 * The latitude of the placeb influencing the sun direction
+	 *
+	 * \param latitude The latitude for the sun direction in degrees
+	 */
+	void setLatitude(float latitude);
+
+	/*!
+	 * Get the current latitude of the current place. This influences the sun direction
+	 *
+	 * \return The latitude in degrees
+	 */
+	[[nodiscard]] float getLatitude() const;
+
+	/*!
+	 * Calculate the current sun direction
+	 * @return
+	 */
+	[[nodiscard]] glm::vec3 getSunDir() const;
+
 private:
+	float _sunYRotation;
+	float _timeOfDay;
+	float _latitude;
 	Graphics::MeshPtr _sky;
 	std::vector<Material::Uniform> _uniforms;
 };
