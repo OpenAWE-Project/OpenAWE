@@ -60,16 +60,16 @@ int main(int argc, char** argv) {
 
 	for (size_t i = 0; i < rmdp.getNumResources(); ++i) {
 		const std::string path = rmdp.getResourcePath(i);
-		const std::string normalizedPath = AWE::getNormalizedPath(path);
+		const std::string extractPath = AWE::removeDrivePrefix(path);
 
-		fmt::print("{}/{} {}\n", i + 1, rmdp.getNumResources(), normalizedPath);
+		fmt::print("{}/{} {} --> {}\n", i + 1, rmdp.getNumResources(), path, extractPath);
 
 		if (!onlyListFiles) {
 			const auto resourceStream = std::unique_ptr<Common::ReadStream>(rmdp.getResource(Common::toLower(path)));
-			if (!resourceStream.get())
+			if (!resourceStream)
 				throw Common::Exception("Resource not found in archive: {}", path);
 
-			std::filesystem::path p(normalizedPath);
+			std::filesystem::path p(extractPath);
 			if (!p.parent_path().empty())
 				std::filesystem::create_directories(p.parent_path());
 
