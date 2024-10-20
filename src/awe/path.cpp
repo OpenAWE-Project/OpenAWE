@@ -34,4 +34,11 @@ std::string getNormalizedPath(const std::string &path) {
 	return lower;
 }
 
+std::string removeDrivePrefix(const std::string &path) {
+	if (path.size() > 2 && path[1] == ':' && path[2] == '/') {
+		return path.substr(3);
+	}
+	return path;
+}
+
 } // End of namespace AWE

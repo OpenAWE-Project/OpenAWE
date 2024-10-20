@@ -36,6 +36,16 @@ namespace AWE {
  */
 std::string getNormalizedPath(const std::string &path);
 
-};
+
+/*!
+* Function to remove the preceding drive letter, colon and root separator from the path
+*
+* \param path file path string to remove drive prefix from
+* \return path without drive prefix
+*/
+
+std::string removeDrivePrefix(const std::string &path);
+
+} // End of namespace AWE
 
 #endif // AWE_PATH_H
