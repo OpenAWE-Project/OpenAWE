@@ -112,8 +112,8 @@ TEX::TEX(Common::ReadStream &tex) {
 		height /= 2;
 		depth /= 2;
 
-		width = std::max(width, 4u);
-		height = std::max(height, 4u);
+		width = std::max(width, 1u);
+		height = std::max(height, 1u);
 		depth = std::max(depth, 1u);
 	}
 }
