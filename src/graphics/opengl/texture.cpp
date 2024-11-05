@@ -187,7 +187,12 @@ public:
 		TextureTask::apply();
 
 		glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		if (decoder.getNumMipMaps() > 1) {
+			glTexParameteri(_type, GL_TEXTURE_MAX_LEVEL, decoder.getNumMipMaps() - 1);
+			glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		} else {
+			glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		}
 
 		glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -324,7 +329,13 @@ class TexturePartLoadTask : public TextureTask {
 		TextureTask::apply();
 
 		glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		if (decoder.getNumMipMaps() > 1) {
+			glTexParameteri(_type, GL_TEXTURE_MAX_LEVEL, decoder.getNumMipMaps() - 1);
+			glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		} else {
+			glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		}
 
 		glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
