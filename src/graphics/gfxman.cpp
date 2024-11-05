@@ -114,7 +114,7 @@ void GraphicsManager::removeLight(Light *light) {
 	if (!_renderer)
 		return;
 
-	_renderer->addLight(light);
+	_renderer->removeLight(light);
 }
 
 TexturePtr GraphicsManager::createTexture(ImageDecoder &&decoder, const std::string &label) {
