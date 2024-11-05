@@ -22,6 +22,7 @@
 #define OPENAWE_TASK_H
 
 #include <deque>
+#include <memory>
 
 #include "src/common/types.h"
 
