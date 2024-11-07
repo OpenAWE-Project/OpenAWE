@@ -43,6 +43,11 @@ static void getParameters(
 			format = GL_RED;
 			type = GL_UNSIGNED_BYTE;
 			break;
+		case kR32F:
+			internalFormat = GL_R32F;
+			format = GL_RED;
+			type = GL_FLOAT;
+			break;
 		case kRG16:
 			internalFormat = GL_RG16;
 			format = GL_RG;
