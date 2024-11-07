@@ -54,6 +54,26 @@ std::complex<double> shBasisFunc(int l, int m, double theta, double phi) {
 	return normalization * p * exponential;
 }
 
+/*!
+ * Calculate the basis value for spherical harmonics using a certain degree l an order m and a cartesian direction. The
+ * whole equation is described below:
+ * \f[
+ * Y_l^m(\theta,\phi)=\sqrt{\frac{(2l+1)}{4\pi}\cdot\frac{(l-m)!}{(l+m)!}}P_l^m(cos(\theta))\cdot e^{im\phi}
+ * \f]
+ *
+ * \param l The degree of the function, must be \f$l \geq 0\f$
+ * \param m The order which has to be \f$|m|\leq l\f$
+ * \param dir The direction of the basis function to generate
+ * \return The basis function value
+ */
+std::complex<double> shBasisFunc(int l, int m, glm::vec3 dir) {
+	const auto r = glm::length(dir);
+	const auto theta = std::atan2(dir.z, dir.x);
+	const auto phi = std::acos(dir.y / r);
+
+	return shBasisFunc(l, m, theta, phi);
 }
+
+} // End of namespace Common
 
 #endif //OPENAWE_SH_H
