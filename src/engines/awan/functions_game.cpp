@@ -77,28 +77,28 @@ void Functions::isManuscriptPageUnlocked(Context &ctx) {
 void Functions::setSunYRotation(Functions::Context &ctx) {
 	const auto degree = ctx.getFloat(0);
 
-	const auto skyPtr = _registry.try_get<Graphics::SkyPtr>(_registry.view<Graphics::SkyPtr>().front());
-	if (!skyPtr) {
+	const auto skyView = _registry.view<Graphics::SkyPtr>();
+	if (skyView.empty()) {
 		spdlog::error("Tried to set sun y rotation without an available sky");
 		return;
 	}
 
-	const auto sky = *skyPtr;
-	sky->setSunYRotation(degree);
+	const auto skyPtr = _registry.get<Graphics::SkyPtr>(skyView.front());
+	skyPtr->setSunYRotation(degree);
 }
 
 void Functions::setTime(Functions::Context &ctx) {
 	const auto hours = ctx.getInt(2);
 	const auto minutes = ctx.getInt(1);
 
-	auto skyPtr = _registry.try_get<Graphics::SkyPtr>(_registry.view<Graphics::SkyPtr>().front());
-	if (!skyPtr) {
+	const auto skyView = _registry.view<Graphics::SkyPtr>();
+	if (skyView.empty()) {
 		spdlog::error("Tried to set time of day without an available sky");
 		return;
 	}
 
-	const auto sky = *skyPtr;
-	sky->setTimeOfDay(static_cast<float>(hours) / 24.0 + (static_cast<float>(minutes) / 60.0) * (1.0 / 24.0));
+	auto skyPtr = _registry.get<Graphics::SkyPtr>(skyView.front());
+	skyPtr->setTimeOfDay(static_cast<float>(hours) / 24.0 + (static_cast<float>(minutes) / 60.0) * (1.0 / 24.0));
 }
 
 }
