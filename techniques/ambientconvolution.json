@@ -1,0 +1,9 @@
+{
+  "name": "ambientconvolution",
+  "property_sets": [
+    {
+      "stages": ["mult_basis_func"],
+      "properties": []
+    }
+  ]
+}
