@@ -46,7 +46,9 @@ std::complex<double> shBasisFunc(int l, int m, double theta, double phi) {
 	const double normalization = std::sqrt(
 			((2.0 * l + 1) / (4 * std::numbers::pi)) * boost::math::factorial<double>(l - std::abs(m)) /
 			boost::math::factorial<double>(l + std::abs(m)));
-	double p = std::assoc_legendre(l, std::abs(m), std::cos(theta));
+
+	// TODO Replace this with std::assoc_legendre once it is supported in Clang and Apple Clang
+	double p = boost::math::legendre_p(l, std::abs(m), std::cos(theta));
 
 	if (m < 0)
 		p *= std::pow(-1, m);
