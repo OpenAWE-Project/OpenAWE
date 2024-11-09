@@ -41,7 +41,7 @@ static glm::vec3 getSunDir(float timeOfDay, float yRotation, float latitude) {
 	glm::vec3 sunDir{1.0, 0.0, 0.0};
 
 	sunDir = glm::mat3(glm::rotate(0.4092797f, glm::vec3(1.0, 0.0, 0.0))) * sunDir;
-	sunDir = glm::mat3(glm::rotate((timeOfDay - (1.0f / 3.0f)) * -2.0f * M_PIf, glm::vec3(0.0, 0.0, 1.0))) * sunDir;
+	sunDir = glm::mat3(glm::rotate((timeOfDay - (1.0f / 3.0f)) * -2.0f * static_cast<float>(M_PI), glm::vec3(0.0, 0.0, 1.0))) * sunDir;
 	sunDir = glm::mat3(glm::rotate(glm::radians(latitude), glm::vec3(1.0, 0.0, 0.0))) * sunDir;
 	sunDir = glm::mat3(glm::rotate(glm::radians(yRotation), glm::vec3(0.0, 1.0, 0.0))) * sunDir;
 
