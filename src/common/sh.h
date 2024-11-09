@@ -21,6 +21,8 @@
 #ifndef OPENAWE_SH_H
 #define OPENAWE_SH_H
 
+#include <cmath>
+
 #include <complex>
 
 #include <boost/math/special_functions.hpp>
