@@ -27,6 +27,7 @@
 #include <sstream>
 #include <set>
 #include <random>
+#include <numbers>
 
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
