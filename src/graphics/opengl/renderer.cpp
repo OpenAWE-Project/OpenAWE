@@ -254,7 +254,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 		std::memset(reinterpret_cast<byte*>(noiseSurface.getData()) + i * 4, date,	4);
 	}
 
-	_noiseMap = std::make_shared<Texture>(_loadingTasks, GL_TEXTURE_3D, "noise_map");
+	_noiseMap = std::make_unique<Texture>(_loadingTasks, GL_TEXTURE_3D, "noise_map");
 	_noiseMap->load(std::move(noiseSurface));
 
 	// Initialize basis func map
