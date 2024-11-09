@@ -104,6 +104,9 @@ private:
 	bool _hasDebug;
 	const std::string _shaderDirectory;
 
+	std::shared_ptr<Texture> _skyCubeTexture;
+	std::unique_ptr<Framebuffer> _skyCubeBuffer;
+
 	std::unique_ptr<Renderbuffer> _depthstencilBuffer;
 
 	std::unique_ptr<Texture> _lightBufferTexture;
@@ -112,6 +115,7 @@ private:
 	std::unique_ptr<Texture> _depthTexture;
 	std::unique_ptr<Texture> _normalTexture;
 	std::unique_ptr<Texture> _noiseMap;
+	std::shared_ptr<Texture> _basisFunc;
 	std::unique_ptr<Framebuffer> _deferredBuffer;
 
 	std::map<RenderPassId, std::unique_ptr<ProgramCollection>> _programs;

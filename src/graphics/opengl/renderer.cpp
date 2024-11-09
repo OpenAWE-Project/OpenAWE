@@ -41,6 +41,7 @@
 #include "src/common/exception.h"
 #include "src/common/strutil.h"
 #include "src/common/readfile.h"
+#include "src/common/sh.h"
 
 #include "src/awe/resman.h"
 #include "src/awe/objfile.h"
@@ -58,6 +59,10 @@
 #include "src/graphics/opengl/proxytexture.h"
 
 namespace Graphics::OpenGL {
+
+constexpr std::array kSkyDirections = {
+		"Left", "Right", "Front", "Back", "Up", "Down"
+};
 
 static void *loadProcAddress(const char *name) {
 	return Platform::getProcAddressGL(name);
@@ -198,6 +203,19 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	unsigned int width, height;
 	window.getSize(width, height);
 
+	// Initialize sky cube framebuffer
+	//
+	_skyCubeBuffer = std::make_unique<Framebuffer>("Sky Buffer");
+	_skyCubeBuffer->setClearColor({0.0, 0.0, 0.0, 0.0});
+	_skyCubeTexture = std::make_shared<Texture>(
+			_loadingTasks,
+			16,
+			6 * 16,
+			kRGBA16F,
+			"sky_buffer"
+	);
+	_skyCubeBuffer->attachTexture(*_skyCubeTexture, GL_COLOR_ATTACHMENT0);
+
 	// Initialize deferred shading
 	//
 	_depthTexture = std::make_unique<Texture>(_loadingTasks, width, height, kRGBA16F, "depth_buffer");
@@ -236,8 +254,64 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 		std::memset(reinterpret_cast<byte*>(noiseSurface.getData()) + i * 4, date,	4);
 	}
 
-	_noiseMap = std::make_unique<Texture>(_loadingTasks, GL_TEXTURE_3D, "noise_map");
+	_noiseMap = std::make_shared<Texture>(_loadingTasks, GL_TEXTURE_3D, "noise_map");
 	_noiseMap->load(std::move(noiseSurface));
+
+	// Initialize basis func map
+	//
+	std::array<float, 144 * 96> basisData;
+	std::ranges::fill(basisData, 0.0);
+
+	constexpr std::array<std::tuple<int, int>, 9> shParams = {
+			// l = 0
+			std::tuple<int, int>{0, 0},
+
+			// l = 1
+			{1, -1}, {1, 0}, {1, 1},
+
+			// l = 2
+			{2, -2}, {2, -1}, {2, 0}, {2, 1}, {2, 2}
+	};
+
+	static constexpr float kSphereSideArea = (4 * std::numbers::pi) / 6;
+
+	for (int iy = 0; iy < 6; ++iy) { // Cube Plane
+		for (int ix = 0; ix < 9; ++ix) { // Degree
+			const auto xoffset = ix * 16;
+			const auto yoffset = iy * 16;
+
+			const auto [l, m] = shParams[ix];
+
+			float sum = 0;
+			for (int by = 0; by < 16; ++by) {
+				for (int bx = 0; bx < 16; ++bx) {
+					const auto targetPixelVector = glm::vec3{
+							static_cast<float>(bx - 7.5) / 8.0,
+							1,
+							static_cast<float>(by - 7.5) / 8.0,
+					};
+					const auto baseVector = glm::vec3{0, 1, 0};
+					const auto shValue = Common::shBasisFunc(l, m, targetPixelVector);
+					const auto weight = (glm::dot(targetPixelVector, baseVector) / (glm::length(targetPixelVector) * glm::length(baseVector))) / std::pow(glm::length(targetPixelVector), 2);
+					sum += std::abs(shValue.real() * weight);
+					basisData[(yoffset + by) * 144 + xoffset + bx] = shValue.real() * weight;
+				}
+			}
+
+			for (int by = 0; by < 16; ++by) {
+				for (int bx = 0; bx < 16; ++bx) {
+					basisData[(yoffset + by) * 144 + xoffset + bx] *= kSphereSideArea / sum;
+				}
+			}
+		}
+
+		break;
+	}
+
+	auto basisFuncsSurface = Surface(144, 96, kR32F);
+	std::memcpy(basisFuncsSurface.getData(), basisData.data(), basisData.size() * sizeof(float));
+	_basisFunc = std::make_shared<Texture>(_loadingTasks, GL_TEXTURE_2D, "basis_funcs");
+	_basisFunc->load(std::move(basisFuncsSurface));
 
 	// Initialize ImGui
 	ImGui_ImplOpenGL3_Init();
