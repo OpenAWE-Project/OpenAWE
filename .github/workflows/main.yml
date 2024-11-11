@@ -91,7 +91,7 @@ jobs:
             -password "${{ github.token }}"
           nuget setapikey "${{ github.token }}" \
             -source "https://nuget.pkg.github.com/${{ github.actor }}/index.json"
-          vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog openal-soft bullet3 fmt gtest tinyxml2 glm opengl lz4 boost-dynamic-bitset shaderc
+          vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog openal-soft bullet3 fmt gtest tinyxml2 glm opengl lz4 boost-dynamic-bitset boost-math shaderc
 
       - name: Install dependencies with brew
         if: ${{ matrix.os == 'macos-13' }}
