@@ -43,8 +43,13 @@ namespace Graphics {
 
 class Renderer {
 public:
-	Renderer();
+	Renderer(unsigned int width, unsigned int height);
+	Renderer(glm::vec2 renderPlane);
 	virtual ~Renderer();
+
+	virtual void setRenderPlane(unsigned int width, unsigned int height);
+	virtual void setRenderPlane(glm::vec2 renderPlane);
+	virtual void setContentScale(glm::vec2 scale);
 
 	void addModel(Model *model);
 	void removeModel(Model *model);
@@ -144,6 +149,8 @@ protected:
 
 	glm::mat4 _view;
 	glm::mat4 _projection;
+	glm::vec2 _viewportSize;
+	glm::vec2 _contentScale;
 
 	SkyPtr _sky;
 

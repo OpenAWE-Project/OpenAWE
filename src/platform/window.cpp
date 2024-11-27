@@ -63,6 +63,8 @@ Window::Window(ContextType type) {
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	_window = glfwCreateWindow(1920, 1080, "", nullptr, nullptr);
+	_contentScale = glm::vec2(1, 1);
+	_desiredResolution = glm::vec2(1920, 1080);
 
 	glfwSetInputMode(_window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
@@ -263,6 +265,33 @@ void Window::createWindowSurface(VkInstance &instance, VkSurfaceKHR &surface) {
 
 void Window::getSize(unsigned int &width, unsigned int &height) {
 	glfwGetFramebufferSize(_window, reinterpret_cast<int *>(&width), reinterpret_cast<int *>(&height));
+}
+
+glm::vec2 Window::getSize() {
+	unsigned int width, height;
+	glfwGetFramebufferSize(_window, reinterpret_cast<int *>(&width), reinterpret_cast<int *>(&height));
+	return glm::vec2(width, height);
+}
+
+void Window::setSize(unsigned int width, unsigned int height) {
+	_desiredResolution = glm::vec2(width, height);
+	glm::vec2 oldResolution = getSize();
+	glfwSetWindowSize(_window, width, height);
+	// On Wayland, when window is fullscreen, the line above does nothing.
+	// That means we have to scale the content ourselves...
+	if (getSize() == oldResolution) {
+		_contentScale = oldResolution / _desiredResolution;
+	}
+}
+
+glm::vec2 Window::getContentScale() {
+	return _contentScale;
+}
+
+void Window::setFullscreen(bool fullscreen) {
+	unsigned int width, height;
+	getSize(width, height);
+	glfwSetWindowMonitor(_window, fullscreen ? glfwGetPrimaryMonitor() : NULL, 0, 0, width, height, GLFW_DONT_CARE);
 }
 
 }
