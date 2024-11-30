@@ -232,6 +232,7 @@ void GraphicsManager::setAtmosphere(const std::string &id) {
 
 	AWE::ATMFile atm(*atmStream);
 	auto skyLUT = createTexture(TEX(atm.getAtmosphericLUT()), fmt::format("{}_skylut", id));
+	skyLUT->setWrapMode(WrapMode::kClamp, WrapMode::kClamp);
 	_renderer->setSkyLUT(skyLUT);
 }
 
