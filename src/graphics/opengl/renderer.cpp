@@ -577,6 +577,9 @@ void Renderer::drawWorld(const std::string &stage) {
 void Renderer::drawLights() {
 	pushDebug("Draw Lights");
 
+	// flush any new additions or removals
+	flushLights();
+
 	auto stencilProgram = getProgram("deferredlight", "render_stencil", 0);
 	auto pointlightProgram = getProgram("deferredlight", "pointlight", 0);
 
