@@ -1171,7 +1171,7 @@ void Renderer::rebuildShaders() {
 	}
 	assert(glGetError() == GL_NO_ERROR);
 
-	const std::regex shaderFile("^[a-z]+-[a-z\\_]+-0x[0-9a-c]+\\.(vert|frag|tesc|tese)\\.(glsl|spv)$");
+	const std::regex shaderFile("^[a-z]+-[a-z0-9\\_]+-0x[0-9a-c]+\\.(vert|frag|tesc|tese|comp)\\.(glsl|spv)$");
 	std::map<std::tuple<std::string, std::string, uint32_t>, ProgramPtr> programs;
 	std::vector<ShaderPtr> shaders;
 	for (const auto &item: std::filesystem::directory_iterator(_shaderDirectory)) {
