@@ -36,7 +36,7 @@ public:
 	~Texture();
 
 	void bind() override;
-	void bindImage(unsigned int unit = 0);
+	void bindImage(unsigned int unit, GLenum rw, GLenum format);
 
 	void allocate(TextureFormat textureFormat, unsigned int width, unsigned int height) override;
 

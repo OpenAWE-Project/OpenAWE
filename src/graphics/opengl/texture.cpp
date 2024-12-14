@@ -495,15 +495,15 @@ void Texture::bind() {
 	glBindTexture(_type, _id);
 }
 
-void Texture::bindImage(unsigned int unit) {
+void Texture::bindImage(unsigned int unit, GLenum rw, GLenum format) {
 	glBindImageTexture(
 			unit,
 			_id,
 			0,
 			GL_FALSE,
 			0,
-			GL_READ_WRITE,
-			GL_RGBA16F
+			rw,
+			format
 	);
 }
 
