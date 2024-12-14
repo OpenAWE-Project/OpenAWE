@@ -1201,6 +1201,8 @@ void Renderer::rebuildShaders() {
 			shaderType = GL_TESS_CONTROL_SHADER;
 		else if (type == "tese")
 			shaderType = GL_TESS_EVALUATION_SHADER;
+		else if (type == "comp")
+			shaderType = GL_COMPUTE_SHADER;
 		else
 			throw std::runtime_error("Unknown or unsupported shader");
 
