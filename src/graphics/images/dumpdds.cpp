@@ -68,7 +68,8 @@ enum PixelFormatFlags {
 };
 
 enum DXGIFormat {
-	kFormatR16G16B16A16Float = 10
+	kFormatR16G16B16A16Float = 10,
+	kFormatR32Float          = 41
 };
 
 namespace Graphics {
@@ -131,6 +132,7 @@ void dumpDDS(Common::WriteStream &dds, ImageDecoder &imageDecoder) {
 			dds.writeUint32LE(0x000000FF);
 			break;
 
+		case kR32F: [[fallthrough]];
 		case kRGBA16F:
 			dds.writeUint32LE(kFourCC);
 			dds.writeUint32BE(kDX10);
@@ -168,8 +170,28 @@ void dumpDDS(Common::WriteStream &dds, ImageDecoder &imageDecoder) {
 
 	if (dx10) {
 		// Write extended DX10 header for supporting 16bit float
-		dds.writeUint32LE(kFormatR16G16B16A16Float);
+		switch (imageDecoder.getFormat()) {
+			case kRGBA16F:
+				dds.writeUint32LE(kFormatR16G16B16A16Float);
+				break;
+
+			case kR32F:
+				dds.writeUint32LE(kFormatR32Float);
+				break;
+
+			default:
+				throw CreateException("Unsupported image decoder format {}",
+									  static_cast<unsigned int>(imageDecoder.getFormat()));
+		}
+
 		switch (imageDecoder.getType()) {
+			case kTexture2D:
+				dds.writeUint32LE(3); // DDS_DIMENSION_TEXTURE2D
+				dds.writeUint32LE(0);
+				dds.writeUint32LE(1);
+				dds.writeUint32LE(0);
+				break;
+
 			case kTexture3D:
 				dds.writeUint32LE(4); // DDS_DIMENSION_TEXTURE3D
 				dds.writeUint32LE(0);
