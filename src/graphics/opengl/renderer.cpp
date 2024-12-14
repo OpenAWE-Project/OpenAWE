@@ -58,6 +58,7 @@
 #include "src/graphics/opengl/vbo.h"
 #include "src/graphics/opengl/convertedprogram.h"
 #include "src/graphics/opengl/proxytexture.h"
+#include "src/common/dxbc.h"
 
 namespace Graphics::OpenGL {
 
@@ -1123,50 +1124,48 @@ void Renderer::rebuildShaders() {
 		spdlog::info("Loading shader archive {}", filename);
 
 		for (auto &program: obj.getPrograms()) {
-			spdlog::info("Loading shader progran {}", program.name);
-			const auto &vertexShaderStream = *program.shaders.front().vertexShader;
-			const auto &pixelShaderStream = *program.shaders.front().pixelShader;
+			for (const auto &shader: program.shaders) {
+				spdlog::info("Loading and converting shader progran {} with id 0x{:0>8x}", program.name, shader.flags);
+				const auto &vertexShaderStream = *shader.vertexShader;
+				const auto &pixelShaderStream = *shader.pixelShader;
 
-			if (vertexShaderStream.eos() || pixelShaderStream.eos())
-				continue;
+				if (vertexShaderStream.eos() || pixelShaderStream.eos())
+					continue;
 
-			const auto identifier = fmt::format(
-					"{}-{}-0x{:0>8x}",
-					obj.getName(),
-					program.name,
-					program.shaders.front().flags
-			);
+				const auto identifier = fmt::format(
+						"{}-{}-0x{:0>8x}",
+						obj.getName(),
+						program.name,
+						shader.flags
+				);
 
-			Graphics::ShaderConverter vertexConverter(*program.shaders.front().vertexShader);
-			Graphics::ShaderConverter pixelConverter(*program.shaders.front().pixelShader);
-			ShaderPtr vertexShader = Shader::fromGLSL(
-					GL_VERTEX_SHADER,
-					vertexConverter.convertToGLSL(),
-					fmt::format("{}-vert", identifier)
-			);
-			ShaderPtr fragmentShader = Shader::fromGLSL(
-					GL_FRAGMENT_SHADER,
-					pixelConverter.convertToGLSL(),
-					fmt::format("{}-frag", identifier)
-			);
+				Common::DXBC vertexConverter(*shader.vertexShader);
+				Common::DXBC fragmentConverter(*shader.pixelShader);
+				ShaderPtr vertexShader = Shader::fromGLSL(
+						GL_VERTEX_SHADER,
+						vertexConverter.generateGlsl(),
+						fmt::format("{}-vert", identifier)
+				);
+				ShaderPtr fragmentShader = Shader::fromGLSL(
+						GL_FRAGMENT_SHADER,
+						fragmentConverter.generateGlsl(),
+						fmt::format("{}-frag", identifier)
+				);
 
-			auto p = std::make_unique<ConvertedProgram>(identifier);
-			p->attach(*vertexShader);
-			p->attach(*fragmentShader);
-			p->link();
-			p->setSymbols(vertexConverter.getSymbols());
-			p->setAttributeMappings(vertexConverter.getAttributeMappings());
-			p->addSamplerMappings(vertexConverter.getSamplerMappings());
-			p->addSamplerMappings(pixelConverter.getSamplerMappings());
+				auto p = std::make_unique<Program>(identifier);
+				p->attach(*vertexShader);
+				p->attach(*fragmentShader);
+				p->link();
 
-			const auto passId = RenderPassId(obj.getName(), program.shaders.front().flags);
-			if (_programs.find(passId) == _programs.end())
-				_programs[passId] = std::make_unique<ProgramCollection>();
+				const auto passId = RenderPassId(obj.getName(), shader.flags);
+				if (_programs.find(passId) == _programs.end())
+					_programs[passId] = std::make_unique<ProgramCollection>();
 
-			_programs[passId]->setProgram(
-					program.name,
-					std::move(p)
-			);
+				_programs[passId]->setProgram(
+						program.name,
+						std::move(p)
+				);
+			}
 		}
 	}
 	assert(glGetError() == GL_NO_ERROR);
