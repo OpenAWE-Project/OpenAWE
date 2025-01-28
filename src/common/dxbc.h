@@ -125,7 +125,7 @@ struct Uniform {
 	std::string name;
 	Type type;
 	unsigned int length{1};
-	std::vector<Uniform> members;
+	std::vector<Uniform> members{};
 };
 
 struct Attribute {
