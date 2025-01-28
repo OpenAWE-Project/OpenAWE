@@ -98,3 +98,16 @@ TEST(StringUtil, extract) {
 	EXPECT_STREQ(testResult1.c_str(), "cooool");
 	EXPECT_TRUE(testResult2.empty());
 }
+
+TEST(StringUtil, parse) {
+	const std::string testInt = "42";
+	const std::string testFloat = "32.66";
+	const std::string testInvalidInt = "int";
+	const std::string testInvalidFloat = "f32.66";
+
+	EXPECT_EQ(Common::parse<int>(testInt), 42);
+	EXPECT_FLOAT_EQ(Common::parse<float>(testFloat), 32.66);
+
+	EXPECT_ANY_THROW(Common::parse<int>(testInvalidInt));
+	EXPECT_ANY_THROW(Common::parse<float>(testInvalidFloat));
+}

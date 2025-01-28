@@ -24,6 +24,9 @@
 #include <string>
 #include <vector>
 #include <regex>
+#include <charconv>
+
+#include "src/common/exception.h"
 
 namespace Common {
 
@@ -104,6 +107,26 @@ std::vector<std::string> split(const std::string &str, const std::regex &split);
  * \return The extracted pattern string
  */
 std::string extract(const std::string &str, const std::regex &pattern);
+
+/*!
+ * Parse the next number literal from a string and throw an exception if a number cannot be parsed. The parsing is
+ * independent from any currently loaded locale
+ *
+ * \tparam T The type of the number to read, needs to be an integral or a floating point number
+ * \param str The string from which to parse the number
+ * \return The successfully parsed number
+ */
+template<typename T>
+requires std::is_integral_v<T> || std::is_floating_point_v<T>
+static T parse(const std::string &str) {
+	T v;
+	const auto [_, ec] = std::from_chars(str.c_str(), str.c_str() + str.size(), v);
+	if (ec != std::errc())
+		throw CreateException("Error when parsing {} \"{}\": {}", typeid(T).name(), str, static_cast<int>(ec));
+
+	return v;
+}
+
 }
 
 #endif //AWE_STRUTIL_H
