@@ -119,6 +119,8 @@ struct Source {
 struct Constant {
 	std::string name;
 	glm::vec4 value;
+
+	Constant(const std::string &name, const glm::vec4 &value) : name(name), value(value) {}
 };
 
 struct Uniform {
