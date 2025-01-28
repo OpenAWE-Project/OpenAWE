@@ -126,6 +126,9 @@ struct Uniform {
 	Type type;
 	unsigned int length{1};
 	std::vector<Uniform> members{};
+
+	Uniform(const std::string &name, Type type) : name(name), type(type) {};
+	Uniform(const std::string &name, Type type, unsigned int length) : name(name), type(type), length(length) {};
 };
 
 struct Attribute {
