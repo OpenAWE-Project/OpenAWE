@@ -28,10 +28,8 @@ varies depending on your operating system (and in the case of Linux, distributio
 
  - ZLIB
  - GLFW
- - GLEW
  - GLM
  - TinyXML2
- - OpenGL
  - OpenAL
  - Bullet
  - FMT (>=9.0.0)
