@@ -64,7 +64,7 @@ void ThreadPool::add(Runnable runnable) {
 
 bool ThreadPool::empty() const {
 	std::lock_guard<std::mutex> l(_taskAccess);
-	return _tasks.empty();
+	return _tasks.empty() && _running == 0;
 }
 
 size_t ThreadPool::getQueuedTasks() const {
@@ -85,6 +85,7 @@ void ThreadPool::run() {
 		if (_finished)
 			return;
 
+		_running++;
 		Runnable runnable = _tasks.front();
 		if (!runnable)
 			throw CreateException("Invalid runnable object given");
@@ -92,6 +93,7 @@ void ThreadPool::run() {
 		lock.unlock();
 
 		runnable();
+		_running--;
 	}
 }
 

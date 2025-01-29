@@ -49,6 +49,7 @@ private:
 	void run();
 
 	std::atomic_bool _finished;
+	std::atomic_uint _running;
 	std::condition_variable _taskCond;
 	mutable std::mutex _taskAccess;
 	std::queue<Runnable> _tasks;
