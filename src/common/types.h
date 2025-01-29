@@ -45,6 +45,12 @@
 #define ARCH_X86_64 __x86_64 || __x86_64__ || __amd64 || __amd64__ || _M_X64
 #define ARCH_X86 ARCH_X86_32 || ARCH_X86_64
 
+/*
+ * Standard library macros
+ */
+#define LIB_STDCXX __GLIBCXX__ || __GLIBCPP__
+#define LIB_CPP _LIBCPP_VERSION
+
 #define MKTAG(a0,a1,a2,a3) ((uint32_t)((a3) | ((a2) << 8) | ((a1) << 16) | ((a0) << 24)))
 
 typedef unsigned char byte;
