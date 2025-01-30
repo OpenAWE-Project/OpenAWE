@@ -30,7 +30,7 @@
 
 #include "src/codecs/dumpwav.h"
 
-#include "src/sound/fsbfile.h"
+#include "src/codecs/fsbfile.h"
 
 int main(int argc, char** argv) {
 	CLI::App app("Convert FMOD fsb file to wav file", "fsb2wav");
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 	CLI11_PARSE(app, argc, argv);
 
 	std::unique_ptr<Common::ReadStream> binStream = std::make_unique<Common::ReadFile>(binFile);
-	Sound::FSBFile fsb(new Common::ReadFile(binFile));
+	Codecs::FSBFile fsb(new Common::ReadFile(binFile));
 
 	for (size_t i = 0; i < fsb.getNumEntries(); ++i) {
 		const std::string path = fsb.getFileName(i);

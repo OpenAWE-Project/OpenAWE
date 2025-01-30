@@ -21,6 +21,8 @@
 #ifndef AWE_SOURCE_H
 #define AWE_SOURCE_H
 
+#include "src/common/types.h"
+
 #include "src/sound/openal.h"
 
 namespace Sound {

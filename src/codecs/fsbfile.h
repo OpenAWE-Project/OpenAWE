@@ -29,7 +29,7 @@
 
 #include "src/codecs/audiostream.h"
 
-namespace Sound {
+namespace Codecs {
 
 /*!
  * \brief Reader class for fmod sound bank files
@@ -101,6 +101,6 @@ private:
 	std::unique_ptr<Common::ReadStream> _fsb;
 };
 
-} // End of namespace Soun
+} // End of namespace Codecs
 
 #endif //AWE_FSBFILE_H

@@ -22,8 +22,9 @@
 
 #include "src/awe/resman.h"
 
+#include "src/codecs/fsbfile.h"
+
 #include "src/sound/audiostreamfactory.h"
-#include "src/sound/fsbfile.h"
 
 namespace Sound {
 
@@ -37,12 +38,12 @@ LoopableStream * AudioStreamFactory::createStream() const {
 	if (!fsbStream)
 		throw CreateException("Cannot find fsb resource {:X}", _rid);
 
-	Sound::FSBFile fsb(fsbStream);
+	Codecs::FSBFile fsb(fsbStream);
 
 	if (fsb.getNumEntries() == 0)
 		throw CreateException("Empty FMOD sound bank file {:x}", _rid);
 
-	Sound::FSBFile::ExtraData streamData{};
+	Codecs::FSBFile::ExtraData streamData{};
 	Codecs::SeekableAudioStream *audioStream = fsb.getStream(0, streamData);
 	auto *stream = new Sound::LoopableStream(audioStream);
 	stream->setLoopRange(streamData.loopStart, streamData.loopEnd);

@@ -27,7 +27,7 @@
 
 #include "src/codecs/adpcm.h"
 
-#include "src/sound/fsbfile.h"
+#include "fsbfile.h"
 
 static const uint32_t kFSB4 = MKTAG('F', 'S', 'B', '4');
 static const uint32_t kFSB5 = MKTAG('F', 'S', 'B', '5');
@@ -63,7 +63,7 @@ enum SoundFormatFSB5 {
 	kFormatOpus       = 17
 };
 
-namespace Sound {
+namespace Codecs {
 
 FSBFile::FSBFile(Common::ReadStream *fsb) : _fsb(fsb) {
 	const auto magic = _fsb->readUint32BE();
