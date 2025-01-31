@@ -46,7 +46,7 @@ void Framebuffer::attachTexture(const Texture &texture, GLenum attachmentType) {
 			GL_FRAMEBUFFER,
 			attachmentType,
 			texture._type,
-			texture._id,
+			*texture._id,
 			0
 	);
 
