@@ -357,8 +357,8 @@ void Renderer::update() {
 
 	// Loading
 	while (!_loadingTasks.empty()) {
-		auto &task = _loadingTasks.front();
-		task->apply();
+		const auto &task = _loadingTasks.front();
+		task();
 		_loadingTasks.pop_front();
 	}
 }

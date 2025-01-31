@@ -111,102 +111,177 @@ static GLint getTextureWrapMode(WrapMode mode) {
 	}
 }
 
-class TextureTask : public Task {
-public:
-	TextureTask(GLuint &id, GLenum type) : _id(id), _type(type) {}
 
-	void apply() override {
-		glBindTexture(_type, _id);
-	}
+Texture::Texture(TaskQueue &tasks, GLenum type, const std::string &label) : _id(std::make_shared<GLuint>(0)), _type(type), _tasks(tasks) {
+	//tasks.emplace_back(std::make_unique<TextureCreationTask>(_id, _type, label));
+	tasks.emplace_back([=]() {
+		glGenTextures(1, _id.get());
+		glBindTexture(_type, *_id);
 
-protected:
-	const GLuint &_id;
-	const GLenum _type;
-};
+		if (GLAD_GL_KHR_debug && !label.empty())
+			glObjectLabel(GL_TEXTURE, *_id, static_cast<GLsizei>(label.size()), label.c_str());
+	});
+}
 
-class TextureCreationTask : public TextureTask {
-public:
-	TextureCreationTask(
-			GLuint &id,
-			GLenum type,
-			const std::string &label
-	) : TextureTask(id, type), _id(id), _label(label) {}
+Texture::Texture(TaskQueue &tasks, unsigned int width, unsigned int height, TextureFormat textureFormat,
+				 const std::string &label) : _id(std::make_shared<GLuint>(0)), _type(GL_TEXTURE_2D), _tasks(tasks) {
+	glGenTextures(1, _id.get());
 
-	void apply() override {
-		glGenTextures(1, &_id);
+	bind();
 
-		TextureTask::apply();
+	glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-		if (GLAD_GL_KHR_debug && !_label.empty())
-			glObjectLabel(GL_TEXTURE, _id, static_cast<GLsizei>(_label.size()), _label.c_str());
-	}
+	glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-private:
-	GLuint &_id;
-	const std::string _label;
-};
+	GLenum format, internalFormat = 0, type = 0;
+	getParameters(textureFormat, format, internalFormat, type);
 
-class TextureAllocationTask : public TextureTask {
-public:
-	TextureAllocationTask(
-			GLuint &id,
-			GLenum type,
-			const GLsizei width, const GLsizei height,
-			TextureFormat format
-	)
-			: TextureTask(id, type), _width(width), _height(height), _format(format) {}
+	glTexImage2D(
+			_type,
+			0,
+			internalFormat,
+			width,
+			height,
+			0,
+			format,
+			type,
+			nullptr
+	);
 
-	void apply() override {
-		TextureTask::apply();
+	if (GLAD_GL_KHR_debug && !label.empty())
+		glObjectLabel(GL_TEXTURE, *_id, static_cast<GLsizei>(label.size()), label.c_str());
+}
 
-		GLenum format, internalFormat = 0, type = 0;
-		getParameters(_format, format, internalFormat, type);
+Texture::~Texture() {
+	_tasks.emplace_back([=]() {
+		glDeleteTextures(1, _id.get());
+	});
+}
 
-		glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+void Texture::allocate(TextureFormat textureFormat, unsigned int width, unsigned int height) {
+	if (_type != GL_TEXTURE_2D)
+		throw CreateException("Can only allocate 2d textures");
 
-		glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	GLenum format, internalFormat = 0, type = 0;
+	getParameters(textureFormat, format, internalFormat, type);
+
+	_tasks.emplace_back([=, target = _type, id = _id](){
+		glBindTexture(target, *id);
+
+		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+		glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		glTexImage2D(
 				GL_TEXTURE_2D,
 				0,
 				internalFormat,
-				_width,
-				_height,
+				width,
+				height,
 				0,
 				format,
 				type,
 				nullptr
 		);
-	}
+	});
+}
 
-protected:
-	const GLsizei _width, _height;
-	const TextureFormat _format;
-};
+void Texture::load(unsigned int xoffset, unsigned int yoffset, ImageDecoder &&decoder) {
+	GLenum format, internalFormat = 0, type = 0;
+	getParameters(decoder.getFormat(), format, internalFormat, type);
 
-class TextureLoadTask : public TextureTask {
-public:
-	void apply() override {
-		TextureTask::apply();
+	_tasks.emplace_back([=, target = _type, id = _id]() {
+		glBindTexture(target, *id);
 
-		glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		if (decoder.getNumMipMaps() > 1) {
-			glTexParameteri(_type, GL_TEXTURE_MAX_LEVEL, decoder.getNumMipMaps() - 1);
-			glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, decoder.getNumMipMaps() - 1);
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		} else {
-			glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		}
 
-		glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		if (decoder.getType() == kTexture3D)
-			glTexParameteri(_type, GL_TEXTURE_WRAP_R, GL_REPEAT);
+		glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		GLenum format, internalFormat = 0, type = 0;
 		getParameters(decoder.getFormat(), format, internalFormat, type);
+
+		for (unsigned int i = 0; i < decoder.getNumMipMaps(); ++i) {
+			const auto &mipmap = decoder.getMipMap(i);
+			assert(mipmap.width != 0 && mipmap.height != 0);
+
+			const auto &imageData = mipmap.data[0];
+
+			if (decoder.isCompressed()) {
+				glCompressedTexSubImage2D(
+						_type,
+						i,
+						xoffset,
+						yoffset,
+						mipmap.width,
+						mipmap.height,
+						format,
+						imageData.size(),
+						imageData.data()
+				);
+			} else {
+				glTexSubImage2D(
+						_type,
+						i,
+						xoffset,
+						yoffset,
+						mipmap.width,
+						mipmap.height,
+						format,
+						type,
+						imageData.data()
+				);
+			}
+		}
+	});
+}
+
+void Texture::load(ImageDecoder &&decoder) {
+	switch (decoder.getType()) {
+		case kTexture2D:
+			_type = GL_TEXTURE_2D;
+			break;
+		case kTexture3D:
+			_type = GL_TEXTURE_3D;
+			break;
+		case kTextureCube:
+			_type = GL_TEXTURE_CUBE_MAP;
+			break;
+
+		default:
+			throw Common::Exception("Invalid image type {}", fmt::underlying(decoder.getType()));
+	}
+
+	GLenum format, internalFormat = 0, type = 0;
+	getParameters(decoder.getFormat(), format, internalFormat, type);
+
+	_tasks.emplace_back([=, target = _type, id = _id] {
+		glBindTexture(target, *id);
+
+		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		if (decoder.getNumMipMaps() > 1) {
+			glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, decoder.getNumMipMaps() - 1);
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		} else {
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		}
+
+		glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		if (decoder.getType() == kTexture3D)
+			glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_REPEAT);
 
 		GLuint level = 0;
 		for (unsigned int i = 0; i < decoder.getNumMipMaps(); ++i) {
@@ -219,7 +294,7 @@ public:
 				case kTexture2D:
 					if (decoder.isCompressed()) {
 						glCompressedTexImage2D(
-								_type,
+								target,
 								level,
 								format,
 								mipmap.width,
@@ -230,7 +305,7 @@ public:
 						);
 					} else {
 						glTexImage2D(
-								_type,
+								target,
 								level,
 								internalFormat,
 								mipmap.width,
@@ -246,7 +321,7 @@ public:
 				case kTexture3D:
 					if (decoder.isCompressed()) {
 						glCompressedTexImage3D(
-								_type,
+								target,
 								level,
 								format,
 								mipmap.width,
@@ -258,7 +333,7 @@ public:
 						);
 					} else {
 						glTexImage3D(
-								_type,
+								target,
 								level,
 								internalFormat,
 								mipmap.width,
@@ -317,188 +392,29 @@ public:
 
 			level += 1;
 		}
-	}
-
-	TextureLoadTask(
-			GLuint &id,
-			GLenum type,
-			ImageDecoder &&decoder)
-			: TextureTask(id, type), decoder(std::move(decoder)){}
-
-protected:
-	ImageDecoder decoder;
-};
-
-class TexturePartLoadTask : public TextureTask {
-	void apply() override {
-		TextureTask::apply();
-
-		glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		if (decoder.getNumMipMaps() > 1) {
-			glTexParameteri(_type, GL_TEXTURE_MAX_LEVEL, decoder.getNumMipMaps() - 1);
-			glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		} else {
-			glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		}
-
-		glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		GLenum format, internalFormat = 0, type = 0;
-		getParameters(decoder.getFormat(), format, internalFormat, type);
-
-		for (unsigned int i = 0; i < decoder.getNumMipMaps(); ++i) {
-			const auto &mipmap = decoder.getMipMap(i);
-			assert(mipmap.width != 0 && mipmap.height != 0);
-
-			const auto &imageData = mipmap.data[0];
-
-			if (decoder.isCompressed()) {
-				glCompressedTexSubImage2D(
-						_type,
-						i,
-						xoffset,
-						yoffset,
-						mipmap.width,
-						mipmap.height,
-						format,
-						imageData.size(),
-						imageData.data()
-				);
-			} else {
-				glTexSubImage2D(
-						_type,
-						i,
-						xoffset,
-						yoffset,
-						mipmap.width,
-						mipmap.height,
-						format,
-						type,
-						imageData.data()
-				);
-			}
-		}
-
-		assert(glGetError() == GL_NO_ERROR);
-	}
-
-public:
-	TexturePartLoadTask(GLuint &id, GLenum type, const ImageDecoder &decoder, const GLint xoffset, const GLint yoffset)
-			: TextureTask(id, type), decoder(decoder), xoffset(xoffset), yoffset(yoffset) {}
-
-private:
-	ImageDecoder decoder;
-	const GLint xoffset, yoffset;
-};
-
-class TextureConfigTask : public TextureTask {
-public:
-	void apply() override {
-		TextureTask::apply();
-
-		glTexParameteri(_type, GL_TEXTURE_WRAP_S, getTextureWrapMode(sWrap));
-		glTexParameteri(_type, GL_TEXTURE_WRAP_T, getTextureWrapMode(tWrap));
-
-		if (_type == GL_TEXTURE_3D)
-			glTexParameteri(_type, GL_TEXTURE_WRAP_R, getTextureWrapMode(rWrap));
-	}
-
-	TextureConfigTask(GLuint &id, GLenum type, WrapMode sWrap, WrapMode tWrap, WrapMode rWrap)
-			: TextureTask(id, type), sWrap(sWrap), tWrap(tWrap), rWrap(rWrap) {}
-
-private:
-	WrapMode sWrap, tWrap, rWrap;
-};
-
-Texture::Texture(TaskQueue &tasks, GLenum type, const std::string &label) : _id(0), _type(type), _tasks(tasks) {
-	tasks.emplace_back(std::make_unique<TextureCreationTask>(_id, _type, label));
-}
-
-Texture::Texture(TaskQueue &tasks, unsigned int width, unsigned int height, TextureFormat textureFormat,
-				 const std::string &label) : _id(0), _type(GL_TEXTURE_2D), _tasks(tasks) {
-	glGenTextures(1, &_id);
-
-	bind();
-
-	glTexParameteri(_type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(_type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-	glTexParameteri(_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	GLenum format, internalFormat = 0, type = 0;
-	getParameters(textureFormat, format, internalFormat, type);
-
-	glTexImage2D(
-			GL_TEXTURE_2D,
-			0,
-			internalFormat,
-			width,
-			height,
-			0,
-			format,
-			type,
-			nullptr
-	);
-
-	if (GLAD_GL_KHR_debug && !label.empty())
-		glObjectLabel(GL_TEXTURE, _id, static_cast<GLsizei>(label.size()), label.c_str());
-}
-
-Texture::~Texture() {
-	glDeleteTextures(1, &_id);
-}
-
-void Texture::allocate(TextureFormat textureFormat, unsigned int width, unsigned int height) {
-	if (_type != GL_TEXTURE_2D)
-		throw CreateException("Can only allocate 2d textures");
-
-	GLenum format, internalFormat = 0, type = 0;
-	getParameters(textureFormat, format, internalFormat, type);
-
-	_tasks.emplace_back(std::make_unique<TextureAllocationTask>(_id, _type, width, height, textureFormat));
-}
-
-void Texture::load(unsigned int xoffset, unsigned int yoffset, ImageDecoder &&decoder) {
-	GLenum format, internalFormat = 0, type = 0;
-	getParameters(decoder.getFormat(), format, internalFormat, type);
-
-	_tasks.emplace_back(std::make_unique<TexturePartLoadTask>(_id, _type, std::move(decoder), xoffset, yoffset));
-}
-
-void Texture::load(ImageDecoder &&decoder) {
-	switch (decoder.getType()) {
-		case kTexture2D:
-			_type = GL_TEXTURE_2D;
-			break;
-		case kTexture3D:
-			_type = GL_TEXTURE_3D;
-			break;
-		case kTextureCube:
-			_type = GL_TEXTURE_CUBE_MAP;
-			break;
-
-		default:
-			throw Common::Exception("Invalid image type {}", fmt::underlying(decoder.getType()));
-	}
-
-	_tasks.emplace_back(std::make_unique<TextureLoadTask>(_id, _type, std::move(decoder)));
+	});
 }
 
 void Texture::setWrapMode(WrapMode s, WrapMode t, WrapMode r) {
-	_tasks.emplace_back(std::make_unique<TextureConfigTask>(_id, _type, s, t, r));
+	_tasks.emplace_back([=, type = _type, id = _id](){
+		glBindTexture(type, *id);
+
+		glTexParameteri(type, GL_TEXTURE_WRAP_S, getTextureWrapMode(s));
+		glTexParameteri(type, GL_TEXTURE_WRAP_T, getTextureWrapMode(t));
+
+		if (type == GL_TEXTURE_3D)
+			glTexParameteri(type, GL_TEXTURE_WRAP_R, getTextureWrapMode(r));
+	});
 }
 
 void Texture::bind() {
-	glBindTexture(_type, _id);
+	glBindTexture(_type, *_id);
 }
 
 void Texture::bindImage(unsigned int unit, GLenum rw, GLenum format) {
 	glBindImageTexture(
 			unit,
-			_id,
+			*_id,
 			0,
 			GL_FALSE,
 			0,

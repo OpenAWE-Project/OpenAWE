@@ -41,7 +41,7 @@ public:
 
 private:
 	TaskQueue &_queue;
-	GLuint _id;
+	std::shared_ptr<GLuint> _id;
 };
 
 } // End of namespace Graphics::OpenGL

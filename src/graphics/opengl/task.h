@@ -23,17 +23,13 @@
 
 #include <deque>
 #include <memory>
+#include <functional>
 
 #include "src/common/types.h"
 
 namespace Graphics::OpenGL {
 
-struct Task : public Common::Noncopyable {
-	virtual ~Task() = default;
-	virtual void apply() = 0;
-};
-
-typedef std::deque<std::unique_ptr<Task>> TaskQueue;
+typedef std::deque<std::function<void()>> TaskQueue;
 
 } // End of namespace Graphics::OpenGL
 

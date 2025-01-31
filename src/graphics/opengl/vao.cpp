@@ -34,80 +34,23 @@ struct VAOAttribute {
 	AttributeType attributeType;
 };
 
-class AttributeObjectApplyTask : public Task {
-public:
-	AttributeObjectApplyTask(GLuint &id, GLuint stride, GLuint offset, const ProgramPtr &program,
-							 const std::vector<VAOAttribute> &attributes, BufferPtr vertexData) : _id(id), _stride(stride), _offset(offset),
-																			_program(program),
-																			_attributes(attributes), _vertexData(vertexData) {}
+VAO::VAO(TaskQueue &queue, const std::string &label) : _queue(queue), _id(std::make_shared<GLuint>(0)) {
+	_queue.emplace_back([=, id = _id]{
+		glGenVertexArrays(1, id.get());
 
-	void apply() override {
-		glBindVertexArray(_id);
-		_program->bind();
-		std::static_pointer_cast<Graphics::OpenGL::VBO>(_vertexData)->bind();
-
-		for (const auto &attribute: _attributes) {
-			const auto index = _program->getAttributeLocation(attribute.attributeType);
-			if (index) {
-				glEnableVertexAttribArray(*index);
-				if (attribute.integer) {
-					glVertexAttribIPointer(
-							*index,
-							attribute.size,
-							attribute.type,
-							_stride,
-							reinterpret_cast<const void *>(attribute.localOffset + _offset)
-					);
-				} else {
-					glVertexAttribPointer(
-							*index,
-							attribute.size,
-							attribute.type,
-							GL_FALSE,
-							_stride,
-							reinterpret_cast<const void *>(attribute.localOffset + _offset)
-					);
-				}
-			}
-		}
-		//_program->validate();
-	}
-
-private:
-	GLuint &_id;
-	GLuint _stride;
-	GLuint _offset;
-	ProgramPtr _program;
-	std::vector<VAOAttribute> _attributes;
-	BufferPtr _vertexData;
-};
-
-class AttributeObjectCreate : public Task {
-public:
-	AttributeObjectCreate(GLuint &id, const std::string &label) : _id(id), _label(label) {}
-
-	void apply() override {
-		glGenVertexArrays(1, &_id);
-
-		if (GLAD_GL_KHR_debug && !_label.empty())
-			glObjectLabel(GL_VERTEX_ARRAY, _id, _label.size(), _label.c_str());
-	}
-
-private:
-	GLuint &_id;
-	const std::string _label;
-};
-
-VAO::VAO(TaskQueue &queue, const std::string &label) : _queue(queue), _id(0) {
-	_queue.emplace_back(std::make_unique<AttributeObjectCreate>(_id, label));
+		if (GLAD_GL_KHR_debug && !label.empty())
+			glObjectLabel(GL_VERTEX_ARRAY, *id, label.size(), label.c_str());
+	});
 }
 
 VAO::~VAO() {
-	glDeleteVertexArrays(1, &_id);
+	_queue.emplace_back([=, id = _id]{
+		glDeleteVertexArrays(1, id.get());
+	});
 }
 
 void VAO::bind() {
-	glBindVertexArray(_id);
+	glBindVertexArray(*_id);
 }
 
 void
@@ -117,8 +60,6 @@ VAO::applyAttributes(
 	BufferPtr vertexData,
 	unsigned int offset
 ) {
-	bind();
-
 	// Calculate the size of the vertex element.
 	GLuint stride = 0;
 	for (const auto &attribute : vertexAttributes) {
@@ -202,7 +143,36 @@ VAO::applyAttributes(
 		localOffset += totalSize;
 	}
 
-	_queue.emplace_back(std::make_unique<AttributeObjectApplyTask>(_id, stride, offset, program, attributes, vertexData));
+	_queue.emplace_back([=, id = _id](){
+		glBindVertexArray(*id);
+		program->bind();
+		std::static_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
+
+		for (const auto &attribute: attributes) {
+			const auto index = program->getAttributeLocation(attribute.attributeType);
+			if (index) {
+				glEnableVertexAttribArray(*index);
+				if (attribute.integer) {
+					glVertexAttribIPointer(
+							*index,
+							attribute.size,
+							attribute.type,
+							stride,
+							reinterpret_cast<const void *>(attribute.localOffset + offset)
+					);
+				} else {
+					glVertexAttribPointer(
+							*index,
+							attribute.size,
+							attribute.type,
+							GL_FALSE,
+							stride,
+							reinterpret_cast<const void *>(attribute.localOffset + offset)
+					);
+				}
+			}
+		}
+	});
 }
 
 }

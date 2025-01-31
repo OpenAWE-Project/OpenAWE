@@ -40,8 +40,6 @@ public:
 	VBO(TaskQueue &tasks, GLenum type, GLenum usage);
 	~VBO();
 
-	void bufferData(byte *data, size_t length);
-
 	void bind() const;
 
 	void *map() const;
@@ -54,7 +52,7 @@ public:
 
 private:
 	TaskQueue &_tasks;
-	GLuint _id;
+	std::shared_ptr<GLuint> _id;
 	GLenum _type;
 	GLenum _usage;
 };

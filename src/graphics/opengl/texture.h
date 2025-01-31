@@ -49,7 +49,7 @@ public:
 private:
 	friend class Framebuffer;
 
-	GLuint _id;
+	std::shared_ptr<GLuint> _id;
 	GLenum _type;
 
 	TaskQueue  &_tasks;
