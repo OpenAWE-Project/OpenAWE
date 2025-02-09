@@ -2,7 +2,7 @@
   "name": "ambientconvolution",
   "property_sets": [
     {
-      "stages": ["downsample2x2", "mult_basis_func"],
+      "stages": ["downsample2x2", "sum2x2", "mult_basis_func"],
       "properties": []
     }
   ]
