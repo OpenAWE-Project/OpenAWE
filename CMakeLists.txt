@@ -159,6 +159,10 @@ if (MSVC)
     add_definitions(-D_USE_MATH_DEFINES)
 endif ()
 
+if (WIN32)
+    add_definitions(-DWIN32_LEAN_AND_MEAN)
+endif ()
+
 # Enable glm swizzling
 add_definitions(-DGLM_FORCE_SWIZZLE)
 
