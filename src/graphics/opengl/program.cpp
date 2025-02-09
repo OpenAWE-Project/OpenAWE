@@ -79,35 +79,36 @@ void Program::link() {
 		throw std::runtime_error(log);
 	}
 
+	GLint maxAttributeNameLength;
+	GLint maxUniformNameLength;
+	GLint maxUniformBlockNameLength;
+	glGetProgramiv(_id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxAttributeNameLength);
+	glGetProgramiv(_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformNameLength);
+	glGetProgramiv(_id, GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH, &maxUniformBlockNameLength);
+	std::vector<GLchar> nameBuffer(std::max({maxAttributeNameLength, maxUniformNameLength, maxUniformBlockNameLength}));
+
 	// Determine Attribute locations
 	GLint numAttributes;
-	GLint maxAttributeNameLength;
-	glGetProgramiv(_id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxAttributeNameLength);
 	glGetProgramiv(_id, GL_ACTIVE_ATTRIBUTES, &numAttributes);
-	GLchar *name = new GLchar[maxAttributeNameLength];
 	for (int i = 0; i < numAttributes; ++i) {
 		GLsizei actualLength;
 		GLenum type;
 		GLint size;
-		glGetActiveAttrib(_id, i, maxAttributeNameLength, &actualLength, &size, &type, name);
-		std::string attributeName(name, actualLength);
-		_attributes[attributeName] = glGetAttribLocation(_id, name);
+		glGetActiveAttrib(_id, i, nameBuffer.size(), &actualLength, &size, &type, nameBuffer.data());
+		const std::string attributeName(nameBuffer.data(), actualLength);
+		_attributes[attributeName] = glGetAttribLocation(_id, attributeName.c_str());
 	}
-	delete [] name;
 
 	// Determine Uniform locations
 	GLint numUniforms;
-	GLint maxUniformNameLength;
-	glGetProgramiv(_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformNameLength);
 	glGetProgramiv(_id, GL_ACTIVE_UNIFORMS, &numUniforms);
-	name = new GLchar[maxUniformNameLength];
 	for (int i = 0; i < numUniforms; ++i) {
 		GLsizei actualLength;
 		GLenum type;
 		GLint size;
-		glGetActiveUniform(_id, i, maxUniformNameLength, &actualLength, &size, &type, name);
-		const std::string uniformName(name, actualLength);
-		_uniforms[uniformName] = glGetUniformLocation(_id, name);
+		glGetActiveUniform(_id, i, maxUniformNameLength, &actualLength, &size, &type, nameBuffer.data());
+		const std::string uniformName(nameBuffer.data(), actualLength);
+		_uniforms[uniformName] = glGetUniformLocation(_id, uniformName.c_str());
 
 		if (size > 1) {
 			const std::string arrayName = Common::replace(uniformName, "[0]", "");
