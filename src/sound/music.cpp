@@ -18,26 +18,22 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "src/engines/aw/engine.h"
-#include "src/engines/aw/functions.h"
-
 #include "src/sound/music.h"
 
-namespace Engines::AlanWake {
+namespace Sound {
 
-Engine::Engine(entt::registry &registry, const LocaleConfig::Config &config) :
-	::Engine(registry, config, new Functions(registry, *this)) {
-}
-
-void Engine::init() {
-	entt::entity musicPlayer = _registry.create();
-	_registry.emplace<Sound::MusicPtr>(musicPlayer, std::make_shared<Sound::Music>());
-
-	loadEpisode("gameworld:level_01");
-}
-
-const char *Engine::getName() const {
-	return "Alan Wake";
-}
+Music::Music() {
 
 }
+
+void Music::setMusic(Sound::Source *stream) {
+	if (_music)
+		_music->stop();
+
+	_music.reset(stream);
+
+	if (_music)
+		_music->play();
+}
+
+} // Sound

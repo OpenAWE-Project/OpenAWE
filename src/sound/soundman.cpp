@@ -43,14 +43,6 @@ SoundManager::~SoundManager() {
 	alcCloseDevice(_device);
 }
 
-void SoundManager::setMusic(Sound::Source *stream) {
-	_music.reset(stream);
-}
-
-Source & SoundManager::getMusic() {
-	return *_music;
-}
-
 void SoundManager::init() {
 	_device = alcOpenDevice(nullptr);
 	_context = alcCreateContext(_device, nullptr);

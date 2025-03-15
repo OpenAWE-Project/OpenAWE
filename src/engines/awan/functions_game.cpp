@@ -28,6 +28,7 @@
 
 #include "src/sound/soundman.h"
 #include "src/sound/audiostreamfactory.h"
+#include "src/sound/music.h"
 
 #include "src/task.h"
 
@@ -49,10 +50,14 @@ void Functions::playMusic(Functions::Context &ctx) {
 
 	const auto audioStreamFactory = _registry.get<Sound::AudioStreamFactory>(sound);
 
-	//const auto view = _registry.view<Sound::Music>();
+	const auto view = _registry.view<Sound::MusicPtr>();
+	if (view.empty()) {
+		spdlog::error("No available music player to play music, skipping");
+		return;
+	}
 
-	SoundMan.setMusic(audioStreamFactory.createStream());
-	SoundMan.getMusic().play();
+	auto music = _registry.get<Sound::MusicPtr>(view.front());
+	music->setMusic(audioStreamFactory.createStream());
 }
 
 void Functions::getStoryModeRound(Context &ctx) {

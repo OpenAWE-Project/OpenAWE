@@ -18,26 +18,40 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "src/engines/aw/engine.h"
-#include "src/engines/aw/functions.h"
+#ifndef OPENAWE_MUSIC_H
+#define OPENAWE_MUSIC_H
 
-#include "src/sound/music.h"
+#include <memory>
 
-namespace Engines::AlanWake {
 
-Engine::Engine(entt::registry &registry, const LocaleConfig::Config &config) :
-	::Engine(registry, config, new Functions(registry, *this)) {
-}
+#include "src/sound/source.h"
 
-void Engine::init() {
-	entt::entity musicPlayer = _registry.create();
-	_registry.emplace<Sound::MusicPtr>(musicPlayer, std::make_shared<Sound::Music>());
+namespace Sound {
 
-	loadEpisode("gameworld:level_01");
-}
+class Music;
 
-const char *Engine::getName() const {
-	return "Alan Wake";
-}
+typedef std::shared_ptr<Music> MusicPtr;
 
-}
+/*!
+ * @brief Source for playing a globally hearable music in the scene
+ *
+ * This class is responsible for handling the music currently to be played in the scenery and hearable everywhere
+ */
+class Music {
+public:
+	Music();
+
+	/*!
+	 * Directly stops the current music and starts the new one
+	 *
+	 * @param stream The new music to start
+	 */
+	void setMusic(Sound::Source *stream);
+
+private:
+	std::unique_ptr<Source> _music;
+};
+
+} // Sound
+
+#endif //OPENAWE_MUSIC_H

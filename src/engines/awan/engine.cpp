@@ -29,6 +29,8 @@
 #include "src/engines/awan/engine.h"
 #include "src/engines/awan/configuration.h"
 
+#include "src/sound/music.h"
+
 #include "src/task.h"
 
 namespace Engines::AlanWakesAmericanNightmare {
@@ -40,6 +42,9 @@ Engine::Engine(entt::registry &registry, const LocaleConfig::Config &config) :
 }
 
 void Engine::init() {
+	entt::entity musicPlayer = _registry.create();
+	_registry.emplace<Sound::MusicPtr>(musicPlayer, std::make_shared<Sound::Music>());
+
 	loadEpisode("round:1 gameworld:scene1_reststop");
 }
 
