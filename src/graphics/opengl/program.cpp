@@ -122,7 +122,6 @@ void Program::link() {
 			}
 		}
 	}
-	delete [] name;
 }
 
 void Program::bind() const {
