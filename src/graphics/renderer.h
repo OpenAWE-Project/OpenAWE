@@ -21,6 +21,8 @@
 #ifndef AWE_RENDERER_H
 #define AWE_RENDERER_H
 
+#include <mutex>
+#include <queue>
 #include <vector>
 
 #include "src/common/frustrum.h"
@@ -54,6 +56,7 @@ public:
 	void removeGUIElement(GUIElement *gui);
 	void addLight(Light *light);
 	void removeLight(Light *light);
+	void flushLights();
 
 	void setCamera(Camera &camera);
 
@@ -158,6 +161,9 @@ protected:
 	std::vector<ImGuiElement *> _imguiElements;
 	std::vector<GUIElement *> _guiElements;
 	std::vector<Light *> _lights;
+	std::queue<Light *> _light_add_queue;
+	std::queue<Light *> _light_remove_queue;
+	std::mutex _light_queues_mutex;
 };
 
 } // End of namespace Graphics
