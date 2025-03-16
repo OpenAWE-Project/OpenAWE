@@ -22,6 +22,8 @@
 #include <spdlog/spdlog.h>
 #include <imgui_impl_glfw.h>
 
+#include "src/common/exception.h"
+
 #include "platform.h"
 
 namespace Platform {
@@ -54,6 +56,18 @@ void Platform::update() {
 
 void Platform::monitorCallback(GLFWmonitor *monitor, int event) {
 	ImGui_ImplGlfw_MonitorCallback(monitor, event);
+}
+
+VideoMode Platform::getPrimaryMonitorVideoMode() {
+	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+	if (!monitor)
+		throw CreateException("Failed to get primary monitor");
+	const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+	return VideoMode{
+		mode->width, 
+		mode->height, 
+		mode->redBits + mode->greenBits + mode->blueBits,
+		mode->refreshRate};
 }
 
 void Platform::errorCallback(int code, const char *description) {

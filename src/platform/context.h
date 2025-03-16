@@ -21,11 +21,14 @@
 #ifndef AWE_CONTEXT_H
 #define AWE_CONTEXT_H
 
+#include <glm/vec2.hpp>
+
 namespace Platform {
 
 class Context {
 public:
 	virtual void getSize(unsigned int &width, unsigned int &height) = 0;
+	virtual glm::vec2 getSize() = 0;
 };
 
 }
