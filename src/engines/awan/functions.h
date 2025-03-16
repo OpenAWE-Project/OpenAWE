@@ -49,6 +49,7 @@ private:
 	void isManuscriptPageUnlocked(Context &ctx);
 	void setSunYRotation(Context &ctx);
 	void setTime(Context &ctx);
+	void setAmbiance(Context &ctx);
 
 	// functions_object.cpp
 	void hide(Context &ctx);

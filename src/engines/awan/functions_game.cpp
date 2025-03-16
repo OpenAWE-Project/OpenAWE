@@ -25,6 +25,7 @@
 #include "src/engines/awan/functions.h"
 
 #include "src/graphics/sky.h"
+#include "src/graphics/gfxman.h"
 
 #include "src/sound/soundman.h"
 #include "src/sound/audiostreamfactory.h"
@@ -104,6 +105,13 @@ void Functions::setTime(Functions::Context &ctx) {
 
 	auto skyPtr = _registry.get<Graphics::SkyPtr>(skyView.front());
 	skyPtr->setTimeOfDay(static_cast<float>(hours) / 24.0 + (static_cast<float>(minutes) / 60.0) * (1.0 / 24.0));
+}
+
+void Functions::setAmbiance(Functions::Context &ctx) {
+	const auto ambiancePresetName = ctx.getString(1);
+	const auto fadeTime = ctx.getFloat(0); // TODO
+
+	GfxMan.setAmbianceState(ambiancePresetName);
 }
 
 }
