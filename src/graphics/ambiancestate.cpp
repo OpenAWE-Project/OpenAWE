@@ -46,34 +46,34 @@ AmbianceState::AmbianceState(Common::ReadStream &ambianceState) {
 		if (child.name == "ambient_light_color")
 			_ambientLightColor = parseVec3(value);
 		else if (child.name == "ambient_light_intensity")
-			_ambientLightIntensity = std::stof(value);
+			_ambientLightIntensity = Common::parse<float>(value);
 		else if (child.name == "ambient_light_saturation")
-			_ambientLightSaturation = std::stof(value);
+			_ambientLightSaturation = Common::parse<float>(value);
 		else if (child.name == "ground_fog_density")
-			_groundFogDensity = std::stof(value);
+			_groundFogDensity = Common::parse<float>(value);
 		else if (child.name == "ground_fog_falloff")
-			_groundFogFalloff = std::stof(value);
+			_groundFogFalloff = Common::parse<float>(value);
 		else if (child.name == "fog_color")
 			_fogColor = parseVec3(value);
 		else if (child.name == "fog_color_opposite")
 			_fogColorOpposite = parseVec3(value);
 		else if (child.name == "fog_intensity")
-			_fogIntensity = std::stof(value);
+			_fogIntensity = Common::parse<float>(value);
 		else if (child.name == "fog_intensity_opposite")
-			_fogIntensityOpposite = std::stof(value);
+			_fogIntensityOpposite = Common::parse<float>(value);
 		else if (child.name == "secondary_sky_glow_height")
-			_secondarySkyGlowHeight = std::stof(value);
+			_secondarySkyGlowHeight = Common::parse<float>(value);
 		else if (child.name == "weather_cloudiness")
-			_weatherCloudiness = std::stof(value);
+			_weatherCloudiness = Common::parse<float>(value);
 	}
 }
 
 glm::vec3 AmbianceState::parseVec3(const std::string &str) {
 	const auto values = Common::split(str, std::regex(" "));
 	return glm::vec3(
-			std::stof(values[0]),
-			std::stof(values[1]),
-			std::stof(values[2])
+			Common::parse<float>(values[0]),
+			Common::parse<float>(values[1]),
+			Common::parse<float>(values[2])
 	);
 }
 
