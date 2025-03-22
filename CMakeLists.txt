@@ -44,6 +44,7 @@ option(WITH_TOOLS "Compile with command line tool" ON)
 option(WITH_VULKAN "Compile with support for vulkan" OFF)
 option(WITH_COMPILED_SHADERS "Compile shader permutations during" ON)
 option(WITH_SPIRV_CROSS "Compile with support for cross compiling shaders" OFF)
+option(WITH_TRACY "Compile with support for the Tracy profiler" OFF)
 
 # ------------------------------------
 # Compiler flags
@@ -215,6 +216,11 @@ include_directories(
         3rdparty/imgui/backends
 )
 
+# Tracy
+set(TRACY_ENABLE ${WITH_TRACY})
+set(TRACY_NO_SYSTEM_TRACING ON)
+add_subdirectory(3rdparty/tracy)
+
 # glad
 file(GLOB_RECURSE GLAD_SOURCE 3rdparty/glad/*.c 3rdparty/glad/*.h)
 add_library(glad ${GLAD_SOURCE})
@@ -307,6 +313,7 @@ link_libraries(
 
         fmt::fmt
         CLI11::CLI11
+        TracyClient
 
         ${spdlog_LIBRARIES}
 )
