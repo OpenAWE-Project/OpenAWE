@@ -453,6 +453,13 @@ void Renderer::drawWorld(const std::string &stage) {
 			for (const auto &meshToRender: task.partMeshsToRender) {
 				const auto &partmesh = partMeshs[meshToRender];
 
+				if (partmesh.boundingSphere) {
+					const auto sphere = *partmesh.boundingSphere;
+					const auto transformedSphere = Common::BoundSphere{m * glm::vec4(sphere.position, 1.0), sphere.radius};
+					if (!_frustrum.test(transformedSphere))
+						continue;
+				}
+
 				if (!partmesh.material.hasStage(stage))
 					continue;
 

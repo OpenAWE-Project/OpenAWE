@@ -93,6 +93,7 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 	}
 
 	std::map<unsigned int, std::vector<uint16_t>> tilesetIndices;
+	std::map<unsigned int, Common::BoundSphere> tilesetBoundSphere;
 	Common::DynamicMemoryWriteStream vertexData(true);
 
 	unsigned int currentIndex = 0;
@@ -151,6 +152,11 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 			tilesetIndices[polygon.tilesetId].emplace_back(currentIndex + 3);
 		}
 
+		if (tilesetBoundSphere.find(polygon.tilesetId) == tilesetBoundSphere.end())
+			tilesetBoundSphere[polygon.tilesetId] = polygon.boundSphere;
+
+		tilesetBoundSphere[polygon.tilesetId] = Common::combine(tilesetBoundSphere[polygon.tilesetId], polygon.boundSphere);
+
 		currentIndex += polygon.indices.size();
 
 		mapCoords.emplace_back(atlasPosition);
@@ -167,6 +173,7 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 		for (const auto &tilesetId: tilesetIndices) {
 			const auto tileset = tilesets[tilesetId.first];
 			const auto indices = tilesetId.second;
+			const auto boundSphere = tilesetBoundSphere.at(tilesetId.first);
 
 			for (const auto &index: indices) {
 				_indices.emplace_back(index);
@@ -210,6 +217,7 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 			partMesh.material.setCullMode(Material::kBack);
 			partMesh.offset = currentIndex * 2;
 			partMesh.length = indices.size();
+			partMesh.boundingSphere = boundSphere;
 
 			currentIndex += indices.size();
 

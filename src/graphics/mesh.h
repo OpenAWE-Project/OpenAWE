@@ -53,6 +53,7 @@ public:
 		RenderType renderType;
 		Material material;
 		std::vector<std::string> boneMap;
+		std::optional<Common::BoundSphere> boundingSphere;
 		bool wireframe{false};
 		unsigned int offset{}, length{};
 	};
