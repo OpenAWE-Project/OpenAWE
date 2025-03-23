@@ -1044,7 +1044,7 @@ Renderer::createAttributeObject(
 	return vao;
 }
 
-void Renderer::applyUniforms(ProgramPtr &program, std::vector<Material::Uniform> uniforms, GLuint &textureSlot) {
+void Renderer::applyUniforms(ProgramPtr &program, const std::vector<Material::Uniform> &uniforms, GLuint &textureSlot) {
 	for (const auto &attribute: uniforms) {
 		switch (attribute.type) {
 			case Material::kFloat: {

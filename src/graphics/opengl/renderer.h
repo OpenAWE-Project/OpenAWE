@@ -89,9 +89,9 @@ private:
 	 * \param textureSlot The current texture slot, gets incremented when new textures are applied
 	 */
 	void applyUniforms(
-		ProgramPtr &program,
-		std::vector<Material::Uniform> uniforms,
-		GLuint &textureSlot
+            ProgramPtr &program,
+            const std::vector<Material::Uniform> &uniforms,
+            GLuint &textureSlot
 	);
 
 	/*!
