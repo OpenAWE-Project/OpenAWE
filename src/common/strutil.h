@@ -24,15 +24,10 @@
 #include <string>
 #include <vector>
 #include <regex>
+#include <charconv>
 
 #include "src/common/exception.h"
 #include "src/common/types.h"
-
-#if LIB_CPP
-#include <boost/charconv.hpp>
-#else
-#include <charconv>
-#endif
 
 namespace Common {
 
@@ -125,17 +120,31 @@ std::string extract(const std::string &str, const std::regex &pattern);
 template<typename T>
 requires std::is_integral_v<T> || std::is_floating_point_v<T>
 static T parse(const std::string &str) {
+#if LIB_CPP
+	if constexpr (std::is_integral_v<T>) {
+		T v;
+
+		const auto [_, ec] = std::from_chars(str.c_str(), str.c_str() + str.size(), v);
+		if (ec != std::errc())
+			throw CreateException("Error when parsing {} \"{}\": {}", typeid(T).name(), str, static_cast<int>(ec));
+
+		return v;
+	} else if constexpr (std::is_same_v<T, float>) {
+		/*
+		 * This is for satisfying Apple libc++ needs and should be removed when libc++ has support for floating point
+		 * from_char (or if boost::charconv is finally available on all platforms
+		 */
+		return std::stof(str);
+	}
+#else
 	T v;
 
-#if LIB_CPP
-	const auto [_, ec] = boost::charconv::from_chars(str.c_str(), str.c_str() + str.size(), v);
-#else
 	const auto [_, ec] = std::from_chars(str.c_str(), str.c_str() + str.size(), v);
-#endif
 	if (ec != std::errc())
 		throw CreateException("Error when parsing {} \"{}\": {}", typeid(T).name(), str, static_cast<int>(ec));
 
 	return v;
+#endif
 }
 
 }
