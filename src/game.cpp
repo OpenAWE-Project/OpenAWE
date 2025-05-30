@@ -342,6 +342,10 @@ void Game::start() {
 	const auto skyEntity = _registry.create();
 	_registry.emplace<Graphics::SkyPtr>(skyEntity, sky);
 	double lastTime = _platform.getTime();
+
+	unsigned int frames = 0;
+	double lastTimeFPS = 0.0;
+
 	bool exit = false;
 	std::chrono::system_clock::time_point last, now;
 	while (!exit) {
@@ -386,6 +390,14 @@ void Game::start() {
 
 		PhysicsMan.update(time - lastTime);
 		GfxMan.drawFrame();
+
+		frames++;
+
+		if (time >= lastTimeFPS + 1.0) {
+			text.setText(fmt::format("FPS: {}", frames));
+			frames = 0;
+			lastTimeFPS = time;
+		}
 
 		_platform.update();
 		GamepadMan.pollGamepadEvents();
