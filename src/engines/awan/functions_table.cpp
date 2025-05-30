@@ -181,7 +181,7 @@ const std::map<std::string, Functions::NativeFunction<AlanWakesAmericanNightmare
 		{"StopPictureTutorial"                         , {nullptr                             , {}}},
 		{"SetUseInstruction"                           , {nullptr                             , {kString}}},
 		{"ResetUseInstruction"                         , {nullptr                             , {}}},
-		{"TriggerSayLine"                              , {nullptr                             , {kEntity}}},
+		{"TriggerSayLine"                              , {nullptr                             , {kEntity, kInt}}},
 		{"TriggerCancelLine"                           , {nullptr                             , {kEntity}}},
 		{"TriggerCanceAllLines"                        , {nullptr                             , {}}},
 		{"TriggerAbortLine"                            , {nullptr                             , {kEntity}}},
