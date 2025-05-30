@@ -491,6 +491,7 @@ void ObjectCollection::loadPointLight(const AWE::Object &container) {
 	if (pointLight.enableRangeClip)
 		light.setRangeClip(pointLight.rangeClip);
 	light.setLabel(_gid->getString(pointLight.gid));
+	light.setEnabled(false);
 	light.show();
 
 	if (pointLight.meshRid) {
