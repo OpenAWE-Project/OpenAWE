@@ -84,7 +84,7 @@ public:
 
 private:
 	void readNextValue() {
-		_bits.read(&_curValue, sizeof(T));
+		_curValue = _bits.read<T>();
 		if constexpr (!le && sizeof(T) > 1 && std::endian::native == std::endian::little)
 			_curValue = swapBytes(_curValue);
 		if constexpr (le && sizeof(T) > 1 && std::endian::native == std::endian::big)
