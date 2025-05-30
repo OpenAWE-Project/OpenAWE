@@ -33,6 +33,13 @@ class AttributeObject;
 typedef std::shared_ptr<AttributeObject> AttributeObjectPtr;
 
 class AttributeObject : Common::Noncopyable {
+public:
+	virtual void addAttributes(
+		const std::vector<VertexAttribute> &vertexAttributes,
+		BufferPtr vertexData,
+		unsigned int offset,
+		bool perInstance
+	) = 0;
 };
 
 } // End of namespace Graphics

@@ -27,6 +27,7 @@
 #include <mutex>
 
 #include "src/common/endianreadstream.h"
+#include "src/common/containers.h"
 
 #include "src/awe/archive.h"
 
@@ -196,8 +197,8 @@ private:
 	bool _littleEndian;
 	uint32_t _version;
 
-	std::vector<FolderEntry> _folderEntries;
-	std::vector<FileEntry> _fileEntries;
+	Common::Vector<FolderEntry> _folderEntries;
+	Common::Vector<FileEntry> _fileEntries;
 
 	std::unique_ptr<Common::ReadStream> _rmdp;
 
