@@ -21,9 +21,11 @@
 #ifndef OPENAWE_EXCEPTION_H
 #define OPENAWE_EXCEPTION_H
 
-#include <fmt/format.h>
-
 #include <stdexcept>
+#include <source_location>
+#include <string_view>
+
+#include <fmt/format.h>
 
 #define CreateException(...) Common::Exception("{}:{}: {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
 
@@ -37,7 +39,7 @@ namespace Common {
 class Exception : public std::exception {
 public:
 	template<typename FormatString, typename... Args>
-	Exception(const FormatString &fmt, Args&&...args);
+	Exception(const FormatString &fmt, Args &&...args);
 
 	const char *what() const noexcept override;
 
@@ -49,6 +51,26 @@ template<typename FormatString, typename... Args>
 Exception::Exception(const FormatString &fmt, Args &&... args) {
 	_message = fmt::format(fmt::runtime(fmt), args...);
 }
+
+/*!
+ * \brief Exception class which prepends the source location to the exception message
+ *
+ * This class is a custom exception class to support formatting with a prepended source location
+ *
+ * \tparam FormatString The type of the format string
+ * \tparam Args The arguments for the formatting string
+ */
+template<typename FormatString, typename... Args>
+class SourceException : public Exception {
+public:
+	explicit SourceException(const FormatString &fmt, Args &&...args,
+							 const std::source_location &loc = std::source_location::current())
+			: Exception(fmt::format("{}:{}: {}", loc.file_name(), loc.line(), fmt), args...) {
+	}
+};
+
+template<typename FormatString, typename... Args>
+SourceException(const FormatString &, Args &&...) -> SourceException<FormatString, Args...>;
 
 } // End of namespace Common
 
