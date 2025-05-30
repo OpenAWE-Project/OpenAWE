@@ -53,7 +53,7 @@ void TimerProcess::succeeded() {
 	auto &timers = _registry.get<std::vector<TimerPtr>>(_timerEntity);
 
 	// Remove the timer from the timer vector
-	std::remove(timers.begin(), timers.end(), _timer);
+	timers.erase(std::remove(timers.begin(), timers.end(), _timer), timers.end());
 
 	// Remove the entire component, if all timers were stopped
 	if (timers.empty())
