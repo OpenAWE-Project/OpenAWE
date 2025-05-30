@@ -266,9 +266,13 @@ void Game::init() {
 	_window->setTitle(_engine->getName());
 
 	Threads.add([this](){
+		const auto start = std::chrono::steady_clock::now();
 		_global = std::make_unique<Global>(_registry, _engine->getScheduler());
 
 		_engine->init();
+
+		const auto finished = std::chrono::steady_clock::now();
+		spdlog::info("Loading level took {} seconds", std::chrono::duration_cast<std::chrono::milliseconds>(finished - start).count());
 	});
 }
 
