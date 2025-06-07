@@ -26,6 +26,7 @@
 #include <set>
 #include <bitset>
 #include <optional>
+#include <format>
 
 #include <fmt/args.h>
 

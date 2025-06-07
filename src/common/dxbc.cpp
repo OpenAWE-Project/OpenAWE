@@ -577,7 +577,7 @@ DXBC::DXBC(Common::ReadStream &dxbc) {
 									utype = kTextureCube;
 									break;
 								default:
-									throw CreateException("Invalid sampler type {}", fmt::underlying(info.info.type));
+									throw CreateException("Invalid sampler type {}", Common::toUnderlying(info.info.type));
 							}
 							break;
 
@@ -644,7 +644,7 @@ DXBC::DXBC(Common::ReadStream &dxbc) {
 										utype = kTextureCube;
 										break;
 									default:
-										throw CreateException("Unexpected type {}", fmt::underlying(member.info.type));
+										throw CreateException("Unexpected type {}", Common::toUnderlying(member.info.type));
 								}
 								break;
 
@@ -761,7 +761,7 @@ DXBC::DXBC(Common::ReadStream &dxbc) {
 				break;
 
 			default:
-				throw CreateException("Unimplemented dxbc opcode {}", fmt::underlying(token));
+				throw CreateException("Unimplemented dxbc opcode {}", Common::toUnderlying(token));
 		}
 	}
 
@@ -982,7 +982,7 @@ std::string DXBC::formatRegisterName(RegisterType type, unsigned int number) {
 			break;
 
 		default:
-			throw CreateException("Unimplemented register type {}", fmt::underlying(type));
+			throw CreateException("Unimplemented register type {}", Common::toUnderlying(type));
 	}
 
 	return name;
