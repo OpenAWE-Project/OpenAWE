@@ -31,16 +31,17 @@ namespace Graphics::OpenGL {
 
 class VAO : public AttributeObject {
 public:
-	VAO(TaskQueue &queue, const std::string &label = "");
+	VAO(TaskQueue &queue, ProgramPtr program, const std::string &label = "");
 	~VAO();
 
 	void bind();
 
-	void applyAttributes(ProgramPtr program, const std::vector<VertexAttribute> &vertexAttributes, BufferPtr vertexData,
-						 unsigned int offset);
+	void addAttributes(const std::vector<VertexAttribute> &vertexAttributes, BufferPtr vertexData, unsigned int offset,
+				  bool perInstance) override;
 
 private:
 	TaskQueue &_queue;
+	ProgramPtr _program;
 	std::shared_ptr<GLuint> _id;
 };
 

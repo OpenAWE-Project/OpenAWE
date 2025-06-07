@@ -34,8 +34,11 @@ struct VAOAttribute {
 	AttributeType attributeType;
 };
 
-VAO::VAO(TaskQueue &queue, const std::string &label) : _queue(queue), _id(std::make_shared<GLuint>(0)) {
-	_queue.emplace_back([=, id = _id]{
+VAO::VAO(TaskQueue &queue, ProgramPtr program, const std::string &label) :
+	_queue(queue),
+	_program(program),
+	_id(std::make_shared<GLuint>(0)) {
+	_queue.emplace_back([=, id = _id] {
 		glGenVertexArrays(1, id.get());
 
 		if (GLAD_GL_KHR_debug && !label.empty())
@@ -44,7 +47,7 @@ VAO::VAO(TaskQueue &queue, const std::string &label) : _queue(queue), _id(std::m
 }
 
 VAO::~VAO() {
-	_queue.emplace_back([=, id = _id]{
+	_queue.emplace_back([=, id = _id] {
 		glDeleteVertexArrays(1, id.get());
 	});
 }
@@ -54,12 +57,8 @@ void VAO::bind() {
 }
 
 void
-VAO::applyAttributes(
-	ProgramPtr program,
-	const std::vector<VertexAttribute> &vertexAttributes,
-	BufferPtr vertexData,
-	unsigned int offset
-) {
+VAO::addAttributes(const std::vector<VertexAttribute> &vertexAttributes, BufferPtr vertexData, unsigned int offset,
+				   bool perInstance) {
 	// Calculate the size of the vertex element.
 	GLuint stride = 0;
 	for (const auto &attribute : vertexAttributes) {
@@ -143,15 +142,18 @@ VAO::applyAttributes(
 		localOffset += totalSize;
 	}
 
-	_queue.emplace_back([=, id = _id](){
+	_queue.emplace_back([=, id = _id]() {
 		glBindVertexArray(*id);
-		program->bind();
 		std::static_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
 
 		for (const auto &attribute: attributes) {
-			const auto index = program->getAttributeLocation(attribute.attributeType);
+			const auto index = _program->getAttributeLocation(attribute.attributeType);
 			if (index) {
 				glEnableVertexAttribArray(*index);
+
+				if (perInstance)
+					glVertexAttribDivisor(*index, 1);
+
 				if (attribute.integer) {
 					glVertexAttribIPointer(
 							*index,

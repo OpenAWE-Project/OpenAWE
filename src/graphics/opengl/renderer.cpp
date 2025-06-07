@@ -1034,15 +1034,16 @@ Renderer::createAttributeObject(
 		unsigned int offset,
 		const std::string &label
 ) {
-	auto vao = std::make_unique<VAO>(_loadingTasks, label);
-
 	std::string shaderName = shader;
 	if (!hasProgram(shaderName, stage, properties))
 		shaderName = "standardmaterial";
 
 	ProgramPtr program = getProgram(shaderName, stage, properties);
+	assert(program);
 
-	vao->applyAttributes(program, vertexAttributes, vertexData, offset);
+	auto vao = std::make_unique<VAO>(_loadingTasks, program, label);
+
+	vao->addAttributes(vertexAttributes, vertexData, offset, false);
 
 	return vao;
 }
