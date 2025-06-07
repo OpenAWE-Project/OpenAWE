@@ -199,7 +199,7 @@ std::string RMDBlobArchive::getResourcePath(size_t index) const {
 
 	DirectoryEntry currentDir = _directories[file.directory];
 	while (currentDir.directory != -1) {
-		path = fmt::format("{}/{}", currentDir.name, path);
+		path = std::format("{}/{}", currentDir.name, path);
 		currentDir = _directories[currentDir.directory];
 	}
 

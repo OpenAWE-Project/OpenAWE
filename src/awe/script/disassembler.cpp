@@ -68,7 +68,7 @@ std::string Disassembler::generate() {
 			case kEq:         eq(); break;
 			case kNeq:        neq(); break;
 			default:
-				_disasm += fmt::format("unk {:x}", opcode);
+				_disasm += std::format("unk {:x}", opcode);
 		}
 	}
 
@@ -78,9 +78,9 @@ std::string Disassembler::generate() {
 void Disassembler::push() {
 	int32_t value = _bytecode->readSint32LE();
 	if (_parameters->hasString(value)) {
-		_disasm += fmt::format("push \"{}\"\n", _parameters->getString(value));
+		_disasm += std::format("push \"{}\"\n", _parameters->getString(value));
 	} else {
-		_disasm += fmt::format("push {}\n", value);
+		_disasm += std::format("push {}\n", value);
 	}
 }
 
@@ -89,15 +89,15 @@ void Disassembler::pushGID() {
 	gid.type = _bytecode->readUint32LE();
 	gid.id = _bytecode->readUint32BE();
 
-	_disasm += fmt::format("push_gid {} {:x}\n", gid.type, gid.id);
+	_disasm += std::format("push_gid {} {:x}\n", gid.type, gid.id);
 }
 
 void Disassembler::callGlobal(byte numArgs, byte retType) {
-	_disasm += fmt::format("call_global {} {}\n", numArgs, retType);
+	_disasm += std::format("call_global {} {}\n", numArgs, retType);
 }
 
 void Disassembler::callObject(byte numArgs, byte retType) {
-	_disasm += fmt::format("call_object {} {}\n", numArgs, retType);
+	_disasm += std::format("call_object {} {}\n", numArgs, retType);
 }
 
 void Disassembler::mulInt() {
@@ -113,11 +113,11 @@ void Disassembler::intToFloat() {
 }
 
 void Disassembler::setMember(byte id) {
-	_disasm += fmt::format("set_member {}\n", id);
+	_disasm += std::format("set_member {}\n", id);
 }
 
 void Disassembler::getMember(byte id) {
-	_disasm += fmt::format("get_member {}\n", id);
+	_disasm += std::format("get_member {}\n", id);
 }
 
 void Disassembler::cmp() {
@@ -126,12 +126,12 @@ void Disassembler::cmp() {
 
 void Disassembler::jmp() {
 	int32_t offset = _bytecode->readSint32LE();
-	_disasm += fmt::format("jmp {}\n", offset);
+	_disasm += std::format("jmp {}\n", offset);
 }
 
 void Disassembler::jmpIf() {
 	int32_t offset = _bytecode->readSint32LE();
-	_disasm += fmt::format("jmp_if {}\n", offset);
+	_disasm += std::format("jmp_if {}\n", offset);
 }
 
 void Disassembler::logAnd() {
