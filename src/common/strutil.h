@@ -26,6 +26,8 @@
 #include <regex>
 #include <charconv>
 
+#include <boost/algorithm/string.hpp>
+
 #include "src/common/exception.h"
 #include "src/common/types.h"
 
@@ -145,6 +147,18 @@ static T parse(const std::string &str) {
 
 	return v;
 #endif
+}
+
+/**
+ * Simple replacement function for fmt::join. It concatenates a number of items with a given string separator
+ * \param items The range of items to join
+ * \param separator The separator string
+ * \return The joined strings by the separator
+ */
+std::string join(const std::ranges::input_range auto &items, const std::string& separator) {
+	std::vector<std::string> strings;
+	std::ranges::transform(items, std::back_inserter(strings), [](const auto& item){return std::format("{}", item);});
+	return boost::algorithm::join(strings, separator);
 }
 
 }

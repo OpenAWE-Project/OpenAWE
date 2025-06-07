@@ -24,10 +24,9 @@
 #include <stdexcept>
 #include <source_location>
 #include <string_view>
+#include <format>
 
-#include <fmt/format.h>
-
-#define CreateException(...) Common::Exception("{}:{}: {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
+#define CreateException(...) Common::Exception("{}:{}: {}", __FILE__, __LINE__, std::format(__VA_ARGS__))
 
 namespace Common {
 
@@ -44,12 +43,16 @@ public:
 	const char *what() const noexcept override;
 
 private:
-	std::string _message;
+	const std::string _message;
 };
 
+/*Exception::Exception(const std::string &what) : _message(what) {
+
+}*/
+
 template<typename FormatString, typename... Args>
-Exception::Exception(const FormatString &fmt, Args &&... args) {
-	_message = fmt::format(fmt::runtime(fmt), args...);
+Exception::Exception(const FormatString &fmt, Args &&... args)
+	: _message(std::vformat(fmt, std::make_format_args(args...))) {
 }
 
 /*!
@@ -65,7 +68,7 @@ class SourceException : public Exception {
 public:
 	explicit SourceException(const FormatString &fmt, Args &&...args,
 							 const std::source_location &loc = std::source_location::current())
-			: Exception(fmt::format("{}:{}: {}", loc.file_name(), loc.line(), fmt), args...) {
+			: Exception(std::format("{}:{}: {}", loc.file_name(), loc.line(), fmt), args...) {
 	}
 };
 

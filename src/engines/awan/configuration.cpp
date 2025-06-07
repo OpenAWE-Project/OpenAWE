@@ -21,7 +21,6 @@
 #include <string>
 #include <filesystem>
 
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include "src/common/writefile.h"
@@ -51,12 +50,12 @@ Configuration::Configuration() :
 void Configuration::write() {
 	spdlog::info("Writing Alan Wakes American Nightmare configuration");
 
-	std::string path = fmt::format("{}/openawe/awan", Common::getUserDataDirectory());
+	std::string path = std::format("{}/openawe/awan", Common::getUserDataDirectory());
 	if (!std::filesystem::is_directory(path))
 		std::filesystem::create_directories(path);
 
-	std::string configFile = fmt::format("{}/config", path);
-	std::string resolutionFile = fmt::format("{}/resolution.xml", path);
+	std::string configFile = std::format("{}/config", path);
+	std::string resolutionFile = std::format("{}/resolution.xml", path);
 
 	auto resolutionStream = std::make_unique<Common::WriteFile>(resolutionFile);
 	auto configStream = std::make_unique<Common::WriteFile>(configFile);
@@ -71,12 +70,12 @@ void Configuration::write() {
 void Configuration::read() {
 	spdlog::info("Reading Alan Wakes American Nightmare configuration");
 
-	std::string path = fmt::format("{}/openawe/awan", Common::getUserDataDirectory());
+	std::string path = std::format("{}/openawe/awan", Common::getUserDataDirectory());
 	if (!std::filesystem::is_directory(path))
 		std::filesystem::create_directories(path);
 
-	std::string configFile = fmt::format("{}/config", path);
-	std::string resolutionFile = fmt::format("{}/resolution.xml", path);
+	std::string configFile = std::format("{}/config", path);
+	std::string resolutionFile = std::format("{}/resolution.xml", path);
 
 	if (std::filesystem::is_regular_file(resolutionFile)) {
 		auto resolutionStream = std::make_unique<Common::ReadFile>(resolutionFile);

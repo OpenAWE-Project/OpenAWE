@@ -217,7 +217,7 @@ std::string formatDestination(const Destination &dst, const std::bitset<4> &mask
 	if (dst.swizzle == "xyzw")
 		return dst.name;
 
-	return fmt::format("{}.{}", dst.name, dst.swizzle);
+	return std::format("{}.{}", dst.name, dst.swizzle);
 }
 
 std::string formatSource(const Source &src, const std::bitset<4> &mask) {
@@ -229,7 +229,7 @@ std::string formatSource(const Source &src, const std::bitset<4> &mask) {
 				srcSwizzle += src.swizzle.at(i);
 		}
 
-		srcToken = fmt::format("{}.{}", src.name, srcSwizzle);
+		srcToken = std::format("{}.{}", src.name, srcSwizzle);
 	}
 
 	switch (src.modifier) {
@@ -237,15 +237,15 @@ std::string formatSource(const Source &src, const std::bitset<4> &mask) {
 			break; // Do Nothing
 
 		case SourceModifier::kNegate:
-			srcToken = fmt::format("-{}", srcToken);
+			srcToken = std::format("-{}", srcToken);
 			break;
 
 		case SourceModifier::kAbs:
-			srcToken = fmt::format("abs({})", srcToken);
+			srcToken = std::format("abs({})", srcToken);
 			break;
 
 		case SourceModifier::kAbsAndNegate:
-			srcToken = fmt::format("-abs({})", srcToken);
+			srcToken = std::format("-abs({})", srcToken);
 			break;
 
 		case SourceModifier::kBiasAndNegate:
@@ -276,11 +276,11 @@ std::string formatInstruction(const std::string &str, Instruction<NumSources> in
 
 	auto rhand = fmt::vformat(str, args);
 	if (inst.dst.saturate)
-		rhand = fmt::format("clamp({}, 0.0, 1.0)", rhand);
+		rhand = std::format("clamp({}, 0.0, 1.0)", rhand);
 
 	//assert(!inst.dst.centroid /*&& !inst.dst.partialPrecision*/);
 
-	return fmt::format("{} = {};\n", formatDestination(inst.dst, inst.dst.mask), rhand);
+	return std::format("{} = {};\n", formatDestination(inst.dst, inst.dst.mask), rhand);
 }
 
 template<size_t NumSources>
@@ -297,11 +297,11 @@ std::string formatInstruction(const std::string &str, Instruction<NumSources> in
 
 	auto rhand = fmt::vformat(str, args);
 	if (inst.dst.saturate)
-		rhand = fmt::format("clamp({}, 0.0, 1.0)", rhand);
+		rhand = std::format("clamp({}, 0.0, 1.0)", rhand);
 
 	assert(!inst.dst.centroid && !inst.dst.partialPrecision);
 
-	return fmt::format("{} = {};\n", formatDestination(inst.dst, dstMask), rhand);
+	return std::format("{} = {};\n", formatDestination(inst.dst, dstMask), rhand);
 }
 
 template<size_t NumSources>
@@ -318,11 +318,11 @@ std::string formatInstruction(const std::string &str, Instruction<NumSources> in
 
 	auto rhand = fmt::vformat(str, args);
 	if (inst.dst.saturate)
-		rhand = fmt::format("clamp({}, 0.0, 1.0)", rhand);
+		rhand = std::format("clamp({}, 0.0, 1.0)", rhand);
 
 	assert(!inst.dst.centroid && !inst.dst.partialPrecision);
 
-	return fmt::format("{} = {};\n", formatDestination(inst.dst, dstMask), rhand);
+	return std::format("{} = {};\n", formatDestination(inst.dst, dstMask), rhand);
 }
 
 std::string formatDeclarationName(Usage usage, Direction direction, unsigned int index) {
@@ -343,15 +343,15 @@ std::string formatDeclarationName(Usage usage, Direction direction, unsigned int
 
 	switch (usage) {
 		case kPosition:
-			return fmt::format("{}_Position", prefix);
+			return std::format("{}_Position", prefix);
 		case kNormal:
-			return fmt::format("{}_Normal", prefix);
+			return std::format("{}_Normal", prefix);
 		case kTexCoord:
-			return fmt::format("{}_UV{}", prefix, index);
+			return std::format("{}_UV{}", prefix, index);
 		case kColor:
-			return fmt::format("{}_Color{}", prefix, index);
+			return std::format("{}_Color{}", prefix, index);
 		default:
-			return fmt::format("{}_Unknown", prefix);
+			return std::format("{}_Unknown", prefix);
 	}
 }
 
@@ -503,18 +503,18 @@ DXBC::DXBC(Common::ReadStream &dxbc) {
 								[[fallthrough]];
 							case kTypeSamplerCube:
 								if (info.registerCount > 1)
-									_uniformTextureNames[info.index + j] = fmt::format("{}[{}]", info.name, j);
+									_uniformTextureNames[info.index + j] = std::format("{}[{}]", info.name, j);
 								else
 									_uniformTextureNames[info.index + j] = info.name;
 								break;
 
 							case kTypeVoid:
-								_uniformNames[info.index + j] = fmt::format("{}.{}", info.name, info.members[j].name);
+								_uniformNames[info.index + j] = std::format("{}.{}", info.name, info.members[j].name);
 								break;
 
 							default:
 								if (info.registerCount > 1)
-									_uniformNames[info.index + j] = fmt::format("{}[{}]", info.name, j);
+									_uniformNames[info.index + j] = std::format("{}[{}]", info.name, j);
 								else
 									_uniformNames[info.index + j] = info.name;
 								break;
@@ -771,8 +771,8 @@ DXBC::DXBC(Common::ReadStream &dxbc) {
 std::string DXBC::generateGlsl() {
 	std::string source;
 
-	source += fmt::format("// {}\n", _creator);
-	source += fmt::format("// {}\n", _target);
+	source += std::format("// {}\n", _creator);
+	source += std::format("// {}\n", _target);
 
 	source += "#version 330\n\n";
 
@@ -782,10 +782,10 @@ std::string DXBC::generateGlsl() {
 			source += "uniform struct {\n";
 
 			for (const auto &member: uniform.members) {
-				source += fmt::format("\t{} {};\n", getTypeString(member.type), member.name);
+				source += std::format("\t{} {};\n", getTypeString(member.type), member.name);
 			}
 
-			source += fmt::format("}} {};\n", uniform.name);
+			source += std::format("}} {};\n", uniform.name);
 		} else {
 			auto length = uniform.length;
 			switch (uniform.type) {
@@ -807,9 +807,9 @@ std::string DXBC::generateGlsl() {
 			length = std::max(length, 1u);
 
 			if (length == 1)
-				source += fmt::format("uniform {} {};\n", getTypeString(uniform.type), uniform.name);
+				source += std::format("uniform {} {};\n", getTypeString(uniform.type), uniform.name);
 			else
-				source += fmt::format("uniform {} {}[{}];\n", getTypeString(uniform.type), uniform.name,
+				source += std::format("uniform {} {}[{}];\n", getTypeString(uniform.type), uniform.name,
 									  uniform.length);
 		}
 	}
@@ -824,7 +824,7 @@ std::string DXBC::generateGlsl() {
 				continue;
 			}
 
-			source += fmt::format("in vec4 {};\n", attr);
+			source += std::format("in vec4 {};\n", attr);
 		}
 
 		source += "\n";
@@ -837,7 +837,7 @@ std::string DXBC::generateGlsl() {
 				continue;
 			}
 
-			source += fmt::format("out vec4 {};\n", attr);
+			source += std::format("out vec4 {};\n", attr);
 		}
 
 		source += "\n";
@@ -845,7 +845,7 @@ std::string DXBC::generateGlsl() {
 
 	// Print constants
 	for (const auto &constant: _constants) {
-		source += fmt::format(
+		source += std::format(
 				"const vec4 {} = vec4({}, {}, {}, {});\n",
 				constant.name,
 				constant.value.x, constant.value.y, constant.value.z, constant.value.w
@@ -859,7 +859,7 @@ std::string DXBC::generateGlsl() {
 
 	// Print temp variables
 	for (const auto &variable: _tempVariables) {
-		source += fmt::format("\tvec4 t{};\n", variable);
+		source += std::format("\tvec4 t{};\n", variable);
 	}
 
 	source += "\n";
@@ -940,7 +940,7 @@ std::string DXBC::formatRegisterName(RegisterType type, unsigned int number) {
 		case kConst: {
 			const auto uniformIter = _uniformNames.find(number);
 			if (uniformIter == _uniformNames.end())
-				name = fmt::format("c{}", number);
+				name = std::format("c{}", number);
 			else
 				name = uniformIter->second;
 			break;
@@ -949,7 +949,7 @@ std::string DXBC::formatRegisterName(RegisterType type, unsigned int number) {
 		case kInput: {
 			const auto attributeIter = _attributeInNames.find(number);
 			if (attributeIter == _attributeInNames.end())
-				name = fmt::format("in_{}", number);
+				name = std::format("in_{}", number);
 			else
 				name = attributeIter->second;
 			break;
@@ -958,7 +958,7 @@ std::string DXBC::formatRegisterName(RegisterType type, unsigned int number) {
 		case kColorOut: {
 			const auto uniformIter = _uniformTextureNames.find(number);
 			if (uniformIter == _uniformTextureNames.end())
-				name = fmt::format("s{}", number);
+				name = std::format("s{}", number);
 			else
 				name = uniformIter->second;
 			break;
@@ -969,7 +969,7 @@ std::string DXBC::formatRegisterName(RegisterType type, unsigned int number) {
 		case kOutput: {
 			const auto attributeIter = _attributeOutNames.find(number);
 			if (attributeIter == _attributeOutNames.end())
-				name = fmt::format("out_{}", number);
+				name = std::format("out_{}", number);
 			else
 				name = attributeIter->second;
 			break;
@@ -977,7 +977,7 @@ std::string DXBC::formatRegisterName(RegisterType type, unsigned int number) {
 
 		case kLoop:
 		case kTemp:
-			name = fmt::format("t{}", number);
+			name = std::format("t{}", number);
 			_tempVariables.emplace(number);
 			break;
 

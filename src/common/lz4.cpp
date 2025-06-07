@@ -40,7 +40,7 @@ ReadStream *decompressLZ4(const byte *data, size_t compressedSize, size_t decomp
 	);
 
 	if (decompressed != static_cast<long>(decompressedSize)) {
-		throw CreateException(
+		throw SourceException(
 			"LZ4 decompression failed expected {}, got {}",
 			decompressedSize,
 			decompressed

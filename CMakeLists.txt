@@ -334,7 +334,7 @@ include_directories(
 target_link_libraries(imgui_platform glfw)
 
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
-add_definitions(-DSPDLOG_FMT_EXTERNAL)
+add_definitions(-DSPDLOG_USE_STD_FORMAT)
 
 # ------------------------------------
 # Libraries for awe

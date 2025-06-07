@@ -235,7 +235,7 @@ Codecs::SeekableAudioStream *FSBFile::getStream(size_t index) {
 					8
 			);
 		default:
-			throw CreateException("Unimplemented codec {}", fmt::underlying(entry.format));
+			throw CreateException("Unimplemented codec {}", Common::toUnderlying(entry.format));
 	}
 }
 
@@ -263,7 +263,7 @@ Codecs::SeekableAudioStream *FSBFile::getStream(size_t index, ExtraData &streamD
 					8
 			);
 		default:
-			throw CreateException("Unimplemented codec {}", fmt::underlying(entry.format));
+			throw CreateException("Unimplemented codec {}", Common::toUnderlying(entry.format));
 	}
 }
 

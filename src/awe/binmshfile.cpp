@@ -39,7 +39,7 @@ void BINMSHFile::load(Common::ReadStream &binmsh) {
 	const uint32_t version = binmsh.readUint32LE();
 
 	if (version != 21 && version != 20 && version != 19)
-		throw std::runtime_error(fmt::format("Unsupported version {}", version));
+		throw std::runtime_error(std::format("Unsupported version {}", version));
 
 	const uint32_t vertexBufferSize = binmsh.readUint32LE();
 	const uint32_t indicesCount     = binmsh.readUint32LE();

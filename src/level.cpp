@@ -18,7 +18,6 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include "src/awe/binarchive.h"
@@ -33,16 +32,16 @@ Level::Level(entt::registry &registry, entt::scheduler<double> &scheduler, const
 	_id(id),
 	_world(world) {
 	spdlog::info("Loading level {}", id);
-	std::string levelFolder = fmt::format("worlds/{}/levels/{}", world, id);
+	std::string levelFolder = std::format("worlds/{}/levels/{}", world, id);
 
-	_terrain->setLabel(fmt::format("terrain_{}", _id));
+	_terrain->setLabel(std::format("terrain_{}", _id));
 
-	loadGIDRegistry(ResMan.getResource(fmt::format("{}/GIDRegistry.txt", levelFolder)));
+	loadGIDRegistry(ResMan.getResource(std::format("{}/GIDRegistry.txt", levelFolder)));
 
-	std::unique_ptr<Common::ReadStream> globalStream(ResMan.getResource(fmt::format("{}/Global.bin", levelFolder)));
+	std::unique_ptr<Common::ReadStream> globalStream(ResMan.getResource(std::format("{}/Global.bin", levelFolder)));
 	AWE::BINArchive global(*globalStream);
 
-	std::unique_ptr<Common::ReadStream> persistentStream(ResMan.getResource(fmt::format("{}/Persistent.bin", levelFolder)));
+	std::unique_ptr<Common::ReadStream> persistentStream(ResMan.getResource(std::format("{}/Persistent.bin", levelFolder)));
 	AWE::BINArchive persistent(*persistentStream);
 
 	loadBytecode(
@@ -102,13 +101,13 @@ Level::Level(entt::registry &registry, entt::scheduler<double> &scheduler, const
 
 	const auto cellInfo = loadCellInfo(global.getResource("cid_cellinfo.bin"));
 	for (const auto &info : cellInfo) {
-		const std::string ldName = fmt::format("LD{:0>3}_{:0>3}", info.x, info.y);
-		const std::string hdName = fmt::format("HD{:0>3}_{:0>3}", info.x, info.y);
+		const std::string ldName = std::format("LD{:0>3}_{:0>3}", info.x, info.y);
+		const std::string hdName = std::format("HD{:0>3}_{:0>3}", info.x, info.y);
 
-		AWE::BINArchive ldCell(fmt::format("{}/{}.bin", levelFolder, ldName));
-		AWE::BINArchive hdCell(fmt::format("{}/{}.bin", levelFolder, hdName));
-		AWE::BINArchive ldCellResources(fmt::format("{}/{}.resources", levelFolder, ldName));
-		AWE::BINArchive hdCellResources(fmt::format("{}/{}.resources", levelFolder, hdName));
+		AWE::BINArchive ldCell(std::format("{}/{}.bin", levelFolder, ldName));
+		AWE::BINArchive hdCell(std::format("{}/{}.bin", levelFolder, hdName));
+		AWE::BINArchive ldCellResources(std::format("{}/{}.resources", levelFolder, ldName));
+		AWE::BINArchive hdCellResources(std::format("{}/{}.resources", levelFolder, hdName));
 
 		//DPFile dphd(persistent.getResource("dp_hdcell.bin"));
 		load(hdCell.getResource("cid_staticobject.bin"), kStaticObject);
@@ -118,7 +117,7 @@ Level::Level(entt::registry &registry, entt::scheduler<double> &scheduler, const
 			hdCell.getResource("cid_terraindata.bin")
 		);
 
-		std::unique_ptr<Common::ReadStream> terrainCollisions(ResMan.getResource(fmt::format("{}/{}.collisions", levelFolder, hdName)));
+		std::unique_ptr<Common::ReadStream> terrainCollisions(ResMan.getResource(std::format("{}/{}.collisions", levelFolder, hdName)));
 		assert(terrainCollisions);
 		loadTerrainCollisions(terrainCollisions.get());
 

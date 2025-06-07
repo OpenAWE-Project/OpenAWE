@@ -20,8 +20,6 @@
 
 #include <stdexcept>
 
-#include <fmt/format.h>
-
 #if WITH_SPIRV_CROSS
 #	include <spirv_cross/spirv_glsl.hpp>
 #	include <spdlog/spdlog.h>
@@ -92,7 +90,7 @@ ShaderPtr Shader::fromSPIRV(GLuint type, const std::vector<byte> &bytecode, cons
 
 		glGetShaderInfoLog(shader->_id, infoLogLength, nullptr, log.data());
 
-		throw std::runtime_error(fmt::format("Error while compiling shader:\n{}", log));
+		throw Common::SourceException("Error while compiling shader:\n{}", log);
 	}
 
 	return shader;
@@ -122,7 +120,7 @@ ShaderPtr Shader::fromGLSL(GLuint type, const std::string &source, const std::st
 
 		glGetShaderInfoLog(shader->_id, infoLogLength, nullptr, log.data());
 
-		throw std::runtime_error(fmt::format("Error while compiling shader:\n{}", log));
+		throw Common::SourceException("Error while compiling shader:\n{}", log);
 	}
 
 	return shader;

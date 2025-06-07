@@ -22,7 +22,6 @@
 
 #include <fstream>
 
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include "src/common/exception.h"

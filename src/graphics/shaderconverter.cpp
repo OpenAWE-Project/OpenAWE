@@ -25,7 +25,6 @@
 #include <regex>
 
 #include <mojoshader.h>
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include "src/common/types.h"
@@ -77,7 +76,7 @@ std::string ShaderConverter::convertToGLSL() {
 	if (parseData->error_count > 0) {
 		std::string errorMessage;
 		for (int i = 0; i < parseData->error_count; ++i) {
-			errorMessage += fmt::format("Error ({},{}): {}",
+			errorMessage += std::format("Error ({},{}): {}",
 							   parseData->errors[i].filename ? parseData->errors[i].filename : "???",
 							   parseData->errors[i].error_position,
 							   parseData->errors[i].error
@@ -159,7 +158,7 @@ std::string ShaderConverter::convertToGLSL() {
 							static_cast<unsigned int>(sampler.index) >= symbol.register_index &&
 							static_cast<unsigned int>(sampler.index) < symbol.register_index + symbol.register_count
 						) {
-							_samplers[fmt::format("{}[{}]", symbol.name, static_cast<unsigned int>(sampler.index) - symbol.register_index)] = sampler.name;
+							_samplers[std::format("{}[{}]", symbol.name, static_cast<unsigned int>(sampler.index) - symbol.register_index)] = sampler.name;
 						}
 					}
 				}
@@ -178,7 +177,7 @@ std::string ShaderConverter::convertToGLSL() {
 				shaderTypeName = "pixel";
 				break;
 			default:
-				throw CreateException("Unexpected Shader type {} found for conversion", fmt::underlying(parseData->shader_type));
+				throw CreateException("Unexpected Shader type {} found for conversion", Common::toUnderlying(parseData->shader_type));
 		}
 
 		spdlog::debug("Converted {} shader to glsl:\n{}", shaderTypeName, shader);

@@ -22,7 +22,6 @@
 #include <assert.h>
 
 #include <glm/gtc/type_ptr.hpp>
-#include <fmt/format.h>
 #include <vector>
 
 #include "src/common/strutil.h"
@@ -115,7 +114,7 @@ void Program::link() {
 			_uniforms[arrayName] = _uniforms[uniformName];
 
 			for (int j = 1; j < size; ++j) {
-				const std::string itemName = Common::replace(uniformName, "[0]", fmt::format("[{}]", j));
+				const std::string itemName = Common::replace(uniformName, "[0]", std::format("[{}]", j));
 				const auto itemLocation = glGetUniformLocation(_id, itemName.c_str());
 				if (itemLocation >= 0)
 					_uniforms[itemName] = itemLocation;

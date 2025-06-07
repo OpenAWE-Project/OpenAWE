@@ -22,7 +22,6 @@
 #include <assert.h>
 #include <memory>
 
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include "src/common/cpuinfo.h"
@@ -89,7 +88,7 @@ void Player::load(const std::string &videoFile) {
 			kRGB8,
 			_video->getWidth(),
 			_video->getHeight(),
-			fmt::format("Video Surface {}/64", i)
+			std::format("Video Surface {}/64", i)
 		));
 	}
 

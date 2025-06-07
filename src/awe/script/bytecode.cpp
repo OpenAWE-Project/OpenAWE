@@ -21,7 +21,6 @@
 #include <stdexcept>
 
 #include <spdlog/spdlog.h>
-#include <fmt/format.h>
 
 #include "src/common/exception.h"
 

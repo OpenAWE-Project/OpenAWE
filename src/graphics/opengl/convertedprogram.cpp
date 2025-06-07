@@ -18,7 +18,6 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <fmt/format.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "convertedprogram.h"
@@ -72,7 +71,7 @@ void ConvertedProgram::setSymbols(const std::vector<ShaderConverter::Symbol> &sy
 std::optional<GLint> ConvertedProgram::getUniformArraySymbolLocation(const ShaderConverter::Symbol &symbol, unsigned int offset) const {
 	const std::string uniformArrayName =
 			(symbol.shaderType == ShaderConverter::kVertex) ? "vs_uniforms_vec4" : "ps_uniforms_vec4";
-	const std::string uniformArrayElementName = fmt::format("{}[{}]", uniformArrayName, symbol.index + offset);
+	const std::string uniformArrayElementName = std::format("{}[{}]", uniformArrayName, symbol.index + offset);
 	const auto uniformArrayLocation = getUniformLocation(uniformArrayElementName);
 	if (!uniformArrayLocation)
 		return {};

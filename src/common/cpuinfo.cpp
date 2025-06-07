@@ -21,8 +21,6 @@
 #include <cstring>
 #include <cstdint>
 
-#include <fmt/format.h>
-
 #if HAS_CPUID_H
 #	include <cpuid.h>
 #endif
@@ -89,14 +87,14 @@ std::string getARMVendorName(unsigned int id) {
 		case 0x70: return "Phytium";
 		case 0xC0: return "Ampere";
 		default:
-			return fmt::format("Unknown Vendor 0x{:x}", id);
+			return std::format("Unknown Vendor 0x{:x}", id);
 	}
 }
 
 std::string getCPUInfoParameter(const std::string key) {
 	Common::ReadFile cpuinfo("/proc/cpuinfo");
 
-	const auto keyRegex = std::regex(fmt::format("{}\t*: .*", key));
+	const auto keyRegex = std::regex(std::format("{}\t*: .*", key));
 
 	while (!cpuinfo.eos()) {
 		const auto cpuinfoLine = cpuinfo.readLine();
@@ -158,7 +156,7 @@ std::string getOSName() {
 	utsname buffer{};
 	uname(&buffer);
 
-	return fmt::format("{} {}", buffer.sysname, buffer.release);
+	return std::format("{} {}", buffer.sysname, buffer.release);
 #else
 	return "<unknown>";
 #endif

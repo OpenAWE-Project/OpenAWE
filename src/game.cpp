@@ -394,7 +394,7 @@ void Game::start() {
 		frames++;
 
 		if (time >= lastTimeFPS + 1.0) {
-			text.setText(fmt::format("FPS: {}", frames));
+			text.setText(std::format("FPS: {}", frames));
 			frames = 0;
 			lastTimeFPS = time;
 		}

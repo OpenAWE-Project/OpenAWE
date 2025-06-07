@@ -49,7 +49,7 @@ Animation::Animation() {
 Animation::Animation(rid_t rid, const std::string &name) : _name(name) {
 	std::unique_ptr<Common::ReadStream> havok(ResMan.getResource(rid));
 	if (!havok)
-		throw Common::Exception(fmt::format("Havok file for animation not found with the rid {:x}", rid));
+		throw Common::Exception(std::format("Havok file for animation not found with the rid {:x}", rid));
 
 	AWE::HavokFile havokFile(*havok);
 	const auto animationContainer = havokFile.getAnimationContainer();

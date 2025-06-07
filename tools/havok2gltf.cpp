@@ -357,5 +357,5 @@ int main(int argc, char** argv) {
 	scene.nodes.emplace_back(0);
 	model.scenes.emplace_back(scene);
 
-	gltf.WriteGltfSceneToFile(&model, fmt::format("{}.gltf", characterClass.name), false, true, true);
+	gltf.WriteGltfSceneToFile(&model, std::format("{}.gltf", characterClass.name), false, true, true);
 }

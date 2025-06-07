@@ -32,7 +32,6 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
@@ -378,16 +377,13 @@ void Renderer::drawWorld(const std::string &stage) {
 	bool wireframe = false;
 	Material::CullMode cullMode = Material::kNone;
 
-	pushDebug(fmt::format("Draw stage {}", stage));
+	pushDebug(std::format("Draw stage {}", stage));
 
 	for (const auto &pass: _renderPasses) {
 		if (pass.renderTasks.empty())
 			continue;
 
-		if (pass.id.programName == "terrain")
-			int i = 0;
-
-		pushDebug(fmt::format("Pass {} {:0<8x}", pass.id.programName, pass.id.properties));
+		pushDebug(std::format("Pass {} {:0<8x}", pass.id.programName, pass.id.properties));
 
 		ProgramPtr currentShader = (!hasProgram(pass.id.programName, stage, pass.id.properties)) ? defaultShader
 																								 : getProgram(
@@ -1139,7 +1135,7 @@ void Renderer::rebuildShaders() {
 				if (vertexShaderStream.eos() || pixelShaderStream.eos())
 					continue;
 
-				const auto identifier = fmt::format(
+				const auto identifier = std::format(
 						"{}-{}-0x{:0>8x}",
 						obj.getName(),
 						program.name,
@@ -1151,12 +1147,12 @@ void Renderer::rebuildShaders() {
 				ShaderPtr vertexShader = Shader::fromGLSL(
 						GL_VERTEX_SHADER,
 						vertexConverter.generateGlsl(),
-						fmt::format("{}-vert", identifier)
+						std::format("{}-vert", identifier)
 				);
 				ShaderPtr fragmentShader = Shader::fromGLSL(
 						GL_FRAGMENT_SHADER,
 						fragmentConverter.generateGlsl(),
-						fmt::format("{}-frag", identifier)
+						std::format("{}-frag", identifier)
 				);
 
 				auto p = std::make_unique<Program>(identifier);
@@ -1216,13 +1212,13 @@ void Renderer::rebuildShaders() {
 		auto &shader = shaders.emplace_back(Shader::fromGLSL(
 				shaderType,
 				source,
-				fmt::format("{}-{}-0x{:0>8x}-{}", name, stage, properties, type)
+				std::format("{}-{}-0x{:0>8x}-{}", name, stage, properties, type)
 		));
 
 		const auto identifier = std::make_tuple(name, stage, properties);
 		if (programs.find(identifier) == programs.end())
 			programs[identifier] = std::make_shared<Program>(
-					fmt::format("{}-{}-0x{:0>8x}", name, stage, properties)
+					std::format("{}-{}-0x{:0>8x}", name, stage, properties)
 			);
 
 		programs[identifier]->attach(*shader);

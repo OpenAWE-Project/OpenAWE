@@ -25,8 +25,8 @@
 
 #include <tuple>
 #include <regex>
+#include <format>
 
-#include <fmt/format.h>
 #include <CLI/CLI.hpp>
 
 enum GameEngine {
@@ -158,13 +158,13 @@ struct GIDValidator : public CLI::Validator {
 /*!
  * Class for formatting a GIDs for logging
  */
-template<> struct fmt::formatter<GID> {
-	constexpr auto parse(fmt::format_parse_context &ctx) {
+template<> struct std::formatter<GID> {
+	constexpr auto parse(std::format_parse_context &ctx) {
 		return ctx.end();
 	}
 
 	template<typename FormatContext> auto format(const GID &gid, FormatContext& ctx) const {
-		return fmt::format_to(ctx.out(), "{}:{:x}", gid);
+		return std::format_to(ctx.out(), "{}:{:x}", gid);
 	}
 };
 

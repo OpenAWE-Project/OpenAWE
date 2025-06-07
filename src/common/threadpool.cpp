@@ -21,8 +21,6 @@
 #include <iostream>
 #include <functional>
 
-#include <fmt/format.h>
-
 #include "src/common/threadpool.h"
 #include "src/common/exception.h"
 
@@ -38,7 +36,7 @@ ThreadPool::ThreadPool() : _threads(std::max<int>(std::thread::hardware_concurre
 #if OS_LINUX
 		pthread_setname_np(
 				thread.native_handle(),
-				fmt::format("Worker Thread {}", i++).c_str()
+				std::format("Worker Thread {}", i++).c_str()
 		);
 #endif
 	}

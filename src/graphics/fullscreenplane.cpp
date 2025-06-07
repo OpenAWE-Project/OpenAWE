@@ -18,11 +18,12 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <glm/gtc/constants.hpp>
-#include <utility>
+#include <cstring>
 
-#include "fullscreenplane.h"
-#include "gfxman.h"
+#include <glm/gtc/constants.hpp>
+
+#include "src/graphics/fullscreenplane.h"
+#include "src/graphics/gfxman.h"
 
 namespace Graphics {
 

@@ -18,7 +18,6 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <fmt/format.h>
 #include <src/awe/types.h>
 
 #include <utility>
@@ -39,7 +38,7 @@ std::string Disassembler::generate() {
 	_disasm.clear();
 	while (!_bytecode->eos()) {
 		if (_entryPoints.find(_bytecode->pos()) != _entryPoints.end()) {
-			_disasm += fmt::format("# {}()\n", _entryPoints[_bytecode->pos()]);
+			_disasm += std::format("# {}()\n", _entryPoints[_bytecode->pos()]);
 		}
 
 		byte param1, param2, param3;

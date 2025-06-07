@@ -67,7 +67,7 @@ std::optional<Variable> Functions::callGlobal(
 			std::move(parameters)
 	};
 
-	const std::string globalFunctionName = fmt::format("{}.{}", Common::toUpper(name), functionName);
+	const std::string globalFunctionName = std::format("{}.{}", Common::toUpper(name), functionName);
 	callFunction(globalFunctionName, ctx);
 
 	return ctx.ret;
@@ -89,19 +89,19 @@ std::string Functions::getFunctionString(
 
 		switch (signature[i]) {
 			case kFloat:
-				valueString = fmt::format("{:f}", std::get<Number>(parameters[i]).floatingPoint);
+				valueString = std::format("{:f}", std::get<Number>(parameters[i]).floatingPoint);
 				break;
 
 			case kInt:
-				valueString = fmt::format("{}", std::get<Number>(parameters[i]).integer);
+				valueString = std::format("{}", std::get<Number>(parameters[i]).integer);
 				break;
 
 			case kBool:
-				valueString = fmt::format("{}", static_cast<bool>(std::get<Number>(parameters[i]).integer));
+				valueString = std::format("{}", static_cast<bool>(std::get<Number>(parameters[i]).integer));
 				break;
 
 			case kString:
-				valueString = fmt::format("\"{}\"", dp->getString(std::get<Number>(parameters[i]).integer));
+				valueString = std::format("\"{}\"", dp->getString(std::get<Number>(parameters[i]).integer));
 				break;
 
 			case kEntity: {
@@ -109,7 +109,7 @@ std::string Functions::getFunctionString(
 				if (entity == entt::null)
 					valueString = "<null>";
 				else
-					valueString = fmt::format("<{}>", entity);
+					valueString = std::format("<{}>", entity);
 				break;
 			}
 
@@ -121,7 +121,7 @@ std::string Functions::getFunctionString(
 		parameterValues.emplace_back(valueString);
 	}
 
-	return fmt::format("{}({})", name, fmt::join(parameterValues, ", "));
+	return std::format("{}({})", name, Common::join(parameterValues, ", "));
 }
 
 void Functions::callFunction(const std::string &name, Context &ctx) {

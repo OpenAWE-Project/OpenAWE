@@ -18,7 +18,6 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <fmt/format.h>
 #include <glm/gtx/string_cast.hpp>
 #include <utility>
 
@@ -110,7 +109,7 @@ void ObjectXMLWriteStream::variable(const std::string &name, GID &value) {
 	auto &typeNode = newVariableNode.addNewNode("type");
 	typeNode.content = std::to_string(value.type);
 	auto &hashNode = newVariableNode.addNewNode("hash");
-	hashNode.content = fmt::format("0x{:x}", value.id);
+	hashNode.content = std::format("0x{:x}", value.id);
 }
 
 void ObjectXMLWriteStream::variable(const std::string &name, ObjectID &value) {
@@ -120,7 +119,7 @@ void ObjectXMLWriteStream::variable(const std::string &name, ObjectID &value) {
 	auto &typeNode = newVariableNode.addNewNode("type");
 	typeNode.content = std::to_string(value.getType());
 	auto &hashNode = newVariableNode.addNewNode("id");
-	hashNode.content = fmt::format("0x{:x}", value.getID());
+	hashNode.content = std::format("0x{:x}", value.getID());
 }
 
 void ObjectXMLWriteStream::variable(const std::string &name, std::vector<bool> &value, size_t fixedSize) {
@@ -182,7 +181,7 @@ void ObjectXMLWriteStream::variable(const std::string &name, std::vector<rid_t> 
 
 	for (const auto &item: value) {
 		auto &itemNode = newVariableNode.addNewNode("item");
-		itemNode.content = fmt::format("{:x}", item);
+		itemNode.content = std::format("{:x}", item);
 	}
 }
 
@@ -236,7 +235,7 @@ void ObjectXMLWriteStream::variable(const std::string &name, std::vector<GID> &v
 		typeNode.content = std::to_string(gid.type);
 
 		auto &idNode = itemNode.addNewNode("id");
-		idNode.content = fmt::format("{:x}", gid.id);
+		idNode.content = std::format("{:x}", gid.id);
 	}
 }
 

@@ -18,12 +18,13 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <fmt/format.h>
+#include <cstring>
+
 #include "src/common/memwritestream.h"
 
 #include "src/graphics/gfxman.h"
 #include "src/graphics/billboardset.h"
-#include "textureman.h"
+#include "src/graphics/textureman.h"
 
 namespace Graphics {
 
@@ -84,15 +85,15 @@ BillboardSet::BillboardSet(
 	std::vector<Material::Uniform> materialAttributes;
 	for (unsigned int i = 0; i < types.size(); ++i) {
 		materialAttributes.emplace_back(Material::Uniform(
-			fmt::format("g_foliageMeshTable[{}].vAtlasPosition", i),
+			std::format("g_foliageMeshTable[{}].vAtlasPosition", i),
 			types[i].atlasPosition
 		));
 		materialAttributes.emplace_back(Material::Uniform(
-			fmt::format("g_foliageMeshTable[{}].vAtlasSize", i),
+			std::format("g_foliageMeshTable[{}].vAtlasSize", i),
 			types[i].atlasSize
 		));
 		materialAttributes.emplace_back(Material::Uniform(
-			fmt::format("g_foliageMeshTable[{}].vBillboardSize", i),
+			std::format("g_foliageMeshTable[{}].vBillboardSize", i),
 			types[i].billboardSize
 		));
 	}

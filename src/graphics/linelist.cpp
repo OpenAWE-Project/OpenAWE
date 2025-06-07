@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
+
 #include "src/graphics/linelist.h"
 #include "src/graphics/gfxman.h"
 

@@ -21,8 +21,6 @@
 #include <memory>
 #include <utility>
 
-#include <fmt/format.h>
-
 #include "src/common/exception.h"
 
 #include "src/awe/atmfile.h"
@@ -215,7 +213,7 @@ void GraphicsManager::setAmbianceState(const std::string &id) {
 		return;
 
 	std::unique_ptr<Common::ReadStream> ambianceFile(
-			ResMan.getResource(fmt::format("ambiance_presets/{}.xml", id))
+			ResMan.getResource(std::format("ambiance_presets/{}.xml", id))
 	);
 
 	_renderer->setAmbianceState(AmbianceState(*ambianceFile));
@@ -225,13 +223,13 @@ void GraphicsManager::setAtmosphere(const std::string &id) {
 	if (!_renderer)
 		return;
 
-	const auto atmPath = fmt::format("atmosphere/{}.atm", id);
+	const auto atmPath = std::format("atmosphere/{}.atm", id);
 	std::unique_ptr<Common::ReadStream> atmStream(ResMan.getResource(atmPath));
 	if (!atmStream)
 		throw CreateException("Cannot find {}", atmPath);
 
 	AWE::ATMFile atm(*atmStream);
-	auto skyLUT = createTexture(TEX(atm.getAtmosphericLUT()), fmt::format("{}_skylut", id));
+	auto skyLUT = createTexture(TEX(atm.getAtmosphericLUT()), std::format("{}_skylut", id));
 	skyLUT->setWrapMode(WrapMode::kClamp, WrapMode::kClamp);
 	_renderer->setSkyLUT(skyLUT);
 }

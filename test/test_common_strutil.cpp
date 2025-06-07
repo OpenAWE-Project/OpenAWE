@@ -111,3 +111,11 @@ TEST(StringUtil, parse) {
 	EXPECT_ANY_THROW(Common::parse<int>(testInvalidInt));
 	EXPECT_ANY_THROW(Common::parse<float>(testInvalidFloat));
 }
+
+TEST(StringUtil, join) {
+	const std::vector<int> testValues = {1, 2, 3, 4,5, 6, 7, 8, 9, 0};
+
+	const auto testResult = Common::join(testValues, ";");
+
+	EXPECT_STREQ(testResult.c_str(), "1;2;3;4;5;6;7;8;9;0");
+}

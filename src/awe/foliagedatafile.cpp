@@ -21,16 +21,16 @@
 #include <stdexcept>
 #include <regex>
 
-#include <fmt/format.h>
+#include "src/common/exception.h"
 
-#include "foliagedatafile.h"
+#include "src/awe/foliagedatafile.h"
 
 namespace AWE {
 
 FoliageDataFile::FoliageDataFile(Common::ReadStream &foliageData) {
 	const uint32_t version = foliageData.readUint32LE();
 	if (version != 9)
-		throw std::runtime_error(fmt::format("Unsupported version, expected 9, got {}", version));
+		throw Common::SourceException("Unsupported version, expected 9, got {}", version);
 
 	const uint32_t numFoliages = foliageData.readUint32LE();
 	_foliages.resize(numFoliages);

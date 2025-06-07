@@ -20,7 +20,6 @@
 
 #include <stdexcept>
 
-#include <fmt/format.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>

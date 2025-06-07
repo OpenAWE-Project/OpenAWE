@@ -515,7 +515,7 @@ void ObjectCollection::loadPointLight(const AWE::Object &container) {
 			= std::make_shared<Graphics::Model>(pointLight.meshRid);
 
 		model->setTransform(meshTransform.getTransformation());
-		model->setLabel(fmt::format("{}::mesh", _gid->getString(pointLight.gid)));
+		model->setLabel(std::format("{}::mesh", _gid->getString(pointLight.gid)));
 
 		_entities.emplace_back(pointLightMeshEntity);
 	}

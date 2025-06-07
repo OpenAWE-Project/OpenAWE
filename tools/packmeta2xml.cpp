@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
 
 	for (const auto &rid: packmeta.getRIDs()) {
 		Common::XML::Node &resourceNode = rootNode.addNewNode("resource");
-		resourceNode.properties["rid"] = fmt::format("0x{:0>8x}", rid);
+		resourceNode.properties["rid"] = std::format("0x{:0>8x}", rid);
 		resourceNode.properties["path"] = packmeta.getNameByRid(rid);
 	}
 

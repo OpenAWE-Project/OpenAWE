@@ -26,8 +26,6 @@
 #include <vector>
 #include <mutex>
 
-#include <fmt/format.h>
-
 #include "src/common/endianreadstream.h"
 #include "src/common/strutil.h"
 #include "src/common/memreadstream.h"

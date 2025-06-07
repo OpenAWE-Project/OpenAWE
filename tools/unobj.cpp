@@ -46,15 +46,15 @@ int main(int argc, char** argv) {
 	const auto programName = obj.getName();
 	for (const auto &program : obj.getPrograms()) {
 		for (const auto &shader : program.shaders) {
-			const auto shaderId = fmt::format(
+			const auto shaderId = std::format(
 				"{}_{}_{:0>8x}",
 				programName,
 				program.name,
 				shader.flags
 			);
 
-			const auto vertShader = fmt::format("{}.vert.fxo", shaderId);
-			const auto fragShader = fmt::format("{}.frag.fxo", shaderId);
+			const auto vertShader = std::format("{}.vert.fxo", shaderId);
+			const auto fragShader = std::format("{}.frag.fxo", shaderId);
 
 			Common::WriteFile vertShaderFile(vertShader);
 			Common::WriteFile fragShaderFile(fragShader);

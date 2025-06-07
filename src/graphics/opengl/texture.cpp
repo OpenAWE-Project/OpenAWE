@@ -22,8 +22,6 @@
 #include <stdexcept>
 #include <iostream>
 
-#include <fmt/format.h>
-
 #include "src/common/exception.h"
 
 #include "src/graphics/opengl/task.h"
@@ -96,7 +94,7 @@ static void getParameters(
 			break;
 
 		default:
-			throw CreateException("Invalid texture format {}", fmt::underlying(textureFormat));
+			throw Common::SourceException("Invalid texture format {}", Common::toUnderlying(textureFormat));
 	}
 }
 
@@ -260,7 +258,7 @@ void Texture::load(ImageDecoder &&decoder) {
 			break;
 
 		default:
-			throw Common::Exception("Invalid image type {}", fmt::underlying(decoder.getType()));
+			throw Common::Exception("Invalid image type {}", Common::toUnderlying(decoder.getType()));
 	}
 
 	GLenum format, internalFormat = 0, type = 0;

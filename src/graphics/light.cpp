@@ -18,6 +18,8 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
+
 #include <glm/gtx/transform.hpp>
 
 #include "src/common/shape.h"

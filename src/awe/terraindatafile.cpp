@@ -23,7 +23,6 @@
 #include <regex>
 
 #include <spdlog/spdlog.h>
-#include <fmt/format.h>
 #include <glm/gtx/string_cast.hpp>
 
 #include "src/awe/path.h"
@@ -34,7 +33,7 @@ namespace AWE {
 TerrainDataFile::TerrainDataFile(Common::ReadStream &terrainData) {
 	const uint32_t version = terrainData.readUint32LE();
 	if (version != 25)
-		throw std::runtime_error(fmt::format("Invalid version for terraindata. {} given, only 25 supported", version));
+		throw std::runtime_error(std::format("Invalid version for terraindata. {} given, only 25 supported", version));
 
 	_hd = terrainData.readByte() != 0;
 

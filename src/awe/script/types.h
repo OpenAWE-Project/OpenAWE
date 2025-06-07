@@ -22,9 +22,9 @@
 #define OPENAWE_AWE_SCRIPT_TYPES_H
 
 #include <variant>
+#include <format>
 
 #include <entt/entt.hpp>
-#include <fmt/format.h>
 
 #include "src/awe/script/float.h"
 
@@ -85,8 +85,8 @@ typedef std::variant<
 /*!
  * Class for formatting a bytecode variable for logging
  */
-template<> struct fmt::formatter<AWE::Script::Variable> {
-	constexpr auto parse(fmt::format_parse_context &ctx) {
+template<> struct std::formatter<AWE::Script::Variable> {
+	constexpr auto parse(std::format_parse_context &ctx) {
 		return ctx.end();
 	}
 
@@ -95,18 +95,18 @@ template<> struct fmt::formatter<AWE::Script::Variable> {
 			case 0: {
 				int32_t intValue = std::get<AWE::Script::Number>(variable).integer;
 				if (AWE::Script::isFloat(intValue))
-					return fmt::format_to(ctx.out(), "{:f}", std::bit_cast<float>(intValue));
-				return fmt::format_to(ctx.out(), "{}", intValue);
+					return std::format_to(ctx.out(), "{:f}", std::bit_cast<float>(intValue));
+				return std::format_to(ctx.out(), "{}", intValue);
 			}
 			case 1: {
 				entt::entity entity = std::get<entt::entity>(variable);
 				if (entity == entt::null)
-					return fmt::format_to(ctx.out(), "<null>");
+					return std::format_to(ctx.out(), "<null>");
 				else
-					return fmt::format_to(ctx.out(), "<{}>", static_cast<unsigned int>(entity));
+					return std::format_to(ctx.out(), "<{}>", static_cast<unsigned int>(entity));
 			}
 			default:
-				return fmt::format_to(ctx.out(), "<invalid>");
+				return std::format_to(ctx.out(), "<invalid>");
 
 		}
 	}

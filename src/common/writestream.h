@@ -22,6 +22,7 @@
 #define SRC_COMMON_WRITESTREAM_H
 
 #include <cstddef>
+#include <format>
 
 #include "src/common/types.h"
 #include "readstream.h"
@@ -69,7 +70,7 @@ public:
 	 */
 	template<typename FormatString, typename ...Args>
 	void writeString(const FormatString &format, const Args &... args) {
-		writeString(fmt::format(fmt::runtime(format), args...));
+		writeString(std::format(format, args...));
 	}
 
 	/*!

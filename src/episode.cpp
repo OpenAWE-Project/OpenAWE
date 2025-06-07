@@ -20,7 +20,6 @@
 
 #include <regex>
 
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include "src/awe/resman.h"
@@ -32,11 +31,11 @@ Episode::Episode(entt::registry &registry, entt::scheduler<double> &scheduler, c
 	ObjectCollection(registry, scheduler),
 	_id(id),
 	_world(world) {
-	std::string episodeFolder = fmt::format("worlds/{}/episodes/{}", world, id);
+	std::string episodeFolder = std::format("worlds/{}/episodes/{}", world, id);
 
-	loadGIDRegistry(ResMan.getResource(fmt::format("{}/GIDRegistry.txt", episodeFolder)));
+	loadGIDRegistry(ResMan.getResource(std::format("{}/GIDRegistry.txt", episodeFolder)));
 
-	std::unique_ptr<Common::ReadStream> episodeStream(ResMan.getResource(fmt::format("{}/episode.bin", episodeFolder)));
+	std::unique_ptr<Common::ReadStream> episodeStream(ResMan.getResource(std::format("{}/episode.bin", episodeFolder)));
 	AWE::BINArchive episode(*episodeStream);
 	std::shared_ptr<DPFile> dp = std::make_shared<DPFile>(episode.getResource("dp_episode.bin"));
 

@@ -98,7 +98,7 @@ RMDBlobArchive::RMDBlobArchive(Common::ReadStream &rmdtoc, const std::string &pa
 			std::make_unique<Common::ReadFile>(
 				path.empty()
 					? std::filesystem::path(blobPath).filename().string()
-					: fmt::format("{}/{}", path, std::filesystem::path(blobPath).filename().string())
+					: std::format("{}/{}", path, std::filesystem::path(blobPath).filename().string())
 			)
 		);
 	}
@@ -135,8 +135,6 @@ RMDBlobArchive::RMDBlobArchive(Common::ReadStream &rmdtoc, const std::string &pa
 		for (size_t j = 0; j < fileCount; ++j) {
 			_files[j + fileIndex].directory = i;
 		}
-
-		fmt::print("{}\n", name);
 	}
 
 	for (unsigned int i = 0; i < fileTableCount; ++i) {

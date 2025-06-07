@@ -114,7 +114,7 @@ Common::ReadStream *RessourceManager::getResource(const std::string &path) {
 		return new Common::ReadFile(_rootPath + "/" + path);
 
 	for (const auto &dirPath: _paths) {
-		const auto fullPath = fmt::format("{}/{}", dirPath, path);
+		const auto fullPath = std::format("{}/{}", dirPath, path);
 		if (std::filesystem::is_regular_file(fullPath))
 			return new Common::ReadFile(fullPath);
 	}

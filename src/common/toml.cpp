@@ -113,7 +113,7 @@ static double extractFloat(const T &v) {
 
 static void readTable(TOML::PropertyMap &props, const std::string &id, const toml::table &table) {
 	for (const auto &[k, v] : table) {
-		readValue(props, fmt::format("{}.{}", id, k), v);
+		readValue(props, std::format("{}.{}", id, k), v);
 	}
 }
 

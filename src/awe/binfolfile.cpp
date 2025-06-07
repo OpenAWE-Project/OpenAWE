@@ -19,6 +19,9 @@
  */
 
 #include <memory>
+#include <format>
+
+#include "src/common/exception.h"
 
 #include "src/awe/path.h"
 #include "src/awe/binfolfile.h"
@@ -29,7 +32,7 @@ BINFOLFile::BINFOLFile(Common::ReadStream &binfol) {
 
 	const auto version = binfol.readUint32LE();
 	if (version != 19)
-		throw std::runtime_error(fmt::format("Unsupported version {}. Expected 19", version));
+		throw Common::SourceException("Unsupported version {}. Expected 19", version);
 
 	const auto meshDataSize = binfol.readUint32LE();
 	std::unique_ptr<Common::ReadStream> binmshStream(binfol.readStream(meshDataSize));

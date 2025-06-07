@@ -24,7 +24,6 @@
 #include <map>
 
 #include <glm/glm.hpp>
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include "src/common/exception.h"
@@ -1370,7 +1369,7 @@ void HavokFile::setHeader(std::string headerVersion) {
 	else if (headerVersion == "hk_2010.2.0-r1")
 		_version = kHavok2010_2_0_r1;
 	else
-		throw std::runtime_error(fmt::format("Unsupported havok version {}", headerVersion));
+		throw std::runtime_error(std::format("Unsupported havok version {}", headerVersion));
 
 }
 

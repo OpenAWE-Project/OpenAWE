@@ -25,7 +25,6 @@
 #include <vector>
 
 #include <glm/glm.hpp>
-#include <fmt/format.h>
 
 /*
  * Operating System Macros
@@ -156,6 +155,19 @@ inline BoundSphere combine(Common::BoundSphere sphere1, Common::BoundSphere sphe
 	const auto max = (std::max(radius1, length + radius2) - min) * 0.5f;
 
 	return {sphere1.position + dir * (max + min), max};
+}
+
+/*!
+ * Helper function to get the underlying value of a scoped enum
+ *
+ * @tparam E The type of the enum
+ * @param e The enum value
+ * @return The enum value as its underlying type
+ */
+template<typename E>
+requires std::is_enum_v<E> // TODO Replace this through std::is_scoped_enum with c++23
+inline std::underlying_type_t<E> toUnderlying(E e) {
+	return static_cast<std::underlying_type_t<E>>(e);
 }
 
 }
