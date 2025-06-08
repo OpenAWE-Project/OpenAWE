@@ -94,7 +94,7 @@ jobs:
           vcpkg install zlib glfw3 libogg libvorbis libtheora spdlog openal-soft bullet3 fmt gtest tinyxml2 glm opengl lz4 boost-dynamic-bitset boost-math shaderc
 
       - name: Install dependencies with brew
-        if: ${{ matrix.os == 'macos-13' }}
+        if: ${{ matrix.os == 'macos-14' }}
         run: |
           brew install zlib glfw libogg libvorbis theora spdlog openal-soft bullet fmt googletest tinyxml2 glm lz4 boost ccache shaderc
 
