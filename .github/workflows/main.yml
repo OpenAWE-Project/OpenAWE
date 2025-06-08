@@ -46,7 +46,7 @@ jobs:
               -DCMAKE_C_COMPILER=clang \
               -DCMAKE_CXX_COMPILER=clang++ \
               -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib \
-              -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include/AL \
+              -DOPENAL_INCLUDE_DIR=/opt/homebrew/opt/openal-soft/include/AL \
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
