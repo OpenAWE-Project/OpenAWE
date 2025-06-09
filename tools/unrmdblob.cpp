@@ -6,6 +6,7 @@
 
 #include <filesystem>
 
+#include <fmt/format.h>
 #include <CLI/CLI.hpp>
 
 #include "src/common/readfile.h"

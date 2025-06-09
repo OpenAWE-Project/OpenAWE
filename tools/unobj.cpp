@@ -21,6 +21,7 @@
 #include <cstdlib>
 
 #include <filesystem>
+#include <format>
 
 #include <fmt/format.h>
 #include <CLI/CLI.hpp>
