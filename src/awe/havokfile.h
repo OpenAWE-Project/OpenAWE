@@ -199,6 +199,49 @@ public:
 		ShapeType type;
 	};
 
+	struct hkxScene {
+		float sceneLength;
+		std::string modeller;
+		std::string asset;
+		glm::mat3x4 appliedTransform;
+		uint32_t rootNode;
+		std::vector<uint32_t> selectionSets;
+		std::vector<uint32_t> cameras;
+		std::vector<uint32_t> lights;
+		std::vector<uint32_t> meshes;
+		std::vector<uint32_t> materials;
+		std::vector<uint32_t> inplaceTextures;
+		std::vector<uint32_t> externalTextures;
+		std::vector<uint32_t> skinBindings;
+	};
+
+	struct hkxMesh {
+		std::vector<uint32_t> meshSections;
+		std::vector<uint32_t> userChannelInfos;
+	};
+
+	struct hkxMeshSection {
+		uint32_t vertexBuffer;
+		std::vector<uint32_t> indexBuffers;
+		uint32_t material;
+		std::vector<uint32_t> userChannels;
+	};
+
+	struct hkxVertexBuffer {
+		std::vector<glm::vec4> vectorData;
+		std::vector<float> floatData;
+		std::vector<uint32_t> uint32Data;
+		std::vector<uint16_t> uint16Data;
+		std::vector<uint8_t> uint8Data;
+
+		uint32_t numVertices;
+		uint32_t vectorStride;
+		uint32_t floatStride;
+		uint32_t uint32Stride;
+		uint32_t uint16Stride;
+		uint32_t uint8Stride;
+	};
+
 	struct RmdPhysicsSystem {
 		std::vector<uint32_t> rigidBodies;
 	};
@@ -207,6 +250,7 @@ public:
 
 	const hkaAnimationContainer& getAnimationContainer() const;
 	const RmdPhysicsSystem& getPhysicsSystem() const;
+	const hkxScene& getScene() const;
 
 	hkaSkeleton getSkeleton(uint32_t address);
 	hkaAnimation getAnimation(uint32_t address);
@@ -236,6 +280,7 @@ private:
 
 	hkaAnimationContainer _animationContainer;
 	RmdPhysicsSystem _physicsSystem;
+	hkxScene _scene;
 
 	std::vector<uint32_t> readUint32Array(Common::ReadStream &binhkx, hkArray array);
 	std::vector<int16_t> readSint16Array(Common::ReadStream &binhkx, hkArray array);
@@ -248,7 +293,10 @@ private:
 	void readHkRootLevelContainer(Common::ReadStream &binhkx);
 	HavokFile::hkArray readHkArray(Common::ReadStream &binhkx, uint32_t section);
 
-	void readHkxScene(Common::ReadStream &binhkx);
+	hkxScene readHkxScene(Common::ReadStream &binhkx, uint32_t section);
+	hkxMesh readHkxMesh(Common::ReadStream &binhkx, uint32_t section);
+	hkxMeshSection readHkxMeshSection(Common::ReadStream &binhkx, uint32_t section);
+	hkxVertexBuffer readHkxVertexBuffer(Common::ReadStream &binhkx, uint32_t section);
 
 	std::any readHkaSkeleton(Common::ReadStream &binhkx, uint32_t section);
 	hkaAnimation readHkaSplineCompressedAnimation(Common::ReadStream &binhkx, uint32_t section);

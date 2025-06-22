@@ -198,7 +198,13 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 		else if (name == "hkaDefaultAnimatedReferenceFrame")
 			readHkaDefaultAnimatedReferenceFrame(binhkx, contentsSectionIndex);
 		else if (name == "hkxScene")
-			readHkxScene(binhkx);
+			_scene = readHkxScene(binhkx, contentsSectionIndex);
+		else if (name == "hkxMesh")
+			object = readHkxMesh(binhkx, contentsSectionIndex);
+		else if (name == "hkxMeshSection")
+			object = readHkxMeshSection(binhkx, contentsSectionIndex);
+		else if (name == "hkxVertexBuffer")
+			object = readHkxVertexBuffer(binhkx, contentsSectionIndex);
 		else if (name == "RmdPhysicsSystem")
 			_physicsSystem = readRmdPhysicsSystem(binhkx, contentsSectionIndex);
 		else if (name == "hkpRigidBody")
@@ -246,6 +252,10 @@ const HavokFile::hkaAnimationContainer& HavokFile::getAnimationContainer() const
 
 const HavokFile::RmdPhysicsSystem& HavokFile::getPhysicsSystem() const {
 	return _physicsSystem;
+}
+
+const HavokFile::hkxScene & HavokFile::getScene() const {
+	return _scene;
 }
 
 HavokFile::hkaSkeleton HavokFile::getSkeleton(uint32_t address) {
@@ -420,23 +430,129 @@ void HavokFile::readHkRootLevelContainer(Common::ReadStream &binhkx) {
 	//fmt::print("RootLevelContainer num_elements={}\n", numElements);
 }
 
-void HavokFile::readHkxScene(Common::ReadStream &binhkx) {
+HavokFile::hkxScene HavokFile::readHkxScene(Common::ReadStream &binhkx, uint32_t section) {
 	binhkx.skip(8);
 
-	float sceneLength = binhkx.readIEEEFloatLE();
+	const auto modellerNameOffset = readFixup(binhkx, section);
+	const auto assetNameOffset = readFixup(binhkx, section);
 
-	binhkx.skip(0x44);
+	const auto sceneLength = binhkx.readIEEEFloatLE();
+	const auto rootNode = readFixup(binhkx, section);
 
-	std::vector<glm::vec4> appliedTransform(3);
-	for (auto &transform : appliedTransform) {
-		transform.x = binhkx.readIEEEFloatLE();
-		transform.y = binhkx.readIEEEFloatLE();
-		transform.z = binhkx.readIEEEFloatLE();
-		transform.w = binhkx.readIEEEFloatLE();
+	const auto selectionSets = readHkArray(binhkx, section);
+	const auto cameras = readHkArray(binhkx, section);
+	const auto lights = readHkArray(binhkx, section);
+	const auto meshes = readHkArray(binhkx, section);
+	const auto materials = readHkArray(binhkx, section);
+	const auto inplaceTextures = readHkArray(binhkx, section);
+	const auto externalTextures = readHkArray(binhkx, section);
+	const auto skinBindings = readHkArray(binhkx, section);
+
+	hkxScene scene{};
+
+	scene.sceneLength = sceneLength;
+	scene.appliedTransform = binhkx.read<glm::mat3x4>();
+
+	binhkx.seek(modellerNameOffset);
+	scene.modeller = binhkx.readNullTerminatedString(4);
+
+	binhkx.seek(assetNameOffset);
+	scene.asset = binhkx.readNullTerminatedString(4);
+
+	scene.selectionSets = readFixupArray(binhkx, selectionSets, section);
+	scene.cameras = readFixupArray(binhkx, cameras, section);
+	scene.lights = readFixupArray(binhkx, lights, section);
+	scene.meshes = readFixupArray(binhkx, meshes, section);
+	scene.materials = readFixupArray(binhkx, materials, section);
+	scene.inplaceTextures = readFixupArray(binhkx, inplaceTextures, section);
+	scene.externalTextures = readFixupArray(binhkx, externalTextures, section);
+	scene.skinBindings = readFixupArray(binhkx, skinBindings, section);
+
+	/*for (const auto& mesh: scene.meshes) {
+		binhkx.seek(mesh);
+		readHkxMesh(binhkx, section);
+	}*/
+
+	return scene;
+}
+
+HavokFile::hkxMesh HavokFile::readHkxMesh(Common::ReadStream &binhkx, uint32_t section) {
+	binhkx.skip(8);
+
+	const auto meshSections = readHkArray(binhkx, section);
+	const auto userChannelInfos = readHkArray(binhkx, section);
+
+	hkxMesh mesh{
+		.meshSections = readFixupArray(binhkx, meshSections, section),
+		.userChannelInfos = readFixupArray(binhkx, userChannelInfos, section),
+	};
+
+	return mesh;
+}
+
+HavokFile::hkxMeshSection HavokFile::readHkxMeshSection(Common::ReadStream &binhkx, uint32_t section) {
+	binhkx.skip(8);
+
+	const auto vertexBuffer = readFixup(binhkx, section);
+	const auto indexBuffers = readHkArray(binhkx, section);
+	const auto material = readFixup(binhkx, section);
+	const auto userChannels = readHkArray(binhkx, section);
+
+	return hkxMeshSection{
+		.vertexBuffer = vertexBuffer,
+		.indexBuffers = readFixupArray(binhkx, indexBuffers, section),
+		.material = material,
+		.userChannels = readFixupArray(binhkx, userChannels, section),
+	};
+}
+
+HavokFile::hkxVertexBuffer HavokFile::readHkxVertexBuffer(Common::ReadStream &binhkx, uint32_t section) {
+	binhkx.skip(8);
+
+	hkxVertexBuffer vertexBuffer{};
+
+	const auto vectorData = readHkArray(binhkx, section);
+	const auto floatData = readHkArray(binhkx, section);
+	const auto uint32Data = readHkArray(binhkx, section);
+	const auto uint16Data = readHkArray(binhkx, section);
+	const auto uint8Data = readHkArray(binhkx, section);
+
+	vertexBuffer.numVertices = binhkx.readUint32LE();
+	vertexBuffer.vectorStride = binhkx.readUint32LE();
+	vertexBuffer.floatStride = binhkx.readUint32LE();
+	vertexBuffer.uint32Stride = binhkx.readUint32LE();
+	vertexBuffer.uint16Stride = binhkx.readUint32LE();
+	vertexBuffer.uint8Stride = binhkx.readUint32LE();
+
+	if (vectorData.count > 0) {
+		binhkx.seek(vectorData.offset);
+		vertexBuffer.vectorData.resize(vectorData.count);
+		binhkx.read(vertexBuffer.vectorData.data(), vectorData.count * sizeof(glm::vec4));
+	}
+	if (floatData.count > 0) {
+		binhkx.seek(floatData.offset);
+		vertexBuffer.floatData.resize(floatData.count);
+		binhkx.read(vertexBuffer.floatData.data(), floatData.count * sizeof(float));
+	}
+	if (uint32Data.count > 0) {
+		binhkx.seek(uint32Data.offset);
+		vertexBuffer.uint32Data.resize(uint32Data.count);
+		binhkx.read(vertexBuffer.uint32Data.data(), uint32Data.count * sizeof(uint32_t));
+	}
+	if (uint16Data.count > 0) {
+		binhkx.seek(uint16Data.offset);
+		vertexBuffer.uint16Data.resize(uint16Data.count);
+		binhkx.read(vertexBuffer.uint16Data.data(), uint16Data.count * sizeof(uint16_t));
+	}
+	if (uint8Data.count > 0) {
+		binhkx.seek(uint8Data.offset);
+		vertexBuffer.uint8Data.resize(uint8Data.count);
+		binhkx.read(vertexBuffer.uint8Data.data(), uint8Data.count * sizeof(uint8_t));
 	}
 
-	std::string modeller = binhkx.readNullTerminatedString(4);
-	std::string asset = binhkx.readNullTerminatedString(4);
+	// TODO hkxVertexDescriptor
+
+	return vertexBuffer;
 }
 
 std::any HavokFile::readHkaSkeleton(Common::ReadStream &binhkx, uint32_t section) {
@@ -600,7 +716,7 @@ HavokFile::hkaAnimation HavokFile::readHkaSplineCompressedAnimation(Common::Read
 	uint32_t extractedMotion = readFixup(binhkx, section);
 
 	hkArray annotationTracks = readHkArray(binhkx, section);
-	
+
 	const unsigned int numFrames = binhkx.readUint32LE();
 	const unsigned int numBlocks = binhkx.readUint32LE();
 	const unsigned int maxFramesPerBlock= binhkx.readUint32LE();
