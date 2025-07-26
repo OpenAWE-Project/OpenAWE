@@ -21,6 +21,8 @@
 #ifndef AWE_SURFACE_H
 #define AWE_SURFACE_H
 
+#include "src/common/types.h"
+
 #include "src/graphics/images/decoder.h"
 
 namespace Graphics {
@@ -34,7 +36,20 @@ public:
 	Surface(unsigned int width, unsigned int height, TextureFormat format);
 	Surface(unsigned int width, unsigned int height, unsigned int depth, TextureFormat format);
 
-	void *getData(unsigned int layer = 0);
+	[[deprecated]] void *getData(unsigned int layer = 0);
+
+	/*!
+	 * Get the image data as span of arbitrary type
+	 * @tparam T The type of the elements of the span to create
+	 * @param layer The layer, which to retrieve
+	 * @return A span containing the data of the image in the given type
+	 */
+	template<typename T>
+	std::span<T> getData(unsigned int layer = 0) {
+		assert(_layers[layer].data[0].size() % sizeof(T) == 0);
+
+		return Common::toSpan<T>(_layers[layer].data[0]);
+	};
 };
 
 }

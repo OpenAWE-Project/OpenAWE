@@ -34,7 +34,7 @@
 
 namespace Codecs {
 
-void convertYUV2RGB(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height) {
+void convertYUV2RGB(const YCbCrBuffer &ycbcr, std::span<std::byte> rgb, unsigned int width, unsigned int height) {
 	for (unsigned int y = 0; y < height; ++y) {
 		for (unsigned int x = 0; x < width; ++x) {
 			const int y1 = ycbcr.y[y * width + x] << 6;
@@ -45,14 +45,14 @@ void convertYUV2RGB(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, uns
 			const int g = (y1 - 22 * (cb - 128) - (cr - 128)) >> 6;
 			const int b = (y1 + 114 * (cb - 128)) >> 6;
 
-			rgb[(y * width + x) * 3]     = std::clamp(r, 0, 255);
-			rgb[(y * width + x) * 3 + 1] = std::clamp(g, 0, 255);
-			rgb[(y * width + x) * 3 + 2] = std::clamp(b, 0, 255);
+			rgb[(y * width + x) * 3]     = std::byte{std::clamp<uint8_t>(r, 0, 255)};
+			rgb[(y * width + x) * 3 + 1] = std::byte{std::clamp<uint8_t>(g, 0, 255)};
+			rgb[(y * width + x) * 3 + 2] = std::byte{std::clamp<uint8_t>(b, 0, 255)};
 		}
 	}
 }
 
-void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height) {
+void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, std::span<std::byte> rgb, unsigned int width, unsigned int height) {
 #if __SSSE3__
 	__m128i uvdiff = _mm_set1_epi16(128);
 
@@ -110,6 +110,7 @@ void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int widt
     __m128i shuffledResult[3];
     __m128i shuffledResultR[6], shuffledResultG[6], shuffledResultB[6];
 
+	std::span shuffledResultSpan{reinterpret_cast<std::byte*>(shuffledResult), 3 * sizeof(__m128i)};
 
 	for (unsigned int y = 0; y < height; y+=2) {
 		for (unsigned int x = 0; x < width; x+=16) {
@@ -175,7 +176,8 @@ void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int widt
 				shuffledResult[1] = _mm_or_si128(shuffledResultR[1], _mm_or_si128(shuffledResultB[1], shuffledResultG[1]));
 				shuffledResult[2] = _mm_or_si128(shuffledResultR[2], _mm_or_si128(shuffledResultB[2], shuffledResultG[2]));
 
-				std::memcpy(reinterpret_cast<void *>(rgb + resultOffset + i * width * 3), shuffledResult, sizeof(shuffledResult));
+				auto resultSpan = rgb.subspan(resultOffset + i * width * 3, sizeof(shuffledResult));
+				std::ranges::copy(shuffledResultSpan, resultSpan.begin());
 			}
 		}
 	}
@@ -184,7 +186,7 @@ void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int widt
 #endif
 }
 
-void convertYUV2RGB_NEON(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height) {
+void convertYUV2RGB_NEON(const YCbCrBuffer &ycbcr, std::span<std::byte> rgb, unsigned int width, unsigned int height) {
 #if __ARM_NEON
 	uint8x16_t y1[2], cb, cr;
 	uint16x8_t y2[4], cb2[2], cr2[2];

@@ -35,7 +35,7 @@ namespace Codecs {
  * \param width The width of the video frame
  * \param height The height of the video frame
  */
-void convertYUV2RGB(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height);
+void convertYUV2RGB(const YCbCrBuffer &ycbcr, std::span<std::byte> rgb, unsigned int width, unsigned int height);
 
 /*!
  * Convert the data from an ycbcr buffer to the rgb space of an array by utilizing SSSE3. The result array is assumed to
@@ -45,7 +45,7 @@ void convertYUV2RGB(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, uns
  * \param width The width of the video frame
  * \param height The height of the video frame
  */
-void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height);
+void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, std::span<std::byte> rgb, unsigned int width, unsigned int height);
 
 /*!
  * Convert the data from an ycbcr buffer to the rgb space of an array by utilizing NEON. The result array is assumed to
@@ -55,7 +55,7 @@ void convertYUV2RGB_SSSE3(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int widt
  * \param width The width of the video frame
  * \param height The height of the video frame
  */
-void convertYUV2RGB_NEON(const YCbCrBuffer &ycbcr, byte *rgb, unsigned int width, unsigned int height);
+void convertYUV2RGB_NEON(const YCbCrBuffer &ycbcr, std::span<byte> rgb, unsigned int width, unsigned int height);
 
 } // End of namespace Codecs
 

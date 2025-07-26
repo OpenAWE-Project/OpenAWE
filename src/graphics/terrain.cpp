@@ -233,11 +233,8 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 		assert(xoffset % blendMap.size == 0 && yoffset % blendMap.size == 0);
 
 		Surface blendSurface(blendMap.size, blendMap.size, kA1RGB5);
-		std::memcpy(
-			blendSurface.getData(),
-			blendMap.data.data(),
-			blendMap.data.size() * sizeof(uint16_t)
-		);
+		auto s = blendSurface.getData<uint16_t>();
+		std::ranges::copy(blendMap.data, s.begin());
 		_blendMap->load(xoffset, yoffset, std::move(blendSurface));
 	}
 
@@ -250,11 +247,8 @@ void Terrain::loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<g
 		assert(xoffset % geonormalMap.size == 0 && yoffset % geonormalMap.size == 0);
 
 		Surface blendSurface(geonormalMap.size, geonormalMap.size, kA1RGB5);
-		std::memcpy(
-				blendSurface.getData(),
-				geonormalMap.data.data(),
-				geonormalMap.data.size() * sizeof(uint16_t)
-		);
+		auto s = blendSurface.getData<uint16_t>();
+		std::ranges::copy(geonormalMap.data, s.begin());
 		_geoNormalMap->load(xoffset, yoffset, std::move(blendSurface));
 	}
 }

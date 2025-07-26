@@ -247,12 +247,13 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	// Initialize noise map
 	//
 	std::mt19937 mt(std::chrono::system_clock::now().time_since_epoch().count());
-	std::uniform_int_distribution<unsigned int> dist(0, 0xFF);
+	std::uniform_int_distribution<uint8_t> dist;
 
 	auto noiseSurface = Surface(32, 32, 64, kRGBA8);
+	auto noiseSurfaceSpan = noiseSurface.getData<glm::u8vec4>();
 	for (int i = 0; i < 32 * 32 * 64; ++i) {
 		const auto date = dist(mt);
-		std::memset(reinterpret_cast<byte*>(noiseSurface.getData()) + i * 4, date,	4);
+		noiseSurfaceSpan[i] = glm::u8vec4{date};
 	}
 
 	_noiseMap = std::make_unique<Texture>(_loadingTasks, GL_TEXTURE_3D, "noise_map");
@@ -311,6 +312,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 
 	auto basisFuncsSurface = Surface(144, 96, kR32F);
 	std::memcpy(basisFuncsSurface.getData(), basisData.data(), basisData.size() * sizeof(float));
+	std::ranges::copy(basisData, basisFuncsSurface.getData<float>().begin());
 	_basisFunc = std::make_shared<Texture>(_loadingTasks, GL_TEXTURE_2D, "basis_funcs");
 	_basisFunc->load(std::move(basisFuncsSurface));
 

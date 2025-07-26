@@ -202,14 +202,14 @@ void Player::prepareSurfaces() {
 		if (_ssse3) {
 			Codecs::convertYUV2RGB_SSSE3(
 					_ycbcr,
-					reinterpret_cast<byte *>(surface->getData()),
+					surface->getData<std::byte>(),
 					_video->getWidth(),
 					_video->getHeight()
 			);
 		} else {
 			Codecs::convertYUV2RGB(
 				_ycbcr,
-				reinterpret_cast<byte *>(surface->getData()),
+				surface->getData<std::byte>(),
 				_video->getWidth(),
 				_video->getHeight()
 			);
