@@ -25,6 +25,7 @@
 #include <cstddef>
 
 #include <string>
+#include <span>
 
 #include "src/common/types.h"
 
@@ -182,6 +183,17 @@ public:
 		T t;
 		read(&t, sizeof(T));
 		return t;
+	}
+
+	/*!
+	 * Read data into a span
+	 * \tparam T The type contained in the span
+	 * \param s The span to write into
+	 * \return The size actually read into the span
+	 */
+	template<typename T>
+	size_t readSpan(std::span<T> s) {
+		return read(s.data(), s.size_bytes());
 	}
 
 	/*!
