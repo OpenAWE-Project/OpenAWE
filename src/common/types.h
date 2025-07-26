@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <span>
 
 #include <glm/glm.hpp>
 
@@ -57,6 +58,58 @@ typedef unsigned char byte;
 namespace Common {
 
 typedef std::vector<std::byte> ByteBuffer;
+
+/*!
+ * Reinterpret a byte buffer to a span of arbitrary type
+ *
+ * \tparam T The type to which to reinterpret the byte buffer as span
+ * \param bb The byte buffer to be reinterpreted as span with arbitrary type
+ * \return The newly created span
+ */
+template<typename T>
+std::span<T> toSpan(ByteBuffer& bb) {
+	assert(bb.size() % sizeof(T) == 0);
+	return {reinterpret_cast<T*>(bb.data()), bb.size()};
+}
+
+/*!
+ * Reinterpret a constant byte buffer to a span of arbitrary constant type
+ *
+ * \tparam T The type to which to reinterpret the byte buffer as span
+ * \param bb The byte buffer to be reinterpreted as span with arbitrary type
+ * \return The newly created span
+ */
+template<typename T>
+std::span<const T> toSpan(const ByteBuffer& bb) {
+	assert(bb.size() % sizeof(T) != 0);
+	return std::span<const T>(reinterpret_cast<const T*>(bb.data()), bb.size());
+}
+
+/*!
+ * Reinterpret an array to a span of arbitrary type
+ *
+ * \tparam T The type to which to reinterpret the array as span
+ * \param a The array to be reinterpreted as span with arbitrary type
+ * \return The newly created span
+ */
+template<typename T, typename OT, size_t N>
+requires (sizeof(OT) * N % sizeof(T) == 0)
+std::span<T> toSpan(std::array<OT, N>& a) {
+	return {reinterpret_cast<T*>(a.data()), a.size() * N / sizeof(T)};
+}
+
+/*!
+ * Reinterpret a constant array to a span of arbitrary type
+ *
+ * \tparam T The type to which to reinterpret the array as span
+ * \param a The array to be reinterpreted as span with arbitrary type
+ * \return The newly created span
+ */
+template<typename T, typename OT, size_t N>
+requires (sizeof(OT) * N % sizeof(T) == 0)
+std::span<const T> toSpan(const std::array<OT, N>& a) {
+	return {reinterpret_cast<const T*>(a.data()), a.size() * N / sizeof(T)};
+}
 
 /*!
  * \brief Util class for making non copyable
