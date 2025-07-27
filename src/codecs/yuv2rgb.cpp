@@ -240,7 +240,7 @@ void convertYUV2RGB_NEON(const YCbCrBuffer &ycbcr, std::span<std::byte> rgb, uns
 
 				uint8x16x3_t result{result_r, result_g, result_b};
 
-				vst3q_u8(rgb + (y * width + x) * 3 + i * width * 3, result);
+				vst3q_u8(rgb.data() + (y * width + x) * 3 + i * width * 3, result);
 			}
 		}
 	}
