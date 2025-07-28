@@ -247,13 +247,12 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	// Initialize noise map
 	//
 	std::mt19937 mt(std::chrono::system_clock::now().time_since_epoch().count());
-	std::uniform_int_distribution<uint8_t> dist;
+	std::uniform_int_distribution dist(0, 0xff);
 
 	auto noiseSurface = Surface(32, 32, 64, kRGBA8);
 	auto noiseSurfaceSpan = noiseSurface.getData<glm::u8vec4>();
 	for (int i = 0; i < 32 * 32 * 64; ++i) {
-		const auto date = dist(mt);
-		noiseSurfaceSpan[i] = glm::u8vec4{date};
+		noiseSurfaceSpan[i] = glm::u8vec4{static_cast<uint8_t>(dist(mt))};
 	}
 
 	_noiseMap = std::make_unique<Texture>(_loadingTasks, GL_TEXTURE_3D, "noise_map");
