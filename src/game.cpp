@@ -23,6 +23,11 @@
 
 #include <CLI/CLI.hpp>
 
+#include <src/graphics/fontman.h>
+#include "src/configuration.h"
+#include "src/graphics/gfxman.h"
+#include "src/graphics/text.h"
+
 #include "src/common/crc32.h"
 #include "src/common/threadpool.h"
 #include "src/common/strutil.h"
@@ -38,6 +43,7 @@
 #include "src/platform/keyconversion.h"
 #include "src/platform/gamepadconversion.h"
 #include "src/platform/gamepadman.h"
+#include "src/platform/platform.h"
 
 #include "src/graphics/fontman.h"
 #include "src/graphics/text.h"
@@ -274,6 +280,23 @@ void Game::init() {
 		const auto finished = std::chrono::steady_clock::now();
 		spdlog::info("Loading level took {} seconds", std::chrono::duration_cast<std::chrono::milliseconds>(finished - start).count());
 	});
+
+	// set window resolution and fullscreen mode
+	Configuration & config = _engine->getConfiguration(); 
+
+	if (config.resolution.width == 0 || config.resolution.height == 0) {
+		Platform::VideoMode videoMode = _platform.getPrimaryMonitorVideoMode();
+		config.resolution.width = videoMode.width;
+		config.resolution.height = videoMode.height;
+		config.resolution.fullscreen = true;
+	}
+
+	_window->setFullscreen(config.resolution.fullscreen);
+	_window->setSize(config.resolution.width, config.resolution.height);
+	spdlog::error("Window size: {} x {}", _window->getSize().x, _window->getSize().y);
+	spdlog::error("Content scale: {} x {}", _window->getContentScale().x, _window->getContentScale().y);
+	GfxMan.setScreenSize(config.resolution.width, config.resolution.height);
+	GfxMan.setContentScale(_window->getContentScale());
 }
 
 void Game::start() {

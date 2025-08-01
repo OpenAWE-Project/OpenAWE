@@ -185,6 +185,9 @@ public:
 
 	void drawFrame();
 
+	void setScreenSize(unsigned int width, unsigned int height);
+	void setContentScale(glm::vec2 scale);
+
 private:
 	std::unique_ptr<Renderer> _renderer;
 };
