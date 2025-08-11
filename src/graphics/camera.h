@@ -54,10 +54,13 @@ public:
 
 	virtual void update(float time);
 
+	float getFOV() { return _fov; };
+
 protected:
 	glm::vec3 _position;
 	glm::vec3 _direction;
 	glm::vec3 _up;
+	float _fov = 45.f;
 };
 
 } // End of namespace Graphics
