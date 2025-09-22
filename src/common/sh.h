@@ -38,8 +38,8 @@ namespace Common {
  *
  * \param l The degree of the function, must be \f$l \geq 0\f$
  * \param m The order which has to be \f$|m|\leq l\f$
- * \param theta The longitude/azimutal angle in radians
- * \param phi The latitude angle in radians
+ * \param theta The latitude angle in radians
+ * \param phi The longitude/azimutal angle in radians
  * \return The basis function value
  */
 std::complex<double> shBasisFunc(int l, int m, double theta, double phi) {
@@ -53,7 +53,7 @@ std::complex<double> shBasisFunc(int l, int m, double theta, double phi) {
 	if (m < 0)
 		p *= std::pow(-1, m);
 
-	const auto exponential = std::complex<double>(std::cos(m * phi), std::sin(m * phi));
+	const auto exponential = std::polar(1.0, m * phi);
 
 	return normalization * p * exponential;
 }
@@ -72,8 +72,8 @@ std::complex<double> shBasisFunc(int l, int m, double theta, double phi) {
  */
 std::complex<double> shBasisFunc(int l, int m, glm::vec3 dir) {
 	const auto r = glm::length(dir);
-	const auto theta = std::atan2(dir.z, dir.x);
-	const auto phi = std::acos(dir.y / r);
+	const auto theta = std::acos(dir.y / r);
+	const auto phi = std::atan2(dir.z, dir.x);
 
 	return shBasisFunc(l, m, theta, phi);
 }
@@ -93,17 +93,17 @@ std::complex<double> shBasisFunc(int l, int m, glm::vec3 dir) {
  *
  * \param l The degree of the function, must be \f$l \geq 0\f$
  * \param m The order which has to be \f$|m|\leq l\f$
- * \param theta The longitude/azimutal angle in radians
- * \param phi The latitude angle in radians
+ * \param theta The latitude angle in radians
+ * \param phi The longitude/azimutal angle in radians
  * \return The basis function value
  */
 double shRealBasisFunc(int l, int m, double theta, double phi) {
 	double p = 0.0;
 
 	if (m > 0)
-		p = std::numbers::sqrt2 * std::pow(-1, m) * shBasisFunc(l, std::abs(m), theta, phi).imag();
-	else if (m < 0)
 		p = std::numbers::sqrt2 * std::pow(-1, m) * shBasisFunc(l, std::abs(m), theta, phi).real();
+	else if (m < 0)
+		p = std::numbers::sqrt2 * std::pow(-1, m) * shBasisFunc(l, std::abs(m), theta, phi).imag();
 	else
 		p = shBasisFunc(l, 0, theta, phi).real();
 
@@ -130,8 +130,8 @@ double shRealBasisFunc(int l, int m, double theta, double phi) {
  */
 double shRealBasisFunc(int l, int m, glm::vec3 dir) {
 	const auto r = glm::length(dir);
-	const auto theta = std::atan2(dir.z, dir.x);
-	const auto phi = std::acos(dir.y / r);
+	const auto theta = std::acos(dir.y / r);
+	const auto phi = std::atan2(dir.z, dir.x);
 
 	return shRealBasisFunc(l, m, theta, phi);
 }
