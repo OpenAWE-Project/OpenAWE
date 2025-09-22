@@ -26,6 +26,7 @@
 #include <regex>
 #include <charconv>
 
+#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include "src/common/exception.h"
@@ -122,31 +123,8 @@ std::string extract(const std::string &str, const std::regex &pattern);
 template<typename T>
 requires std::is_integral_v<T> || std::is_floating_point_v<T>
 static T parse(const std::string &str) {
-#if LIB_CPP
-	if constexpr (std::is_integral_v<T>) {
-		T v;
-
-		const auto [_, ec] = std::from_chars(str.c_str(), str.c_str() + str.size(), v);
-		if (ec != std::errc())
-			throw CreateException("Error when parsing {} \"{}\": {}", typeid(T).name(), str, static_cast<int>(ec));
-
-		return v;
-	} else if constexpr (std::is_same_v<T, float>) {
-		/*
-		 * This is for satisfying Apple libc++ needs and should be removed when libc++ has support for floating point
-		 * from_char (or if boost::charconv is finally available on all platforms
-		 */
-		return std::stof(str);
-	}
-#else
-	T v;
-
-	const auto [_, ec] = std::from_chars(str.c_str(), str.c_str() + str.size(), v);
-	if (ec != std::errc())
-		throw CreateException("Error when parsing {} \"{}\": {}", typeid(T).name(), str, static_cast<int>(ec));
-
-	return v;
-#endif
+	// TODO: Replace with from_chars as soon as floating point numbers are available for this in (Apple) clang
+	return boost::lexical_cast<T>(str);
 }
 
 /**
