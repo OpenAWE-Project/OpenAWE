@@ -42,7 +42,7 @@ namespace Common {
  * \param phi The longitude/azimutal angle in radians
  * \return The basis function value
  */
-std::complex<double> shBasisFunc(int l, int m, double theta, double phi) {
+inline std::complex<double> shBasisFunc(int l, int m, double theta, double phi) {
 	const double normalization = std::sqrt(
 			((2.0 * l + 1) / (4 * std::numbers::pi)) * boost::math::factorial<double>(l - std::abs(m)) /
 			boost::math::factorial<double>(l + m));
@@ -70,7 +70,7 @@ std::complex<double> shBasisFunc(int l, int m, double theta, double phi) {
  * \param dir The direction of the basis function to generate
  * \return The basis function value
  */
-std::complex<double> shBasisFunc(int l, int m, glm::vec3 dir) {
+inline std::complex<double> shBasisFunc(int l, int m, glm::vec3 dir) {
 	const auto r = glm::length(dir);
 	const auto theta = std::acos(dir.y / r);
 	const auto phi = std::atan2(dir.z, dir.x);
@@ -97,7 +97,7 @@ std::complex<double> shBasisFunc(int l, int m, glm::vec3 dir) {
  * \param phi The longitude/azimutal angle in radians
  * \return The basis function value
  */
-double shRealBasisFunc(int l, int m, double theta, double phi) {
+inline double shRealBasisFunc(int l, int m, double theta, double phi) {
 	double p = 0.0;
 
 	if (m > 0)
@@ -128,7 +128,7 @@ double shRealBasisFunc(int l, int m, double theta, double phi) {
  * \param dir The direction of the basis function to generate
  * \return The basis function value
  */
-double shRealBasisFunc(int l, int m, glm::vec3 dir) {
+inline double shRealBasisFunc(int l, int m, glm::vec3 dir) {
 	const auto r = glm::length(dir);
 	const auto theta = std::acos(dir.y / r);
 	const auto phi = std::atan2(dir.z, dir.x);
