@@ -33,8 +33,13 @@ public:
 	AmbianceState(Common::ReadStream &ambianceState);
 
 	const glm::vec3 &getAmbientLightColor() const;
-	float getAmbientLightIntensity() const;
+	glm::vec3 getAmbientLightIntensity() const;
 	float getAmbientLightSaturation() const;
+
+	glm::vec3 getAmbientSHIntensity1() const;
+	glm::vec3 getAmbientSHIntensity2() const;
+	glm::vec3 getAmbientSHDirection1() const;
+	glm::vec3 getAmbientSHDirection2() const;
 
 	float getGroundFogFalloff() const;
 	float getGroundFogDensity() const;
@@ -55,6 +60,9 @@ private:
 	glm::vec3 _ambientLightColor;
 	float _ambientLightIntensity;
 	float _ambientLightSaturation;
+
+	glm::vec3 _ambientSHIntensity1, _ambientSHIntensity2;
+	glm::vec3 _ambientSHDirection1, _ambientSHDirection2;
 
 	float _groundFogFalloff, _groundFogDensity;
 	glm::vec3 _fogColor, _fogColorOpposite;
