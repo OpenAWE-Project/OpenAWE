@@ -29,10 +29,10 @@ layout(local_size_x=16, local_size_y=16, local_size_z=1) in;
 
 void main() {
     ivec2 vPosition = ivec2(gl_GlobalInvocationID.xy);
-    ivec2 vLocalPosition = ivec2(gl_LocalInvocationID.xy);
+    ivec2 vLocalPosition = ivec2(gl_LocalInvocationID.xy) + ivec2(0, gl_WorkGroupID.y * 16);
 
     vec4 vSource = imageLoad(g_sSource, vLocalPosition);
-    float vBasis = imageLoad(g_sBasisFunc, vPosition).r;
+    float fBasis = imageLoad(g_sBasisFunc, vPosition).r;
 
-    imageStore(out_sTarget, vPosition, vBasis * vSource);
+    imageStore(out_sTarget, vPosition, fBasis * vSource);
 }
