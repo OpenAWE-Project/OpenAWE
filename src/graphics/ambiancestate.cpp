@@ -23,6 +23,9 @@
 
 #include "src/graphics/ambiancestate.h"
 
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/euler_angles.hpp>
+
 namespace Graphics {
 
 AmbianceState::AmbianceState() :
@@ -40,32 +43,46 @@ AmbianceState::AmbianceState(Common::ReadStream &ambianceState) {
 	if (rootNode.name != "ambiance_state")
 		throw std::runtime_error("Invalid ambiance state file");
 
-	for (const auto &child : rootNode.children) {
-		const std::string value = child.properties.at("value");
+	float shPitch1{}, shHeading1{};
+	float shPitch2{}, shHeading2{};
+	glm::vec3 shColor1{}, shColor2{};
+	float shIntensity1{}, shIntensity2{};
 
-		if (child.name == "ambient_light_color")
-			_ambientLightColor = parseVec3(value);
-		else if (child.name == "ambient_light_intensity")
-			_ambientLightIntensity = Common::parse<float>(value);
-		else if (child.name == "ambient_light_saturation")
-			_ambientLightSaturation = Common::parse<float>(value);
-		else if (child.name == "ground_fog_density")
-			_groundFogDensity = Common::parse<float>(value);
-		else if (child.name == "ground_fog_falloff")
-			_groundFogFalloff = Common::parse<float>(value);
-		else if (child.name == "fog_color")
-			_fogColor = parseVec3(value);
-		else if (child.name == "fog_color_opposite")
-			_fogColorOpposite = parseVec3(value);
-		else if (child.name == "fog_intensity")
-			_fogIntensity = Common::parse<float>(value);
-		else if (child.name == "fog_intensity_opposite")
-			_fogIntensityOpposite = Common::parse<float>(value);
-		else if (child.name == "secondary_sky_glow_height")
-			_secondarySkyGlowHeight = Common::parse<float>(value);
-		else if (child.name == "weather_cloudiness")
-			_weatherCloudiness = Common::parse<float>(value);
-	}
+	const auto getFloat = [&] (const std::string &name) {
+		if (!rootNode.hasNode(name))
+			return 0.0f;
+		return rootNode.getNode(name).getFloat("value");
+	};
+
+	const auto getVec3 = [&] (const std::string &name) {
+		if (!rootNode.hasNode(name))
+			return glm::zero<glm::vec3>();
+		return parseVec3(rootNode.getNode(name).getString("value"));
+	};
+
+	_ambientLightColor = getVec3("ambient_light_color");
+	_ambientLightIntensity = getFloat("ambient_light_intensity");
+	_ambientLightSaturation = getFloat("ambient_light_saturation");
+	_fogColor = getVec3("fog_color");
+	_fogColorOpposite = getVec3("fog_color_opposite");
+	_fogIntensity = getFloat("fog_intensity");
+	_fogIntensityOpposite = getFloat("fog_intensity_opposite");
+	_secondarySkyGlowHeight = getFloat("secondary_sky_glow_height");
+	_weatherCloudiness = getFloat("weather_cloudiness");
+
+	shPitch1 = glm::radians(getFloat("ambient_light_sh_pitch_1"));
+	shPitch2 = glm::radians(getFloat("ambient_light_sh_pitch_2"));
+	shHeading1 = glm::radians(getFloat("ambient_light_sh_heading_1"));
+	shHeading2 = glm::radians(getFloat("ambient_light_sh_heading_2"));
+	shColor1 = getVec3("ambient_light_sh_color_1");
+	shColor2 = getVec3("ambient_light_sh_color_2");
+	shIntensity1 = getFloat("ambient_light_sh_intensity_1");
+	shIntensity2 = getFloat("ambient_light_sh_intensity_2");
+
+	_ambientSHDirection1 = glm::normalize(glm::rotateY(glm::rotateX(glm::vec3{0.0, 0.0, 1.0}, shPitch1), shHeading1));
+	_ambientSHDirection2 = glm::normalize(glm::rotateY(glm::rotateX(glm::vec3{0.0, 0.0, 1.0}, shPitch2), shHeading2));
+	_ambientSHIntensity1 = shColor1 * shIntensity1;
+	_ambientSHIntensity2 = shColor2 * shIntensity2;
 }
 
 glm::vec3 AmbianceState::parseVec3(const std::string &str) {
@@ -81,12 +98,28 @@ const glm::vec3 &AmbianceState::getAmbientLightColor() const {
 	return _ambientLightColor;
 }
 
-float AmbianceState::getAmbientLightIntensity() const {
-	return _ambientLightIntensity;
+glm::vec3 AmbianceState::getAmbientLightIntensity() const {
+	return _ambientLightIntensity * _ambientLightColor;
 }
 
 float AmbianceState::getAmbientLightSaturation() const {
 	return _ambientLightSaturation;
+}
+
+glm::vec3 AmbianceState::getAmbientSHIntensity1() const {
+	return _ambientSHIntensity1;
+}
+
+glm::vec3 AmbianceState::getAmbientSHIntensity2() const {
+	return _ambientSHIntensity2;
+}
+
+glm::vec3 AmbianceState::getAmbientSHDirection1() const {
+	return _ambientSHDirection1;
+}
+
+glm::vec3 AmbianceState::getAmbientSHDirection2() const {
+	return _ambientSHDirection2;
 }
 
 const glm::vec3 &AmbianceState::getFogColor() const {
