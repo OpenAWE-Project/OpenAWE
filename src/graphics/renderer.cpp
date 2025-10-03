@@ -20,7 +20,9 @@
 
 #include <algorithm>
 
-#include "renderer.h"
+#include "src/common/sh.h"
+
+#include "src/graphics/renderer.h"
 
 Graphics::Renderer::Renderer() {
 	// Setup initial projection matrix
@@ -28,6 +30,8 @@ Graphics::Renderer::Renderer() {
 
 	// Initialize frustrum with projection matrix
 	_frustrum.setProjectionMatrix(_projection);
+
+	_directionalSH.fill(glm::zero<glm::vec3>());
 }
 
 Graphics::Renderer::~Renderer() {
@@ -124,8 +128,32 @@ void Graphics::Renderer::setCamera(Graphics::Camera &camera) {
 	_camera = camera;
 }
 
-void Graphics::Renderer::setAmbianceState(const Graphics::AmbianceState ambiance) {
+void Graphics::Renderer::setAmbianceState(const AmbianceState &ambiance) {
 	_ambiance = ambiance;
+
+	const auto d1 = _ambiance.getAmbientSHDirection1();
+	const auto d2 = _ambiance.getAmbientSHDirection2();
+	const auto c1 = _ambiance.getAmbientSHIntensity1();
+	const auto c2 = _ambiance.getAmbientSHIntensity2();
+
+	constexpr std::array<std::tuple<int, int>, 9> shParams = {
+		// l = 0
+		std::tuple{0, 0},
+
+		// l = 1
+		{1, 1}, {1, 0}, {1, -1},
+
+		// l = 2
+		{2, 2}, {2, 1}, {2, 0}, {2, -1}, {2, -2}
+	};
+
+	for (int i = 0; i < _directionalSH.size(); ++i) {
+		const auto [l, m] = shParams[i];
+		const float bf1 = Common::shRealBasisFunc(l, m, d1);
+		const float bf2 = Common::shRealBasisFunc(l, m, d2);
+
+		_directionalSH[i] = bf1 * c1 + bf2 * c2;
+	}
 }
 
 void Graphics::Renderer::setSkyLUT(TexturePtr lut) {

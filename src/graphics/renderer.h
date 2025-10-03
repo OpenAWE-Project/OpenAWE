@@ -57,7 +57,7 @@ public:
 
 	void setCamera(Camera &camera);
 
-	void setAmbianceState(const AmbianceState ambiance);
+	void setAmbianceState(const AmbianceState &ambiance);
 
 	/*!
 	 * Set the sky lut from an atmosphere file for the renderer
@@ -149,6 +149,7 @@ protected:
 
 	std::optional<std::reference_wrapper<Camera>> _camera;
 	AmbianceState _ambiance;
+	std::array<glm::vec3, 9> _directionalSH;
 
 	TexturePtr _skyLUT;
 
