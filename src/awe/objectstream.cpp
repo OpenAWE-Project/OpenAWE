@@ -601,10 +601,10 @@ void ObjectStream::spotLight(Templates::SpotLight &spotLight) {
 	object("meshResource", spotLight.meshResource, kRID);
 	variable("meshPosition", spotLight.meshPosition);
 	variable("meshRotation", spotLight.meshRotation);
-	variable("near", spotLight.near);
+	variable("near", spotLight.nearDist);
 	variable("depthBias", spotLight.depthBias);
 	variable("depthSlopeBias", spotLight.depthSlopeBias);
-	variable("far", spotLight.far);
+	variable("far", spotLight.farDist);
 	variable("drainMultiplier", spotLight.drainMultiplier);
 	variable("controllable", spotLight.controllable);
 	variable("enableSpecular", spotLight.enableSpecular);
