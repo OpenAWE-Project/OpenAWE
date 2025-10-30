@@ -25,15 +25,6 @@
 
 #include "src/awe/types.h"
 
-/*
- * Windows headers define the name far and near for historical purposes. This should be disabled to avoid confusing
- * compiler errors.
- */
-#if OS_WINDOWS
-#	undef far
-#	undef near
-#endif
-
 namespace AWE::Templates {
 
 struct Skeleton {
@@ -400,7 +391,7 @@ struct SpotLight {
 	rid_t meshResource;
 	glm::vec3 meshPosition;
 	glm::mat3 meshRotation;
-	float near, far;
+	float nearDist, farDist;
 	float depthBias;
 	float depthSlopeBias;
 	float drainMultiplier;
