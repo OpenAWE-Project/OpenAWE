@@ -32,7 +32,7 @@
 
 namespace Graphics {
 
-void GraphicsManager::initOpenGL(Platform::Window &window, const std::string &shaderDirectory) {
+void GraphicsManager::initOpenGL(Platform::GLContext &window, const std::string &shaderDirectory) {
 	if (_renderer)
 		throw std::runtime_error("Renderer already initialized");
 

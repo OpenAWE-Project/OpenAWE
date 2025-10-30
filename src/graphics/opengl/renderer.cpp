@@ -69,7 +69,7 @@ static void *loadProcAddress(const char *name) {
 	return Platform::getProcAddressGL(name);
 }
 
-Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory) :
+Renderer::Renderer(Platform::GLContext &window, const std::string &shaderDirectory) :
 		_window(window),
 		_shaderDirectory(shaderDirectory) {
 	_window.makeCurrent();

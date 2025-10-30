@@ -41,7 +41,7 @@ namespace Graphics {
 
 class GraphicsManager : public Common::Singleton<GraphicsManager> {
 public:
-	void initOpenGL(Platform::Window &window, const std::string &shaderDirectory);
+	void initOpenGL(Platform::GLContext &window, const std::string &shaderDirectory);
 
 	/*!
 	 * Frees the renderer and all of its associated resources

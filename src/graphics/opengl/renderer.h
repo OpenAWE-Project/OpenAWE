@@ -40,7 +40,7 @@ namespace Graphics::OpenGL {
 
 class Renderer : public Graphics::Renderer {
 public:
-	explicit Renderer(Platform::Window &window, const std::string &shaderDirectory);
+	explicit Renderer(Platform::GLContext &window, const std::string &shaderDirectory);
 	~Renderer();
 
 	void update() override;
@@ -99,7 +99,7 @@ private:
 	 */
 	void rebuildShaders();
 
-	Platform::Window &_window;
+	Platform::GLContext &_window;
 
 	bool _hasDebug;
 	const std::string _shaderDirectory;
