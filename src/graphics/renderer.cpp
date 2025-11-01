@@ -112,12 +112,29 @@ void Graphics::Renderer::removeGUIElement(Graphics::GUIElement *gui) {
 }
 
 void Graphics::Renderer::addLight(Graphics::Light *light) {
-	_lights.emplace_back(light);
+	_light_queues_mutex.lock();
+	_light_add_queue.push(light);
+	_light_queues_mutex.unlock();
 }
 
 void Graphics::Renderer::removeLight(Graphics::Light *light) {
-	const auto iter = std::remove(_lights.begin(), _lights.end(), light);
-	_lights.erase(iter);
+	_light_queues_mutex.lock();
+	_light_remove_queue.push(light);
+	_light_queues_mutex.unlock();
+}
+
+void Graphics::Renderer::flushLights() {
+	_light_queues_mutex.lock();
+	while (!_light_add_queue.empty()) {
+		_lights.push_back(_light_add_queue.front());
+		_light_add_queue.pop();
+	}
+	while (!_light_remove_queue.empty()) {
+		const auto iter = std::remove(_lights.begin(), _lights.end(), _light_remove_queue.front());
+		_lights.erase(iter);
+		_light_remove_queue.pop();
+	}
+	_light_queues_mutex.unlock();
 }
 
 void Graphics::Renderer::setCamera(Graphics::Camera &camera) {
