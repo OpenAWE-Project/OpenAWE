@@ -21,7 +21,10 @@
 #include <locale>
 #include <regex>
 
+#include <GLFW/glfw3.h>
+
 #include "src/common/platform.h"
+#include "src/common/exception.h"
 #include "src/common/types.h"
 #include "src/common/crc32.h"
 #include "src/common/strutil.h"
@@ -135,4 +138,4 @@ std::string getUserDataDirectory() {
 	return userData;
 }
 
-}
+} // End of namespace Common

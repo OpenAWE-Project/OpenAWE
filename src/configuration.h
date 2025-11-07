@@ -21,6 +21,11 @@
 #ifndef OPENAWE_CONFIGURATION_H
 #define OPENAWE_CONFIGURATION_H
 
+struct ResolutionData {
+	unsigned int width, height;
+	bool fullscreen;
+};
+
 /*!
  * \brief Class representing the global configuration of the engine
  *
@@ -32,10 +37,7 @@ class Configuration {
 public:
 	virtual ~Configuration() = default;
 
-	struct {
-		unsigned int width, height;
-		bool fullscreen;
-	} resolution;
+	ResolutionData resolution;
 
 	/*!
 	 * Write the configuration

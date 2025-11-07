@@ -80,6 +80,12 @@ void Configuration::read() {
 	if (std::filesystem::is_regular_file(resolutionFile)) {
 		auto resolutionStream = std::make_unique<Common::ReadFile>(resolutionFile);
 		readResolution(*resolutionStream);
+	} else {
+		resolution = {
+			0, 
+			0, 
+			false
+		};
 	}
 
 	if (std::filesystem::is_regular_file(configFile)) {

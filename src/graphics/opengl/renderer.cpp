@@ -43,6 +43,8 @@
 #include "src/common/readfile.h"
 #include "src/common/sh.h"
 
+#include "src/platform/window.h"
+
 #include "src/awe/resman.h"
 #include "src/awe/objfile.h"
 #include "src/awe/hg.h"
@@ -52,6 +54,7 @@
 #include "src/graphics/shaderconverter.h"
 #include "src/graphics/skeleton.h"
 #include "src/graphics/images/surface.h"
+#include "src/graphics/renderer.h"
 #include "src/graphics/opengl/renderer.h"
 #include "src/graphics/opengl/opengl.h"
 #include "src/graphics/opengl/vbo.h"
@@ -70,6 +73,7 @@ static void *loadProcAddress(const char *name) {
 }
 
 Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory) :
+		Graphics::Renderer(window.getSize()),
 		_window(window),
 		_shaderDirectory(shaderDirectory) {
 	_window.makeCurrent();
@@ -200,9 +204,18 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	//
 	rebuildShaders();
 
-	// Get width and height of the default framebuffer
-	unsigned int width, height;
-	window.getSize(width, height);
+	setRenderPlane(_window.getSize());
+
+	// Check for errors
+    assert(glGetError() == GL_NO_ERROR);
+}
+
+void Renderer::setRenderPlane(unsigned int width, unsigned int height) {
+	setRenderPlane(glm::vec2(width, height));
+}
+
+void Renderer::setRenderPlane(const glm::vec2 size) {
+	Graphics::Renderer::setRenderPlane(size);
 
 	// Initialize sky cube framebuffer
 	//
@@ -219,21 +232,20 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 
 	// Initialize deferred shading
 	//
-	_depthTexture = std::make_unique<Texture>(_loadingTasks, width, height, kRGBA16F, "depth_buffer");
-	_normalTexture = std::make_unique<Texture>(_loadingTasks, width, height, kRGBA16F, "normal_buffer");
-	_depthstencilBuffer = std::make_unique<Renderbuffer>(width, height, GL_DEPTH24_STENCIL8,
+	_depthTexture = std::make_unique<Texture>(_loadingTasks, size.x, size.y, kRGBA16F, "depth_buffer");
+	_normalTexture = std::make_unique<Texture>(_loadingTasks, size.x, size.y, kRGBA16F, "normal_buffer");
+	_depthstencilBuffer = std::make_unique<Renderbuffer>(size.x, size.y, GL_DEPTH24_STENCIL8,
 														 "depthstencil_renderbuffer");
 
 	_deferredBuffer = std::make_unique<Framebuffer>("Deferred Buffer");
 	_deferredBuffer->setClearColor({0.0f, 0.0f, 0.0f, 0.0f});
 	_deferredBuffer->bind();
-
 	_deferredBuffer->attachRenderBuffer(*_depthstencilBuffer, GL_DEPTH_STENCIL_ATTACHMENT);
 
 	_deferredBuffer->attachTexture(*_depthTexture, GL_COLOR_ATTACHMENT0);
 	_deferredBuffer->attachTexture(*_normalTexture, GL_COLOR_ATTACHMENT1);
 
-	_lightBufferTexture = std::make_unique<Texture>(_loadingTasks, width, height, kRGBA16F, "light_buffer");
+	_lightBufferTexture = std::make_unique<Texture>(_loadingTasks, size.x, size.y, kRGBA16F, "light_buffer");
 
 	_lightBuffer = std::make_unique<Framebuffer>("Light Buffer");
 	_lightBuffer->setClearColor({0.0f, 0.0f, 0.0f, 0.0f});
@@ -317,9 +329,16 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 
 	// Initialize ImGui
 	ImGui_ImplOpenGL3_Init();
+	glViewport(0, 0, size.x, size.y);
 
 	// Check for errors
 	assert(glGetError() == GL_NO_ERROR);
+}
+
+void Renderer::setContentScale(glm::vec2 scale) {
+	Graphics::Renderer::setContentScale(scale);
+	glm::vec2 scaledResolution = _viewportSize * _contentScale;
+	glViewport(0, 0, scaledResolution.x, scaledResolution.y);
 }
 
 Renderer::~Renderer() {
@@ -373,8 +392,6 @@ void Renderer::drawWorld(const std::string &stage) {
 	const auto &defaultShader = getProgram("standardmaterial", stage, 0);
 	static const glm::mat4 mirrorZ = glm::scale(glm::vec3(1, 1, -1));
 
-	const auto screenResolution = glm::vec2(1920, 1080);
-
 	bool wireframe = false;
 	Material::CullMode cullMode = Material::kNone;
 
@@ -402,7 +419,7 @@ void Renderer::drawWorld(const std::string &stage) {
 		const std::optional<GLint> skinningMatrices = currentShader->getUniformLocation("GPU_skinning_matrices");
 
 		if (screenRes)
-			currentShader->setUniform2f(*screenRes, screenResolution);
+			currentShader->setUniform2f(*screenRes, _viewportSize);
 
 		GLuint textureSlotShader = 0;
 		if (lightBuffer) {
@@ -660,7 +677,7 @@ void Renderer::drawLights() {
 
 		const auto cameraLightPositionView = _view * mirrorZ * light->getTransform()[3];
 
-		pointlightProgram->setUniform2f(screenResIndex, glm::vec2(1920, 1080));
+		pointlightProgram->setUniform2f(screenResIndex, _viewportSize);
 		pointlightProgram->setUniformMatrix4f(localToClipIndex, vp * mirrorZ * light->getTransform());
 		pointlightProgram->setUniformMatrix4f(clipToViewIndex, clipToView);
 		pointlightProgram->setUniform3f(lightPositionIndex, cameraLightPositionView);
@@ -685,7 +702,7 @@ void Renderer::drawLights() {
 }
 
 void Renderer::drawGUI() {
-	glm::mat4 vp = glm::ortho(0.0f, 1920.0f, 0.0f, 1080.0f, -1000.0f, 1000.0f);
+	glm::mat4 vp = glm::ortho(0.0f, _viewportSize.x, 0.0f, _viewportSize.y, -1000.0f, 1000.0f);
 
 	pushDebug("Draw GUI");
 
@@ -701,14 +718,14 @@ void Renderer::drawGUI() {
 	for (const auto &element: _guiElements) {
 		glm::mat4 m = glm::translate(glm::vec3(
 				element->getAbsolutePosition() +
-				element->getRelativePosition() * glm::vec2(1920.0, 1080.0),
+				element->getRelativePosition() * _viewportSize,
 				0.0f
 		));
 		std::static_pointer_cast<Graphics::OpenGL::VAO>(element->getVertexAttributes())->bind();
 
 		for (const auto &part: element->getParts()) {
 			glm::mat4 m2 = m *
-						   glm::scale(glm::vec3(part.absoluteSize + part.relativeSize * glm::vec2(1920, 1080), 1.0f)) *
+						   glm::scale(glm::vec3(part.absoluteSize + part.relativeSize * _viewportSize, 1.0f)) *
 						   glm::translate(glm::vec3(part.position, 1.0f));
 			std::static_pointer_cast<Graphics::OpenGL::VBO>(part.indices)->bind();
 

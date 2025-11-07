@@ -19,6 +19,7 @@
  */
 
 #include <glm/gtc/type_ptr.hpp>
+#include <algorithm>
 
 #include "src/common/exception.h"
 
@@ -29,8 +30,10 @@ namespace Graphics::OpenGL {
 Framebuffer::Framebuffer(const std::string &label) {
 	glGenFramebuffers(1, &_id);
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		throw CreateException("Failed to initialize framebuffer");
+	const GLenum framebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+	if (framebufferStatus != GL_FRAMEBUFFER_COMPLETE)
+		throw CreateException("Failed to initialize framebuffer: {}", framebufferStatus);
 
 	bind();
 	if (GLAD_GL_KHR_debug && !label.empty())
@@ -64,8 +67,10 @@ void Framebuffer::attachRenderBuffer(const Renderbuffer &renderbuffer, GLenum at
 			renderbuffer._id
 	);
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		throw CreateException("Failed to attach renderbuffer tot exture");
+	const GLenum framebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+	if (framebufferStatus != GL_FRAMEBUFFER_COMPLETE)
+		throw CreateException("Failed to render buffer to texture: {}", framebufferStatus);
 }
 
 void Framebuffer::clear() {
