@@ -56,7 +56,7 @@
 #include "src/sound/soundman.h"
 
 #include "src/game.h"
-#include "src/controlledfreecamera.h"
+#include "src/controlledorbitalcamera.h"
 #include "src/task.h"
 #include "src/timerprocess.h"
 #include "src/transform.h"
@@ -279,9 +279,8 @@ void Game::init() {
 void Game::start() {
 	spdlog::info("Starting AWE...");
 
-	ControlledFreeCamera freeCamera;
-
-	GfxMan.setCamera(freeCamera);
+	ControlledOrbitalCameraPtr camera = _registry.get<ControlledOrbitalCameraPtr>(_registry.view<ControlledOrbitalCameraPtr>().back());
+	GfxMan.setCamera(*(camera.get()));
 
 	Graphics::Text text;
 	text.setText(u"OpenAWE - v0.0.1");
@@ -386,7 +385,7 @@ void Game::start() {
 			_registry.get<Graphics::Light>(lightEntity).setTransform(transform.getTransformation());
 		}
 
-		freeCamera.update(time - lastTime);
+		camera->update(time - lastTime);
 
 		PhysicsMan.update(time - lastTime);
 		GfxMan.drawFrame();

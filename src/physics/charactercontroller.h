@@ -78,6 +78,14 @@ public:
 	glm::vec3 getPosition();
 
     /*!
+     * Get the current position of the character
+     * including its ground offset.
+     * 
+     * \return The current character position as vec3
+     */
+    glm::vec3 getUpperPosition();
+    
+    /*!
      * Get the current rotation of the character
      *
      * \return The current rotation as 3x3 matrix
