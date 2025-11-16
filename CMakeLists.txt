@@ -170,29 +170,6 @@ add_definitions(-DGLM_FORCE_SWIZZLE)
 # ------------------------------------
 # Third party libraries
 
-# Mojoshader
-file(
-        GLOB_RECURSE
-
-        MOJOSHADER_SOURCE_FILES
-
-        3rdparty/mojoshader/*.c
-        3rdparty/mojoshader/*.h
-)
-add_library(mojoshader ${MOJOSHADER_SOURCE_FILES})
-target_include_directories(mojoshader PUBLIC 3rdparty/mojoshader)
-
-if (hasC-Wsign-compare)
-    set_target_properties(mojoshader PROPERTIES COMPILE_FLAGS "-Wno-sign-compare")
-endif ()
-
-set(MOJOSHADER_LIBRARIES mojoshader)
-set(MOJOSHADER_INCLUDE_DIRS 3rdparty/mojoshader)
-add_definitions(-DMOJOSHADER_NO_VERSION_INCLUDE)
-add_definitions(-DSUPPORT_PROFILE_HLSL=0)
-add_definitions(-DSUPPORT_PROFILE_SPIRV=0)
-add_definitions(-DSUPPORT_PROFILE_GLSPIRV=0)
-
 # TOML11
 set(toml11_INSTALL OFF CACHE BOOL "")
 add_subdirectory(3rdparty/toml11)
