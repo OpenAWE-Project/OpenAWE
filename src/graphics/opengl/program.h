@@ -26,7 +26,6 @@
 
 #include "src/common/writestream.h"
 
-#include "src/graphics/shaderconverter.h"
 #include "src/graphics/types.h"
 #include "src/graphics/opengl/opengl.h"
 #include "src/graphics/opengl/shader.h"

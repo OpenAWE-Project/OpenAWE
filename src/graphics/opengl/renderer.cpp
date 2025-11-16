@@ -49,13 +49,11 @@
 
 #include "src/platform/procaddress.h"
 
-#include "src/graphics/shaderconverter.h"
 #include "src/graphics/skeleton.h"
 #include "src/graphics/images/surface.h"
 #include "src/graphics/opengl/renderer.h"
 #include "src/graphics/opengl/opengl.h"
 #include "src/graphics/opengl/vbo.h"
-#include "src/graphics/opengl/convertedprogram.h"
 #include "src/graphics/opengl/proxytexture.h"
 #include "src/common/dxbc.h"
 
