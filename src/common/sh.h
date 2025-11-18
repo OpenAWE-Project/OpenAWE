@@ -25,6 +25,7 @@
 
 #include <complex>
 
+#include <glm/glm.hpp>
 #include <boost/math/special_functions.hpp>
 
 namespace Common {
