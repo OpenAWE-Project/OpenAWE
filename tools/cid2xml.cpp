@@ -22,6 +22,7 @@
 
 #include <filesystem>
 
+#include <fmt/format.h>
 #include <CLI/CLI.hpp>
 
 #include "src/common/writefile.h"
@@ -51,45 +52,50 @@ int main(int argc, char **argv) {
 
 	CLI11_PARSE(app, argc, argv);
 
-	// Open cid file as stream
-	Common::ReadFile cidFileStream(cidFile);
+	try {
+		// Open cid file as stream
+		Common::ReadFile cidFileStream(cidFile);
 
-	// Initialize xml object
-	Common::XML xml;
-	auto &rootNode = xml.getRootNode();
-	rootNode.name = "cid";
+		// Initialize xml object
+		Common::XML xml;
+		auto &rootNode = xml.getRootNode();
+		rootNode.name = "cid";
 
-	// Generate stem and deduce object type from it
-	const std::string stem = std::filesystem::path(cidFile).stem().string();
-	ObjectType type = AWE::determineObjectTypeByFilename(stem);
+		// Generate stem and deduce object type from it
+		const std::string stem = std::filesystem::path(cidFile).stem().string();
+		ObjectType type = AWE::determineObjectTypeByFilename(stem);
 
-	// Load dp file if given
-	std::shared_ptr<DPFile> dp;
-	if (!dpFile.empty())
-		dp = std::make_shared<DPFile>(new Common::ReadFile(dpFile));
+		// Load dp file if given
+		std::shared_ptr<DPFile> dp;
+		if (!dpFile.empty())
+			dp = std::make_shared<DPFile>(new Common::ReadFile(dpFile));
 
-	AWE::ObjectXMLWriteStream xmlWriteStream(xml.getRootNode());
+		AWE::ObjectXMLWriteStream xmlWriteStream(xml.getRootNode());
 
-	// If byte code and bytecode parameters are given, create a bytecode collection
-	if (!bytecodeFile.empty() && !bytecodeParametersFile.empty()) {
-		std::shared_ptr<AWE::Script::Collection> collection = std::make_shared<AWE::Script::Collection>(
-				new Common::ReadFile(bytecodeFile),
-				new Common::ReadFile(bytecodeParametersFile)
-		);
-		xmlWriteStream.setBytecodeCollection(collection);
+		// If byte code and bytecode parameters are given, create a bytecode collection
+		if (!bytecodeFile.empty() && !bytecodeParametersFile.empty()) {
+			std::shared_ptr<AWE::Script::Collection> collection = std::make_shared<AWE::Script::Collection>(
+					new Common::ReadFile(bytecodeFile),
+					new Common::ReadFile(bytecodeParametersFile)
+			);
+			xmlWriteStream.setBytecodeCollection(collection);
+		}
+
+		AWE::CIDFile cid(cidFileStream, type, dp);
+
+		rootNode.properties["version"] = std::to_string(cid.getVersion());
+
+		const auto &containers = cid.getContainers();
+		for (const auto &item: containers) {
+			xmlWriteStream.writeObject(item, type, cid.getVersion());
+		}
+
+		Common::WriteFile cidXmlStream(stem + ".xml");
+		xml.write(cidXmlStream, false);
+
+		return EXIT_SUCCESS;
+	} catch (std::exception &e) {
+		fmt::print("Error: {}\n", e.what());
+		return EXIT_FAILURE;
 	}
-
-	AWE::CIDFile cid(cidFileStream, type, dp);
-
-	rootNode.properties["version"] = std::to_string(cid.getVersion());
-
-	const auto &containers = cid.getContainers();
-	for (const auto &item: containers) {
-		xmlWriteStream.writeObject(item, type, cid.getVersion());
-	}
-
-	Common::WriteFile cidXmlStream(stem + ".xml");
-	xml.write(cidXmlStream, false);
-
-	return EXIT_SUCCESS;
 }
