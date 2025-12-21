@@ -101,4 +101,13 @@ Renderbuffer::~Renderbuffer() {
 	glDeleteRenderbuffers(1, &_id);
 }
 
+void Renderbuffer::setClearDepth(float clearDepth) {
+	_clearDepth = clearDepth;
+}
+
+void Renderbuffer::clear() {
+	glBindRenderbuffer(GL_RENDERBUFFER, _id);
+	glClearBufferfv(GL_DEPTH, 0, &_clearDepth);
+}
+
 }

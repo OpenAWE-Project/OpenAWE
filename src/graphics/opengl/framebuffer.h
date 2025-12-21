@@ -103,9 +103,21 @@ public:
 	Renderbuffer(GLsizei width, GLsizei height, GLenum format, const std::string &label = "");
 	~Renderbuffer();
 
+	/*!
+	 * Set a new clear depth for this renderbuffer
+	 * \param clearDepth The new clear depth for the renderbuffer
+	 */
+	void setClearDepth(float clearDepth);
+
+	/*!
+	 * Clear the renderbuffer
+	 */
+	void clear();
+
 private:
 	friend class Framebuffer;
 
+	float _clearDepth{1.0};
 	GLuint _id;
 };
 
