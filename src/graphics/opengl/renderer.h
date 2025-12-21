@@ -112,6 +112,9 @@ private:
 	std::unique_ptr<Texture> _lightBufferTexture;
 	std::unique_ptr<Framebuffer> _lightBuffer;
 
+	std::unique_ptr<Texture> _colorTexture;
+	std::unique_ptr<Framebuffer> _colorBuffer;
+
 	std::unique_ptr<Texture> _depthTexture;
 	std::unique_ptr<Texture> _normalTexture;
 	std::unique_ptr<Texture> _noiseMap;

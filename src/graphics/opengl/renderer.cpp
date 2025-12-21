@@ -174,24 +174,6 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	if (_hasDebug)
 		spdlog::info("GL_KHR_debug extension found, opengl labelling and messaging will be available");
 
-	// Make some initial settings
-	//
-
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	assert(glGetError() == GL_NO_ERROR);
-	glPointSize(10);
-	glLineWidth(1.0f);
-
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glFrontFace(GL_CW);
-	//glEnable(GL_TEXTURE_2D);
-
-	glDepthFunc(GL_LEQUAL);
-	//glShadeModel(GL_SMOOTH);
-
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
 	// Read and initialize shaders
@@ -219,6 +201,7 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 	//
 	_depthTexture = std::make_unique<Texture>(_loadingTasks, width, height, kRGBA16F, "depth_buffer");
 	_normalTexture = std::make_unique<Texture>(_loadingTasks, width, height, kRGBA16F, "normal_buffer");
+	_colorTexture = std::make_unique<Texture>(_loadingTasks, width, height, kRGBA16F, "color_buffer");
 	_depthstencilBuffer = std::make_unique<Renderbuffer>(width, height, GL_DEPTH24_STENCIL8,
 														 "depthstencil_renderbuffer");
 
@@ -239,6 +222,25 @@ Renderer::Renderer(Platform::Window &window, const std::string &shaderDirectory)
 
 	_lightBuffer->attachTexture(*_lightBufferTexture, GL_COLOR_ATTACHMENT0);
 	_lightBuffer->attachRenderBuffer(*_depthstencilBuffer, GL_DEPTH_STENCIL_ATTACHMENT);
+
+	_colorBuffer = std::make_unique<Framebuffer>("Color Buffer");
+	_colorBuffer->setClearColor({0.0f, 0.0f, 0.0f, 0.0f});
+	_colorBuffer->bind();
+
+	_colorBuffer->attachTexture(*_colorTexture, GL_COLOR_ATTACHMENT0);
+	_colorBuffer->attachRenderBuffer(*_depthstencilBuffer, GL_DEPTH_STENCIL_ATTACHMENT);
+
+	// Color Buffer standard settings
+	glPointSize(10);
+	glLineWidth(1.0f);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glFrontFace(GL_CW);
+
+	glDepthFunc(GL_LEQUAL);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -338,9 +340,19 @@ void Renderer::drawFrame() {
 	_lightBuffer->clear();
 	drawLights();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	_colorBuffer->bind();
+	_colorBuffer->clear();
+	_depthstencilBuffer->clear();
 	drawSky();
 	drawWorld("material");
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBlitFramebuffer(
+		0, 0, 1920, 1080,
+		0, 0, 1920, 1080,
+		GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST
+	);
+
 	drawGUI();
 
 	drawImGui();
