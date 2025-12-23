@@ -129,17 +129,17 @@ void TOML::read(ReadStream &toml) {
 	}
 }
 
-long TOML::getInt(const std::string &id) {
+long TOML::getInt(const std::string &id) const {
 	const auto &v = _props.at(id);
 	return extractInt(v);
 }
 
-double TOML::getFloat(const std::string &id) {
+double TOML::getFloat(const std::string &id) const {
 	const auto &v = _props.at(id);
 	return extractFloat(v);
 }
 
-bool TOML::getBool(const std::string &id) {
+bool TOML::getBool(const std::string &id) const {
 	const auto &v = _props.at(id);
 	return std::visit(Common::Overloaded{
 		[](const long &v) { return v != 0;},
@@ -150,7 +150,7 @@ bool TOML::getBool(const std::string &id) {
 	}, v);
 }
 
-std::string TOML::getString(const std::string &id) {
+std::string TOML::getString(const std::string &id) const {
 	const auto &v = _props.at(id);
 	return std::visit(Common::Overloaded{
 		[](const long &v) { return std::to_string(v);},
@@ -161,7 +161,7 @@ std::string TOML::getString(const std::string &id) {
 	}, v);
 }
 
-std::vector<long> TOML::getIntArray(const std::string &id) {
+std::vector<long> TOML::getIntArray(const std::string &id) const {
 	const auto &arr = std::get<TOML::PropertyArray>(_props.at(id));
 	std::vector<long> values;
 	for (const auto &item : arr) {
@@ -170,7 +170,7 @@ std::vector<long> TOML::getIntArray(const std::string &id) {
 	return values;
 }
 
-std::vector<double> TOML::getFloatArray(const std::string &id) {
+std::vector<double> TOML::getFloatArray(const std::string &id) const {
 	const auto &arr = std::get<TOML::PropertyArray>(_props.at(id));
 	std::vector<double> values;
 	for (const auto &item : arr) {

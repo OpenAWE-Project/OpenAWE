@@ -39,7 +39,7 @@ namespace Common {
 class TOML {
 public:
 	typedef std::vector<std::variant<
-	        long,
+			long,
 			double,
 			bool,
 			std::string
@@ -69,42 +69,42 @@ public:
 	 * \param id the id of the value to read
 	 * \return The read value converted to an integer
 	 */
-	long getInt(const std::string &id);
+	[[nodiscard]] long getInt(const std::string &id) const;
 
 	/*!
 	 * Read a property as float value with an id string
 	 * \param id the id of the value to read
 	 * \return The read value converted to a float
 	 */
-	double getFloat(const std::string &id);
+	[[nodiscard]] double getFloat(const std::string &id) const;
 
 	/*!
 	 * Read a property as bool value with an id string
 	 * \param id the id of the value to read
 	 * \return The read value converted to a bool
 	 */
-	bool getBool(const std::string &id);
+	[[nodiscard]] bool getBool(const std::string &id) const;
 
 	/*!
 	 * Read a property as string with an id string
 	 * \param id the id of the value to read
 	 * \return The read value converted to a string
 	 */
-	std::string getString(const std::string &id);
+	[[nodiscard]] std::string getString(const std::string &id) const;
 
 	/*!
 	 * Read a property as integer array value with an id string
 	 * \param id the id of the value to read
 	 * \return The read value converted to an integer array
 	 */
-	std::vector<long> getIntArray(const std::string &id);
+	[[nodiscard]] std::vector<long> getIntArray(const std::string &id) const;
 
 	/*!
 	 * Read a property as float array value with an id string
 	 * \param id the id of the value to read
 	 * \return The read value converted to a float array
 	 */
-	std::vector<double> getFloatArray(const std::string &id);
+	[[nodiscard]] std::vector<double> getFloatArray(const std::string &id) const;
 
 	/*!
 	 * Read a property as glm vector value with an id string converting a float array
