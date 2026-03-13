@@ -83,6 +83,10 @@ AmbianceState::AmbianceState(Common::ReadStream &ambianceState) {
 	_ambientSHDirection2 = glm::normalize(glm::rotateY(glm::rotateX(glm::vec3{0.0, 0.0, 1.0}, shPitch2), shHeading2));
 	_ambientSHIntensity1 = shColor1 * shIntensity1;
 	_ambientSHIntensity2 = shColor2 * shIntensity2;
+
+	_groundFogDensity = getFloat("ground_fog_density");
+	_groundFogFalloff = getFloat("ground_fog_falloff");
+	_groundFogHeight = getFloat("ground_fog_height");
 }
 
 glm::vec3 AmbianceState::parseVec3(const std::string &str) {
@@ -122,20 +126,12 @@ glm::vec3 AmbianceState::getAmbientSHDirection2() const {
 	return _ambientSHDirection2;
 }
 
-const glm::vec3 &AmbianceState::getFogColor() const {
-	return _fogColor;
+glm::vec3 AmbianceState::getFogColor() const {
+	return _fogColor * _fogIntensity;
 }
 
-const glm::vec3 &AmbianceState::getFogColorOpposite() const {
-	return _fogColorOpposite;
-}
-
-float AmbianceState::getFogIntensity() const {
-	return _fogIntensity;
-}
-
-float AmbianceState::getFogIntensityOpposite() const {
-	return _fogIntensityOpposite;
+glm::vec3 AmbianceState::getFogColorOpposite() const {
+	return _fogColorOpposite * _fogIntensityOpposite;
 }
 
 float AmbianceState::getGroundFogFalloff() const {
@@ -144,6 +140,10 @@ float AmbianceState::getGroundFogFalloff() const {
 
 float AmbianceState::getGroundFogDensity() const {
 	return _groundFogDensity;
+}
+
+float AmbianceState::getGroundFogHeight() const {
+	return _groundFogHeight;
 }
 
 float AmbianceState::getSecondarySkyGlowHeight() const {

@@ -22,6 +22,7 @@
 #define OPENAWE_AMBIANCESTATE_H
 
 #include <glm/glm.hpp>
+#include <glm/detail/_noise.hpp>
 
 #include "src/common/readstream.h"
 
@@ -43,11 +44,11 @@ public:
 
 	float getGroundFogFalloff() const;
 	float getGroundFogDensity() const;
+	float getGroundFogHeight() const;
 
-	const glm::vec3 &getFogColor() const;
-	const glm::vec3 &getFogColorOpposite() const;
-	float getFogIntensity() const;
-	float getFogIntensityOpposite() const;
+	glm::vec3 getFogColor() const;
+
+	glm::vec3 getFogColorOpposite() const;
 
 	float getSecondarySkyGlowHeight() const;
 
@@ -64,7 +65,7 @@ private:
 	glm::vec3 _ambientSHIntensity1, _ambientSHIntensity2;
 	glm::vec3 _ambientSHDirection1, _ambientSHDirection2;
 
-	float _groundFogFalloff, _groundFogDensity;
+	float _groundFogFalloff, _groundFogDensity, _groundFogHeight;
 	glm::vec3 _fogColor, _fogColorOpposite;
 	float _fogIntensity, _fogIntensityOpposite;
 
