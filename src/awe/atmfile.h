@@ -43,8 +43,31 @@ public:
 	 */
 	Common::ReadStream &getAtmosphericLUT();
 
+	/*!
+	 * Return the beta rayleigh constants of the file
+	 *
+	 * \return The beta rayleigh constants of the file
+	 */
+	[[nodiscard]] const glm::vec3 & getRayleigh() const;
+
+	/*!
+	 * Return the beta mie constants of the file
+	 *
+	 * \return The beta mie constants of the file
+	 */
+	[[nodiscard]] const glm::vec3 & getMie() const;
+
+	/*!
+	 * Return the henyey greenstein phase function g factor
+	 *
+	 * \return The henyey greenstein g factor
+	 */
+	[[nodiscard]] float getHGFactor() const;
+
 private:
-	std::vector<glm::vec3> _stars;
+	glm::vec3 _betaRayleigh{};
+	glm::vec3 _betaMie{};
+	float _hgFactor{};
 	std::unique_ptr<Common::ReadStream> _atmosphericLUT;
 };
 

@@ -31,22 +31,31 @@ ATMFile::ATMFile(Common::ReadStream &atm) {
 	if (version != 1)
 		throw CreateException("Invalid atmosphere file version. Expected 1, got {}", version);
 
-	const auto v1 = atm.read<glm::vec3>();
-	const auto v2 = atm.read<glm::vec3>();
-	const auto v3 = atm.read<glm::vec3>();
+	atm.skip(12); // Seems to be always zero
+	_betaRayleigh = atm.read<glm::vec3>();
+	_betaMie = atm.read<glm::vec3>();
+	_hgFactor = atm.readIEEEFloatLE();
 
-	const auto unkValue = atm.readIEEEFloatLE();
-
-	_stars.resize(256); // ?
-	for (auto &star : _stars) {
-		star = atm.read<glm::vec3>();
-	}
+	// Unknown list of vec3s
+	atm.skip(256 * sizeof(glm::vec3));
 
 	_atmosphericLUT.reset(atm.readStream());
 }
 
 Common::ReadStream &ATMFile::getAtmosphericLUT() {
 	return *_atmosphericLUT;
+}
+
+const glm::vec3 & ATMFile::getRayleigh() const {
+	return _betaRayleigh;
+}
+
+const glm::vec3 & ATMFile::getMie() const {
+	return _betaMie;
+}
+
+float ATMFile::getHGFactor() const {
+	return _hgFactor;
 }
 
 } // End of namespace AWE
