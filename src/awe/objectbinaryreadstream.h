@@ -36,8 +36,6 @@ protected:
 
 	void skip(size_t s) override;
 
-	void assert_dp();
-
 	void variable(const std::string &name, bool &value) override;
 	void variable(const std::string &name, int32_t &value) override;
 	void variable(const std::string &name, uint32_t &value, bool bigEndian) override;
@@ -62,6 +60,9 @@ protected:
 
 	void object(const std::string &name, Object &value, ObjectType type) override;
 	void objects(const std::string &name, std::vector<Object> &value, ObjectType type) override;
+
+private:
+	void expectDP();
 };
 
 } // End of namespace AWE
