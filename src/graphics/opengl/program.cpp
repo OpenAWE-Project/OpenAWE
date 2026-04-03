@@ -264,6 +264,13 @@ std::optional<GLint> Program::getUniformLocation(const std::string &name) const 
 		return {};
 }
 
+std::optional<GLint> Program::getUniformBlockLocation(const std::string &name) const {
+	const auto iter = _uniformBlocks.find(name);
+	if (iter != _uniformBlocks.end())
+		return iter->second;
+	return {};
+}
+
 void Program::setBinding(GLuint binding, GLuint index) {
 	glUniformBlockBinding(_id, index, binding);
 }

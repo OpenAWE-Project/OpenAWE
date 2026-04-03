@@ -52,6 +52,7 @@ public:
 	// ,--- Uniform access
 	virtual std::optional<GLint> getUniformLocation(const std::string &name) const;
 	virtual std::optional<GLint> getUniformBlockLocation(const std::string &name) const;
+	virtual void setBinding(GLuint binding, GLuint index);
 
 	virtual void setUniform1f(GLint id, float value) const;
 	virtual void setUniform2f(GLint id, const glm::vec2 &value) const;
