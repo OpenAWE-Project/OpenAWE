@@ -75,7 +75,11 @@ jobs:
             libgtest-dev \
             libboost-dev \
             glslc \
-            ccache
+            ccache \
+          
+            # glfw 3.4 dependencies
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev \
+            libwayland-dev wayland-protocols libxkbcommon-dev
           
           # Build and install glfw 3.4
           # TODO: Remove this when glfw 3.4 is available
