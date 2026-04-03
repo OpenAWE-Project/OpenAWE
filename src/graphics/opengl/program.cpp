@@ -121,6 +121,22 @@ void Program::link() {
 			}
 		}
 	}
+
+	// Determine Uniform block locations
+	GLint numUniformBlocks;
+	glGetProgramiv(_id, GL_ACTIVE_UNIFORM_BLOCKS, &numUniformBlocks);
+
+	std::vector<GLint> blockUniformIndices;
+	for (int i = 0; i < numUniformBlocks; ++i) {
+		GLint size;
+		GLsizei actualLength;
+
+		glGetActiveUniformBlockName(_id, i, maxUniformBlockNameLength, &actualLength, nameBuffer.data());
+		glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_DATA_SIZE, &size);
+		const std::string uniformBlockName(nameBuffer.data(), actualLength);
+
+		_uniformBlocks[uniformBlockName] = glGetUniformBlockIndex(_id, uniformBlockName.c_str());
+	}
 }
 
 void Program::bind() const {
@@ -246,6 +262,10 @@ std::optional<GLint> Program::getUniformLocation(const std::string &name) const 
 		return iter->second;
 	else
 		return {};
+}
+
+void Program::setBinding(GLuint binding, GLuint index) {
+	glUniformBlockBinding(_id, index, binding);
 }
 
 std::optional<GLint> Program::getAttributeLocation(const std::string &name) const {
