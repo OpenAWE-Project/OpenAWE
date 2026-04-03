@@ -41,6 +41,7 @@ public:
 	~VBO();
 
 	void bind() const;
+	void bindBase(GLuint binding);
 
 	void *map() const;
 	void unmap() const;

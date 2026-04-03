@@ -46,6 +46,10 @@ void VBO::bind() const {
 	glBindBuffer(_type, *_id);
 }
 
+void VBO::bindBase(GLuint binding) {
+	glBindBufferBase(_type, binding, *_id);
+}
+
 void *VBO::map() const {
 	bind();
 	return glMapBufferRange(_type, 0, getBufferSize(), GL_READ_WRITE);
