@@ -47,7 +47,8 @@ public:
 	void start();
 
 private:
-	bool _physicsDebugDraw;
+	bool _physicsDebugDraw{};
+	bool _forceX11{};
 	std::string _path, _shaderPath;
 	std::vector<std::string> _additionalPaths;
 	Common::Language _language;

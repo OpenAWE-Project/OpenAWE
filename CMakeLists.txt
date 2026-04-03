@@ -211,7 +211,7 @@ find_package(PkgConfig)
 
 find_package(Threads REQUIRED)
 find_package(ZLIB REQUIRED)
-find_package(glfw3 REQUIRED)
+find_package(glfw3 3.4.0 REQUIRED)
 find_package(glm REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(Bullet REQUIRED)

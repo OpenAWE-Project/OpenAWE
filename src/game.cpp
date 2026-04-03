@@ -101,6 +101,7 @@ bool Game::parseArguments(int argc, char **argv) {
 
 	_physicsDebugDraw = false;
 	app.add_flag("--debug-physics", _physicsDebugDraw, "Draw physics bodies for debugging");
+	app.add_flag("--force-x11", _forceX11, "Force the window to use X11 rather than wayland (Only usable on linux systems)");
 
 	CLI11_PARSE(app, argc, argv);
 
@@ -212,6 +213,7 @@ void Game::init() {
 		ResMan.indexStreamedResource("resourcedb/cid_streamedtexture.bin");
 	}
 
+	_platform.forceX11(_forceX11);
 	_platform.init();
 
 	_window = std::make_unique<Platform::Window>(Platform::Window::kOpenGL);

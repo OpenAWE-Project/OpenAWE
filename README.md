@@ -27,7 +27,7 @@ The development files of the following dependencies need to be installed to buil
 varies depending on your operating system (and in the case of Linux, distribution):
 
  - ZLIB
- - GLFW
+ - GLFW (>= 3.4.0)
  - GLM
  - TinyXML2
  - OpenAL

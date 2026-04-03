@@ -35,6 +35,8 @@ class Platform {
 public:
 	Platform();
 
+	void forceX11(bool enabled);
+
 	void init();
 	void terminate();
 
@@ -43,6 +45,8 @@ public:
 	void update();
 
 private:
+	bool _forceX11{};
+
 	static void monitorCallback(GLFWmonitor* monitor, int event);
 	static void errorCallback(int code, const char *description);
 };

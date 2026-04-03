@@ -22,16 +22,29 @@
 #include <spdlog/spdlog.h>
 #include <imgui_impl_glfw.h>
 
-#include "platform.h"
+#include "src/common/types.h"
+
+#include "src/platform/platform.h"
+
+static_assert((GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR >= 4) || GLFW_VERSION_MAJOR > 3,
+              "GLFW >= 3.4.0 is required");
 
 namespace Platform {
-
 Platform::Platform() {
 	glfwSetErrorCallback(&Platform::errorCallback);
 }
 
+void Platform::forceX11(bool enabled) {
+	_forceX11 = enabled;
+}
+
 void Platform::init() {
 	spdlog::info("GLFW Info: {}", glfwGetVersionString());
+
+#if OS_LINUX
+	if (_forceX11)
+		glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+#endif
 
 	int result = glfwInit();
 	if (result == GLFW_FALSE)
@@ -59,5 +72,4 @@ void Platform::monitorCallback(GLFWmonitor *monitor, int event) {
 void Platform::errorCallback(int code, const char *description) {
 	spdlog::error("GLFW Error {}: {}", code, description);
 }
-
 }
