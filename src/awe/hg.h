@@ -40,11 +40,13 @@ namespace AWE {
  * @param g The g parameter which should be known in advance
  * @return An array of three alements
  */
-template<typename T = float> std::array<T, 3> generateHenyeyGreensteinConstants(T g) {
-	return {
-		std::pow(1.0 - g, 2) / (4.0 * M_PI),
-		std::pow(g, 2) + 1.0,
-		-2.0 * g
+template<typename T = float>
+requires std::is_floating_point_v<T>
+std::array<T, 3> generateHenyeyGreensteinConstants(T g) {
+	return std::array<T, 3>{
+		std::pow(T(1.0) - g, T(2)) / (T(4.0) * std::numbers::pi_v<T>),
+		std::pow(g, T(2)) + T(1.0),
+		T(-2.0) * g
 	};
 }
 
