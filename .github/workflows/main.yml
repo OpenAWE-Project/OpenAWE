@@ -76,8 +76,6 @@ jobs:
             libboost-dev \
             glslc \
             ccache \
-          
-            # glfw 3.4 dependencies
             libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev \
             libwayland-dev wayland-protocols libxkbcommon-dev
           
