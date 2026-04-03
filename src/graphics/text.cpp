@@ -32,7 +32,7 @@ Text::Text() : _font(FontMan.get("fixedsys")), _text(u"") {
 }
 
 void Text::setText(const std::string &text) {
-	_text = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(text);
+	_text = std::u16string(text.begin(), text.end());
 	rebuildText();
 }
 
