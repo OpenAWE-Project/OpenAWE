@@ -63,7 +63,6 @@ jobs:
           sudo apt-get -y install \
             libtinyxml2-dev \
             zlib1g-dev \
-            libglfw3-dev \
             libopenal-dev \
             libglm-dev \
             libbullet-dev \
@@ -77,6 +76,10 @@ jobs:
             libboost-dev \
             glslc \
             ccache
+          
+          # Build and install glfw 3.4
+          # TODO: Remove this when glfw 3.4 is available
+          git clone https://github.com/glfw/glfw.git --branch 3.4 && cd glfw && cmake -S . -B build && cmake --build build -j && sudo cmake --install build
 
       - name: Install dependencies with vcpkg
         if: ${{ matrix.os == 'windows-2022' }}
