@@ -21,6 +21,8 @@
 #ifndef OPENAWE_GRAPHICS_TYPES_H
 #define OPENAWE_GRAPHICS_TYPES_H
 
+#include <string>
+
 enum AttributeType {
 	kPosition,
 	kNormal,
@@ -63,6 +65,30 @@ enum TextureFormat {
 	kBC3
 };
 
+enum class UniformType {
+	kFloat,
+	kVec2,
+	kVec3,
+	kVec4,
+	kInt,
+	kVec2I,
+	kVec3I,
+	kVec4I,
+	kMat2,
+	kMat3,
+	kMat4,
+	kMat2x3,
+	kMat2x4,
+	kMat3x2,
+	kMat3x4,
+	kMat4x2,
+	kMat4x3,
+	kSampler1D,
+	kSampler2D,
+	kSampler3D,
+	kSamplerCube
+};
+
 enum BufferType {
 	kIndexBuffer,
 	kVertexBuffer,
@@ -93,5 +119,19 @@ inline AttributeType getColor(unsigned int index) {
 		case 3: return kColor3;
 	}
 }
+
+/**
+ * A description of a uniform block
+ */
+struct UniformBlockDescription {
+	struct Item {
+		std::string name;
+		UniformType type;
+		size_t length{1};
+	};
+
+	std::string name;
+	std::vector<Item> items;
+};
 
 #endif //OPENAWE_TYPES_H
