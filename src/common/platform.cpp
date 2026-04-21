@@ -26,7 +26,7 @@
 #include "src/common/crc32.h"
 #include "src/common/strutil.h"
 
-#if OS_LINUX
+#if OS_LINUX || OS_MACOS
 #   include <pwd.h>
 #   include <unistd.h>
 #endif
@@ -97,7 +97,7 @@ Language getSystemLanguage() {
 std::string getHomeDirectory() {
 	std::string home = "";
 
-#if OS_LINUX
+#if OS_LINUX || OS_MACOS
 	const char *homeEnv = std::getenv("HOME");
 	home = std::string(homeEnv);
 	if (home.empty()) {
@@ -107,7 +107,6 @@ std::string getHomeDirectory() {
 		else
 			home = ".";
 	}
-#elif OS_MACOS
 #elif OS_WINDOWS
     home = std::getenv("USERPROFILE");
 #endif
@@ -127,6 +126,8 @@ std::string getUserDataDirectory() {
 	} else {
 		userData = xdgUserData;
 	}
+#elif OS_MACOS
+	userData = "~/Library/Application Support";
 #elif OS_WINDOWS
     std::string appData = std::getenv("APPDATA");
     userData = appData;
