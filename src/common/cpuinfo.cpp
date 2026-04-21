@@ -152,7 +152,7 @@ std::string getCPUName() {
 }
 
 std::string getOSName() {
-#if OS_LINUX && HAS_UTSNAME_H
+#if (OS_LINUX || OS_MACOS) && HAS_UTSNAME_H
 	utsname buffer{};
 	uname(&buffer);
 
