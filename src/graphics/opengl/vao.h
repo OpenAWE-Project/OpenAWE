@@ -31,7 +31,7 @@ namespace Graphics::OpenGL {
 
 class VAO : public AttributeObject {
 public:
-	VAO(TaskQueue &queue, ProgramPtr program, const std::string &label = "");
+	VAO(TaskQueuePtr &queue, ProgramPtr program, const std::string &label = "");
 	~VAO();
 
 	void bind();
@@ -40,7 +40,7 @@ public:
 				  bool perInstance) override;
 
 private:
-	TaskQueue &_queue;
+	TaskQueuePtr _queue;
 	ProgramPtr _program;
 	std::shared_ptr<GLuint> _id;
 };

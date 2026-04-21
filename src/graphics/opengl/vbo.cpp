@@ -30,14 +30,14 @@
 
 namespace Graphics::OpenGL {
 
-VBO::VBO(TaskQueue &tasks, GLenum type, GLenum usage) : _tasks(tasks), _id(std::make_shared<GLuint>(0)), _type(type), _usage(usage) {
-	_tasks.emplace_back([=, id = _id] {
+VBO::VBO(TaskQueuePtr tasks, GLenum type, GLenum usage) : _tasks(tasks), _id(std::make_shared<GLuint>(0)), _type(type), _usage(usage) {
+	_tasks->push([=, id = _id] {
 		glGenBuffers(1, id.get());
 	});
 }
 
 VBO::~VBO() {
-	_tasks.emplace_back([=, id = _id] {
+	_tasks->push([=, id = _id] {
 		glDeleteBuffers(1, id.get());
 	});
 }
@@ -75,9 +75,9 @@ void VBO::read(byte *data, size_t length) {
 }
 
 void VBO::write(Common::ByteBuffer &&data) {
-	_tasks.emplace_back([=, type = _type, usage = _usage, id = _id]{
+	_tasks->push([=, type = _type, usage = _usage, id = _id]{
 		glBindBuffer(type, *id);
-		glBufferData(type, data.size(), data.data(), _usage);
+		glBufferData(type, data.size(), data.data(), usage);
 	});
 }
 

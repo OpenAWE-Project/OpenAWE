@@ -34,11 +34,11 @@ struct VAOAttribute {
 	AttributeType attributeType;
 };
 
-VAO::VAO(TaskQueue &queue, ProgramPtr program, const std::string &label) :
+VAO::VAO(TaskQueuePtr &queue, ProgramPtr program, const std::string &label) :
 	_queue(queue),
 	_program(program),
 	_id(std::make_shared<GLuint>(0)) {
-	_queue.emplace_back([=, id = _id] {
+	_queue->push([=, id = _id] {
 		glGenVertexArrays(1, id.get());
 
 		if (GLAD_GL_KHR_debug && !label.empty())
@@ -47,7 +47,7 @@ VAO::VAO(TaskQueue &queue, ProgramPtr program, const std::string &label) :
 }
 
 VAO::~VAO() {
-	_queue.emplace_back([=, id = _id] {
+	_queue->push([=, id = _id] {
 		glDeleteVertexArrays(1, id.get());
 	});
 }
@@ -142,7 +142,7 @@ VAO::addAttributes(const std::vector<VertexAttribute> &vertexAttributes, BufferP
 		localOffset += totalSize;
 	}
 
-	_queue.emplace_back([=, id = _id]() {
+	_queue->push([=, id = _id]() {
 		glBindVertexArray(*id);
 		std::static_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
 

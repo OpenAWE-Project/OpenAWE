@@ -31,8 +31,8 @@ namespace Graphics::OpenGL {
 
 class Texture : public Graphics::Texture, public GLTexture {
 public:
-	Texture(TaskQueue &tasks, GLenum type, const std::string &label);
-	Texture(TaskQueue &tasks, unsigned int width, unsigned int height, TextureFormat textureFormat, const std::string &label);
+	Texture(TaskQueuePtr tasks, GLenum type, const std::string &label);
+	Texture(TaskQueuePtr tasks, unsigned int width, unsigned int height, TextureFormat textureFormat, const std::string &label);
 	~Texture();
 
 	void bind() override;
@@ -52,7 +52,7 @@ private:
 	std::shared_ptr<GLuint> _id;
 	GLenum _type;
 
-	TaskQueue  &_tasks;
+	TaskQueuePtr _tasks;
 };
 
 }

@@ -67,9 +67,11 @@ static void *loadProcAddress(const char *name) {
 	return Platform::getProcAddressGL(name);
 }
 
-Renderer::Renderer(Platform::GLContext &window, const std::string &shaderDirectory) :
-		_window(window),
-		_shaderDirectory(shaderDirectory) {
+Renderer::Renderer(Platform::GLContext &window, const std::string &shaderDirectory)
+	: _window(window)
+	, _shaderDirectory(shaderDirectory)
+	, _loadingTasks(std::make_shared<TaskQueue>()) {
+	//
 	_window.makeCurrent();
 
 	gladLoadGL(reinterpret_cast<GLADloadfunc>(&loadProcAddress));
@@ -354,10 +356,9 @@ void Renderer::update() {
 	_window.makeCurrent();
 
 	// Loading
-	while (!_loadingTasks.empty()) {
-		const auto &task = _loadingTasks.front();
+	for (const auto & task : _loadingTasks->pop_all()) {
+		assert(task);
 		task();
-		_loadingTasks.pop_front();
 	}
 }
 

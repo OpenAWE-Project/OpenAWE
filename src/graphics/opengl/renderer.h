@@ -120,7 +120,7 @@ private:
 
 	std::map<RenderPassId, std::unique_ptr<ProgramCollection>> _programs;
 
-	TaskQueue _loadingTasks;
+	TaskQueuePtr _loadingTasks;
 };
 
 }

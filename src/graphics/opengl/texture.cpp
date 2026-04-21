@@ -110,9 +110,9 @@ static GLint getTextureWrapMode(WrapMode mode) {
 }
 
 
-Texture::Texture(TaskQueue &tasks, GLenum type, const std::string &label) : _id(std::make_shared<GLuint>(0)), _type(type), _tasks(tasks) {
+Texture::Texture(TaskQueuePtr tasks, GLenum type, const std::string &label) : _id(std::make_shared<GLuint>(0)), _type(type), _tasks(tasks) {
 	//tasks.emplace_back(std::make_unique<TextureCreationTask>(_id, _type, label));
-	tasks.emplace_back([=]() {
+	tasks->push([=]() {
 		glGenTextures(1, _id.get());
 		glBindTexture(_type, *_id);
 
@@ -121,7 +121,7 @@ Texture::Texture(TaskQueue &tasks, GLenum type, const std::string &label) : _id(
 	});
 }
 
-Texture::Texture(TaskQueue &tasks, unsigned int width, unsigned int height, TextureFormat textureFormat,
+Texture::Texture(TaskQueuePtr tasks, unsigned int width, unsigned int height, TextureFormat textureFormat,
 				 const std::string &label) : _id(std::make_shared<GLuint>(0)), _type(GL_TEXTURE_2D), _tasks(tasks) {
 	glGenTextures(1, _id.get());
 
@@ -153,7 +153,7 @@ Texture::Texture(TaskQueue &tasks, unsigned int width, unsigned int height, Text
 }
 
 Texture::~Texture() {
-	_tasks.emplace_back([=]() {
+	_tasks->push([=]() {
 		glDeleteTextures(1, _id.get());
 	});
 }
@@ -165,7 +165,7 @@ void Texture::allocate(TextureFormat textureFormat, unsigned int width, unsigned
 	GLenum format, internalFormat = 0, type = 0;
 	getParameters(textureFormat, format, internalFormat, type);
 
-	_tasks.emplace_back([=, target = _type, id = _id](){
+	_tasks->push([=, target = _type, id = _id](){
 		glBindTexture(target, *id);
 
 		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -192,7 +192,7 @@ void Texture::load(unsigned int xoffset, unsigned int yoffset, ImageDecoder &&de
 	GLenum format, internalFormat = 0, type = 0;
 	getParameters(decoder.getFormat(), format, internalFormat, type);
 
-	_tasks.emplace_back([=, target = _type, id = _id]() {
+	_tasks->push([=, target = _type, id = _id]() {
 		glBindTexture(target, *id);
 
 		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -264,7 +264,7 @@ void Texture::load(ImageDecoder &&decoder) {
 	GLenum format, internalFormat = 0, type = 0;
 	getParameters(decoder.getFormat(), format, internalFormat, type);
 
-	_tasks.emplace_back([=, target = _type, id = _id] {
+	_tasks->push([=, target = _type, id = _id] {
 		glBindTexture(target, *id);
 
 		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -394,7 +394,7 @@ void Texture::load(ImageDecoder &&decoder) {
 }
 
 void Texture::setWrapMode(WrapMode s, WrapMode t, WrapMode r) {
-	_tasks.emplace_back([=, type = _type, id = _id](){
+	_tasks->push([=, type = _type, id = _id](){
 		glBindTexture(type, *id);
 
 		glTexParameteri(type, GL_TEXTURE_WRAP_S, getTextureWrapMode(s));

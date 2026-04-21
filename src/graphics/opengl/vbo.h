@@ -37,7 +37,7 @@ namespace Graphics::OpenGL {
  */
 class VBO : public Buffer {
 public:
-	VBO(TaskQueue &tasks, GLenum type, GLenum usage);
+	VBO(TaskQueuePtr tasks, GLenum type, GLenum usage);
 	~VBO();
 
 	void bind() const;
@@ -52,7 +52,7 @@ public:
 	void write(Common::ByteBuffer &&data) override;
 
 private:
-	TaskQueue &_tasks;
+	TaskQueuePtr _tasks;
 	std::shared_ptr<GLuint> _id;
 	GLenum _type;
 	GLenum _usage;

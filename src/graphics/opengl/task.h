@@ -29,7 +29,34 @@
 
 namespace Graphics::OpenGL {
 
-typedef std::deque<std::function<void()>> TaskQueue;
+class TaskQueue {
+public:
+	void push(std::function<void()>&& task) {
+		const std::lock_guard g(_m);
+
+		queue.emplace_back(task);
+	}
+
+	std::deque<std::function<void()>> pop_all() {
+		const std::lock_guard g(_m);
+
+		std::deque<std::function<void()>> q;
+		std::swap(q, queue);
+		return q;
+	}
+
+	bool empty() const {
+		const std::lock_guard g(_m);
+
+		return queue.empty();
+	}
+
+private:
+	mutable std::mutex _m;
+	std::deque<std::function<void()>> queue;
+};
+
+using TaskQueuePtr = std::shared_ptr<TaskQueue>;
 
 } // End of namespace Graphics::OpenGL
 
