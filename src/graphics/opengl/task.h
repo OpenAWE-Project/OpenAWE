@@ -24,6 +24,7 @@
 #include <deque>
 #include <memory>
 #include <functional>
+#include <mutex>
 
 #include "src/common/types.h"
 
