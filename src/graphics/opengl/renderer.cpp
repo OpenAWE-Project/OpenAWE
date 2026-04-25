@@ -1210,6 +1210,13 @@ void Renderer::rebuildShaders() {
 		else
 			throw std::runtime_error("Unknown or unsupported shader");
 
+#if OS_MACOS
+		if (shaderType == GL_COMPUTE_SHADER) {
+			spdlog::warn("Skipping unsupported compute shader {}", filename);
+			continue;
+		}
+#endif
+
 		auto &shader = shaders.emplace_back(Shader::fromGLSL(
 				shaderType,
 				source,
