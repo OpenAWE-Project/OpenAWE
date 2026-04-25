@@ -1253,7 +1253,7 @@ void Renderer::rebuildShaders() {
 }
 
 bool Renderer::isLoading() const {
-	return !_loadingTasks.empty();
+	return !_loadingTasks->empty();
 }
 
 }
