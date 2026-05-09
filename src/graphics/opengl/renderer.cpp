@@ -36,6 +36,7 @@
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 
+#include "src/common/dxbc.h"
 #include "src/common/uuid.h"
 #include "src/common/writefile.h"
 #include "src/common/exception.h"
@@ -55,7 +56,7 @@
 #include "src/graphics/opengl/opengl.h"
 #include "src/graphics/opengl/vbo.h"
 #include "src/graphics/opengl/proxytexture.h"
-#include "src/common/dxbc.h"
+#include "src/graphics/opengl/debug.h"
 
 namespace Graphics::OpenGL {
 
@@ -377,13 +378,13 @@ void Renderer::drawWorld(const std::string &stage) {
 	bool wireframe = false;
 	Material::CullMode cullMode = Material::kNone;
 
-	pushDebug(std::format("Draw stage {}", stage));
+	pushDebugMarker(std::format("Draw stage {}", stage));
 
 	for (const auto &pass: _renderPasses) {
 		if (pass.renderTasks.empty())
 			continue;
 
-		pushDebug(std::format("Pass {} {:0<8x}", pass.id.programName, pass.id.properties));
+		pushDebugMarker(std::format("Pass {} {:0<8x}", pass.id.programName, pass.id.properties));
 
 		ProgramPtr currentShader = (!hasProgram(pass.id.programName, stage, pass.id.properties)) ? defaultShader
 																								 : getProgram(
@@ -430,7 +431,7 @@ void Renderer::drawWorld(const std::string &stage) {
 			if (task.partMeshsToRender.empty())
 				continue;
 
-			pushDebug(task.model->getLabel());
+			pushDebugMarker(task.model->getLabel());
 
 			const auto &partMeshs = mesh->getMeshs();
 			const auto indices = std::static_pointer_cast<Graphics::OpenGL::VBO>(mesh->getIndices());
@@ -569,17 +570,17 @@ void Renderer::drawWorld(const std::string &stage) {
 				}
 			}
 
-			popDebug(); // Pop Model Message
+			popDebugMarker(); // Pop Model Message
 		}
 
-		popDebug(); // Pop Pass Message
+		popDebugMarker(); // Pop Pass Message
 	}
 
-	popDebug(); // Pop Stage Message
+	popDebugMarker(); // Pop Stage Message
 }
 
 void Renderer::drawLights() {
-	pushDebug("Draw Lights");
+	pushDebugMarker("Draw Lights");
 
 	auto stencilProgram = getProgram("deferredlight", "render_stencil", 0);
 	auto pointlightProgram = getProgram("deferredlight", "pointlight", 0);
@@ -609,7 +610,7 @@ void Renderer::drawLights() {
 		if (!_frustrum.test(Common::BoundSphere{mirrorZ * light->getTransform()[3], light->getRange() * 1.075f}))
 			continue;
 
-		pushDebug(light->getLabel());
+		pushDebugMarker(light->getLabel());
 
 		glClear(GL_STENCIL_BUFFER_BIT);
 
@@ -673,14 +674,14 @@ void Renderer::drawLights() {
 				reinterpret_cast<void *>(0)
 		);
 
-		popDebug();
+		popDebugMarker();
 	}
 
 	glDisable(GL_STENCIL_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
-	popDebug(); // Pop Draw Lights message
+	popDebugMarker(); // Pop Draw Lights message
 }
 
 void Renderer::drawGUI() {
@@ -728,14 +729,14 @@ void Renderer::drawGUI() {
 
 	glEnable(GL_DEPTH_TEST);
 
-	popDebug(); // Pop Draw GUI Message
+	popDebugMarker(); // Pop Draw GUI Message
 }
 
 void Renderer::drawSky() {
 	if (!_sky)
 		return;
 
-	pushDebug("Draw Sky");
+	pushDebugMarker("Draw Sky");
 
 	glBindVertexArray(0);
 
@@ -808,11 +809,11 @@ void Renderer::drawSky() {
 	glFrontFace(GL_CW);
 	glEnable(GL_DEPTH_TEST);
 
-	popDebug();
+	popDebugMarker();
 }
 
 void Renderer::drawImGui() {
-	pushDebug("Draw ImGui");
+	pushDebugMarker("Draw ImGui");
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui::NewFrame();
@@ -824,26 +825,7 @@ void Renderer::drawImGui() {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-	popDebug();
-}
-
-void Renderer::pushDebug(const std::string &message) {
-	if (!_hasDebug)
-		return;
-
-	glPushDebugGroup(
-			GL_DEBUG_SOURCE_APPLICATION,
-			0,
-			message.size(),
-			message.c_str()
-	);
-}
-
-void Renderer::popDebug() {
-	if (!_hasDebug)
-		return;
-
-	glPopDebugGroup();
+	popDebugMarker();
 }
 
 ProgramPtr Renderer::getProgram(const std::string &name, const std::string &stage, const uint32_t property) {

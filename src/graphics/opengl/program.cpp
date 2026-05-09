@@ -27,12 +27,12 @@
 #include "src/common/strutil.h"
 
 #include "src/graphics/opengl/program.h"
+#include "src/graphics/opengl/debug.h"
 
 namespace Graphics::OpenGL {
 
 Program::Program(const std::string &label) : _id(glCreateProgram()) {
-	if (GLAD_GL_KHR_debug && !label.empty())
-		glObjectLabel(GL_PROGRAM, _id, label.size(), label.c_str());
+	labelObject(_id, ObjectType::kProgram, label);
 }
 
 Program::~Program() {

@@ -73,9 +73,6 @@ private:
 	void drawSky();
 	void drawImGui();
 
-	void pushDebug(const std::string &message);
-	void popDebug();
-
 	ProgramPtr getProgram(const std::string &name, const std::string &stage, const uint32_t property);
 	bool hasProgram(const std::string &name, const std::string &stage, uint32_t properties);
 	GLenum getTextureSlot(unsigned int slot);

@@ -28,6 +28,7 @@
 #include "src/common/strutil.h"
 #include "src/common/exception.h"
 
+#include "src/graphics/opengl/debug.h"
 #include "src/graphics/opengl/shader.h"
 
 namespace Graphics::OpenGL {
@@ -127,8 +128,7 @@ ShaderPtr Shader::fromGLSL(GLuint type, const std::string &source, const std::st
 }
 
 Shader::Shader(GLuint type, const std::string &label) : _id(glCreateShader(type)) {
-	if (GLAD_GL_KHR_debug && !label.empty())
-		glObjectLabel(GL_SHADER, _id, label.size(), label.c_str());
+	labelObject(_id, ObjectType::kShader, label);
 }
 
 Shader::~Shader() {

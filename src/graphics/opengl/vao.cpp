@@ -22,8 +22,9 @@
 
 #include "src/graphics/opengl/program.h"
 #include "src/graphics/opengl/vao.h"
+#include "src/graphics/opengl/debug.h"
 #include "src/graphics/opengl/task.h"
-#include "vbo.h"
+#include "src/graphics/opengl/vbo.h"
 
 namespace Graphics::OpenGL {
 
@@ -40,9 +41,7 @@ VAO::VAO(TaskQueuePtr &queue, ProgramPtr program, const std::string &label) :
 	_id(std::make_shared<GLuint>(0)) {
 	_queue->push([=, id = _id] {
 		glGenVertexArrays(1, id.get());
-
-		if (GLAD_GL_KHR_debug && !label.empty())
-			glObjectLabel(GL_VERTEX_ARRAY, *id, label.size(), label.c_str());
+		labelObject(*id, ObjectType::kVertexArray, label);
 	});
 }
 

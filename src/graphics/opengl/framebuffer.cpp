@@ -22,6 +22,7 @@
 
 #include "src/common/exception.h"
 
+#include "src/graphics/opengl/debug.h"
 #include "src/graphics/opengl/framebuffer.h"
 
 namespace Graphics::OpenGL {
@@ -33,8 +34,7 @@ Framebuffer::Framebuffer(const std::string &label) {
 		throw CreateException("Failed to initialize framebuffer");
 
 	bind();
-	if (GLAD_GL_KHR_debug && !label.empty())
-		glObjectLabel(GL_FRAMEBUFFER, _id, label.size(), label.c_str());
+	labelObject(_id, ObjectType::kFramebuffer, label);
 }
 
 Framebuffer::~Framebuffer() {
@@ -93,8 +93,7 @@ Renderbuffer::Renderbuffer(GLsizei width, GLsizei height, GLenum format, const s
 
 	glRenderbufferStorage(GL_RENDERBUFFER, format, width, height);
 
-	if (GLAD_GL_KHR_debug && !label.empty())
-		glObjectLabel(GL_RENDERBUFFER, _id, label.size(), label.c_str());
+	labelObject(_id, ObjectType::kRenderbuffer, label);
 }
 
 Renderbuffer::~Renderbuffer() {
