@@ -687,7 +687,7 @@ void Renderer::drawLights() {
 void Renderer::drawGUI() {
 	glm::mat4 vp = glm::ortho(0.0f, 1920.0f, 0.0f, 1080.0f, -1000.0f, 1000.0f);
 
-	pushDebug("Draw GUI");
+	pushDebugMarker("Draw GUI");
 
 	auto program = getProgram("gui", "material", 0);
 	program->bind();
