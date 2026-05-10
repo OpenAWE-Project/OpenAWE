@@ -24,6 +24,7 @@
 
 #include "src/common/exception.h"
 
+#include "src/graphics/opengl/debug.h"
 #include "src/graphics/opengl/task.h"
 #include "src/graphics/opengl/texture.h"
 
@@ -83,6 +84,7 @@ static void getParameters(
 			type = GL_FLOAT;
 			break;
 
+#ifdef GL_EXT_texture_compression_s3tc
 		case kBC1:
 			format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
 			break;
@@ -92,6 +94,7 @@ static void getParameters(
 		case kBC3:
 			format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 			break;
+#endif
 
 		default:
 			throw Common::SourceException("Invalid texture format {}", Common::toUnderlying(textureFormat));
@@ -116,8 +119,7 @@ Texture::Texture(TaskQueuePtr tasks, GLenum type, const std::string &label) : _i
 		glGenTextures(1, _id.get());
 		glBindTexture(_type, *_id);
 
-		if (GLAD_GL_KHR_debug && !label.empty())
-			glObjectLabel(GL_TEXTURE, *_id, static_cast<GLsizei>(label.size()), label.c_str());
+		labelObject(*_id, ObjectType::kTexture, label);
 	});
 }
 
@@ -148,8 +150,7 @@ Texture::Texture(TaskQueuePtr tasks, unsigned int width, unsigned int height, Te
 			nullptr
 	);
 
-	if (GLAD_GL_KHR_debug && !label.empty())
-		glObjectLabel(GL_TEXTURE, *_id, static_cast<GLsizei>(label.size()), label.c_str());
+	labelObject(*_id, ObjectType::kTexture, label);
 }
 
 Texture::~Texture() {
