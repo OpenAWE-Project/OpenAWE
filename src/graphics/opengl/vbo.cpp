@@ -26,13 +26,20 @@
 #include <spdlog/spdlog.h>
 
 #include "src/graphics/opengl/vbo.h"
+
+#include "src/graphics/opengl/debug.h"
 #include "src/graphics/opengl/task.h"
 
 namespace Graphics::OpenGL {
 
-VBO::VBO(TaskQueuePtr tasks, GLenum type, GLenum usage) : _tasks(tasks), _id(std::make_shared<GLuint>(0)), _type(type), _usage(usage) {
+VBO::VBO(TaskQueuePtr tasks, GLenum type, GLenum usage, const std::string& label)
+	: _tasks(tasks)
+	, _id(std::make_shared<GLuint>(0))
+	, _type(type)
+	, _usage(usage) {
 	_tasks->push([=, id = _id] {
 		glGenBuffers(1, id.get());
+		labelObject(*_id, ObjectType::kBufferObject, label);
 	});
 }
 

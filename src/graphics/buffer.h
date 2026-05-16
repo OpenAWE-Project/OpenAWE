@@ -39,9 +39,18 @@ public:
 	/*!
 	 * Instruct the buffer to load a buffer of data. This call is async, it is not guaranteed that the loading is done
 	 * when it returns
+	 *
 	 * @param data The data to load
 	 */
 	virtual void write(Common::ByteBuffer &&data) = 0;
+
+	/*!
+	 * Instruct the buffer to load a buffer of data. This call ensures, that until the next graphics object update, the
+	 * data will be written into the buffer. The span needs to stay alive until the write has been executed
+	 *
+	 * \param data The data to be loaded. Must stay alive until the data is successfully loaded
+	 */
+	virtual void write(std::span<std::byte> data) = 0;
 };
 
 } // End of namespace Graphics

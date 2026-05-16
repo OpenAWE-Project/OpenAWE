@@ -37,7 +37,7 @@ namespace Graphics::OpenGL {
  */
 class VBO : public Buffer {
 public:
-	VBO(TaskQueuePtr tasks, GLenum type, GLenum usage);
+	VBO(TaskQueuePtr tasks, GLenum type, GLenum usage, const std::string& label = "");
 	~VBO();
 
 	void bind() const;
