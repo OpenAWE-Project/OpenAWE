@@ -50,6 +50,7 @@ public:
 
 	void read(byte *data, size_t length) override;
 	void write(Common::ByteBuffer &&data) override;
+	void write(std::span<std::byte> data) override;
 
 private:
 	TaskQueuePtr _tasks;

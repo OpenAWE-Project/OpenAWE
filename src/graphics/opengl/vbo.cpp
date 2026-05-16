@@ -88,4 +88,11 @@ void VBO::write(Common::ByteBuffer &&data) {
 	});
 }
 
+void VBO::write(std::span<std::byte> data) {
+	_tasks->push([type = _type, usage = _usage, id = _id, data]{
+		glBindBuffer(type, *id);
+		glBufferData(type, data.size_bytes(), data.data(), usage);
+	});
 }
+
+} // End of namespace Graphics::OpenGL
