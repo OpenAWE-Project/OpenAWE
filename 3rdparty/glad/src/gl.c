@@ -51,6 +51,8 @@ int GLAD_GL_ARB_spirv_extensions = 0;
 int GLAD_GL_ARB_tessellation_shader = 0;
 int GLAD_GL_ARB_uniform_buffer_object = 0;
 int GLAD_GL_ATI_meminfo = 0;
+int GLAD_GL_EXT_debug_label = 0;
+int GLAD_GL_EXT_debug_marker = 0;
 int GLAD_GL_EXT_texture_compression_s3tc = 0;
 int GLAD_GL_KHR_debug = 0;
 int GLAD_GL_NVX_gpu_memory_info = 0;
@@ -290,6 +292,7 @@ PFNGLGETNAMEDFRAMEBUFFERATTACHMENTPARAMETERIVPROC glad_glGetNamedFramebufferAtta
 PFNGLGETNAMEDFRAMEBUFFERPARAMETERIVPROC glad_glGetNamedFramebufferParameteriv = NULL;
 PFNGLGETNAMEDRENDERBUFFERPARAMETERIVPROC glad_glGetNamedRenderbufferParameteriv = NULL;
 PFNGLGETOBJECTLABELPROC glad_glGetObjectLabel = NULL;
+PFNGLGETOBJECTLABELEXTPROC glad_glGetObjectLabelEXT = NULL;
 PFNGLGETOBJECTPTRLABELPROC glad_glGetObjectPtrLabel = NULL;
 PFNGLGETPOINTERVPROC glad_glGetPointerv = NULL;
 PFNGLGETPROGRAMBINARYPROC glad_glGetProgramBinary = NULL;
@@ -372,6 +375,7 @@ PFNGLGETNUNIFORMFVPROC glad_glGetnUniformfv = NULL;
 PFNGLGETNUNIFORMIVPROC glad_glGetnUniformiv = NULL;
 PFNGLGETNUNIFORMUIVPROC glad_glGetnUniformuiv = NULL;
 PFNGLHINTPROC glad_glHint = NULL;
+PFNGLINSERTEVENTMARKEREXTPROC glad_glInsertEventMarkerEXT = NULL;
 PFNGLINVALIDATEBUFFERDATAPROC glad_glInvalidateBufferData = NULL;
 PFNGLINVALIDATEBUFFERSUBDATAPROC glad_glInvalidateBufferSubData = NULL;
 PFNGLINVALIDATEFRAMEBUFFERPROC glad_glInvalidateFramebuffer = NULL;
@@ -394,6 +398,7 @@ PFNGLISSYNCPROC glad_glIsSync = NULL;
 PFNGLISTEXTUREPROC glad_glIsTexture = NULL;
 PFNGLISTRANSFORMFEEDBACKPROC glad_glIsTransformFeedback = NULL;
 PFNGLISVERTEXARRAYPROC glad_glIsVertexArray = NULL;
+PFNGLLABELOBJECTEXTPROC glad_glLabelObjectEXT = NULL;
 PFNGLLINEWIDTHPROC glad_glLineWidth = NULL;
 PFNGLLINKPROGRAMPROC glad_glLinkProgram = NULL;
 PFNGLLOGICOPPROC glad_glLogicOp = NULL;
@@ -439,6 +444,7 @@ PFNGLPOLYGONMODEPROC glad_glPolygonMode = NULL;
 PFNGLPOLYGONOFFSETPROC glad_glPolygonOffset = NULL;
 PFNGLPOLYGONOFFSETCLAMPPROC glad_glPolygonOffsetClamp = NULL;
 PFNGLPOPDEBUGGROUPPROC glad_glPopDebugGroup = NULL;
+PFNGLPOPGROUPMARKEREXTPROC glad_glPopGroupMarkerEXT = NULL;
 PFNGLPRIMITIVERESTARTINDEXPROC glad_glPrimitiveRestartIndex = NULL;
 PFNGLPROGRAMBINARYPROC glad_glProgramBinary = NULL;
 PFNGLPROGRAMPARAMETERIPROC glad_glProgramParameteri = NULL;
@@ -494,6 +500,7 @@ PFNGLPROGRAMUNIFORMMATRIX4X3DVPROC glad_glProgramUniformMatrix4x3dv = NULL;
 PFNGLPROGRAMUNIFORMMATRIX4X3FVPROC glad_glProgramUniformMatrix4x3fv = NULL;
 PFNGLPROVOKINGVERTEXPROC glad_glProvokingVertex = NULL;
 PFNGLPUSHDEBUGGROUPPROC glad_glPushDebugGroup = NULL;
+PFNGLPUSHGROUPMARKEREXTPROC glad_glPushGroupMarkerEXT = NULL;
 PFNGLQUERYCOUNTERPROC glad_glQueryCounter = NULL;
 PFNGLREADBUFFERPROC glad_glReadBuffer = NULL;
 PFNGLREADPIXELSPROC glad_glReadPixels = NULL;
@@ -1478,6 +1485,17 @@ static void glad_gl_load_GL_ARB_uniform_buffer_object( GLADuserptrloadfunc load,
     glad_glGetUniformIndices = (PFNGLGETUNIFORMINDICESPROC) load(userptr, "glGetUniformIndices");
     glad_glUniformBlockBinding = (PFNGLUNIFORMBLOCKBINDINGPROC) load(userptr, "glUniformBlockBinding");
 }
+static void glad_gl_load_GL_EXT_debug_label( GLADuserptrloadfunc load, void* userptr) {
+    if(!GLAD_GL_EXT_debug_label) return;
+    glad_glGetObjectLabelEXT = (PFNGLGETOBJECTLABELEXTPROC) load(userptr, "glGetObjectLabelEXT");
+    glad_glLabelObjectEXT = (PFNGLLABELOBJECTEXTPROC) load(userptr, "glLabelObjectEXT");
+}
+static void glad_gl_load_GL_EXT_debug_marker( GLADuserptrloadfunc load, void* userptr) {
+    if(!GLAD_GL_EXT_debug_marker) return;
+    glad_glInsertEventMarkerEXT = (PFNGLINSERTEVENTMARKEREXTPROC) load(userptr, "glInsertEventMarkerEXT");
+    glad_glPopGroupMarkerEXT = (PFNGLPOPGROUPMARKEREXTPROC) load(userptr, "glPopGroupMarkerEXT");
+    glad_glPushGroupMarkerEXT = (PFNGLPUSHGROUPMARKEREXTPROC) load(userptr, "glPushGroupMarkerEXT");
+}
 static void glad_gl_load_GL_KHR_debug( GLADuserptrloadfunc load, void* userptr) {
     if(!GLAD_GL_KHR_debug) return;
     glad_glDebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKPROC) load(userptr, "glDebugMessageCallback");
@@ -1495,36 +1513,24 @@ static void glad_gl_load_GL_KHR_debug( GLADuserptrloadfunc load, void* userptr) 
 
 
 
-#if defined(GL_ES_VERSION_3_0) || defined(GL_VERSION_3_0)
-#define GLAD_GL_IS_SOME_NEW_VERSION 1
-#else
-#define GLAD_GL_IS_SOME_NEW_VERSION 0
-#endif
-
-static int glad_gl_get_extensions( int version, const char **out_exts, unsigned int *out_num_exts_i, char ***out_exts_i) {
-#if GLAD_GL_IS_SOME_NEW_VERSION
-    if(GLAD_VERSION_MAJOR(version) < 3) {
-#else
-    GLAD_UNUSED(version);
-    GLAD_UNUSED(out_num_exts_i);
-    GLAD_UNUSED(out_exts_i);
-#endif
-        if (glad_glGetString == NULL) {
-            return 0;
+static void glad_gl_free_extensions(char **exts_i) {
+    if (exts_i != NULL) {
+        unsigned int index;
+        for(index = 0; exts_i[index]; index++) {
+            free((void *) (exts_i[index]));
         }
-        *out_exts = (const char *)glad_glGetString(GL_EXTENSIONS);
-#if GLAD_GL_IS_SOME_NEW_VERSION
-    } else {
+        free((void *)exts_i);
+        exts_i = NULL;
+    }
+}
+static int glad_gl_get_extensions( const char **out_exts, char ***out_exts_i) {
+#if defined(GL_ES_VERSION_3_0) || defined(GL_VERSION_3_0)
+    if (glad_glGetStringi != NULL && glad_glGetIntegerv != NULL) {
         unsigned int index = 0;
         unsigned int num_exts_i = 0;
         char **exts_i = NULL;
-        if (glad_glGetStringi == NULL || glad_glGetIntegerv == NULL) {
-            return 0;
-        }
         glad_glGetIntegerv(GL_NUM_EXTENSIONS, (int*) &num_exts_i);
-        if (num_exts_i > 0) {
-            exts_i = (char **) malloc(num_exts_i * (sizeof *exts_i));
-        }
+        exts_i = (char **) malloc((num_exts_i + 1) * (sizeof *exts_i));
         if (exts_i == NULL) {
             return 0;
         }
@@ -1533,31 +1539,40 @@ static int glad_gl_get_extensions( int version, const char **out_exts, unsigned 
             size_t len = strlen(gl_str_tmp) + 1;
 
             char *local_str = (char*) malloc(len * sizeof(char));
-            if(local_str != NULL) {
-                memcpy(local_str, gl_str_tmp, len * sizeof(char));
+            if(local_str == NULL) {
+                exts_i[index] = NULL;
+                glad_gl_free_extensions(exts_i);
+                return 0;
             }
 
+            memcpy(local_str, gl_str_tmp, len * sizeof(char));
             exts_i[index] = local_str;
         }
+        exts_i[index] = NULL;
 
-        *out_num_exts_i = num_exts_i;
         *out_exts_i = exts_i;
+
+        return 1;
     }
+#else
+    GLAD_UNUSED(out_exts_i);
 #endif
+    if (glad_glGetString == NULL) {
+        return 0;
+    }
+    *out_exts = (const char *)glad_glGetString(GL_EXTENSIONS);
     return 1;
 }
-static void glad_gl_free_extensions(char **exts_i, unsigned int num_exts_i) {
-    if (exts_i != NULL) {
+static int glad_gl_has_extension(const char *exts, char **exts_i, const char *ext) {
+    if(exts_i) {
         unsigned int index;
-        for(index = 0; index < num_exts_i; index++) {
-            free((void *) (exts_i[index]));
+        for(index = 0; exts_i[index]; index++) {
+            const char *e = exts_i[index];
+            if(strcmp(e, ext) == 0) {
+                return 1;
+            }
         }
-        free((void *)exts_i);
-        exts_i = NULL;
-    }
-}
-static int glad_gl_has_extension(int version, const char *exts, unsigned int num_exts_i, char **exts_i, const char *ext) {
-    if(GLAD_VERSION_MAJOR(version) < 3 || !GLAD_GL_IS_SOME_NEW_VERSION) {
+    } else {
         const char *extensions;
         const char *loc;
         const char *terminator;
@@ -1577,14 +1592,6 @@ static int glad_gl_has_extension(int version, const char *exts, unsigned int num
             }
             extensions = terminator;
         }
-    } else {
-        unsigned int index;
-        for(index = 0; index < num_exts_i; index++) {
-            const char *e = exts_i[index];
-            if(strcmp(e, ext) == 0) {
-                return 1;
-            }
-        }
     }
     return 0;
 }
@@ -1593,26 +1600,27 @@ static GLADapiproc glad_gl_get_proc_from_userptr(void *userptr, const char* name
     return (GLAD_GNUC_EXTENSION (GLADapiproc (*)(const char *name)) userptr)(name);
 }
 
-static int glad_gl_find_extensions_gl( int version) {
+static int glad_gl_find_extensions_gl(void) {
     const char *exts = NULL;
-    unsigned int num_exts_i = 0;
     char **exts_i = NULL;
-    if (!glad_gl_get_extensions(version, &exts, &num_exts_i, &exts_i)) return 0;
+    if (!glad_gl_get_extensions(&exts, &exts_i)) return 0;
 
-    GLAD_GL_ARB_compute_shader = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_ARB_compute_shader");
-    GLAD_GL_ARB_debug_output = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_ARB_debug_output");
-    GLAD_GL_ARB_gl_spirv = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_ARB_gl_spirv");
-    GLAD_GL_ARB_shader_image_load_store = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_ARB_shader_image_load_store");
-    GLAD_GL_ARB_shader_image_size = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_ARB_shader_image_size");
-    GLAD_GL_ARB_spirv_extensions = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_ARB_spirv_extensions");
-    GLAD_GL_ARB_tessellation_shader = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_ARB_tessellation_shader");
-    GLAD_GL_ARB_uniform_buffer_object = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_ARB_uniform_buffer_object");
-    GLAD_GL_ATI_meminfo = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_ATI_meminfo");
-    GLAD_GL_EXT_texture_compression_s3tc = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_EXT_texture_compression_s3tc");
-    GLAD_GL_KHR_debug = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_KHR_debug");
-    GLAD_GL_NVX_gpu_memory_info = glad_gl_has_extension(version, exts, num_exts_i, exts_i, "GL_NVX_gpu_memory_info");
+    GLAD_GL_ARB_compute_shader = glad_gl_has_extension(exts, exts_i, "GL_ARB_compute_shader");
+    GLAD_GL_ARB_debug_output = glad_gl_has_extension(exts, exts_i, "GL_ARB_debug_output");
+    GLAD_GL_ARB_gl_spirv = glad_gl_has_extension(exts, exts_i, "GL_ARB_gl_spirv");
+    GLAD_GL_ARB_shader_image_load_store = glad_gl_has_extension(exts, exts_i, "GL_ARB_shader_image_load_store");
+    GLAD_GL_ARB_shader_image_size = glad_gl_has_extension(exts, exts_i, "GL_ARB_shader_image_size");
+    GLAD_GL_ARB_spirv_extensions = glad_gl_has_extension(exts, exts_i, "GL_ARB_spirv_extensions");
+    GLAD_GL_ARB_tessellation_shader = glad_gl_has_extension(exts, exts_i, "GL_ARB_tessellation_shader");
+    GLAD_GL_ARB_uniform_buffer_object = glad_gl_has_extension(exts, exts_i, "GL_ARB_uniform_buffer_object");
+    GLAD_GL_ATI_meminfo = glad_gl_has_extension(exts, exts_i, "GL_ATI_meminfo");
+    GLAD_GL_EXT_debug_label = glad_gl_has_extension(exts, exts_i, "GL_EXT_debug_label");
+    GLAD_GL_EXT_debug_marker = glad_gl_has_extension(exts, exts_i, "GL_EXT_debug_marker");
+    GLAD_GL_EXT_texture_compression_s3tc = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_compression_s3tc");
+    GLAD_GL_KHR_debug = glad_gl_has_extension(exts, exts_i, "GL_KHR_debug");
+    GLAD_GL_NVX_gpu_memory_info = glad_gl_has_extension(exts, exts_i, "GL_NVX_gpu_memory_info");
 
-    glad_gl_free_extensions(exts_i, num_exts_i);
+    glad_gl_free_extensions(exts_i);
 
     return 1;
 }
@@ -1669,7 +1677,6 @@ int gladLoadGLUserPtr( GLADuserptrloadfunc load, void *userptr) {
 
     glad_glGetString = (PFNGLGETSTRINGPROC) load(userptr, "glGetString");
     if(glad_glGetString == NULL) return 0;
-    if(glad_glGetString(GL_VERSION) == NULL) return 0;
     version = glad_gl_find_core_gl();
 
     glad_gl_load_GL_VERSION_1_0(load, userptr);
@@ -1692,13 +1699,15 @@ int gladLoadGLUserPtr( GLADuserptrloadfunc load, void *userptr) {
     glad_gl_load_GL_VERSION_4_5(load, userptr);
     glad_gl_load_GL_VERSION_4_6(load, userptr);
 
-    if (!glad_gl_find_extensions_gl(version)) return 0;
+    if (!glad_gl_find_extensions_gl()) return 0;
     glad_gl_load_GL_ARB_compute_shader(load, userptr);
     glad_gl_load_GL_ARB_debug_output(load, userptr);
     glad_gl_load_GL_ARB_gl_spirv(load, userptr);
     glad_gl_load_GL_ARB_shader_image_load_store(load, userptr);
     glad_gl_load_GL_ARB_tessellation_shader(load, userptr);
     glad_gl_load_GL_ARB_uniform_buffer_object(load, userptr);
+    glad_gl_load_GL_EXT_debug_label(load, userptr);
+    glad_gl_load_GL_EXT_debug_marker(load, userptr);
     glad_gl_load_GL_KHR_debug(load, userptr);
 
 
@@ -1713,7 +1722,7 @@ int gladLoadGL( GLADloadfunc load) {
 
 
 
- 
+
 
 
 #ifdef __cplusplus
