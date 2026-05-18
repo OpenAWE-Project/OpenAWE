@@ -17,6 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
+#define GLM_ENABLE_EXPERIMANTAL
+#include <glm/gtx/matrix_decompose.hpp>
+
+#include "LinearMath/btQuaternion.h"
+#include "LinearMath/btVector3.h"
 
 #include "physicsman.h"
 #include "src/physics/debugdraw.h"
@@ -81,6 +86,60 @@ void PhysicsManager::remove(btRigidBody *collisionObject) {
 
 void PhysicsManager::remove(btActionInterface *actionInterface) {
 	_world->removeAction(actionInterface);
+}
+
+const CastResult PhysicsManager::raycastStatic(glm::vec3& from, glm::vec3& to) {
+	btVector3 bFrom{from.x, from.y, from.z}, bTo{to.x, to.y, to.z}; 
+	btCollisionWorld::ClosestRayResultCallback results(bFrom, bTo);
+	results.m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter;
+
+	_world->rayTest(bFrom, bTo, results);
+	if (results.hasHit()) {
+		glm::vec3 rayHitPoint{
+			results.m_hitPointWorld.x(),
+			results.m_hitPointWorld.y(),
+			results.m_hitPointWorld.z()
+		};
+		return CastResult{
+			true,
+			rayHitPoint,
+			rayHitPoint
+		};	
+	};
+
+	return CastResult{
+		false,
+		glm::zero<glm::vec3>(),
+		glm::zero<glm::vec3>()
+	};
+}
+
+const CastResult PhysicsManager::shapeCastStatic(btConvexShape* castShape, glm::mat4& from, glm::mat4& to) {
+	// To make btTransform, we'll need to get orientation quaternion and translation vector
+	// glm::decompose API returns a lot of params, so we'll try to ignore some
+	glm::vec3 null3;
+	glm::vec4 null4;
+	glm::vec3 fromTranslation, toTranslation;
+	glm::quat fromRotation, toRotation;
+	glm::decompose(from, null3, fromRotation, fromTranslation, null3, null4);
+	glm::decompose(to, null3, toRotation, toTranslation, null3, null4);
+	const btVector3 bFrom{fromTranslation.x, fromTranslation.y, fromTranslation.z}, bTo{toTranslation.x, toTranslation.y, toTranslation.z}; 
+	const btQuaternion bFromQuat{fromRotation.x, fromRotation.y, fromRotation.z, fromRotation.w}, bToQuat{toRotation.x, toRotation.y, toRotation.z, toRotation.w};
+	const btTransform btFrom{bFromQuat, bFrom}, btTo{bToQuat, bTo};
+	btCollisionWorld::ClosestConvexResultCallback results(bFrom, bTo);
+	results.m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter;
+
+	_world->convexSweepTest(castShape, btFrom, btTo, results);
+	// Since hit point can be anywhere on the shape, we should project hit point onto movement ray
+	const glm::vec3 hitPoint{results.m_hitPointWorld.x(), results.m_hitPointWorld.y(), results.m_hitPointWorld.z()};
+	const glm::vec3 origVec = toTranslation - fromTranslation;
+	const glm::vec3 hitVec = hitPoint - fromTranslation;
+	const glm::vec3 projectedHit = glm::dot(hitVec, origVec) / glm::dot(origVec, origVec) * origVec;
+	return CastResult {
+		results.hasHit(),
+		projectedHit + fromTranslation,
+		hitPoint
+	};
 }
 
 }
