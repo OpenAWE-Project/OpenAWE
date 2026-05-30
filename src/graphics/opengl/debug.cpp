@@ -59,38 +59,53 @@ void labelObject(GLuint id, ObjectType type, const std::string& label) {
 		return;
 
 #ifdef GL_KHR_debug
-	if (GLAD_GL_KHR_debug)
+	if (GLAD_GL_KHR_debug) {
 		glObjectLabel(getKHRDebugType(type), id, label.size(), label.c_str());
+		return;
+	}
 #endif
 
 #ifdef GL_EXT_debug_label
-	glLabelObjectEXT(getEXTDebugLabelType(type), id, label.size(), label.c_str());
+#	if !OS_IOS
+	if (GLAD_GL_EXT_debug_label)
+#	endif
+		glLabelObjectEXT(getEXTDebugLabelType(type), id, label.size(), label.c_str());
 #endif
 }
 
 void pushDebugMarker(const std::string& label) {
 #ifdef GL_KHR_debug
-	if (GLAD_GL_KHR_debug)
+	if (GLAD_GL_KHR_debug) {
 		glPushDebugGroup(
 			GL_DEBUG_SOURCE_APPLICATION,
 			0,
 			label.size(),
 			label.c_str()
 		);
+		return;
+	}
 #endif
 
 #ifdef GL_EXT_debug_marker
-	glPushGroupMarkerEXT(label.size(), label.c_str());
+#	if !OS_IOS
+	if (GLAD_GL_EXT_debug_marker)
+#	endif
+		glPushGroupMarkerEXT(label.size(), label.c_str());
 #endif
 }
 void popDebugMarker() {
 #ifdef GL_KHR_debug
-	if (GLAD_GL_KHR_debug)
+	if (GLAD_GL_KHR_debug) {
 		glPopDebugGroup();
+		return;
+	}
 #endif
 
 #ifdef GL_EXT_debug_marker
-	glPopGroupMarkerEXT();
+#	if !OS_IOS
+	if (GLAD_GL_EXT_debug_marker)
+#	endif
+		glPopGroupMarkerEXT();
 #endif
 }
 
