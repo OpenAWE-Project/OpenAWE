@@ -115,11 +115,11 @@ static GLint getTextureWrapMode(WrapMode mode) {
 
 Texture::Texture(TaskQueuePtr tasks, GLenum type, const std::string &label) : _id(std::make_shared<GLuint>(0)), _type(type), _tasks(tasks) {
 	//tasks.emplace_back(std::make_unique<TextureCreationTask>(_id, _type, label));
-	tasks->push([=]() {
-		glGenTextures(1, _id.get());
-		glBindTexture(_type, *_id);
+	tasks->push([=, id = _id, type = _type]() {
+		glGenTextures(1, id.get());
+		glBindTexture(type, *id);
 
-		labelObject(*_id, ObjectType::kTexture, label);
+		labelObject(*id, ObjectType::kTexture, label);
 	});
 }
 
@@ -154,8 +154,8 @@ Texture::Texture(TaskQueuePtr tasks, unsigned int width, unsigned int height, Te
 }
 
 Texture::~Texture() {
-	_tasks->push([=]() {
-		glDeleteTextures(1, _id.get());
+	_tasks->push([id = _id]() {
+		glDeleteTextures(1, id.get());
 	});
 }
 
@@ -193,7 +193,7 @@ void Texture::load(unsigned int xoffset, unsigned int yoffset, ImageDecoder &&de
 	GLenum format, internalFormat = 0, type = 0;
 	getParameters(decoder.getFormat(), format, internalFormat, type);
 
-	_tasks->push([=, target = _type, id = _id]() {
+	_tasks->push([=, target = _type, id = _id, type = _type]() {
 		glBindTexture(target, *id);
 
 		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -208,8 +208,8 @@ void Texture::load(unsigned int xoffset, unsigned int yoffset, ImageDecoder &&de
 		glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		GLenum format, internalFormat = 0, type = 0;
-		getParameters(decoder.getFormat(), format, internalFormat, type);
+		GLenum format, internalFormat = 0, dataType = 0;
+		getParameters(decoder.getFormat(), format, internalFormat, dataType);
 
 		for (unsigned int i = 0; i < decoder.getNumMipMaps(); ++i) {
 			const auto &mipmap = decoder.getMipMap(i);
@@ -219,7 +219,7 @@ void Texture::load(unsigned int xoffset, unsigned int yoffset, ImageDecoder &&de
 
 			if (decoder.isCompressed()) {
 				glCompressedTexSubImage2D(
-						_type,
+						type,
 						i,
 						xoffset,
 						yoffset,
@@ -231,14 +231,14 @@ void Texture::load(unsigned int xoffset, unsigned int yoffset, ImageDecoder &&de
 				);
 			} else {
 				glTexSubImage2D(
-						_type,
+						type,
 						i,
 						xoffset,
 						yoffset,
 						mipmap.width,
 						mipmap.height,
 						format,
-						type,
+						dataType,
 						imageData.data()
 				);
 			}

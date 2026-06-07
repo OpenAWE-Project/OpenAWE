@@ -141,12 +141,12 @@ VAO::addAttributes(const std::vector<VertexAttribute> &vertexAttributes, BufferP
 		localOffset += totalSize;
 	}
 
-	_queue->push([=, id = _id]() {
+	_queue->push([=, id = _id, program = _program]() {
 		glBindVertexArray(*id);
 		std::static_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
 
 		for (const auto &attribute: attributes) {
-			const auto index = _program->getAttributeLocation(attribute.attributeType);
+			const auto index = program->getAttributeLocation(attribute.attributeType);
 			if (index) {
 				glEnableVertexAttribArray(*index);
 
