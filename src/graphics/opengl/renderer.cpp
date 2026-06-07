@@ -1032,62 +1032,25 @@ Renderer::createAttributeObject(
 
 void Renderer::applyUniforms(ProgramPtr &program, const std::vector<Material::Uniform> &uniforms, GLuint &textureSlot) {
 	for (const auto &attribute: uniforms) {
-		switch (attribute.type) {
-			case Material::kFloat: {
-				float value = std::get<float>(attribute.data);
-				program->setUniform1f(attribute.index, value);
-				break;
-			}
+		if (attribute.index == -1)
+			continue;
 
-			case Material::kVec2: {
-				glm::vec2 value = std::get<glm::vec2>(attribute.data);
-				program->setUniform2f(attribute.index, value);
-				break;
-			}
-
-			case Material::kVec3: {
-				glm::vec3 value = std::get<glm::vec3>(attribute.data);
-				program->setUniform3f(attribute.index, value);
-				break;
-			}
-
-			case Material::kVec4: {
-				glm::vec4 value = std::get<glm::vec4>(attribute.data);
-				program->setUniform4f(attribute.index, value);
-				break;
-			}
-
-			case Material::kFloatArray: {
-				std::vector<float> values = std::get<std::vector<float>>(attribute.data);
-				program->setUniform1fArray(attribute.index, values);
-				break;
-			}
-
-			case Material::kVec2Array: {
-				std::vector<glm::vec2> values = std::get<std::vector<glm::vec2>>(attribute.data);
-				program->setUniform2fArray(attribute.index, values);
-				break;
-			}
-
-			case Material::kVec3Array: {
-				std::vector<glm::vec3> values = std::get<std::vector<glm::vec3>>(attribute.data);
-				program->setUniform3fArray(attribute.index, values);
-				break;
-			}
-
-			case Material::kVec4Array: {
-				std::vector<glm::vec4> values = std::get<std::vector<glm::vec4>>(attribute.data);
-				program->setUniform4fArray(attribute.index, values);
-				break;
-			}
-
-			case Material::kTexture:
+		std::visit(Common::Overloaded{
+			[&](const float& value) {program->setUniform1f(attribute.index, value);},
+			[&](const glm::vec2& value) {program->setUniform2f(attribute.index, value);},
+			[&](const glm::vec3& value) {program->setUniform3f(attribute.index, value);},
+			[&](const glm::vec4& value) {program->setUniform4f(attribute.index, value);},
+			[&](const std::vector<float>& values){program->setUniform1fArray(attribute.index, values);},
+			[&](const std::vector<glm::vec2>& values){program->setUniform2fArray(attribute.index, values);},
+			[&](const std::vector<glm::vec3>& values){program->setUniform3fArray(attribute.index, values);},
+			[&](const std::vector<glm::vec4>& values){program->setUniform4fArray(attribute.index, values);},
+			[&](const TexturePtr& value) {
 				glActiveTexture(getTextureSlot(textureSlot));
-				std::dynamic_pointer_cast<Graphics::OpenGL::GLTexture>(std::get<TexturePtr>(attribute.data))->bind();
+				std::dynamic_pointer_cast<GLTexture>(value)->bind();
 				program->setUniformSampler(attribute.index, textureSlot);
 				textureSlot += 1;
-				break;
-		}
+			},
+		}, attribute.data);
 	}
 }
 
