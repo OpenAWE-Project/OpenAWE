@@ -128,12 +128,12 @@ public:
 	/*!
 	 * Create a buffer in the intialized render system using the given data block and the buffer type.
 	 * \param data A pointer to the data which should be contained in the block
-	 * \param length The length of the data of the data block
 	 * \param type The type of the buffer
 	 * \param modifiable If the buffer should be modifiable
+	 * \param label A label which can be added to the buffer for debugging purposes
 	 * \return A render system specific buffer object
 	 */
-	BufferPtr createBuffer(Common::ByteBuffer &&data, BufferType type, bool modifiable);
+	BufferPtr createBuffer(Common::ByteBuffer &&data, BufferType type, bool modifiable, const std::string &label = "");
 
 	/*!
 	 * Create an empty buffer with the size of zero and no contents contained. It is assumed, that this buffer is used

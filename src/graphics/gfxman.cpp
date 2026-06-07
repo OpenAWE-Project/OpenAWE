@@ -141,11 +141,11 @@ TexturePtr GraphicsManager::createEmptyTexture2D(TextureFormat format, unsigned 
 	return texture;
 }
 
-BufferPtr GraphicsManager::createBuffer(Common::ByteBuffer &&data, BufferType type, bool modifiable) {
+BufferPtr GraphicsManager::createBuffer(Common::ByteBuffer &&data, BufferType type, bool modifiable, const std::string &label) {
 	if (!_renderer)
 		return {};
 
-	BufferPtr buffer = _renderer->createBuffer(type, modifiable);
+	BufferPtr buffer = _renderer->createBuffer(type, modifiable, label);
 	buffer->write(std::move(data));
 	return buffer;
 }
@@ -232,6 +232,15 @@ void GraphicsManager::setAtmosphere(const std::string &id) {
 	auto skyLUT = createTexture(TEX(atm.getAtmosphericLUT()), std::format("{}_skylut", id));
 	skyLUT->setWrapMode(WrapMode::kClamp, WrapMode::kClamp);
 	_renderer->setSkyLUT(skyLUT);
+
+	const auto betaRayleigh = atm.getRayleigh();
+	const auto betaMie = atm.getMie();
+	const auto rayleigh = betaRayleigh / (betaMie + betaRayleigh);
+	const auto mie = betaMie / (betaMie + betaRayleigh);
+
+	_renderer->setRayleigh(rayleigh);
+	_renderer->setMie(mie);
+	_renderer->setHGPhase(atm.getHGFactor());
 }
 
 void GraphicsManager::setCamera(Camera &camera) {
