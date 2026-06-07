@@ -107,7 +107,13 @@ void Program::link() {
 		GLint size;
 		glGetActiveUniform(_id, i, maxUniformNameLength, &actualLength, &size, &type, nameBuffer.data());
 		const std::string uniformName(nameBuffer.data(), actualLength);
-		_uniforms[uniformName] = glGetUniformLocation(_id, uniformName.c_str());
+
+		// If a location is returned as -1 it belongs to a uniform block
+		const auto location = glGetUniformLocation(_id, uniformName.c_str());
+		if (location == -1)
+			continue;
+
+		_uniforms[uniformName] = location;
 
 		if (size > 1) {
 			const std::string arrayName = Common::replace(uniformName, "[0]", "");
