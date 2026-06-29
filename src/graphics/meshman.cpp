@@ -55,8 +55,10 @@ MeshPtr MeshManager::getMesh(rid_t rid) {
 		}
 
 		try {
-			const auto &loader = getMeshLoader(std::filesystem::path(ResMan.getResourcePath(rid)).extension().string());
-			return _meshRegistry[rid] = loader.load(*meshResource, {"depth", "material"});
+			const auto meshPath = ResMan.getResourcePath(rid);
+			const auto fileLabel = std::filesystem::path(meshPath).stem().string();
+			const auto &loader = getMeshLoader(std::filesystem::path(meshPath).extension().string());
+			return _meshRegistry[rid] = loader.load(*meshResource, {"depth", "material"}, fileLabel);
 		} catch (std::exception &e) {
 			spdlog::error("Error while loading mesh {:x}: {}", rid, e.what());
 			return getBrokenMesh();
@@ -77,7 +79,8 @@ MeshPtr MeshManager::getMesh(const std::string &path) {
 
 		try {
 			const auto &loader = getMeshLoader(std::filesystem::path(path).extension().string());
-			return _meshRegistry[path] = loader.load(*meshResource, {"depth", "material"});
+			const auto fileLabel = std::filesystem::path(path).stem().string();
+			return _meshRegistry[path] = loader.load(*meshResource, {"depth", "material"}, fileLabel);
 		} catch (std::exception &e) {
 			spdlog::error("Error while loading mesh \"{}\": {}", path, e.what());
 			if (path != _brokenMeshPath)
@@ -100,7 +103,8 @@ MeshPtr MeshManager::getMesh(const std::string &path, std::initializer_list<std:
 
 		try {
 			const auto &loader = getMeshLoader(std::filesystem::path(path).extension().string());
-			return _meshRegistry[path] = loader.load(*meshResource, stages);
+			const auto fileLabel = std::filesystem::path(path).stem().string();
+			return _meshRegistry[path] = loader.load(*meshResource, stages, fileLabel);
 		} catch (std::exception &e) {
 			spdlog::error("Error while loading mesh \"{}\": {}", path, e.what());
 			if (path != _brokenMeshPath)

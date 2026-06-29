@@ -47,7 +47,7 @@ public:
 		return std::find(_fileEndings.cbegin(), _fileEndings.cend(), extension) != _fileEndings.end();
 	}
 
-	virtual MeshPtr load(Common::ReadStream &, std::initializer_list<std::string> stages) const = 0;
+	virtual MeshPtr load(Common::ReadStream &, std::initializer_list<std::string> stages, const std::string &label = "") const = 0;
 
 private:
 	const std::vector<std::string> _fileEndings;

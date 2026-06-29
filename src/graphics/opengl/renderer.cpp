@@ -967,7 +967,7 @@ TexturePtr Renderer::createTexture(TextureType type, const std::string &label) {
 	return std::make_shared<Graphics::OpenGL::Texture>(_loadingTasks, texType, label);
 }
 
-BufferPtr Renderer::createBuffer(BufferType type, bool modifiable) {
+BufferPtr Renderer::createBuffer(BufferType type, bool modifiable, const std::string &label) {
 	GLenum bufferType;
 	GLenum usage;
 
@@ -991,7 +991,7 @@ BufferPtr Renderer::createBuffer(BufferType type, bool modifiable) {
 		usage = GL_STATIC_DRAW;
 	}
 
-	return std::make_shared<Graphics::OpenGL::VBO>(_loadingTasks, bufferType, usage);
+	return std::make_shared<Graphics::OpenGL::VBO>(_loadingTasks, bufferType, usage, label);
 }
 
 int Renderer::getUniformIndex(const std::string &shaderName, const std::string &stage, uint32_t properties,

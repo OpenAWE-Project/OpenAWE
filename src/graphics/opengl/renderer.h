@@ -56,7 +56,7 @@ public:
 
 	ProxyTexturePtr createProxyTexture() override;
 
-	BufferPtr createBuffer(BufferType type, bool modifiable) override;
+	BufferPtr createBuffer(BufferType type, bool modifiable, const std::string& label) override;
 
 	AttributeObjectPtr
 	createAttributeObject(const std::string &shader, const std::string &stage, uint32_t properties,

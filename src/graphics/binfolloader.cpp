@@ -16,7 +16,7 @@ namespace Graphics {
 BINFOLLoader::BINFOLLoader() : MeshLoader({".binfol"}){
 }
 
-MeshPtr BINFOLLoader::load(Common::ReadStream &stream, std::initializer_list<std::string> stages) const {
+MeshPtr BINFOLLoader::load(Common::ReadStream &stream, std::initializer_list<std::string> stages, const std::string &label) const {
 	AWE::BINFOLFile binfol(stream);
 
 	const auto &vertexBufferData = binfol.getVertexData();

@@ -32,7 +32,7 @@ namespace Graphics {
 BINMSHLoader::BINMSHLoader() : MeshLoader({".binmsh", ".binfbx"}) {
 }
 
-MeshPtr BINMSHLoader::load(Common::ReadStream &stream, std::initializer_list<std::string> stages) const {
+MeshPtr BINMSHLoader::load(Common::ReadStream &stream, std::initializer_list<std::string> stages, const std::string &label) const {
 	AWE::BINMSHFile binmsh(stream);
 
 	const auto &vertexBufferData = binmsh.getVertexData();
@@ -45,8 +45,18 @@ MeshPtr BINMSHLoader::load(Common::ReadStream &stream, std::initializer_list<std
 	std::memcpy(indexBuffer.data(), indexBufferData.data(), indexBufferData.size());
 
 	// Create vertex and index buffer buffer
-	const auto vb = GfxMan.createBuffer(std::move(vertexBuffer), kVertexBuffer, false);
-	const auto ib = GfxMan.createBuffer(std::move(indexBuffer), kIndexBuffer, false);
+	const auto vb = GfxMan.createBuffer(
+		std::move(vertexBuffer),
+		kVertexBuffer,
+		false,
+		std::format("{}_vertices", label)
+	);
+	const auto ib = GfxMan.createBuffer(
+		std::move(indexBuffer),
+		kIndexBuffer,
+		false,
+		std::format("{}_indices", label)
+	);
 
 	auto finalMesh = std::make_shared<Mesh>();
 	finalMesh->setBoundingSphere(binmsh.getBoundSphere());
@@ -163,7 +173,8 @@ MeshPtr BINMSHLoader::load(Common::ReadStream &stream, std::initializer_list<std
 					mesh.material.properties,
 					attributes,
 					vb,
-					mesh.vertexOffset
+					mesh.vertexOffset,
+					std::format("{}_{}_attributes", label, stage)
 			);
 		}
 

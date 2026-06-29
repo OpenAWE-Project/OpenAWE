@@ -86,7 +86,7 @@ public:
         const std::string &label
     ) = 0;
 	virtual ProxyTexturePtr createProxyTexture() = 0;
-	virtual BufferPtr createBuffer(BufferType type, bool modifiable) = 0;
+	virtual BufferPtr createBuffer(BufferType type, bool modifiable, const std::string &label = "") = 0;
 	virtual AttributeObjectPtr createAttributeObject(
 		const std::string &shader,
 		const std::string &stage,
