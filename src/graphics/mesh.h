@@ -36,6 +36,16 @@ class Mesh;
 
 typedef std::shared_ptr<Mesh> MeshPtr;
 
+struct Index {
+	std::uintptr_t offset{};
+	unsigned int length{};
+};
+
+struct MultiIndex {
+	std::vector<std::uintptr_t> offsets{};
+	std::vector<uint32_t> counts{};
+};
+
 class Mesh {
 public:
 	enum RenderType {
@@ -55,7 +65,7 @@ public:
 		std::vector<std::string> boneMap;
 		std::optional<Common::BoundSphere> boundingSphere;
 		bool wireframe{false};
-		unsigned int offset{}, length{};
+		std::variant<Index, MultiIndex> index;
 	};
 
 	Mesh();

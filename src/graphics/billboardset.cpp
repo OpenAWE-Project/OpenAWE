@@ -119,8 +119,7 @@ BillboardSet::BillboardSet(
 		{"material"},
 		materialAttributes);
 	partMesh.material.setCullMode(Material::kNone);
-	partMesh.offset = 0;
-	partMesh.length = index * 6;
+	partMesh.index = Index{0, index * 6};
 
 	if (instances.empty())
 		return;

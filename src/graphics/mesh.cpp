@@ -47,7 +47,8 @@ void Mesh::addPartMesh(const Mesh::PartMesh &partMesh) {
 }
 
 void Mesh::setPartMeshSize(size_t index, size_t size) {
-	_meshs[index].length = size;
+	// TODO
+	// _meshs[index].length = size;
 }
 
 bool Mesh::hasBoundingSphere() const {

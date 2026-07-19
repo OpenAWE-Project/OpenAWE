@@ -39,8 +39,7 @@ LineList::LineList() {
 	Mesh::PartMesh partMesh;
 
 	partMesh.renderType = Mesh::kLines;
-	partMesh.offset = 0;
-	partMesh.length = _lines.size() * 2;
+	partMesh.index = Index{0, static_cast<unsigned int>(_lines.size() * 2)};
 
 	_buffer = GfxMan.createEmptyBuffer(kVertexBuffer, true);
 	partMesh.vertexData = _buffer;

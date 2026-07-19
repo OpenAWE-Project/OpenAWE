@@ -28,6 +28,7 @@
 #include <set>
 #include <random>
 #include <numbers>
+#include <variant>
 
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -535,39 +536,55 @@ void Renderer::drawWorld(const std::string &stage) {
 					wireframe = false;
 				}
 
-				if (task.model->getNumInstances() != 1) {
-					if (!indices) {
-						glDrawArraysInstanced(
-								type,
-								0,
-								partmesh.length,
-								task.model->getNumInstances()
-						);
-					} else {
-						glDrawElementsInstanced(
-								type,
-								partmesh.length,
-								GL_UNSIGNED_SHORT,
-								reinterpret_cast<void *>(partmesh.offset),
-								task.model->getNumInstances()
+				std::visit(Common::Overloaded {
+					[&] (Index index) {
+						if (task.model->getNumInstances() != 1) {
+							if (!indices) {
+								glDrawArraysInstanced(
+										type,
+										0,
+										index.length,
+										task.model->getNumInstances()
+								);
+							} else {
+								glDrawElementsInstanced(
+										type,
+										index.length,
+										GL_UNSIGNED_SHORT,
+										reinterpret_cast<void *>(index.offset),
+										task.model->getNumInstances()
+								);
+							}
+						} else {
+							if (!indices) {
+								glDrawArrays(
+										type,
+										0,
+										index.length
+								);
+							} else {
+								glDrawElements(
+										type,
+										index.length,
+										GL_UNSIGNED_SHORT,
+										reinterpret_cast<void *>(index.offset)
+								);
+							}
+						}
+					},
+					[&] (MultiIndex index) {
+						assert(sizeof(std::uintptr_t) == sizeof(GLvoid*));
+						assert(sizeof(GLsizei) == sizeof(unsigned int));
+						glMultiDrawElements(
+							type,
+							reinterpret_cast<const GLsizei*>(index.counts.data()),
+							GL_UNSIGNED_SHORT,
+							reinterpret_cast<const void* const*>(index.offsets.data()),
+							index.counts.size()
 						);
 					}
-				} else {
-					if (!indices) {
-						glDrawArrays(
-								type,
-								0,
-								partmesh.length
-						);
-					} else {
-						glDrawElements(
-								type,
-								partmesh.length,
-								GL_UNSIGNED_SHORT,
-								reinterpret_cast<void *>(partmesh.offset)
-						);
-					}
-				}
+				}, partmesh.index);
+
 			}
 
 			popDebugMarker(); // Pop Model Message

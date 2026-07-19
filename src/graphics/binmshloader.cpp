@@ -71,8 +71,7 @@ MeshPtr BINMSHLoader::load(Common::ReadStream &stream, std::initializer_list<std
 		Mesh::PartMesh part;
 		part.renderType = Mesh::kTriangles;
 		part.vertexData = vb;
-		part.offset = mesh.indicesOffset;
-		part.length = mesh.indicesCount;
+		part.index = Index{mesh.indicesOffset, mesh.indicesCount};
 		part.boneMap = mesh.boneMap;
 
 		const auto &material = mesh.material;
