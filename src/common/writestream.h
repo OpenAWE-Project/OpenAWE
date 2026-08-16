@@ -136,6 +136,19 @@ public:
 	virtual void write(const void *data, size_t length) = 0;
 
 	/*!
+	 * Align this stream to a certain multiple and pad the remaining with Zeroes
+	 *
+	 * \param alignment The alignment to align this stream to
+	 */
+	void align(size_t alignment) {
+		const auto padding = (pos() % alignment);
+		if (padding == 0)
+			return;
+
+		writeZeros(alignment - padding);
+	}
+
+	/*!
 	 * Seek the write stream to a specific location
 	 * \param length
 	 * \param origin
@@ -148,6 +161,11 @@ public:
 	 */
 	virtual size_t pos() = 0;
 };
+
+template<typename T>
+void write(Common::WriteStream &stream, const T& t) {
+	stream.write(&t, sizeof(t));
+}
 
 } // End of namespace Common
 
