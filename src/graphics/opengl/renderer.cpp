@@ -399,6 +399,7 @@ void Renderer::drawWorld(const std::string &stage) {
 		const std::optional<GLint> worldToView = currentShader->getUniformLocation("g_mWorldToView");
 		const std::optional<GLint> screenRes = currentShader->getUniformLocation("g_vScreenRes");
 		const std::optional<GLint> lightBuffer = currentShader->getUniformLocation("g_sLightBuffer");
+		ActiveTextures activeTextures;
 
 		const std::optional<GLint> skinningMatrices = currentShader->getUniformLocation("GPU_skinning_matrices");
 
@@ -407,9 +408,16 @@ void Renderer::drawWorld(const std::string &stage) {
 
 		GLuint textureSlotShader = 0;
 		if (lightBuffer) {
-			glActiveTexture(getTextureSlot(textureSlotShader));
-			_lightBufferTexture->bind();
-			currentShader->setUniformSampler(*lightBuffer, textureSlotShader++);
+			if (activeTextures[textureSlotShader] != _lightBufferTexture.get()) {
+				glActiveTexture(getTextureSlot(textureSlotShader));
+				_lightBufferTexture->bind();
+				activeTextures[textureSlotShader] = _lightBufferTexture.get();
+				currentShader->setUniformSampler(*lightBuffer, textureSlotShader);
+			}
+
+			// Even if the light buffer is already bound, we have to make sure, we increment the textureSlot Shader to
+			// prevent another texture from overwriting it
+			textureSlotShader++;
 		}
 
 		for (const auto &task: pass.renderTasks) {
@@ -466,14 +474,14 @@ void Renderer::drawWorld(const std::string &stage) {
 					indices->bind();
 
 				GLuint textureSlot = textureSlotShader;
-				applyUniforms(currentShader, partmesh.material.getUniforms(stage), textureSlot);
+				applyUniforms(currentShader, partmesh.material.getUniforms(stage), textureSlot, activeTextures);
 
 				const auto uniforms = task.model->getUniforms(
 						stage,
 						pass.id.programName,
 						pass.id.properties
 				);
-				applyUniforms(currentShader, uniforms, textureSlot);
+				applyUniforms(currentShader, uniforms, textureSlot, activeTextures);
 
 				if (task.model->hasSkeleton() && skinningMatrices) {
 					const auto matrices = task.model->getSkeleton().getSkinningMatrices(partmesh.boneMap);
@@ -781,6 +789,8 @@ void Renderer::drawSky() {
 	assert(skyMesh);
 	const auto indices = std::static_pointer_cast<Graphics::OpenGL::VBO>(skyMesh->getIndices());
 
+	ActiveTextures activeTextures = {};
+
 	for (const auto &mesh: skyMesh->getMeshs()) {
 		assert(glGetError() == GL_NO_ERROR);
 		std::static_pointer_cast<Graphics::OpenGL::VAO>(
@@ -812,8 +822,8 @@ void Renderer::drawSky() {
 			skyProgram->setUniformSampler(*stereoBuffer, textureSlot++);
 		}*/
 
-		applyUniforms(skyProgram, mesh.material.getUniforms("night_sky"), textureSlot);
-		applyUniforms(skyProgram, _sky->getUniforms(), textureSlot);
+		applyUniforms(skyProgram, mesh.material.getUniforms("night_sky"), textureSlot, activeTextures);
+		applyUniforms(skyProgram, _sky->getUniforms(), textureSlot, activeTextures);
 
 		glDrawElements(
 				GL_TRIANGLES,
@@ -1047,7 +1057,8 @@ Renderer::createAttributeObject(
 	return vao;
 }
 
-void Renderer::applyUniforms(ProgramPtr &program, const std::vector<Material::Uniform> &uniforms, GLuint &textureSlot) {
+void Renderer::applyUniforms(ProgramPtr &program, const std::vector<Material::Uniform> &uniforms, GLuint &textureSlot, ActiveTextures
+                             &activeTextures) {
 	for (const auto &attribute: uniforms) {
 		if (attribute.index == -1)
 			continue;
@@ -1062,9 +1073,12 @@ void Renderer::applyUniforms(ProgramPtr &program, const std::vector<Material::Un
 			[&](const std::vector<glm::vec3>& values){program->setUniform3fArray(attribute.index, values);},
 			[&](const std::vector<glm::vec4>& values){program->setUniform4fArray(attribute.index, values);},
 			[&](const TexturePtr& value) {
-				glActiveTexture(getTextureSlot(textureSlot));
-				std::dynamic_pointer_cast<GLTexture>(value)->bind();
-				program->setUniformSampler(attribute.index, textureSlot);
+				if (activeTextures.at(textureSlot) != value.get()) {
+					glActiveTexture(getTextureSlot(textureSlot));
+					std::dynamic_pointer_cast<GLTexture>(value)->bind();
+					program->setUniformSampler(attribute.index, textureSlot);
+					activeTextures.at(textureSlot) = value.get();
+				}
 				textureSlot += 1;
 			},
 		}, attribute.data);

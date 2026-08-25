@@ -67,6 +67,8 @@ public:
 						const std::string &id) override;
 
 private:
+	using ActiveTextures = std::array<Graphics::Texture*, 32>;
+
 	void drawWorld(const std::string &stage);
 	void drawLights();
 	void drawGUI();
@@ -84,11 +86,12 @@ private:
 	 * \param program The program to apply the uniforms to
 	 * \param uniforms The uniforms to apply to the program
 	 * \param textureSlot The current texture slot, gets incremented when new textures are applied
+	 * \param activeTextures The currently active textures to skip if they are already bound
 	 */
 	void applyUniforms(
-            ProgramPtr &program,
-            const std::vector<Material::Uniform> &uniforms,
-            GLuint &textureSlot
+		ProgramPtr &program,
+		const std::vector<Material::Uniform> &uniforms,
+		GLuint &textureSlot, ActiveTextures &activeTextures
 	);
 
 	/*!
