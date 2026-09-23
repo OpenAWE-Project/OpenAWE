@@ -64,10 +64,18 @@ public:
 	 */
 	[[nodiscard]] float getHGFactor() const;
 
+	/*!
+	 * Return the sun energy color vectors
+	 *
+	 * \return The array of sun energy curve colours
+	 */
+	[[nodiscard]] const std::array<glm::vec3, 256> & getSunEnergyCurve() const;
+
 private:
 	glm::vec3 _betaRayleigh{};
 	glm::vec3 _betaMie{};
 	float _hgFactor{};
+	std::array<glm::vec3, 256> _sunEnergyCurve{};
 	std::unique_ptr<Common::ReadStream> _atmosphericLUT;
 };
 

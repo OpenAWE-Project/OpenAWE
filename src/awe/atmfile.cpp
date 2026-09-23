@@ -18,7 +18,7 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <vector>
+#include <glm/gtx/string_cast.hpp>
 
 #include "src/common/exception.h"
 
@@ -36,8 +36,9 @@ ATMFile::ATMFile(Common::ReadStream &atm) {
 	_betaMie = atm.read<glm::vec3>();
 	_hgFactor = atm.readIEEEFloatLE();
 
-	// Unknown list of vec3s
-	atm.skip(256 * sizeof(glm::vec3));
+	for (auto & v: _sunEnergyCurve) {
+		v = atm.read<glm::vec3>();
+	}
 
 	_atmosphericLUT.reset(atm.readStream());
 }
@@ -56,6 +57,10 @@ const glm::vec3 & ATMFile::getMie() const {
 
 float ATMFile::getHGFactor() const {
 	return _hgFactor;
+}
+
+const std::array<glm::vec3, 256>& ATMFile::getSunEnergyCurve() const {
+	return _sunEnergyCurve;
 }
 
 } // End of namespace AWE
