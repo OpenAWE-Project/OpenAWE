@@ -29,7 +29,7 @@
 #include "src/common/types.h"
 #include "src/common/glmutil.h"
 
-namespace Graphics {
+namespace Graphics::std140 {
 
 /**
  * Pack a simple arithmetic value into a std140 layout
@@ -184,6 +184,6 @@ Common::ByteBuffer pack(const T &v) {
 	return std::move(buffer);
 }
 
-} // End of namespace Graphics
+} // End of namespace Graphics::std140
 
 #endif //OPENAWE_STD140BUFFER_H
