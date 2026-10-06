@@ -33,7 +33,8 @@
 namespace Graphics::OpenGL {
 
 VBO::VBO(TaskQueuePtr tasks, GLenum type, GLenum usage, const std::string& label)
-	: _tasks(tasks)
+	: Buffer(LayoutType::kStd140)
+	, _tasks(tasks)
 	, _id(std::make_shared<GLuint>(0))
 	, _type(type)
 	, _usage(usage) {

@@ -25,11 +25,20 @@
 
 #include "src/common/types.h"
 
+#include "src/graphics/std140layout.h"
+
 namespace Graphics {
 
 class Buffer;
 
 typedef std::shared_ptr<Buffer> BufferPtr;
+
+/*!
+ * Layout type to use for uniform buffer layout. Different rendering systems require different layouts
+ */
+enum class LayoutType {
+	kStd140
+};
 
 class Buffer : Common::Noncopyable {
 public:
@@ -51,6 +60,28 @@ public:
 	 * \param data The data to be loaded. Must stay alive until the data is successfully loaded
 	 */
 	virtual void write(std::span<std::byte> data) = 0;
+
+	/*!
+	 * Instruct the buffer to load the given data as a uniform block by the appropriate layout
+	 *
+	 * \tparam T The type of the uniform to write
+	 * \param data The value of the uniform block to write
+	 */
+	template<typename T>
+	void write(const T& data) {
+		switch (type) {
+			case LayoutType::kStd140:
+				write(std140::pack(data));
+				break;
+		}
+	}
+
+private:
+	/// The type of the layout to pack uniform buffer
+	const LayoutType type;
+
+protected:
+	explicit Buffer(LayoutType type) : type(type) {}
 };
 
 } // End of namespace Graphics
