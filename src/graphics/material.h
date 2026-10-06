@@ -85,7 +85,10 @@ public:
 	bool hasStage(const std::string &stage) const;
 	uint32_t getProperties() const;
 
+	void setBuffer(BufferPtr buffer);
+	BufferPtr getBuffer() const;
 private:
+	BufferPtr _buffer;
 	CullMode _cullMode;
 	BlendMode _blendMode;
 	bool _refractive, _specular, _castShadow;

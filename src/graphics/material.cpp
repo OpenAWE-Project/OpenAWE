@@ -86,4 +86,12 @@ const std::vector<std::string> &Material::getStages() const {
 	return _stages;
 }
 
+void Material::setBuffer(BufferPtr buffer) {
+	_buffer = buffer;
+}
+
+BufferPtr Material::getBuffer() const {
+	return _buffer;
+}
+
 }
