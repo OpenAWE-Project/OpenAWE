@@ -18,29 +18,48 @@
  * along with OpenAWE. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <glm/glm.hpp>
+
 #include "src/graphics/model.h"
+
 #include "src/graphics/gfxman.h"
 #include "src/graphics/meshman.h"
 #include "src/graphics/skeleton.h"
 
 #include "src/awe/havokfile.h"
 
+struct ModelUniform {
+	glm::mat4 transform;
+	glm::mat4 invTransform;
+};
+
 namespace Graphics {
 
-Model::Model() : _numInstances(1), _label("<No Label>"), _mesh(new Mesh), _transform(glm::identity<glm::mat4>()) {
-
+Model::Model()
+	: _mesh(new Mesh)
+	, _modelUniformBuffer(GfxMan.createEmptyBuffer(kUniformBuffer, true)) {
+	writeModelBuffer();
 }
 
-Model::Model(rid_t rid) : _numInstances(1), _label("<No Label>"), _mesh(MeshMan.getMesh(rid)), _transform(glm::identity<glm::mat4>()) {
+Model::Model(rid_t rid)
+	: _mesh(MeshMan.getMesh(rid))
+	, _modelUniformBuffer(GfxMan.createEmptyBuffer(kUniformBuffer, true)) {
 	show();
+	writeModelBuffer();
 }
 
-Model::Model(const std::string &path) : _numInstances(1), _label("<No Label>"),  _mesh(MeshMan.getMesh(path)), _transform(glm::identity<glm::mat4>()) {
+Model::Model(const std::string &path)
+	: _mesh(MeshMan.getMesh(path))
+	, _modelUniformBuffer(GfxMan.createEmptyBuffer(kUniformBuffer, true)) {
 	show();
+	writeModelBuffer();
 }
 
-Model::Model(MeshPtr mesh) : _numInstances(1), _label("<No Label>"), _mesh(mesh) {
+Model::Model(MeshPtr mesh)
+	: _mesh(mesh)
+	, _modelUniformBuffer(GfxMan.createEmptyBuffer(kUniformBuffer, true)) {
 	show();
+	writeModelBuffer();
 }
 
 Model::~Model() {
@@ -58,6 +77,7 @@ void Model::hide() {
 void Model::setTransform(const glm::mat4 &transform) {
 	_transform = transform;
 	_invTransform = glm::inverse(transform);
+	writeModelBuffer();
 }
 
 glm::mat4 Model::getTransform() const {
@@ -135,7 +155,7 @@ bool Model::hasBoundSphere() const {
 	return _boundSphere || _mesh->hasBoundingSphere();
 }
 
-const Common::BoundSphere & Model::getBoundSphere() const {
+const Common::BoundSphere &Model::getBoundSphere() const {
 	if (_boundSphere)
 		return *_boundSphere;
 	else
@@ -146,12 +166,25 @@ void Model::setBoundSphere(const Common::BoundSphere &boundSphere) {
 	_boundSphere = boundSphere;
 }
 
+BufferPtr Model::getModelUniformBuffer() const {
+	return _modelUniformBuffer;
+}
+
 bool Model::isVisible() const {
 	return _visible;
 }
 
 void Model::setVisible(bool visible) {
 	_visible = visible;
+}
+
+void Model::writeModelBuffer() {
+	ModelUniform m{
+		.transform = _transform,
+		.invTransform = _invTransform,
+	};
+
+	_modelUniformBuffer->write(m);
 }
 
 }

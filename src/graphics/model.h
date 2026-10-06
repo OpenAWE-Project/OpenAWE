@@ -26,6 +26,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include "src/common/readstream.h"
 
@@ -134,12 +135,20 @@ public:
 	 */
 	void setBoundSphere(const Common::BoundSphere &boundSphere);
 
+	/*!
+	 * Get the uniform buffer for the model which contains the model specific uniforms
+	 *
+	 * \return The buffer which contains the model specific uniforms
+	 */
+	BufferPtr getModelUniformBuffer() const;
+
 protected:
 	Model();
+	void writeModelBuffer();
 
 	bool _visible{false};
-	unsigned int _numInstances;
-	std::string _label;
+	unsigned int _numInstances{1};
+	std::string _label{"<No Label>"};
 
 	std::optional<Common::BoundSphere> _boundSphere;
 
@@ -150,8 +159,10 @@ protected:
 	> _uniforms;
 	std::unique_ptr<Skeleton> _skeleton;
 
-	glm::mat4 _transform;
-	glm::mat4 _invTransform;
+	glm::mat4 _transform{/*mirrorZ * */glm::identity<glm::mat4>()};
+	glm::mat4 _invTransform{glm::inverse(_transform)};
+
+	BufferPtr _modelUniformBuffer;
 };
 
 }
