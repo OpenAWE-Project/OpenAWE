@@ -145,8 +145,63 @@ protected:
 		}
 	};
 
+	struct Atmosphere{
+		glm::vec3 sunDir{};
+		glm::vec3 sunE{};
+		glm::vec3 extinction{};
+		glm::vec3 rayleigh{};
+		glm::vec3 mie{};
+		glm::vec3 hgConstants{};
+		glm::vec2 fog{};
+	};
+
+	struct Global {
+		glm::mat4 worldToView{};
+		glm::mat4 worldToClip{};
+		glm::mat4 viewToWorld{};
+		glm::mat4 viewToClip{};
+		glm::mat4 clipToWorld{};
+		glm::mat4 clipToView{};
+		glm::vec2 screenRes{};
+		Atmosphere atmosphers{};
+	};
+
+	struct Viewport {
+		glm::vec2 viewportSize{};
+		glm::vec2 invViewportSize{};
+		glm::vec2 viewportOffset{};
+	};
+
+	struct CloudParams {
+		float cloudBumpOffset;
+		float cloudExponent;
+		float cloudIntensity;
+		float cloudLight;
+		float cloudScale;
+		float cloudShadow;
+		float cloudThreshold{};
+		float cloudTime{};
+		glm::vec2 cloudOffset{};
+	};
+
+	Global global;
+	Global globalSky;
+	CloudParams cloudParams;
+
 	glm::mat4 _view;
 	glm::mat4 _projection;
+
+	// Atmosphere parameters
+	glm::vec3 _sunDir{glm::zero<glm::vec3>()};
+	glm::vec3 _rayleigh{glm::zero<glm::vec3>()};
+	glm::vec3 _mie{glm::zero<glm::vec3>()};
+	float _hgPhase{};
+
+	bool _globalChanged{};
+	BufferPtr _globalBuffer;
+	BufferPtr _globalSkyBuffer;
+	BufferPtr _cloudParamsBuffer;
+	BufferPtr _viewportBuffer;
 
 	SkyPtr _sky;
 

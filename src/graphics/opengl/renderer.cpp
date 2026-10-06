@@ -381,6 +381,11 @@ void Renderer::drawWorld(const std::string &stage) {
 
 	pushDebugMarker(std::format("Draw stage {}", stage));
 
+	std::dynamic_pointer_cast<VBO>(_globalBuffer)->bindBase(0);
+
+	std::shared_ptr<VAO> currentVAO;
+	std::shared_ptr<VBO> currentIndices;
+
 	for (const auto &pass: _renderPasses) {
 		if (pass.renderTasks.empty())
 			continue;
@@ -392,16 +397,25 @@ void Renderer::drawWorld(const std::string &stage) {
 						pass.id.programName, stage, pass.id.properties);
 		currentShader->bind();
 
-		const std::optional<GLint> localToView = currentShader->getUniformLocation("g_mLocalToView");
-		const std::optional<GLint> localToClip = currentShader->getUniformLocation("g_mLocalToClip");
-		const std::optional<GLint> viewToClip = currentShader->getUniformLocation("g_mViewToClip");
-		const std::optional<GLint> viewToWorld = currentShader->getUniformLocation("g_mViewToWorld");
-		const std::optional<GLint> worldToView = currentShader->getUniformLocation("g_mWorldToView");
-		const std::optional<GLint> screenRes = currentShader->getUniformLocation("g_vScreenRes");
-		const std::optional<GLint> lightBuffer = currentShader->getUniformLocation("g_sLightBuffer");
+		BufferPtr materialBuffer;
 		ActiveTextures activeTextures;
 
-		const std::optional<GLint> skinningMatrices = currentShader->getUniformLocation("GPU_skinning_matrices");
+		const auto localToView = currentShader->getUniformLocation("g_mLocalToView");
+		const auto localToClip = currentShader->getUniformLocation("g_mLocalToClip");
+		const auto viewToClip = currentShader->getUniformLocation("g_mViewToClip");
+		const auto viewToWorld = currentShader->getUniformLocation("g_mViewToWorld");
+		const auto worldToView = currentShader->getUniformLocation("g_mWorldToView");
+		const auto screenRes = currentShader->getUniformLocation("g_vScreenRes");
+		const auto lightBuffer = currentShader->getUniformLocation("g_sLightBuffer");
+
+		const auto skinningMatrices = currentShader->getUniformLocation("GPU_skinning_matrices");
+
+		const auto globalBlock = currentShader->getUniformBlockLocation("global");
+		const auto modelBlock = currentShader->getUniformBlockLocation("model");
+		const auto materialBlock = currentShader->getUniformBlockLocation("material");
+		if (globalBlock) {
+			currentShader->setBinding(0, *globalBlock);
+		}
 
 		if (screenRes)
 			currentShader->setUniform2f(*screenRes, screenResolution);
@@ -443,7 +457,13 @@ void Renderer::drawWorld(const std::string &stage) {
 			pushDebugMarker(task.model->getLabel());
 
 			const auto &partMeshs = mesh->getMeshs();
-			const auto indices = std::static_pointer_cast<Graphics::OpenGL::VBO>(mesh->getIndices());
+			const auto indices = std::static_pointer_cast<VBO>(mesh->getIndices());
+
+			if (modelBlock) {
+				const auto modelUniformBuffer = std::dynamic_pointer_cast<VBO>(task.model->getModelUniformBuffer());
+				modelUniformBuffer->bindBase(1);
+				currentShader->setBinding(1, *modelBlock);
+			}
 
 			if (localToView)
 				currentShader->setUniformMatrix4f(*localToView, mv);
@@ -469,9 +489,21 @@ void Renderer::drawWorld(const std::string &stage) {
 				if (!partmesh.material.hasStage(stage))
 					continue;
 
-				std::static_pointer_cast<Graphics::OpenGL::VAO>(partmesh.vertexAttributes.find(stage)->second)->bind();
+				auto nextVAO = std::static_pointer_cast<Graphics::OpenGL::VAO>(partmesh.vertexAttributes.find(stage)->second);
+				if (nextVAO != currentVAO) {
+					currentVAO = nextVAO;
+					nextVAO->bind();
+				}
+
 				if (indices)
 					indices->bind();
+
+				const auto matBuffer = partmesh.material.getBuffer();
+				if (materialBlock && matBuffer && materialBuffer != matBuffer) {
+					std::dynamic_pointer_cast<VBO>(matBuffer)->bindBase(2);
+					currentShader->setBinding(2, *materialBlock);
+					materialBuffer = matBuffer;
+				}
 
 				GLuint textureSlot = textureSlotShader;
 				applyUniforms(currentShader, partmesh.material.getUniforms(stage), textureSlot, activeTextures);
