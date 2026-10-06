@@ -37,10 +37,6 @@ public:
 
 private:
 	std::vector<glm::u32vec2> loadCellInfo(Common::ReadStream *cid) const;
-	void loadTerrainData(
-		Common::ReadStream *terrainDataLD,
-		Common::ReadStream *terrainDataHD
-	);
 
 	std::unique_ptr<Graphics::Terrain> _terrain;
 	const std::string _id, _world;

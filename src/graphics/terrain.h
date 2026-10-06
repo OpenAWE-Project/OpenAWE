@@ -32,38 +32,13 @@ namespace Graphics {
  */
 class Terrain : public Model {
 public:
-	/*!
-	 * Construct a new terrain using some limits
-	 * \param maxPolygons The maximum number of polygons this terrain can contain
-	 * \param maxMaps The maximum number of  displacement maps used in this terrain
-	 */
-	Terrain(
-		unsigned int maxPolygons = 58000,
-		unsigned int maxMaps = 8500
-	);
-
-	void loadTerrainData(Common::ReadStream &ld);
-	void loadTerrainData(Common::ReadStream &ld, Common::ReadStream &hd);
-
-	/*!
-	 * Load a new terrain data file into the terrain. It will be combined with existing data
-	 * \param terrainDataFile The terrain data file to load
-	 */
-	void loadTerrainData(Common::ReadStream *terrainDataFile, std::vector<glm::vec2> &mapCoords);
-
-	void finalize();
+	Terrain(MeshPtr mesh);
 
 private:
-	float _blendScale;
-	float _potTextureSize;
 	std::vector<TexturePtr> _textures;
 	TexturePtr _blendMap;
 	TexturePtr _geoNormalMap;
-	std::vector<glm::vec2> _mapCoords;
-	std::vector<uint16_t> _indices;
-	float _bigMapSize;
-	std::vector<glm::vec2> _bigMapCoords;
-	std::vector<glm::u16vec2> _smallMapCoords;
+	BufferPtr _materialBuffer;
 };
 
 }

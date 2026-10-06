@@ -26,15 +26,14 @@
 
 #include "src/level.h"
 
+#include "graphics/terrainfactory.h"
+
 Level::Level(entt::registry &registry, entt::scheduler<double> &scheduler, const std::string &id, const std::string &world) :
 	ObjectCollection(registry, scheduler),
-	_terrain(std::make_unique<Graphics::Terrain>()),
 	_id(id),
 	_world(world) {
 	spdlog::info("Loading level {}", id);
 	std::string levelFolder = std::format("worlds/{}/levels/{}", world, id);
-
-	_terrain->setLabel(std::format("terrain_{}", _id));
 
 	loadGIDRegistry(ResMan.getResource(std::format("{}/GIDRegistry.txt", levelFolder)));
 
@@ -43,6 +42,8 @@ Level::Level(entt::registry &registry, entt::scheduler<double> &scheduler, const
 
 	std::unique_ptr<Common::ReadStream> persistentStream(ResMan.getResource(std::format("{}/Persistent.bin", levelFolder)));
 	AWE::BINArchive persistent(*persistentStream);
+
+	Graphics::TerrainFactory tf;
 
 	loadBytecode(
 			persistent.getResource("dp_bytecode.bin"),
@@ -112,31 +113,28 @@ Level::Level(entt::registry &registry, entt::scheduler<double> &scheduler, const
 		//DPFile dphd(persistent.getResource("dp_hdcell.bin"));
 		load(hdCell.getResource("cid_staticobject.bin"), kStaticObject);
 		load(ldCell.getResource("cid_staticobject.bin"), kStaticObject);
-		loadTerrainData(
-			ldCell.getResource("cid_terraindata.bin"),
-			hdCell.getResource("cid_terraindata.bin")
-		);
 
+		// Load terrain data
+		std::unique_ptr<Common::ReadStream> terrainDataStreamLD(ldCell.getResource("cid_terraindata.bin"));
+		std::unique_ptr<Common::ReadStream> terrainDataStreamHD(hdCell.getResource("cid_terraindata.bin"));
+		assert(terrainDataStreamLD);
+		assert(terrainDataStreamHD);
+		tf.loadTerrainData(*terrainDataStreamLD, *terrainDataStreamHD);
+
+		// Load Terrain collisions
 		std::unique_ptr<Common::ReadStream> terrainCollisions(ResMan.getResource(std::format("{}/{}.collisions", levelFolder, hdName)));
 		assert(terrainCollisions);
 		loadTerrainCollisions(terrainCollisions.get());
 
+		// Load foliages
 		loadFoliageData(hdCell.getResource("cid_foliagedata.bin"));
 		loadFoliageData(ldCell.getResource("cid_foliagedata.bin"));
 	}
 
-	_terrain->finalize();
-	_terrain->show();
-}
+	_terrain.reset(tf.createTerrain());
 
-void Level::loadTerrainData(Common::ReadStream *terrainDataLD, Common::ReadStream *terrainDataHD) {
-	std::unique_ptr<Common::ReadStream> terrainDataStreamLD(terrainDataLD);
-	std::unique_ptr<Common::ReadStream> terrainDataStreamHD(terrainDataHD);
-
-	assert(terrainDataLD);
-	assert(terrainDataHD);
-
-	_terrain->loadTerrainData(*terrainDataStreamLD, *terrainDataStreamHD);
+	_terrain->setLabel(std::format("terrain_{}", _id));
+	// _terrain->show();
 }
 
 std::vector<glm::u32vec2> Level::loadCellInfo(Common::ReadStream *cid) const {
