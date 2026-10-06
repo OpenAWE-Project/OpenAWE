@@ -128,6 +128,30 @@ void Graphics::Renderer::setAmbianceState(const Graphics::AmbianceState ambiance
 	_ambiance = ambiance;
 }
 
+void Graphics::Renderer::setRayleigh(const glm::vec3 &rayleigh) {
+	if (_rayleigh == rayleigh)
+		return;
+
+	_globalChanged = true;
+	_rayleigh = rayleigh;
+}
+
+void Graphics::Renderer::setMie(const glm::vec3 &mie) {
+	if (_mie == mie)
+		return;
+
+	_globalChanged = true;
+	_mie = mie;
+}
+
+void Graphics::Renderer::setHGPhase(float hgPhase) {
+	if (_hgPhase == hgPhase)
+		return;
+
+	_globalChanged = true;
+	_hgPhase = hgPhase;
+}
+
 void Graphics::Renderer::setSkyLUT(TexturePtr lut) {
 	_skyLUT = lut;
 }

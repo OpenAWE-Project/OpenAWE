@@ -58,6 +58,9 @@ public:
 	void setCamera(Camera &camera);
 
 	void setAmbianceState(const AmbianceState ambiance);
+	void setRayleigh(const glm::vec3 &rayleigh);
+	void setMie(const glm::vec3 &mie);
+	void setHGPhase(float hg_phase);
 
 	/*!
 	 * Set the sky lut from an atmosphere file for the renderer
