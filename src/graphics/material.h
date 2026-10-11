@@ -27,8 +27,10 @@
 #include <vector>
 
 #include <glm/glm.hpp>
+#include <glm/gtx/hash.hpp>
+#include <boost/container_hash/hash.hpp>
 
-#include "src/common/uuid.h"
+#include "src/common/glmutil.h"
 
 #include "src/graphics/buffer.h"
 #include "src/graphics/texture.h"
@@ -61,6 +63,8 @@ public:
 
 		Uniform(const std::string &id, UniformData value) : id(id), data(value) {}
 		Uniform(const std::string &id, std::string value) : id(id), data(TextureMan.getTexture(value)) {}
+
+		friend bool operator==(const Uniform &lhs, const Uniform &rhs) = default;
 	};
 
 	Material();
@@ -88,7 +92,12 @@ public:
 
 	void setBuffer(BufferPtr buffer);
 	BufferPtr getBuffer() const;
+
+	friend bool operator==(const Material &lhs, const Material &rhs) = default;
+
 private:
+	friend struct std::hash<Material>;
+
 	BufferPtr _buffer;
 	CullMode _cullMode;
 	BlendMode _blendMode;
@@ -100,5 +109,40 @@ private:
 };
 
 }
+
+template <>
+struct std::hash<Graphics::Material::Uniform> {
+	std::size_t operator()(const Graphics::Material::Uniform &uniform) const {
+		std::size_t seed = 0;
+
+		boost::hash_combine(seed, uniform.id);
+		boost::hash_combine(seed, uniform.data);
+		boost::hash_combine(seed, uniform.index);
+
+		return seed;
+	}
+};
+
+template <> struct boost::hash<Graphics::Material::Uniform> : std::hash<Graphics::Material::Uniform> {};
+
+template <>
+struct std::hash<Graphics::Material> {
+	std::size_t operator()(Graphics::Material const &material) const {
+		size_t seed = 0;
+
+		boost::hash_combine(seed, material._buffer.get());
+		boost::hash_combine(seed, material._cullMode);
+		boost::hash_combine(seed, material._blendMode);
+		boost::hash_combine(seed, material._refractive);
+		boost::hash_combine(seed, material._specular);
+		boost::hash_combine(seed, material._castShadow);
+		boost::hash_combine(seed, material._properties);
+		boost::hash_combine(seed, material._attributes);
+		boost::hash_combine(seed, material._stages);
+		boost::hash_combine(seed, material._shaderName);
+
+		return seed;
+	}
+};
 
 #endif //AWE_MATERIAL_H
