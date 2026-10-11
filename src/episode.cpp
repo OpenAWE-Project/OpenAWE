@@ -86,6 +86,17 @@ Episode::Episode(entt::registry &registry, entt::scheduler<double> &scheduler, c
 
 		spdlog::info("Loading Triggers for {}", id);
 		load(tasks.getResource("cid_trigger.bin"), kTrigger, dp);
+
+		/*
+		 * Area trigger scripts reference their trigger entity, so the entities
+		 * must be loaded first. Loading the scripts after the triggers made
+		 * ObjectCollection::loadScript drop every area trigger script with
+		 * "Couldn't find entity ... for script, skipping it".
+		 */
+		spdlog::info("Loading area triggers for {}", id);
+		load(tasks.getResource("cid_areatrigger.bin"), kAreaTrigger, dp);
+		load(tasks.getResource("cid_areatriggerscript.bin"), kScript, dp);
+
 		load(tasks.getResource("cid_triggerscript.bin"), kScript, dp);
 		// '---
 
@@ -105,10 +116,6 @@ Episode::Episode(entt::registry &registry, entt::scheduler<double> &scheduler, c
 
 		spdlog::info("Loading Floating Scripts for {}", id);
 		load(tasks.getResource("cid_floatingscript.bin"), kFloatingScript, dp);
-
-		spdlog::info("Loading area triggers for {}", id);
-		load(tasks.getResource("cid_areatrigger.bin"), kAreaTrigger, dp);
-		load(tasks.getResource("cid_areatriggerscript.bin"), kScript, dp);
 
 		load(tasks.getResource("cid_taskcontent.bin"), kTaskContent, dp);
 
