@@ -799,29 +799,24 @@ void Renderer::drawSky() {
 
 	glDisable(GL_DEPTH_TEST);
 
-	glFrontFace(GL_CCW);
-
-	const glm::mat4 p = glm::perspectiveFov(45.0f, 1920.0f, 1080.0f, 1.0f, 10000.0f);
-	const glm::mat4 v = glm::lookAt(glm::zero<glm::vec3>(), _camera->get().getDirection(), _camera->get().getUp());
-	const glm::mat4 pv = glm::inverse(p * v);
-
-	auto skyProgram = getProgram("sky", "night_sky", 0);
+	auto skyProgram = getProgram("sky", "generate_sky", 0);
 	skyProgram->bind();
 
-	const auto viewToClip = skyProgram->getUniformLocation("g_mViewToClip");
-	const auto worldToView = skyProgram->getUniformLocation("g_mWorldToView");
-	const auto viewToWorld = skyProgram->getUniformLocation("g_mViewToWorld");
-	const auto clipToWorld = skyProgram->getUniformLocation("g_mClipToWorld");
-	const auto screenRes = skyProgram->getUniformLocation("g_vScreenRes");
+	const auto globalBlock = skyProgram->getUniformBlockLocation("global");
+	const auto cloudBlock = skyProgram->getUniformBlockLocation("clouds");
 
 	const auto noiseMap = skyProgram->getUniformLocation("g_sNoiseMap");
 	const auto stereoBuffer = skyProgram->getUniformLocation("g_sStereoBuffer");
+	const auto skyLUT = skyProgram->getUniformLocation("g_sSkyLUT");
 
 	const auto skyMesh = _sky->getSkyMesh();
 	assert(skyMesh);
 	const auto indices = std::static_pointer_cast<Graphics::OpenGL::VBO>(skyMesh->getIndices());
 
 	ActiveTextures activeTextures = {};
+
+	std::static_pointer_cast<VBO>(_globalSkyBuffer)->bindBase(0);
+	std::static_pointer_cast<VBO>(_cloudParamsBuffer)->bindBase(1);
 
 	for (const auto &mesh: skyMesh->getMeshs()) {
 		assert(glGetError() == GL_NO_ERROR);
@@ -831,41 +826,30 @@ void Renderer::drawSky() {
 
 		indices->bind();
 
-		if (viewToClip)
-			skyProgram->setUniformMatrix4f(*viewToClip, p);
-		if (worldToView)
-			skyProgram->setUniformMatrix4f(*worldToView, v);
-		if (clipToWorld)
-			skyProgram->setUniformMatrix4f(*clipToWorld, glm::inverse(p * v));
-
-		if (screenRes)
-			skyProgram->setUniform2f(*screenRes, glm::vec2(1920.0, 1080.0));
+		if (globalBlock) {
+			skyProgram->setBinding(0, *globalBlock);
+		}
+		if (cloudBlock) {
+			skyProgram->setBinding(1, *cloudBlock);
+		}
 
 		GLuint textureSlot = 0;
-		/*if (noiseMap) {
+		if (noiseMap) {
 			glActiveTexture(getTextureSlot(textureSlot));
 			_noiseMap->bind();
 			skyProgram->setUniformSampler(*noiseMap, textureSlot++);
 		}
-
-		if (stereoBuffer) {
-			glActiveTexture(getTextureSlot(textureSlot));
-			_stereoBuffer->bind();
-			skyProgram->setUniformSampler(*stereoBuffer, textureSlot++);
-		}*/
-
-		applyUniforms(skyProgram, mesh.material.getUniforms("night_sky"), textureSlot, activeTextures);
+		applyUniforms(skyProgram, mesh.material.getUniforms("generate_sky"), textureSlot, activeTextures);
 		applyUniforms(skyProgram, _sky->getUniforms(), textureSlot, activeTextures);
 
+		const auto index = std::get<Index>(mesh.index);
 		glDrawElements(
 				GL_TRIANGLES,
-				mesh.length,
+				index.length,
 				GL_UNSIGNED_SHORT,
-				reinterpret_cast<const void *>(mesh.offset)
+				reinterpret_cast<const void *>(index.offset)
 		);
 	}
-
-	glFrontFace(GL_CW);
 	glEnable(GL_DEPTH_TEST);
 
 	popDebugMarker();
