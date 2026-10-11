@@ -21,9 +21,8 @@
 #ifndef OPENAWE_HG_H
 #define OPENAWE_HG_H
 
-#include <cmath>
-
 #include <array>
+#include <numbers>
 
 namespace AWE {
 
