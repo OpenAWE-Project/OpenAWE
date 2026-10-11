@@ -20,7 +20,13 @@
 
 #include <algorithm>
 
-#include "renderer.h"
+#include "src/common/toml.h"
+
+#include "src/awe/hg.h"
+#include "src/awe/resman.h"
+
+#include "src/graphics/renderer.h"
+#include "src/graphics/std140layout.h"
 
 Graphics::Renderer::Renderer() {
 	// Setup initial projection matrix
