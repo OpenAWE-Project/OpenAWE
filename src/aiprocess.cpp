@@ -22,46 +22,77 @@
 #include "src/graphics/animation.h"
 #include "src/graphics/model.h"
 
+#include <spdlog/spdlog.h>
+
 #include "src/aiprocess.h"
 
 AIProcess::AIProcess(entt::registry &registry, entt::entity character) : _registry(registry), _character(character) {
 
 }
 
-void AIProcess::update(double delta, void *) {
-	auto &ai = _registry.get<AI>(_character);
+void AIProcess::update(double now, void *) {
+	// Entities can be destroyed while their process is still attached to the
+	// scheduler (world switches clear the registry); bail out instead of
+	// dereferencing a dead entity handle.
+	if (!_registry.valid(_character)) {
+		succeed();
+		return;
+	}
+
+	// Not every character entity carries an AI component; nothing to sequence.
+	auto *ai = _registry.try_get<AI>(_character);
+	if (!ai) {
+		succeed();
+		return;
+	}
 
 	// If there is currently command get the next available one
 	if (!_currentCmd) {
-		if (ai.cmds.empty())
+		if (ai->cmds.empty())
 			return;
 
-		_currentCmd = ai.cmds.front();
-		startCommand();
+		_currentCmd = ai->cmds.front();
+		startCommand(now);
 	}
 
 	// After we have potentially started a command update it
 	switch (_currentCmd->index()) {
 		case 0: {
 			const auto animate = std::get<Animate>(*_currentCmd);
-			auto animation = _registry.get<Graphics::AnimationPtr>(animate.animation);
-			if (delta >= _cmdStarted + animation->getDuration() && !animate.looping) {
+			const auto animation = _registry.try_get<Graphics::AnimationPtr>(animate.animation);
+			if (!animation) {
+				spdlog::warn("AIProcess: Animate command references a dead animation entity, dropping it");
 				_currentCmd.reset();
-				ai.cmds.pop_front();
+				ai->cmds.pop_front();
+				break;
 			}
+			// _cmdStarted is stamped from the scheduler clock (the same clock as
+			// now); the previous code stamped it from Animate::startTime, which
+			// comes from the script clock, mixing two different time domains.
+			if (now - _cmdStarted >= (*animation)->getDuration() && !animate.looping) {
+				_currentCmd.reset();
+				ai->cmds.pop_front();
+			}
+			break;
 		}
 	}
 }
 
-void AIProcess::startCommand() {
+void AIProcess::startCommand(double now) {
 	switch (_currentCmd->index()) {
 		case 0: { // Animate
 			const auto animate = std::get<Animate>(*_currentCmd);
-			const auto controller = _registry.get<Graphics::AnimationControllerPtr>(_character);
+			const auto controller = _registry.try_get<Graphics::AnimationControllerPtr>(_character);
+			const auto animation = _registry.try_get<Graphics::AnimationPtr>(animate.animation);
+			if (!controller || !animation) {
+				spdlog::warn("AIProcess: cannot start Animate command, missing animation controller or animation, dropping it");
+				_currentCmd.reset();
+				_registry.try_get<AI>(_character)->cmds.pop_front();
+				break;
+			}
 
-			_cmdStarted = animate.startTime;
-			auto animation = _registry.get<Graphics::AnimationPtr>(animate.animation);
-			controller->play(animation, animate.looping, animate.startTime);
+			_cmdStarted = now;
+			(*controller)->play(*animation, animate.looping, animate.startTime);
 			break;
 		}
 	}

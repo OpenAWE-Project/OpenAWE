@@ -29,12 +29,12 @@ class AIProcess : public entt::process<AIProcess, double> {
 public:
 	AIProcess(entt::registry &registry, entt::entity character);
 
-	void update(double delta, void *);
+	void update(double now, void *);
 
 private:
-	void startCommand();
+	void startCommand(double now);
 
-	float _cmdStarted;
+	double _cmdStarted{0.0};
 
 	std::optional<AICommand> _currentCmd{};
 	entt::registry &_registry;
