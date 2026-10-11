@@ -40,6 +40,8 @@ public:
 	void play() override;
 	void stop() override;
 
+	unsigned short getChannelCount() const;
+
 protected:
 	virtual void update();
 

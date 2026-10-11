@@ -116,6 +116,11 @@ FSBFile::FSBFile(Common::ReadStream *fsb) : _fsb(fsb) {
 				entry.streamData.loopStart = _fsb->readUint32LE();
 				entry.streamData.loopEnd = _fsb->readUint32LE();
 				entry.flags = _fsb->readUint32LE();
+				// FSOUND_IMAADPCM selects the IMA variant; without it FMOD 4 banks store
+				// the proprietary FMOD ADPCM. Both decoders accept either layout for
+				// files flagged this way, but the mapping is required for generality
+				// (the enum used to fall through to its zero value).
+				entry.format = (entry.flags & kImaAdpcm) != 0 ? kIMAADPCM : kFmodADPCM;
 				entry.sampleRate = _fsb->readUint32LE();
 				uint16_t volume = _fsb->readUint16LE();
 				uint16_t pan = _fsb->readUint16LE();

@@ -29,12 +29,15 @@
 
 namespace Sound {
 
-SoundManager::SoundManager() : _device(nullptr), _context(nullptr) {
+SoundManager::SoundManager() : _device(nullptr), _context(nullptr), _enabled(false) {
 	//int ret = alcIsExtensionPresent(_device, "ALC_ENUMERATION_EXT");
 	//assert(alcIsExtensionPresent(_device, "AL_EXT_FLOAT32") == AL_TRUE);
 }
 
 SoundManager::~SoundManager() {
+	if (!_enabled)
+		return;
+
 	alDeleteSources(_sourcePool.size(), _sourcePool.data());
 	alDeleteBuffers(_bufferPool.size(), _bufferPool.data());
 
@@ -45,9 +48,35 @@ SoundManager::~SoundManager() {
 
 void SoundManager::init() {
 	_device = alcOpenDevice(nullptr);
-	_context = alcCreateContext(_device, nullptr);
+	if (!_device) {
+		spdlog::warn("Sound disabled: failed to open default audio device");
+		return;
+	}
 
-	alcMakeContextCurrent(_context);
+	_context = alcCreateContext(_device, nullptr);
+	if (!_context) {
+		spdlog::warn("Sound disabled: failed to create OpenAL context");
+		alcCloseDevice(_device);
+		_device = nullptr;
+		return;
+	}
+
+	if (!alcMakeContextCurrent(_context)) {
+		spdlog::warn("Sound disabled: failed to activate OpenAL context");
+		alcDestroyContext(_context);
+		_context = nullptr;
+		alcCloseDevice(_device);
+		_device = nullptr;
+		return;
+	}
+
+	_enabled = true;
+
+	// On macOS, openal-soft starts its coreaudio output unit when the context is created; when
+	// the unit cannot be started (headless/SSH session, no usable output device), openal-soft
+	// logs "[ALSOFT] (EE) AudioOutputUnitStart failed: what (2003329396)" and returns no context.
+	// 'what' is the four char code of kAudioHardwareIllegalOperationError from the CoreAudio HAL,
+	// so degrade to silent mode instead of letting the failed init take the whole game down.
 
 	ALCenum major, minor;
 	alcGetIntegerv(_device, ALC_MAJOR_VERSION, 1, &major);
@@ -100,6 +129,10 @@ ALuint SoundManager::registerBuffer() {
 
 void SoundManager::deregisterBuffer(ALuint id) {
 	_bufferPool.push_back(id);
+}
+
+bool SoundManager::isEnabled() const {
+	return _enabled;
 }
 
 }

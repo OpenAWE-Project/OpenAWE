@@ -216,7 +216,13 @@ int16_t ImaAdpcmStream::decodeSample(byte nibble, int &stepIndex, int16_t last) 
 	int32_t diff = (nibble & 0x08) ? -E : E;
 	stepIndex += kIMAIndexTable[nibble];
 	stepIndex = std::clamp<int>(stepIndex, 0, 88);
-	return std::clamp<int16_t>(last + diff, -32768, 32767);
+	// The clamp must happen in int32.  clamp<int16_t>(last + diff, ...) truncates
+	// the int32 sum to int16 first, so a predictor sitting near the -32768 floor
+	// wrapped around to +32767 instead of saturating (observed at FSB sample
+	// offsets 1994 and 11830 in barry_0001_barry.fsb).
+	int32_t sample = last + diff;
+	sample = std::clamp<int32_t>(sample, -32768, 32767);
+	return static_cast<int16_t>(sample);
 }
 
 MsImaAdpcmStream::MsImaAdpcmStream(
@@ -331,8 +337,13 @@ void MsImaAdpcmStream::decodeBlock() {
 		for (unsigned int i = 0; i < channelCount; ++i) {
 			for (unsigned int j = 0; j < 4; ++j) {
 				byte date = _adpcm->readByte();
-				last[i] = _buffer[k * 16 + (j * channelCount + 0) * 2 + i] = decodeSample(date & 0x0f, stepIndex[i], last[i]);
-				last[i] = _buffer[k * 16 + (j * channelCount + 1) * 2 + i] = decodeSample((date >> 4) & 0x0f, stepIndex[i], last[i]);
+				// Samples in a chunk are frame interleaved across channels: chunk k
+				// holds 8 samples per channel (two nibbles per byte).  The previous
+				// index (k * 16 + (j * channelCount + n) * 2 + i) only produced valid
+				// frame positions for stereo; mono wrote to half the slots and out of
+				// the buffer.
+				last[i] = _buffer[(k * 8 + j * 2 + 0) * channelCount + i] = decodeSample(date & 0x0f, stepIndex[i], last[i]);
+				last[i] = _buffer[(k * 8 + j * 2 + 1) * channelCount + i] = decodeSample((date >> 4) & 0x0f, stepIndex[i], last[i]);
 			}
 		}
 

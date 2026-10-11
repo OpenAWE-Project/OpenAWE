@@ -23,6 +23,7 @@
 
 #include "src/common/threadpool.h"
 
+#include "src/sound/soundman.h"
 #include "src/sound/stream.h"
 #include "src/common/exception.h"
 
@@ -33,6 +34,10 @@ Stream::Stream(Codecs::AudioStream *stream) :
 	_stream(stream),
 	_playing(false) {
 	setRelative(true);
+
+	if (!SoundMan.isEnabled())
+		return;
+
 	_buffers.resize(32);
 	alGenBuffers(32, _buffers.data());
 	for (const auto &buffer: _buffers) {
@@ -41,6 +46,9 @@ Stream::Stream(Codecs::AudioStream *stream) :
 }
 
 Stream::~Stream() {
+	if (!SoundMan.isEnabled())
+		return;
+
 	if (isPlaying())
 		stop();
 
@@ -52,12 +60,22 @@ Stream::~Stream() {
 }
 
 void Stream::play() {
+	if (!SoundMan.isEnabled())
+		return;
+
 	_playing = true;
 	update();
 	Source::play();
 }
 
+unsigned short Stream::getChannelCount() const {
+	return _stream->getChannelCount();
+}
+
 void Stream::stop() {
+	if (!SoundMan.isEnabled())
+		return;
+
 	_stopped.lock();
 	_playing = false;
 	Source::stop();
@@ -66,6 +84,9 @@ void Stream::stop() {
 }
 
 void Stream::update() {
+	if (!SoundMan.isEnabled())
+		return;
+
 	if (!_playing) {
 		_stopped.unlock();
 		return;
@@ -119,6 +140,9 @@ void LoopableStream::setLoopRange(unsigned int start, unsigned int end) {
 }
 
 void LoopableStream::update() {
+	if (!SoundMan.isEnabled())
+		return;
+
 	if (!_playing) {
 		_stopped.unlock();
 		return;

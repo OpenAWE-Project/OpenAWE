@@ -41,6 +41,8 @@ public:
 
 	void update();
 
+	bool isEnabled() const;
+
 	ALuint registerSource();
 	void deregisterSource(ALuint id);
 
@@ -53,6 +55,8 @@ private:
 
 	ALCdevice *_device;
 	ALCcontext *_context;
+
+	bool _enabled;
 };
 
 } // End of namespace Sound

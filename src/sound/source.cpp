@@ -26,7 +26,10 @@
 
 namespace Sound {
 
-Source::Source() {
+Source::Source() : _id(0) {
+	if (!SoundMan.isEnabled())
+		return;
+
 	_id = SoundMan.registerSource();
 	assert(alIsSource(_id));
 
@@ -40,10 +43,14 @@ Source::Source() {
 }
 
 Source::~Source() {
-	SoundMan.deregisterSource(_id);
+	if (SoundMan.isEnabled())
+		SoundMan.deregisterSource(_id);
 }
 
 void Source::play() {
+	if (!SoundMan.isEnabled())
+		return;
+
 	alSourcePlay(_id);
 	ALenum error = alGetError();
 	if (error != AL_NO_ERROR)
@@ -51,6 +58,9 @@ void Source::play() {
 }
 
 void Source::pause() {
+	if (!SoundMan.isEnabled())
+		return;
+
 	alSourcePause(_id);
 	ALenum error = alGetError();
 	if (error != AL_NO_ERROR)
@@ -58,6 +68,9 @@ void Source::pause() {
 }
 
 void Source::stop() {
+	if (!SoundMan.isEnabled())
+		return;
+
 	alSourceStop(_id);
 	ALenum error = alGetError();
 	if (error != AL_NO_ERROR)
@@ -65,6 +78,9 @@ void Source::stop() {
 }
 
 bool Source::isPlaying() {
+	if (!SoundMan.isEnabled())
+		return false;
+
 	int state;
 	alGetSourcei(_id, AL_SOURCE_STATE, &state);
 	assert(alGetError() == AL_NO_ERROR);
@@ -72,27 +88,42 @@ bool Source::isPlaying() {
 }
 
 void Source::setRelative(bool relative) {
+	if (!SoundMan.isEnabled())
+		return;
+
 	alSourcei(_id, AL_SOURCE_RELATIVE, relative ? AL_TRUE : AL_FALSE);
 	assert(alGetError() == AL_NO_ERROR);
 }
 
 unsigned int Source::getBuffersQueued() {
+	if (!SoundMan.isEnabled())
+		return 0;
+
 	ALint buffersQueued;
 	alGetSourcei(_id, AL_BUFFERS_QUEUED, &buffersQueued);
 	return buffersQueued;
 }
 
 unsigned int Source::getBuffersProcessed() {
+	if (!SoundMan.isEnabled())
+		return 0;
+
 	ALint buffersProcessed;
 	alGetSourcei(_id, AL_BUFFERS_PROCESSED, &buffersProcessed);
 	return buffersProcessed;
 }
 
 void Source::queueBuffer(ALuint buffer) {
+	if (!SoundMan.isEnabled())
+		return;
+
 	alSourceQueueBuffers(_id, 1, &buffer);
 }
 
 void Source::unqueueBuffer(ALuint buffer) {
+	if (!SoundMan.isEnabled())
+		return;
+
 	alSourceUnqueueBuffers(_id, 1, &buffer);
 }
 
