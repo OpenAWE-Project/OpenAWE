@@ -50,7 +50,8 @@ public:
 	 */
 	[[nodiscard]] const glm::vec3 &getUp() const;
 
-	glm::mat4 getLookAt() const;
+	[[nodiscard]] glm::mat4 getLookAt() const;
+	[[nodiscard]] glm::mat4 getLookAtSky() const;
 
 	virtual void update(float time);
 

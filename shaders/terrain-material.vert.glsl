@@ -20,10 +20,36 @@
 
 #version 330 core
 
-uniform mat4 g_mLocalToView;
-uniform mat4 g_mViewToClip;
-uniform vec4 g_vTexCoordScale1 = vec4(16.0);
-uniform vec4 g_vTexCoordScale2 = vec4(16.0);
+struct Atmosphere {
+	vec3 vSunDir;
+	vec3 vSunE;
+	vec3 vExtinction;
+	vec3 vRayleigh;
+	vec3 vMie;
+	vec3 vHGConstants;
+	vec2 vFog;
+};
+
+layout(std140) uniform global {
+	mat4 g_mWorldToView;
+	mat4 g_mWorldToClip;
+	mat4 g_mViewToWorld;
+	mat4 g_mViewToClip;
+	mat4 g_mClipToWorld;
+	mat4 g_mClipToView;
+	vec2 g_vScreenRes;
+	Atmosphere g_atmosphere;
+};
+
+layout(std140) uniform model {
+	mat4 g_mLocalToWorld;
+	mat4 g_mWorldToLocal;
+};
+
+layout(std140) uniform material {
+	vec4 g_vTexCoordScale1;
+	vec4 g_vTexCoordScale2;
+};
 
 in vec3 in_Position;
 in vec3 in_Normal;
@@ -43,5 +69,5 @@ void main() {
 	pass_UV2 = vTexCoords2.xy;
 	pass_BlendUV = vTexCoords2.zw;
 
-	gl_Position = g_mViewToClip * g_mLocalToView * vec4(in_Position, 1.0);
+	gl_Position = g_mWorldToClip * g_mLocalToWorld * vec4(in_Position, 1.0);
 }

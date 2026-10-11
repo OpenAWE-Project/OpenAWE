@@ -22,8 +22,29 @@
 
 #define MAX_BONES 64
 
-uniform mat4 g_mLocalToView;
-uniform mat4 g_mViewToClip;
+struct Atmosphere {
+    vec3 vSunDir;
+    vec3 vSunE;
+    vec3 vExtinction;
+    vec3 vRayleigh;
+    vec3 vMie;
+    vec3 vHGConstants;
+    vec2 vFog;
+};
+
+layout(std140) uniform global {
+    mat4 g_mWorldToView;
+    mat4 g_mViewToWorld;
+    mat4 g_mViewToClip;
+    mat4 g_mWorldToClip;
+    vec2 g_vScreenRes;
+    Atmosphere g_atmosphere;
+};
+
+layout(std140) uniform model {
+    mat4 g_mLocalToWorld;
+    mat4 g_mWorldToLocal;
+};
 
 uniform mat4x3 GPU_skinning_matrices[MAX_BONES];
 
@@ -43,14 +64,15 @@ out vec2 pass_UV;
 
 void main() {
     mat4x3 mAnimationFactor = mat4x3(0.0f);
+    mat4 mLocalToView = g_mWorldToView * g_mLocalToWorld;
     for (int i = 0; i < 4; i++) {
         mAnimationFactor += (in_BoneWeight[i] * (1.0/255.0)) * GPU_skinning_matrices[in_BoneID[i]];
     }
 
-    pass_ViewPosition = g_mLocalToView * mat4(mAnimationFactor) * vec4(in_Position, 1.0);
+    pass_ViewPosition = mLocalToView * mat4(mAnimationFactor) * vec4(in_Position, 1.0);
     pass_ClipPosition = g_mViewToClip * pass_ViewPosition;
-    pass_Normal = mat3(g_mLocalToView) * (in_Normal.xyz * (1.0/32767.0));
-    pass_Tangent = mat3(g_mLocalToView) * (in_Tangent * (1.0/255.0) * 2.0 - 1.0);
+    pass_Normal = mat3(mLocalToView) * (in_Normal.xyz * (1.0/32767.0));
+    pass_Tangent = mat3(mLocalToView) * (in_Tangent * (1.0/255.0) * 2.0 - 1.0);
     pass_Bitangent = cross(pass_Normal, pass_Tangent);
     pass_UV = in_UV0 * (1.0/4096.0);
     gl_Position = pass_ClipPosition;

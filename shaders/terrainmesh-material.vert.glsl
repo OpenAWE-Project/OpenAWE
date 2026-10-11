@@ -20,8 +20,7 @@
 
 #version 330 core
 
-// Atmosphere
-uniform struct {
+struct Atmosphere {
     vec3 vSunDir;
     vec3 vSunE;
     vec3 vExtinction;
@@ -29,7 +28,23 @@ uniform struct {
     vec3 vMie;
     vec3 vHGConstants;
     vec2 vFog;
-} g_atmosphere;
+};
+
+layout(std140) uniform global {
+    mat4 g_mWorldToView;
+    mat4 g_mWorldToClip;
+    mat4 g_mViewToWorld;
+    mat4 g_mViewToClip;
+    mat4 g_mClipToWorld;
+    mat4 g_mClipToView;
+    vec2 g_vScreenRes;
+    Atmosphere g_atmosphere;
+};
+
+layout(std140) uniform model {
+    mat4 g_mLocalToWorld;
+    mat4 g_mWorldToLocal;
+};
 
 // Fog
 uniform float g_fFogGroundDensity;
@@ -37,17 +52,15 @@ uniform float g_fFogGroundDensityAtViewer;
 uniform vec3 g_vFogColor;
 uniform vec3 g_vFogColorOpposite;
 
-uniform mat4 g_mLocalToView;
-uniform mat4 g_mViewToWorld;
-uniform mat4 g_mViewToClip;
-
 in vec3 in_Position;
 in vec2 in_UV0;
 
 out vec2 pass_UV;
 
 void main() {
+    mat4 mLocalToView = g_mWorldToView * g_mLocalToWorld;
+
     // Pass UV coordinates to fragment shader
     pass_UV = in_UV0 * (1.0/4096.0);
-    gl_Position = g_mViewToClip * g_mLocalToView * vec4(in_Position - vec3(0.0, 5.0, 0.0), 1.0f);
+    gl_Position = g_mViewToClip * mLocalToView * vec4(in_Position - vec3(0.0, 5.0, 0.0), 1.0f);
 }

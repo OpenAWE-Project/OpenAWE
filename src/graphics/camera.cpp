@@ -38,7 +38,11 @@ void Camera::setDirection(const glm::vec3 &direction) {
 }
 
 glm::mat4 Camera::getLookAt() const {
-	return glm::lookAt(_position, _position + _direction, _up);
+	return glm::lookAtLH(_position, _position + _direction, _up);
+}
+
+glm::mat4 Camera::getLookAtSky() const {
+	return glm::lookAtLH(glm::zero<glm::vec3>(), _direction, _up);
 }
 
 void Camera::update(float delta) {

@@ -20,10 +20,28 @@
 
 #version 330 core
 
+struct Atmosphere {
+    vec3 vSunDir;
+    vec3 vSunE;
+    vec3 vExtinction;
+    vec3 vRayleigh;
+    vec3 vMie;
+    vec3 vHGConstants;
+    vec2 vFog;
+};
+
+layout(std140) uniform global {
+    mat4 g_mWorldToView;
+    mat4 g_mWorldToClip;
+    mat4 g_mViewToWorld;
+    mat4 g_mViewToClip;
+    mat4 g_mClipToWorld;
+    mat4 g_mClipToView;
+    vec2 g_vScreenRes;
+    Atmosphere g_atmosphere;
+};
 uniform sampler2D g_sColorMap;
 uniform sampler2D g_sNormalMap;
-
-uniform vec2 g_vScreenRes;
 
 in vec2 pass_UV;
 

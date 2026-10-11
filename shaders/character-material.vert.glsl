@@ -22,8 +22,31 @@
 
 #define MAX_BONES 64
 
-uniform mat4 g_mLocalToView;
-uniform mat4 g_mViewToClip;
+struct Atmosphere {
+    vec3 vSunDir;
+    vec3 vSunE;
+    vec3 vExtinction;
+    vec3 vRayleigh;
+    vec3 vMie;
+    vec3 vHGConstants;
+    vec2 vFog;
+};
+
+layout(std140) uniform global {
+    mat4 g_mWorldToView;
+    mat4 g_mWorldToClip;
+    mat4 g_mViewToWorld;
+    mat4 g_mViewToClip;
+    mat4 g_mClipToWorld;
+    mat4 g_mClipToView;
+    vec2 g_vScreenRes;
+    Atmosphere g_atmosphere;
+};
+
+layout(std140) uniform model {
+    mat4 g_mLocalToWorld;
+    mat4 g_mWorldToLocal;
+};
 
 uniform mat4x3 GPU_skinning_matrices[MAX_BONES];
 
@@ -42,5 +65,5 @@ void main() {
     }
 
     pass_UV = in_UV0 * 1.0/4096.0;
-    gl_Position = g_mViewToClip * g_mLocalToView * mat4(mAnimationFactor) * vec4(in_Position, 1.0);
+    gl_Position = g_mWorldToClip * g_mLocalToWorld * mat4(mAnimationFactor) * vec4(in_Position, 1.0);
 }

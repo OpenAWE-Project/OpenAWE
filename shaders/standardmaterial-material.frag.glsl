@@ -20,8 +20,9 @@
 
 #version 330 core
 
-// Atmosphere
-uniform struct {
+#define PI 3.14159265358979323846264338327950288419716939937510
+
+struct Atmosphere {
     vec3 vSunDir;
     vec3 vSunE;
     vec3 vExtinction;
@@ -29,7 +30,18 @@ uniform struct {
     vec3 vMie;
     vec3 vHGConstants;
     vec2 vFog;
-} g_atmosphere;
+};
+
+layout(std140) uniform global {
+    mat4 g_mWorldToView;
+    mat4 g_mWorldToClip;
+    mat4 g_mViewToWorld;
+    mat4 g_mViewToClip;
+    mat4 g_mClipToWorld;
+    mat4 g_mClipToView;
+    vec2 g_vScreenRes;
+    Atmosphere g_atmosphere;
+};
 
 // Sunlight
 uniform struct {
@@ -42,10 +54,10 @@ uniform struct {
 uniform sampler2D g_sColorMap;
 uniform sampler2D g_sLightBuffer;
 
-uniform vec2 g_vScreenRes;
 uniform vec4 g_vColorMultiplier = vec4(1.0);
 
 in vec2 pass_UV;
+in vec3 pass_ViewPosition;
 
 out vec4 out_Color;
 out float out_Depth;
@@ -60,6 +72,13 @@ void main() {
 
     vec4 vLight = texture(g_sLightBuffer, vScreen);
 
+    float fPhase = dot(-g_atmosphere.vSunDir, normalize(-pass_ViewPosition));
+
+    float fMiePhase = g_atmosphere.vHGConstants.x / pow((g_atmosphere.vHGConstants.z * fPhase) + g_atmosphere.vHGConstants.y, 1.5);
+    float fRayleighPhase = (pow(fPhase, 2.0) + 1.0) * (3.0/16.0) * PI;
+
     out_Color.rgb = mix(vColor.rgb, vLight.rgb, min(vLight.a, 1.0f));
+    out_Color.rgb += g_atmosphere.vSunE * (fRayleighPhase * g_atmosphere.vRayleigh + fMiePhase * g_atmosphere.vMie);
+
     out_Color.a = 1.0;
 }

@@ -20,8 +20,32 @@
 
 #version 330
 
-uniform mat4 g_mLocalToView;
-uniform mat4 g_mViewToClip;
+struct Atmosphere {
+    vec3 vSunDir;
+    vec3 vSunE;
+    vec3 vExtinction;
+    vec3 vRayleigh;
+    vec3 vMie;
+    vec3 vHGConstants;
+    vec2 vFog;
+};
+
+layout(std140) uniform global {
+    mat4 g_mWorldToView;
+    mat4 g_mWorldToClip;
+    mat4 g_mViewToWorld;
+    mat4 g_mViewToClip;
+    mat4 g_mClipToWorld;
+    mat4 g_mClipToView;
+    vec2 g_vScreenRes;
+    Atmosphere g_atmosphere;
+};
+
+layout(std140) uniform model {
+    mat4 g_mLocalToWorld;
+    mat4 g_mWorldToLocal;
+};
+
 uniform vec4 g_vTexCoordScale1;
 uniform vec4 g_vTexCoordScale2;
 
@@ -52,13 +76,15 @@ void main() {
     pass_UV2 = vTexCoords2.xy;
     pass_BlendUV = vTexCoords2.zw;
 
-    pass_Normal.xyz = mat3(g_mLocalToView) * in_Normal.xyz;
+    mat4 mLocalToView = g_mLocalToWorld * g_mWorldToView;
+
+    pass_Normal.xyz = mat3(mLocalToView) * in_Normal.xyz;
     pass_Normal.w = 1.0;
     pass_Tangent0 = 2.0 * in_Tangent0 - 1.0;
     pass_Tangent1 = 2.0 * in_Tangent1 - 1.0;
     pass_Tangent2 = 2.0 * in_Tangent2 - 1.0;
 
-    pass_ViewPosition = g_mLocalToView * vec4(in_Position, 1.0);
+    pass_ViewPosition = mLocalToView * vec4(in_Position, 1.0);
     pass_ClipPosition = g_mViewToClip * pass_ViewPosition;
     gl_Position = pass_ClipPosition;
 }

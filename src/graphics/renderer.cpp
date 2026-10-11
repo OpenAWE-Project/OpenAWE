@@ -162,5 +162,46 @@ void Graphics::Renderer::setSky(Graphics::SkyPtr sky) {
 
 void Graphics::Renderer::update() {
 	_view = _camera ? (*_camera).get().getLookAt() : glm::identity<glm::mat4>();
+	const auto viewSky = _camera ? (*_camera).get().getLookAtSky() : glm::identity<glm::mat4>();
 	_frustrum.setViewMatrix(_view);
+
+	if (!_globalBuffer)
+		_globalBuffer = createBuffer(kUniformBuffer, false, "Global Buffer");
+	if (!_globalSkyBuffer)
+		_globalSkyBuffer = createBuffer(kUniformBuffer, false, "Global Sky Buffer");
+
+	if (!_cloudParamsBuffer) {
+		_cloudParamsBuffer = createBuffer(kUniformBuffer, false, "Cloud Params Buffer");
+	}
+
+	_cloudParamsBuffer->write(std140::pack(cloudParams));
+
+	_sunDir = _sky->getSunDir();
+
+	const auto hgConstants = AWE::generateHenyeyGreensteinConstants(_hgPhase);
+
+	global.viewToClip = _projection;
+	global.viewToWorld = glm::inverse(_view);
+	global.worldToView = _view;
+	global.worldToClip = _projection * _view;
+	global.clipToView = glm::inverse(_projection);
+	global.clipToWorld = global.viewToWorld * global.clipToView;
+	global.screenRes = {1920, 1080};
+	global.atmosphers.sunDir = _sunDir;
+	global.atmosphers.rayleigh = _rayleigh;
+	global.atmosphers.mie = _mie;
+	global.atmosphers.hgConstants[0] = hgConstants.at(0);
+	global.atmosphers.hgConstants[1] = hgConstants.at(1);
+	global.atmosphers.hgConstants[2] = hgConstants.at(2);
+
+	globalSky = global;
+	globalSky.worldToView = viewSky;
+	globalSky.viewToWorld = glm::inverse(viewSky);
+	globalSky.worldToClip = _projection * viewSky;
+	globalSky.clipToView = globalSky.viewToWorld * globalSky.clipToView;
+
+	cloudParams.cloudThreshold = _ambiance.getCloudThreshold();
+
+	_globalBuffer->write(std140::pack(global));
+	_globalSkyBuffer->write(std140::pack(globalSky));
 }
