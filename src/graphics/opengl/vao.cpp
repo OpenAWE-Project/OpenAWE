@@ -38,8 +38,9 @@ struct VAOAttribute {
 VAO::VAO(TaskQueuePtr &queue, ProgramPtr program, const std::string &label) :
 	_queue(queue),
 	_program(program),
-	_id(std::make_shared<GLuint>(0)) {
-	_queue->push([=, id = _id] {
+	_id(std::make_shared<GLuint>(0)),
+	_label(label) {
+	_queue->push([id = _id, label] {
 		glGenVertexArrays(1, id.get());
 		labelObject(*id, ObjectType::kVertexArray, label);
 	});
@@ -141,12 +142,20 @@ VAO::addAttributes(const std::vector<VertexAttribute> &vertexAttributes, BufferP
 		localOffset += totalSize;
 	}
 
-	_queue->push([=, id = _id]() {
+	_queue->push([id = _id, program = _program, label = _label, vertexData, attributes, stride, offset, perInstance]() {
 		glBindVertexArray(*id);
-		std::static_pointer_cast<Graphics::OpenGL::VBO>(vertexData)->bind();
+		const auto vbo = std::static_pointer_cast<Graphics::OpenGL::VBO>(vertexData);
+		vbo->bind();
+
+		const auto bufferSize = vbo->getBufferSize();
+		if (static_cast<unsigned long long>(offset) + stride > bufferSize)
+			throw CreateException(
+					"VAO '{}': attribute offset {} + stride {} exceeds vertex buffer size {}",
+					label, offset, stride, bufferSize
+			);
 
 		for (const auto &attribute: attributes) {
-			const auto index = _program->getAttributeLocation(attribute.attributeType);
+			const auto index = program->getAttributeLocation(attribute.attributeType);
 			if (index) {
 				glEnableVertexAttribArray(*index);
 
