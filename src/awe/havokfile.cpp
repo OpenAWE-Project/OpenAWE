@@ -166,11 +166,18 @@ HavokFile::HavokFile(Common::ReadStream &binhkx) {
 	binhkx.seek(contentsSection.absoluteDataStart + contentsSection.virtualFixupsOffset);
 	while (!binhkx.eos()) {
 		uint32_t address = binhkx.readUint32LE();
-		uint32_t section = binhkx.readUint32LE();
 
+		// The 0xFFFFFFFF entry terminator can sit flush against EOF when the
+		// exports/imports tables are empty, so it has to be detected before
+		// reading the section dword, which would land exactly on EOF.
 		if (address == 0xFFFFFFFF)
 			break;
+		if (binhkx.eos()) {
+			spdlog::warn("Havok file has a truncated virtual fixup table, ignoring remaining entries");
+			break;
+		}
 
+		uint32_t section = binhkx.readUint32LE();
 		uint32_t nameAddress = binhkx.readUint32LE();
 		std::string name = classNames[nameAddress];
 
