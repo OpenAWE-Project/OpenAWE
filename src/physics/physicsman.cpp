@@ -21,6 +21,8 @@
 #include "physicsman.h"
 #include "src/physics/debugdraw.h"
 
+#include <algorithm>
+
 namespace Physics {
 
 PhysicsManager::PhysicsManager() : _debugDraw(false), _configuration(new btDefaultCollisionConfiguration()) {
@@ -37,6 +39,17 @@ PhysicsManager::PhysicsManager() : _debugDraw(false), _configuration(new btDefau
 	_debugDrawInterface = std::make_unique<DebugDraw>();
 
 	_world->setGravity(btVector3(0, -9.8, 0));
+	/*
+	 * Skip the per-step AABB refresh of sleeping/static collision objects.
+	 *
+	 * btCollisionWorld defaults m_forceUpdateAllAabbs to true, so updateAabbs()
+	 * refreshes the AABB of every collision object on every substep. For a world
+	 * dominated by static level geometry this is pure churn: each setAabb on a
+	 * sleeping body bounces it through the btDbvtBroadphase trees and re-pairs
+	 * it. With this off, updateAabbs() only touches active objects; static
+	 * objects keep the AABB they got at addCollisionObject time.
+	 */
+	_world->setForceUpdateAllAabbs(false);
 	_world->setDebugDrawer(_debugDrawInterface.get());
 	_world->getDebugDrawer()->setDebugMode(
 		btIDebugDraw::DBG_DrawWireframe |
@@ -50,7 +63,17 @@ void PhysicsManager::setDebugDraw(bool enable) {
 }
 
 void PhysicsManager::update(float delta) {
-	_world->stepSimulation(delta, 20);
+	/*
+	 * Clamp the simulation step. stepSimulation(delta, 20) fed the frame delta
+	 * back into the simulation: any frame slower than 1/60s ran the maximum 20
+	 * Bullet substeps (expensive with heavy worlds), making the next frame even
+	 * slower - a runaway that froze rendering. Clamping the input delta and
+	 * capping substeps to 1 (Bullet's internal accumulator carries the surplus
+	 * to the next call) breaks the feedback loop: physics advances at most
+	 * 1/60s of sim time per frame regardless of wall-clock hiccups. Note this
+	 * trades slow-motion simulation on machines that cannot sustain 60 fps.
+	 */
+	_world->stepSimulation(std::min(delta, 1.0f / 60.0f), 1);
 	if (_debugDraw)
 		_world->debugDrawWorld();
 }
