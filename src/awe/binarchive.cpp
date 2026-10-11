@@ -79,6 +79,13 @@ void BINArchive::load(Common::ReadStream &bin) {
 		offset += entry.size;
 	}
 
+	if (bin.pos() > fileSize)
+		throw Common::Exception(
+				"Position {} exceeds file size {}",
+				bin.pos(),
+				fileSize
+		);
+
 	size_t compressedSize = fileSize - bin.pos();
 	size_t decompressedSize = offset;
 

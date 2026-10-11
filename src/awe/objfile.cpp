@@ -46,6 +46,9 @@ AWE::OBJFile::OBJFile(Common::ReadStream *obj) : _obj(obj) {
 	_name = Common::toLower(std::regex_replace(strings[0], std::regex("\\.rfx"), ""));
 
 	uint32_t numPrograms = obj->readUint32LE();
+	if (numPrograms > obj->size() / 8)
+		throw std::runtime_error("Invalid obj program count");
+
 	_programs.resize(numPrograms);
 	for (auto &program : _programs) {
 		uint32_t programNameLength = obj->readUint32LE();

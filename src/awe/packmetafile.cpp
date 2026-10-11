@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <regex>
+#include <stdexcept>
 
 #include "src/awe/path.h"
 #include "src/awe/types.h"
@@ -42,6 +43,9 @@ PACKMETAFile::PACKMETAFile(Common::ReadStream &packmeta) {
 	uint32_t numElements = packmeta.readUint32LE();
 	packmeta.skip(8);
 	uint32_t nameSize = packmeta.readUint32LE();
+
+	if (numElements > packmeta.size() / 4)
+		throw std::runtime_error("Invalid packmeta element count");
 
 	std::vector<FileEntry> fileEntries;
 	fileEntries.resize(numElements);

@@ -19,6 +19,7 @@
  */
 
 #include <bitset>
+#include <spdlog/spdlog.h>
 
 #include "src/common/exception.h"
 #include "src/common/strutil.h"
@@ -49,10 +50,35 @@ void BINMSHFile::load(Common::ReadStream &binmsh) {
 
 	const uint32_t flags = binmsh.readUint32LE();
 
+	// Bounds guard (T16 + orchestrator fix): the declared vertex buffer is read
+	// FIRST, before the index buffer; the level_05 "read 0x2000 at 0x6020
+	// (size 0x8018)" OOBs are the vertex read on truncated assets. Check both
+	// reads against the remaining stream bytes and fail loudly, never silent.
+	const size_t bytesBeforeVertex = binmsh.pos() <= binmsh.size() ? binmsh.size() - binmsh.pos() : 0;
+	if (vertexBufferSize > bytesBeforeVertex) {
+		spdlog::warn(
+			"BINMSH vertex buffer is truncated (declares 0x{:x} bytes, only 0x{:x} remain)",
+			vertexBufferSize,
+			bytesBeforeVertex
+		);
+		throw CreateException("Truncated BINMSH vertex buffer");
+	}
+
 	_vertexData.resize(vertexBufferSize);
 	binmsh.read(_vertexData.data(), _vertexData.size());
 
-	_indexData.resize(indicesCount * indicesType);
+	const uint64_t indexBufferSize = static_cast<uint64_t>(indicesCount) * indicesType;
+	const size_t remainingBytes = binmsh.pos() <= binmsh.size() ? binmsh.size() - binmsh.pos() : 0;
+	if (indexBufferSize > remainingBytes) {
+		spdlog::warn(
+			"BINMSH index buffer is truncated (declares 0x{:x} bytes, only 0x{:x} remain)",
+			indexBufferSize,
+			remainingBytes
+		);
+		throw CreateException("Truncated BINMSH index buffer");
+	}
+
+	_indexData.resize(static_cast<size_t>(indexBufferSize));
 	binmsh.read(_indexData.data(), _indexData.size());
 
 	uint32_t boneCount = binmsh.readUint32LE();
@@ -237,12 +263,19 @@ void BINMSHFile::load(Common::ReadStream &binmsh) {
 			}
 		}
 
+		if (i >= materials.size())
+			throw CreateException("Material index {} exceeds number of materials {}", i, materials.size());
+
 		mesh.material = materials[i];
 
 		const uint32_t boneMapCount = binmsh.readUint32LE();
 		mesh.boneMap.resize(boneMapCount);
-		for (auto &boneName: mesh.boneMap)
-			boneName = boneNames[binmsh.readByte()];
+		for (auto &boneName: mesh.boneMap) {
+			const byte boneIndex = binmsh.readByte();
+			if (boneIndex >= boneNames.size())
+				throw CreateException("Bone index {} exceeds number of bone names {}", boneIndex, boneNames.size());
+			boneName = boneNames[boneIndex];
+		}
 
 		i++;
 	}

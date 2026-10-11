@@ -36,6 +36,9 @@ static const uint32_t DDPF_YUV         = 0x00000200; // Used in some older DDS f
 static const uint32_t DDPF_LUMINANCE   = 0x00020000; // Used in some older DDS files for single channel color uncompressed data (e.g., grayscale)
 static const uint32_t DDPF_RGBA       =  DDPF_RGB | DDPF_ALPHAPIXELS; // Texture contains uncompressed RGBA/ARGB data
 
+static const uint32_t kMaxTextureDim = 16384;
+static const uint32_t kMaxMipMapCount = 32;
+
 namespace Graphics {
 
 DDS::DDS(Common::ReadStream *dds) {
@@ -100,6 +103,12 @@ DDS::DDS(Common::ReadStream *dds) {
 		throw std::runtime_error("Unsupported dds pixel format");
 
 	dds->skip(20);
+
+	if (width > kMaxTextureDim || height > kMaxTextureDim)
+		throw std::runtime_error("Invalid dds dimensions");
+
+	if (mipMapCount > kMaxMipMapCount)
+		throw std::runtime_error("Invalid dds mipmap count");
 
 	_layers.resize(mipMapCount);
 	for (auto &mipMap: _layers) {

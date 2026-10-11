@@ -32,6 +32,9 @@ COLLISIONSFile::COLLISIONSFile(Common::ReadStream &collisions) {
 	uint32_t numVertices = collisions.readUint32LE();
 	uint32_t numIndices = collisions.readUint32LE();
 
+	if (numVertices > collisions.size() / 12)
+		throw Common::Exception("Invalid collisions vertex count {}", numVertices);
+
 	_positions.resize(numVertices);
 	for (auto &position : _positions) {
 		position.x = collisions.readIEEEFloatLE();

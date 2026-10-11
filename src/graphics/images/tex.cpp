@@ -24,6 +24,8 @@
 
 namespace Graphics {
 
+static const uint32_t kMaxMipmapCount = 32;
+
 TEX::TEX(Common::ReadStream &tex) {
 	const uint32_t type = tex.readUint32LE();
 	const uint32_t format = tex.readUint32LE();
@@ -87,11 +89,16 @@ TEX::TEX(Common::ReadStream &tex) {
 			throw std::runtime_error("Invalid texture format");
 	}
 
+	if (mipmapCount > kMaxMipmapCount)
+		throw std::runtime_error("Invalid texture mipmap count");
+
 	_layers.resize(1);
 	std::vector<Mipmap> &mipmaps = _layers;
 	mipmaps.resize(mipmapCount);
 	for (auto &mipmap : mipmaps) {
 		const unsigned int imageSize = getImageSize(width, height, depth);
+		if (imageSize > tex.size())
+			throw std::runtime_error("Invalid texture image size");
 
 		mipmap.width = width;
 		mipmap.height = height;

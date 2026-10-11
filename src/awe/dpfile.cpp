@@ -20,6 +20,9 @@
 
 #include <iostream>
 #include <algorithm>
+
+#include <spdlog/spdlog.h>
+
 #include "dpfile.h"
 
 DPFile::DPFile(Common::ReadStream *dp) : _dp(dp) {
@@ -47,6 +50,9 @@ DPFile::DPFile(Common::ReadStream *dp) : _dp(dp) {
 		default:
 			throw std::runtime_error("Not supported header");
 	}
+
+	if (numValues > _dp->size() / 4)
+		throw std::runtime_error("Invalid dp value count");
 
 	_valueOffsets.resize(numValues);
 	for (auto &offset : _valueOffsets) {
@@ -103,8 +109,15 @@ std::vector<uint32_t> DPFile::getValues(uint32_t offset, unsigned int count) {
 	if (overlap)
 		relativeOffset += 4;
 
-	/*if (std::find(std::begin(_valueOffsets), std::end(_valueOffsets), relativeOffset) == _valueOffsets.end())
-		return values;*/
+	// Bounds guard: dp_task.bin files can reference offsets beyond their data
+	// section (e.g. level_05 ambience_bridge_rivercanyon: offset 0x80 with
+	// dataSize 48). Reading them crashed the thread pool with a stream OOB.
+	const int64_t absolute = static_cast<int64_t>(_dp->size()) - _dataSize + relativeOffset;
+	if (absolute < 0 || absolute + static_cast<int64_t>(count) * 4 > static_cast<int64_t>(_dp->size())) {
+		spdlog::warn("DPFile: value offset 0x{:x} (absolute 0x{:x}) out of range (size 0x{:x})",
+			offset, absolute, _dp->size());
+		return values;
+	}
 
 	_dp->seek(-static_cast<int>(_dataSize) + relativeOffset, Common::ReadStream::END);
 	for (auto &value : values) {
@@ -141,6 +154,14 @@ std::vector<glm::vec2> DPFile::getPositions2D(uint32_t offset, unsigned int coun
 	if (overlap)
 		relativeOffset += 4;
 
+	// Bounds guard (see getValues): out-of-range dp offsets must not crash the stream.
+	const int64_t absolute = static_cast<int64_t>(_dp->size()) - _dataSize + relativeOffset;
+	if (absolute < 0 || absolute + static_cast<int64_t>(count) * 8 > static_cast<int64_t>(_dp->size())) {
+		spdlog::warn("DPFile: getPositions2D offset 0x{:x} (absolute 0x{:x}) out of range (size 0x{:x})",
+			offset, absolute, _dp->size());
+		return positions;
+	}
+
 	_dp->seek(-static_cast<int>(_dataSize) + relativeOffset, Common::ReadStream::END);
 	for (auto &position : positions) {
 		position.x = _dp->readIEEEFloatLE();
@@ -157,6 +178,14 @@ std::vector<GID> DPFile::getGIDs(uint32_t offset, unsigned int count) {
 	uint32_t relativeOffset = (offset >> 8u) * 8;
 	if (overlap)
 		relativeOffset += 4;
+
+	// Bounds guard (see getValues).
+	const int64_t absolute = static_cast<int64_t>(_dp->size()) - _dataSize + relativeOffset;
+	if (absolute < 0 || absolute + static_cast<int64_t>(count) * 16 > static_cast<int64_t>(_dp->size())) {
+		spdlog::warn("DPFile: getGIDs offset 0x{:x} (absolute 0x{:x}) out of range (size 0x{:x})",
+			offset, absolute, _dp->size());
+		return gids;
+	}
 
 	_dp->seek(-static_cast<int>(_dataSize) + static_cast<int>(relativeOffset), Common::ReadStream::END);
 	for (auto &gid: gids) {
@@ -175,6 +204,14 @@ std::vector<DPFile::ScriptMetadata> DPFile::getScriptMetadata(uint32_t offset, u
 	int32_t relativeOffset = (offset >> 8u) * 8;
 	if (overlap)
 		relativeOffset += 4;
+
+	// Bounds guard (see getValues): out-of-range dp offsets must not crash the stream.
+	const int64_t absolute = static_cast<int64_t>(_dp->size()) - _dataSize + relativeOffset;
+	if (absolute < 0 || absolute + static_cast<int64_t>(count) * 8 > static_cast<int64_t>(_dp->size())) {
+		spdlog::warn("DPFile: getScriptMetadata offset 0x{:x} (absolute 0x{:x}) out of range (size 0x{:x})",
+			offset, absolute, _dp->size());
+		return metadata;
+	}
 
 	_dp->seek(-static_cast<int>(_dataSize) + relativeOffset, Common::ReadStream::END);
 
