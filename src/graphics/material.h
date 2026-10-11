@@ -30,6 +30,7 @@
 
 #include "src/common/uuid.h"
 
+#include "src/graphics/buffer.h"
 #include "src/graphics/texture.h"
 #include "src/graphics/textureman.h"
 
