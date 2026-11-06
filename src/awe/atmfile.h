@@ -22,6 +22,9 @@
 #define OPENAWE_ATMFILE_H
 
 #include <memory>
+#include <array>
+
+#include <glm/glm.hpp>
 
 #include "src/common/readstream.h"
 
