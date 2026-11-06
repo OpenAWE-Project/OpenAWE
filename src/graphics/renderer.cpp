@@ -30,7 +30,7 @@
 
 Graphics::Renderer::Renderer() {
 	// Setup initial projection matrix
-	_projection = glm::perspectiveFov(45.0f, 1920.0f, 1080.0f, 1.0f, 10000.0f);
+	_projection = glm::perspectiveFovLH(45.0f, 1920.0f, 1080.0f, 1.0f, 10000.0f);
 
 	// Initialize frustrum with projection matrix
 	_frustrum.setProjectionMatrix(_projection);
