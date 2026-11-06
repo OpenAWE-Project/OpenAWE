@@ -258,6 +258,7 @@ Renderer::Renderer(Platform::GLContext &window, const std::string &shaderDirecto
 	}
 
 	_noiseMap = std::make_unique<Texture>(_loadingTasks, GL_TEXTURE_3D, "noise_map");
+	_noiseMap->setWrapMode(WrapMode::kRepeat, WrapMode::kRepeat, WrapMode::kRepeat);
 	_noiseMap->load(std::move(noiseSurface));
 
 	// Initialize basis func map
