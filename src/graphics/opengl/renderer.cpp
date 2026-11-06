@@ -373,7 +373,6 @@ void Renderer::drawWorld(const std::string &stage) {
 	std::fill(placeholderMatrices.begin(), placeholderMatrices.end(), glm::identity<glm::mat4x3>());
 
 	const auto &defaultShader = getProgram("standardmaterial", stage, 0);
-	static const glm::mat4 mirrorZ = glm::scale(glm::vec3(1, 1, -1));
 
 	const auto screenResolution = glm::vec2(1920, 1080);
 
@@ -439,7 +438,7 @@ void Renderer::drawWorld(const std::string &stage) {
 			if (!task.model->isVisible())
 				continue;
 
-			glm::mat4 m = mirrorZ * task.model->getTransform();
+			glm::mat4 m = task.model->getTransform();
 			glm::mat4 mv = _view * m;
 			glm::mat4 vm = task.model->getInverseTransform() * viewToWorldMat;
 			glm::mat4 mvp = vp * m;
@@ -645,7 +644,6 @@ void Renderer::drawLights() {
 
 	const glm::mat4 vp = _projection * _view;
 	const glm::mat4 clipToView = glm::inverse(_projection);
-	const glm::mat4 mirrorZ = glm::scale(glm::vec3(1, 1, -1));
 	const GLint localToClipIndex = *pointlightProgram->getUniformLocation("g_mLocalToClip");
 	const GLint localToClipStencilIndex = *stencilProgram->getUniformLocation("g_mLocalToClip");
 	const GLint clipToViewIndex = *pointlightProgram->getUniformLocation("g_mClipToView");
@@ -665,7 +663,7 @@ void Renderer::drawLights() {
 		if (!light->isEnabled())
 			continue;
 
-		if (!_frustrum.test(Common::BoundSphere{mirrorZ * light->getTransform()[3], light->getRange() * 1.075f}))
+		if (!_frustrum.test(Common::BoundSphere{light->getTransform()[3], light->getRange() * 1.075f}))
 			continue;
 
 		pushDebugMarker(light->getLabel());
@@ -686,7 +684,7 @@ void Renderer::drawLights() {
 		glStencilFuncSeparate(GL_BACK, GL_ALWAYS, 1, 0xFF);
 		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_REPLACE, GL_KEEP);
 
-		stencilProgram->setUniformMatrix4f(localToClipStencilIndex, vp * mirrorZ * light->getTransform());
+		stencilProgram->setUniformMatrix4f(localToClipStencilIndex, vp * light->getTransform());
 
 		glDrawElements(
 				GL_TRIANGLES,
@@ -716,10 +714,10 @@ void Renderer::drawLights() {
 		_normalTexture->bind();
 		pointlightProgram->setUniformSampler(normalBufferIndex, 1);
 
-		const auto cameraLightPositionView = _view * mirrorZ * light->getTransform()[3];
+		const auto cameraLightPositionView = _view * light->getTransform()[3];
 
 		pointlightProgram->setUniform2f(screenResIndex, glm::vec2(1920, 1080));
-		pointlightProgram->setUniformMatrix4f(localToClipIndex, vp * mirrorZ * light->getTransform());
+		pointlightProgram->setUniformMatrix4f(localToClipIndex, vp * light->getTransform());
 		pointlightProgram->setUniformMatrix4f(clipToViewIndex, clipToView);
 		pointlightProgram->setUniform3f(lightPositionIndex, cameraLightPositionView);
 		pointlightProgram->setUniform3f(lightColorIndex, light->getColor() * light->getIntensity());
